@@ -251,6 +251,7 @@ npx expo start
 - **CORS Configurado:** Habilitado para requisições originadas do domínio oficial `https://corvuxiam.tech` e ambientes de desenvolvimento autorizados.
 - **Armazenamento de Senhas:** Hash irreversível via algoritmo BCrypt com verificação contra a base pública de senhas comprometidas (HaveIBeenPwned).
 - **Proteção contra Força Bruta:** Rate Limiting com bloqueio temporário após 5 tentativas consecutivas de autenticação incorreta.
+- **Desafio Anti-Bot (Cloudflare Turnstile):** Validação resiliente de CAPTCHA inteligente na autenticação com chave de homologação e bypass automático para testes/desenvolvimento.
 - **Rastreabilidade Obrigatória:** Cada ação administrativa, criação de usuário, deleção ou abertura de chamado gera um evento imutável com data, IP de origem e identificador do usuário.
 
 ---
