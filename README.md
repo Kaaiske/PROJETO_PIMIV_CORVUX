@@ -186,12 +186,43 @@ dotnet run
 cp .env.example .env
 ```
 
-2. Inicie os containers:
+2. Inicie os containers com auto-restart e migração resiliente:
 ```bash
 docker compose up --build -d
 ```
-* O backend e o banco SQL Server 2022 iniciarão automaticamente.
-* Aplicação Web: `http://localhost:8080`
+* O backend (.NET 8) e o banco SQL Server 2022 iniciarão automaticamente.
+* Aplicação Web no host: `http://localhost:8080` (redirecionada via Nginx para `https://corvuxiam.tech`).
+
+---
+
+### Opção 3: Deploy em Servidor Linux (VPS com Nginx e SSL)
+
+Para expor a aplicação no domínio oficial [https://corvuxiam.tech](https://corvuxiam.tech):
+
+1. Configure o Nginx como Proxy Reverso em `/etc/nginx/sites-available/corvuxiam.tech`:
+```nginx
+server {
+    server_name corvuxiam.tech www.corvuxiam.tech;
+
+    location / {
+        proxy_pass http://localhost:8080;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection keep-alive;
+        proxy_set_header Host $host;
+        proxy_cache_bypass $http_upgrade;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }
+}
+```
+
+2. Ative o site e emita o certificado HTTPS:
+```bash
+ln -s /etc/nginx/sites-available/corvuxiam.tech /etc/nginx/sites-enabled/
+nginx -t && systemctl reload nginx
+snap install --classic certbot && certbot --nginx -d corvuxiam.tech -d www.corvuxiam.tech
+```
 
 ---
 

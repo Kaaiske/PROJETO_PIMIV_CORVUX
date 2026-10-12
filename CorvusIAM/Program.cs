@@ -228,7 +228,26 @@ using (var scope = app.Services.CreateScope())
     var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
     if (context.Database.IsRelational())
     {
-        context.Database.Migrate();
+        int retries = 10;
+        while (retries > 0)
+        {
+            try
+            {
+                context.Database.Migrate();
+                break;
+            }
+            catch (Exception ex)
+            {
+                retries--;
+                if (retries == 0)
+                {
+                    Log.Error(ex, "Erro ao aplicar migrações após múltiplas tentativas.");
+                    throw;
+                }
+                Log.Warning("Aguardando banco de dados iniciar... Restam {Retries} tentativas.", retries);
+                System.Threading.Thread.Sleep(3000);
+            }
+        }
     }
 }
 
