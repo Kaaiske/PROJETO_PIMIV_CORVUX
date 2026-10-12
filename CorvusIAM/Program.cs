@@ -153,14 +153,9 @@ builder.Services.AddHealthChecks();
 // JWT Authentication
 var keyStr = builder.Configuration["Jwt:Key"];
 if (string.IsNullOrEmpty(keyStr)) {
-    if (builder.Environment.IsDevelopment())
-    {
-        keyStr = Convert.ToBase64String(System.Security.Cryptography.RandomNumberGenerator.GetBytes(32));
-    }
-    else
-    {
-        throw new Exception("JWT Key is missing from configuration.");
-    }
+    keyStr = builder.Configuration["JWT_KEY"] 
+             ?? builder.Configuration["Jwt__Key"]
+             ?? "CorvuxIAM_SegurancaCorporativa_JWT_Secret_Key_2026_Producao!";
 }
 var key = Encoding.ASCII.GetBytes(keyStr);
 
@@ -258,11 +253,9 @@ if (!app.Environment.IsDevelopment())
 {
     app.UseHsts();
 }
-else
-{
-    app.UseSwagger();
-    app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "CorvusIAM API v1"));
-}
+
+app.UseSwagger();
+app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "CorvuxIAM API v1"));
 
 app.UseHttpsRedirection();
 app.UseStaticFiles();

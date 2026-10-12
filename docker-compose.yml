@@ -10,8 +10,11 @@ services:
       - ASPNETCORE_ENVIRONMENT=Production
       - ASPNETCORE_HTTP_PORTS=8080
       - ASPNETCORE_URLS=http://+:8080
-      - ConnectionStrings__SqlServerConnection=Server=sqlserver;Database=CorvusIAMDb;User Id=sa;Password=${SQL_SA_PASSWORD};TrustServerCertificate=True;
+      - ConnectionStrings__SqlServerConnection=Server=sqlserver;Database=CorvusIAMDb;User Id=sa;Password=${SQL_SA_PASSWORD:-CorvuxAdmin@2026!};TrustServerCertificate=True;
       - DatabaseProvider=SqlServer
+      - Jwt__Key=${JWT_KEY:-CorvuxIAM_SegurancaCorporativa_JWT_Secret_Key_2026_Producao!}
+      - Jwt__Issuer=CorvusIAM
+      - Jwt__Audience=CorvusIAMUsers
     restart: unless-stopped
     depends_on:
       - sqlserver
@@ -22,5 +25,5 @@ services:
       - "1433:1433"
     environment:
       - ACCEPT_EULA=Y
-      - SA_PASSWORD=${SQL_SA_PASSWORD}
+      - SA_PASSWORD=${SQL_SA_PASSWORD:-CorvuxAdmin@2026!}
     restart: unless-stopped
