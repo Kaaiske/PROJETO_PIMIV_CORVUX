@@ -2,9 +2,11 @@ import axios from 'axios';
 import * as SecureStore from 'expo-secure-store';
 import { Platform } from 'react-native';
 
-// Use EXPO_PUBLIC_API_URL for a physical device or a deployed API.
+// Use EXPO_PUBLIC_API_URL or production domain https://corvuxiam.tech
 const API_BASE_URL = process.env.EXPO_PUBLIC_API_URL ||
-  (Platform.OS === 'android' ? 'http://10.0.2.2:5052' : 'http://localhost:5052');
+  (process.env.NODE_ENV === 'production'
+    ? 'https://corvuxiam.tech'
+    : (Platform.OS === 'android' ? 'http://10.0.2.2:5052' : 'http://localhost:5052'));
 
 const api = axios.create({
   baseURL: API_BASE_URL,
