@@ -8,5 +8,10 @@ namespace CorvusIAM.Controllers
         {
             return RedirectToAction("Login", "Auth");
         }
+
+        public IActionResult Error()
+        {
+            return View("~/Views/Shared/Error.cshtml", new CorvusIAM.Models.ErrorViewModel());
+        }
     }
 }

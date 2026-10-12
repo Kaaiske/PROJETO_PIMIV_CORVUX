@@ -95,6 +95,9 @@ builder.Services.AddCors(options =>
     });
 });
 
+// Memory Cache
+builder.Services.AddMemoryCache();
+
 // Add services to the container.
 builder.Services.AddControllersWithViews(options =>
 {
