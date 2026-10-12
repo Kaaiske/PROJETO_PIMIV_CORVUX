@@ -1,0 +1,295 @@
+@model CorvusIAM.Controllers.PortalController.MinhaContaViewModel
+@{ 
+    Layout = "_Layout"; 
+    ViewData["Title"] = "Portal do Colaborador"; 
+}
+
+<div class="mb-[24px]">
+    <h1 class="text-[16px] font-[600] text-gray-900 dark:text-white flex items-center gap-2">
+        <i class="ph ph-identification-badge text-brand-500"></i> Olá, @Model.Usuario.Nome.Split(' ')[0]!
+    </h1>
+    <p class="text-[12px] text-gray-500 dark:text-gray-400 mt-1">Bem-vindo ao seu portal de autoatendimento.</p>
+</div>
+
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-[24px]">
+    <!-- Dossiê Pessoal -->
+    <div class="bento-card bg-white dark:bg-dark-card border border-gray-200 dark:border-dark-border rounded-[6px] p-[24px]">
+        <h3 class="text-[12px] font-[600] text-gray-500 dark:text-gray-400 uppercase tracking-[0.05em] flex items-center gap-2 m-0 mb-[16px] border-b border-gray-100 dark:border-dark-border pb-[12px]">
+            <i class="ph ph-user-circle text-brand-500 text-[16px]"></i> Meu Perfil Corporativo
+        </h3>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-[16px]">
+            <div>
+                <div class="text-[11px] font-[600] text-gray-500 uppercase tracking-[0.05em] mb-1">Nome Completo</div>
+                <div class="text-[13px] font-[500] text-gray-900 dark:text-gray-100">@Model.Usuario.Nome</div>
+            </div>
+            <div>
+                <div class="text-[11px] font-[600] text-gray-500 uppercase tracking-[0.05em] mb-1">E-mail Corporativo</div>
+                <div class="text-[13px] font-mono text-brand-600 dark:text-brand-400">@Model.Usuario.Email</div>
+            </div>
+            <div>
+                <div class="text-[11px] font-[600] text-gray-500 uppercase tracking-[0.05em] mb-1">Cargo</div>
+                <div class="text-[13px] text-gray-700 dark:text-gray-300">@Model.Usuario.Cargo</div>
+            </div>
+            <div>
+                <div class="text-[11px] font-[600] text-gray-500 uppercase tracking-[0.05em] mb-1">Departamento</div>
+                <div class="text-[13px] text-gray-700 dark:text-gray-300">@Model.Usuario.Departamento</div>
+            </div>
+            <div>
+                <div class="text-[11px] font-[600] text-gray-500 uppercase tracking-[0.05em] mb-1">Data de Admissão</div>
+                <div class="text-[13px] text-gray-700 dark:text-gray-300">@(Model.Usuario.DataContratacao?.ToString("dd/MM/yyyy") ?? "-")</div>
+            </div>
+            <div>
+                <div class="text-[11px] font-[600] text-gray-500 uppercase tracking-[0.05em] mb-1">Perfil de Acesso</div>
+                <div>
+                    <span class="bg-brand-500/10 text-brand-600 dark:text-brand-400 border border-brand-500/20 px-2 py-0.5 rounded-[4px] text-[11px] font-[600]">
+                        @ViewData["Role"]
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Segurança e Senha -->
+    <div class="bento-card bg-white dark:bg-dark-card border border-gray-200 dark:border-dark-border rounded-[6px] p-[24px] flex flex-col items-center">
+        <h3 class="text-[12px] font-[600] text-gray-500 dark:text-gray-400 uppercase tracking-[0.05em] flex items-center gap-2 m-0 mb-[16px] border-b border-gray-100 dark:border-dark-border pb-[12px] w-full text-left">
+            <i class="ph ph-shield-check text-brand-500 text-[16px]"></i> Segurança (Alterar Senha)
+        </h3>
+        
+        <div id="formSenhaContainer" class="w-full max-w-sm mt-2">
+            <p class="text-[12px] text-gray-500 mb-[16px] text-center">É recomendado trocar sua senha a cada 90 dias. Utilize senhas fortes.</p>
+            <form onsubmit="alterarSenha(event)" class="flex flex-col gap-3">
+                <input type="password" id="senhaAtual" placeholder="Senha Atual" required class="w-full bg-gray-50 dark:bg-dark-bg border border-gray-200 dark:border-dark-border text-gray-900 dark:text-gray-100 text-[13px] rounded-[6px] px-3 py-2 outline-none focus:border-brand-500 transition-colors" />
+                <div class="flex gap-3">
+                    <input type="password" id="novaSenha" placeholder="Nova Senha" required pattern="(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[\W_]).{8,}" title="A senha deve ter no mínimo 8 caracteres." class="w-full bg-gray-50 dark:bg-dark-bg border border-gray-200 dark:border-dark-border text-gray-900 dark:text-gray-100 text-[13px] rounded-[6px] px-3 py-2 outline-none focus:border-brand-500 transition-colors" />
+                    <input type="password" id="confirmaSenha" placeholder="Confirmar" required class="w-full bg-gray-50 dark:bg-dark-bg border border-gray-200 dark:border-dark-border text-gray-900 dark:text-gray-100 text-[13px] rounded-[6px] px-3 py-2 outline-none focus:border-brand-500 transition-colors" />
+                </div>
+                <button type="submit" class="w-full bg-brand-600 hover:bg-[#1D4ED8] text-white text-[12px] font-medium py-2 rounded-[6px] shadow-sm transition-colors mt-2">
+                    Atualizar Senha
+                </button>
+            </form>
+        </div>
+        
+        <div id="senhaSucessoContainer" class="hidden text-center p-6 w-full max-w-sm mt-2">
+            <i class="ph ph-check-circle text-[48px] text-emerald-500 mx-auto"></i>
+            <h4 class="text-[16px] font-[600] text-emerald-600 dark:text-emerald-400 mt-3 mb-1">Senha Alterada</h4>
+            <p class="text-[12px] text-gray-500">Sua senha foi atualizada com sucesso e já está valendo para o próximo login.</p>
+        </div>
+    </div>
+
+    <!-- Chamados TI -->
+    <div class="bento-card bg-white dark:bg-dark-card border border-gray-200 dark:border-dark-border rounded-[6px] flex flex-col overflow-hidden lg:col-span-2">
+        <div class="p-[16px] border-b border-gray-100 dark:border-dark-border bg-gray-50 dark:bg-dark-bg/50 flex justify-between items-center">
+            <h3 class="text-[12px] font-[600] text-gray-500 dark:text-gray-400 uppercase tracking-[0.05em] m-0 flex items-center gap-2">
+                <i class="ph ph-headset text-[16px]"></i> Meus Chamados de Suporte (HelpDesk)
+            </h3>
+            <button onclick="openModal('modalChamado')" class="bg-brand-600 hover:bg-[#1D4ED8] text-white text-[12px] font-medium px-3 py-1.5 rounded-[6px] shadow-sm transition-colors flex items-center gap-1.5">
+                <i class="ph ph-plus"></i> Abrir Chamado
+            </button>
+        </div>
+        
+        <div class="overflow-x-auto">
+            @if(Model.Chamados.Any()) {
+                <table class="w-full text-left border-collapse">
+                    <thead>
+                        <tr class="bg-gray-50 dark:bg-dark-bg/50 border-b border-gray-200 dark:border-dark-border">
+                            <th class="px-[16px] py-[12px] text-[12px] font-[600] text-gray-500 dark:text-gray-400 uppercase tracking-[0.05em]">ID</th>
+                            <th class="px-[16px] py-[12px] text-[12px] font-[600] text-gray-500 dark:text-gray-400 uppercase tracking-[0.05em]">Assunto</th>
+                            <th class="px-[16px] py-[12px] text-[12px] font-[600] text-gray-500 dark:text-gray-400 uppercase tracking-[0.05em]">Data Abertura</th>
+                            <th class="px-[16px] py-[12px] text-[12px] font-[600] text-gray-500 dark:text-gray-400 uppercase tracking-[0.05em]">Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach(var c in Model.Chamados) {
+                            <tr class="group border-b border-gray-100 dark:border-dark-border hover:bg-gray-50 dark:hover:bg-[#1B1F24] transition-colors">
+                                <td class="px-[16px] py-[12px] text-[12px] font-mono text-brand-500">#@c.Id</td>
+                                <td class="px-[16px] py-[12px] text-[13px] font-[500] text-gray-900 dark:text-gray-100">@c.Assunto</td>
+                                <td class="px-[16px] py-[12px] text-[12px] text-gray-500">@c.DataAbertura.ToString("dd/MM/yyyy HH:mm")</td>
+                                <td class="px-[16px] py-[12px]">
+                                    @if(c.Status == "Aberto") { <span class="bg-orange-500/10 text-orange-600 dark:text-orange-400 border border-orange-500/20 px-2 py-0.5 rounded-[4px] text-[11px] font-[600] uppercase tracking-wider">Aberto</span> }
+                                    else if(c.Status == "Fechado") { <span class="bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 px-2 py-0.5 rounded-[4px] text-[11px] font-[600] uppercase tracking-wider">Fechado</span> }
+                                    else { <span class="bg-brand-500/10 text-brand-600 dark:text-brand-400 border border-brand-500/20 px-2 py-0.5 rounded-[4px] text-[11px] font-[600] uppercase tracking-wider">@c.Status</span> }
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            } else {
+                <div class="p-[24px] text-[13px] text-gray-500 dark:text-gray-400 text-center">Você não possui nenhum chamado aberto.</div>
+            }
+        </div>
+    </div>
+
+    <!-- Logs de Auditoria -->
+    <div class="bento-card bg-white dark:bg-dark-card border border-gray-200 dark:border-dark-border rounded-[6px] flex flex-col overflow-hidden lg:col-span-2">
+        <div class="p-[16px] border-b border-gray-100 dark:border-dark-border bg-gray-50 dark:bg-dark-bg/50">
+            <h3 class="text-[12px] font-[600] text-gray-500 dark:text-gray-400 uppercase tracking-[0.05em] m-0 flex items-center gap-2">
+                <i class="ph ph-clock text-[16px]"></i> Histórico de Acessos Recentes
+            </h3>
+        </div>
+        
+        <div class="overflow-x-auto">
+            @if(Model.Logs.Any()) {
+                <table class="w-full text-left border-collapse">
+                    <thead>
+                        <tr class="bg-gray-50 dark:bg-dark-bg/50 border-b border-gray-200 dark:border-dark-border">
+                            <th class="px-[16px] py-[12px] text-[12px] font-[600] text-gray-500 dark:text-gray-400 uppercase tracking-[0.05em]">Data/Hora</th>
+                            <th class="px-[16px] py-[12px] text-[12px] font-[600] text-gray-500 dark:text-gray-400 uppercase tracking-[0.05em]">Ação</th>
+                            <th class="px-[16px] py-[12px] text-[12px] font-[600] text-gray-500 dark:text-gray-400 uppercase tracking-[0.05em]">Detalhes</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach(var l in Model.Logs) {
+                            <tr class="group border-b border-gray-100 dark:border-dark-border hover:bg-gray-50 dark:hover:bg-[#1B1F24] transition-colors">
+                                <td class="px-[16px] py-[12px] text-[12px] text-gray-500 font-mono">@l.DataHora.ToString("dd/MM/yyyy HH:mm:ss")</td>
+                                <td class="px-[16px] py-[12px] text-[13px] font-[500] text-brand-600 dark:text-brand-400">@l.Acao</td>
+                                <td class="px-[16px] py-[12px] text-[13px] text-gray-600 dark:text-gray-400">@l.Detalhe</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            } else {
+                <div class="p-[24px] text-[13px] text-gray-500 dark:text-gray-400 text-center">Nenhum registro de atividade encontrado.</div>
+            }
+        </div>
+    </div>
+</div>
+
+<!-- Modal Overlay -->
+<div id="modalOverlay" class="fixed inset-0 bg-black/80 z-[100] hidden items-center justify-center p-4 backdrop-blur-sm transition-opacity">
+    <!-- Modal Novo Chamado -->
+    <div id="modalChamado" class="hidden bg-white dark:bg-dark-card border border-gray-200 dark:border-dark-border rounded-[8px] shadow-2xl w-full max-w-lg overflow-hidden flex-col">
+        <div class="px-6 py-4 border-b border-gray-200 dark:border-dark-border flex justify-between items-center bg-gray-50 dark:bg-dark-bg/50">
+            <h3 class="text-[14px] font-[600] text-gray-900 dark:text-white flex items-center gap-2 m-0">
+                <i class="ph ph-headset text-brand-500"></i> Abrir Chamado de TI
+            </h3>
+            <button onclick="closeModal()" class="text-gray-500 hover:text-gray-900 dark:hover:text-white transition-colors">
+                <i class="ph ph-x text-[16px]"></i>
+            </button>
+        </div>
+        <div class="p-6">
+            <form onsubmit="abrirChamado(event)" class="space-y-4">
+                <select id="chamadoCategoria" required class="w-full bg-gray-50 dark:bg-dark-bg border border-gray-200 dark:border-dark-border text-gray-900 dark:text-gray-100 text-[13px] rounded-[6px] px-3 py-2 outline-none focus:border-brand-500">
+                    <option value="" disabled selected>Selecione a Categoria</option>
+                    <option value="Acessos e Senhas">Acessos e Senhas</option>
+                    <option value="Hardware (Equipamentos)">Hardware (Equipamentos)</option>
+                    <option value="Software (Sistemas/Apps)">Software (Sistemas/Apps)</option>
+                    <option value="Rede e Internet">Rede e Internet</option>
+                    <option value="Outros">Outros</option>
+                </select>
+                <input type="text" id="chamadoAssunto" placeholder="Assunto (Ex: Computador não liga)" required class="w-full bg-gray-50 dark:bg-dark-bg border border-gray-200 dark:border-dark-border text-gray-900 dark:text-gray-100 text-[13px] rounded-[6px] px-3 py-2 outline-none focus:border-brand-500" />
+                <textarea id="chamadoDesc" placeholder="Descreva o problema com detalhes..." required rows="4" class="w-full bg-gray-50 dark:bg-dark-bg border border-gray-200 dark:border-dark-border text-gray-900 dark:text-gray-100 text-[13px] rounded-[6px] px-3 py-2 resize-none outline-none focus:border-brand-500"></textarea>
+                
+                <div class="flex justify-end gap-3 pt-4 border-t border-gray-200 dark:border-dark-border mt-4">
+                    <button type="button" onclick="closeModal()" class="px-4 py-2 text-[12px] font-medium text-gray-700 dark:text-gray-300 border border-gray-300 dark:border-dark-border rounded-[6px] hover:bg-gray-50 dark:hover:bg-[#1B1F24] transition-colors">Cancelar</button>
+                    <button type="submit" class="px-4 py-2 text-[12px] font-medium text-white bg-brand-600 rounded-[6px] hover:bg-[#1D4ED8] transition-colors">Enviar Solicitação</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        function openModal(id) { 
+            const overlay = document.getElementById('modalOverlay');
+            overlay.classList.remove('hidden');
+            overlay.classList.add('flex');
+            
+            document.getElementById(id).classList.remove('hidden');
+            document.getElementById(id).classList.add('flex');
+        }
+        
+        function closeModal() { 
+            const overlay = document.getElementById('modalOverlay');
+            overlay.classList.add('hidden');
+            overlay.classList.remove('flex');
+            
+            document.getElementById('modalChamado').classList.add('hidden');
+            document.getElementById('modalChamado').classList.remove('flex');
+        }
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') closeModal();
+        });
+
+        async function alterarSenha(e) {
+            e.preventDefault();
+            const senhaAtual = document.getElementById('senhaAtual').value;
+            const novaSenha = document.getElementById('novaSenha').value;
+            const confirmaSenha = document.getElementById('confirmaSenha').value;
+            const btn = e.target.querySelector('button');
+
+            if (novaSenha !== confirmaSenha) {
+                Swal.fire({ title: 'Erro!', text: 'As senhas não coincidem.', icon: 'error', background: '#121418', color: '#fff', confirmButtonColor: '#3B82F6' });
+                return;
+            }
+
+            const payload = { SenhaAtual: senhaAtual, NovaSenha: novaSenha, ConfirmaSenha: confirmaSenha };
+            btn.disabled = true;
+            btn.innerHTML = '<i class="ph ph-spinner-gap animate-spin"></i> Processando...';
+
+            try {
+                const res = await fetch('/Portal/AlterarSenha', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                const data = await res.json().catch(() => ({}));
+
+                if (res.ok) {
+                    document.getElementById('formSenhaContainer').classList.add('hidden');
+                    document.getElementById('senhaSucessoContainer').classList.remove('hidden');
+                    document.getElementById('senhaSucessoContainer').classList.add('block');
+                } else {
+                    Swal.fire({
+                        title: 'Aviso de Segurança',
+                        text: data.message || 'Não foi possível alterar a senha.',
+                        icon: 'warning',
+                        background: '#121418', color: '#fff', confirmButtonColor: '#3B82F6'
+                    });
+                }
+            } catch (error) {
+                Swal.fire({ title: 'Erro!', text: 'Erro de conexão.', icon: 'error', background: '#121418', color: '#fff' });
+            } finally {
+                btn.disabled = false;
+                btn.innerText = 'Atualizar Senha';
+            }
+        }
+
+        async function abrirChamado(e) {
+            e.preventDefault();
+            const cat = document.getElementById('chamadoCategoria').value;
+            const assunto = document.getElementById('chamadoAssunto').value;
+            const desc = document.getElementById('chamadoDesc').value;
+            const btn = e.target.querySelector('button[type="submit"]');
+
+            btn.disabled = true;
+            btn.innerHTML = '<i class="ph ph-spinner-gap animate-spin"></i> Enviando...';
+
+            const assuntoFinal = `[${cat}] ${assunto}`;
+
+            try {
+                const res = await fetch('/Portal/AbrirChamado', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ Assunto: assuntoFinal, Descricao: desc })
+                });
+
+                if (res.ok) {
+                    Swal.fire({
+                        title: 'Chamado Aberto!',
+                        text: 'A equipe de TI foi notificada.',
+                        icon: 'success',
+                        background: '#121418', color: '#fff', confirmButtonColor: '#3B82F6'
+                    }).then(() => window.location.reload());
+                } else {
+                    Swal.fire({ title: 'Erro', text: 'Falha ao abrir chamado.', icon: 'error', background: '#121418', color: '#fff' });
+                }
+            } catch (e) {
+                Swal.fire({ title: 'Erro', text: 'Falha na conexão.', icon: 'error', background: '#121418', color: '#fff' });
+            }
+        }
+    </script>
+}

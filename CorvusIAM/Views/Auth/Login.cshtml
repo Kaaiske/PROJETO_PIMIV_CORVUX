@@ -1,0 +1,347 @@
+@{
+    Layout = null;
+}
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - CorvusIAM</title>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+    <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
+    <style>
+        :root {
+            --bg-body: #000000;
+            --bg-card: #111111;
+            --text-main: #FFFFFF;
+            --text-muted: #888888;
+            --accent-color: #0A66C2;
+            --accent-color-hover: #004182;
+            --border-color: #222222;
+            --input-bg: #0A0A0A;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: var(--bg-body);
+            color: var(--text-main);
+            font-family: 'Space Grotesk', sans-serif;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .login-container {
+            width: 100%;
+            max-width: 750px;
+            padding: 20px;
+        }
+
+        /* BENTO GRID */
+        .bento-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            grid-auto-rows: minmax(120px, auto);
+            gap: 16px;
+            opacity: 0;
+            animation: fadeIn 0.8s ease-out forwards;
+        }
+
+        .bento-item {
+            background-color: var(--bg-card);
+            border-radius: 20px;
+            border: 1px solid var(--border-color);
+            padding: 24px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .bento-item:hover {
+            border-color: rgba(10, 102, 194, 0.3);
+            transform: translateY(-2px);
+            box-shadow: 0 15px 40px rgba(10, 102, 194, 0.05);
+        }
+
+        .bento-span-2 { grid-column: span 2; }
+        .bento-row-2 { grid-row: span 2; }
+
+        /* DECORATIONS */
+        .bento-item::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: linear-gradient(90deg, transparent, var(--accent-color), transparent);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        .bento-item:hover::before {
+            opacity: 1;
+        }
+
+        .glow-circle {
+            position: absolute;
+            width: 150px;
+            height: 150px;
+            background-color: var(--accent-color);
+            filter: blur(80px);
+            opacity: 0.1;
+            border-radius: 50%;
+            z-index: 0;
+            pointer-events: none;
+        }
+        .glow-top-right { top: -50px; right: -50px; }
+        .glow-bottom-left { bottom: -50px; left: -50px; }
+
+        /* TYPOGRAPHY */
+        h1, h2, h3 { margin: 0 0 8px 0; font-weight: 700; z-index: 1; position: relative; }
+        h2 { font-size: 20px; }
+        p { margin: 0; color: var(--text-muted); z-index: 1; position: relative; font-size: 13px; line-height: 1.4; }
+
+        .brand-title {
+            font-size: 26px;
+            letter-spacing: -1px;
+        }
+        .brand-title span {
+            color: var(--accent-color);
+        }
+
+        /* FORM ELEMENTS */
+        .form-group {
+            margin-bottom: 16px;
+            z-index: 1;
+            position: relative;
+            width: 100%;
+        }
+        
+        .form-label {
+            display: block;
+            margin-bottom: 6px;
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--text-muted);
+        }
+
+        .form-control {
+            width: 100%;
+            background-color: var(--input-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            padding: 12px 14px;
+            color: var(--text-main);
+            font-family: inherit;
+            font-size: 14px;
+            transition: all 0.3s ease;
+            box-sizing: border-box;
+        }
+        
+        .form-control:focus {
+            outline: none;
+            border-color: var(--accent-color);
+            box-shadow: 0 0 0 3px rgba(10, 102, 194, 0.1);
+        }
+
+        .btn-submit {
+            width: 100%;
+            background-color: var(--accent-color);
+            color: #FFFFFF;
+            border: none;
+            border-radius: 10px;
+            padding: 14px;
+            font-family: inherit;
+            font-size: 15px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 10px;
+            z-index: 1;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .btn-submit:hover {
+            background-color: var(--accent-color-hover);
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(10, 102, 194, 0.2);
+        }
+
+        /* SOCIAL & EXTRAS */
+        .social-login {
+            display: flex;
+            gap: 10px;
+            z-index: 1;
+            position: relative;
+        }
+        .btn-social {
+            flex: 1;
+            background-color: var(--input-bg);
+            border: 1px solid var(--border-color);
+            color: var(--text-main);
+            padding: 10px;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .btn-social:hover {
+            background-color: #222;
+            border-color: #444;
+        }
+
+        .link {
+            color: var(--accent-color);
+            text-decoration: none;
+            font-weight: 600;
+            transition: color 0.3s;
+        }
+        .link:hover {
+            color: var(--text-main);
+            text-decoration: underline;
+        }
+
+        .stat-number {
+            font-size: 36px;
+            font-weight: 700;
+            color: var(--accent-color);
+            line-height: 1;
+            margin-bottom: 5px;
+        }
+
+        /* ANIMATIONS */
+        @@keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @@media (max-width: 900px) {
+            .bento-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            .bento-span-2 { grid-column: span 2; }
+            .hide-mobile { display: none; }
+        }
+
+        @@media (max-width: 600px) {
+            .bento-grid {
+                grid-template-columns: 1fr;
+            }
+            .bento-span-2 { grid-column: span 1; }
+            .login-container { padding: 10px; }
+            .bento-item { padding: 20px; }
+            .stat-number { font-size: 28px; }
+            .brand-title { font-size: 22px; }
+        }
+
+        .error-msg {
+            background-color: rgba(225, 29, 72, 0.1);
+            color: #FF4444;
+            padding: 12px;
+            border-radius: 8px;
+            border: 1px solid rgba(225, 29, 72, 0.3);
+            margin-bottom: 20px;
+            font-size: 14px;
+            text-align: center;
+            z-index: 1;
+            position: relative;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="login-container">
+        <div class="bento-grid">
+            
+            <!-- BRANDING CARD -->
+            <div class="bento-item bento-span-2" style="background: linear-gradient(135deg, #111111 0%, #050505 100%);">
+                <div class="glow-circle glow-bottom-left"></div>
+                <div style="z-index: 1; position: relative;">
+                    <h1 class="brand-title">Corvus<span>.</span></h1>
+                    <p style="font-size: 15px; max-width: 400px; margin-top: 10px;">
+                        Autenticação centralizada e segurança criptografada de ponta a ponta.
+                    </p>
+                </div>
+            </div>
+
+            <!-- QUICK STAT CARD -->
+            <div class="bento-item hide-mobile text-center" style="align-items: center;">
+                <div class="glow-circle glow-top-right"></div>
+                <div class="stat-number">99.9%</div>
+                <p>Uptime do Sistema</p>
+            </div>
+
+            <!-- LOGIN FORM CARD -->
+            <div class="bento-item bento-span-2 bento-row-2">
+                <h2 style="margin-bottom: 24px;">Iniciar Sessão</h2>
+                
+                @if (ViewBag.Erro != null)
+                {
+                    <div class="error-msg">
+                        <i class="bi bi-exclamation-triangle"></i> @ViewBag.Erro
+                    </div>
+                }
+
+                <form action="/Auth/Login" method="POST">
+                    @Html.AntiForgeryToken()
+                    <div class="form-group">
+                        <label class="form-label">Email Corporativo</label>
+                        <input type="email" name="email" class="form-control" placeholder="admin@empresa.com" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <div style="display: flex; justify-content: space-between; align-items: center; width: 100%; margin-bottom: 8px;">
+                            <label class="form-label" style="margin-bottom: 0;">Senha de Acesso</label>
+                            <a href="#" class="link" style="font-size: 12px;">Esqueceu a senha?</a>
+                        </div>
+                        <input type="password" name="senha" class="form-control" placeholder="••••••••" required>
+                    </div>
+
+                    <div class="cf-turnstile" data-sitekey="1x00000000000000000000AA" data-action="login" style="margin-bottom: 16px; z-index: 1; position: relative;"></div>
+
+                    <button type="submit" class="btn-submit">
+                        Entrar no Painel <i class="bi bi-arrow-right"></i>
+                    </button>
+                </form>
+            </div>
+
+            <!-- SOCIAL / SSO CARD -->
+            <div class="bento-item">
+                <h3 style="font-size: 16px; text-align: center; margin-bottom: 20px;">Ou entre com</h3>
+                <div class="social-login">
+                    <button class="btn-social" title="Google"><i class="bi bi-google"></i></button>
+                    <button class="btn-social" title="Microsoft"><i class="bi bi-microsoft"></i></button>
+                    <button class="btn-social" title="Github"><i class="bi bi-github"></i></button>
+                </div>
+            </div>
+
+            <!-- SECURE BADGE CARD -->
+            <div class="bento-item" style="text-align: center; display: flex; align-items: center; justify-content: center; gap: 15px;">
+                <i class="bi bi-shield-check" style="font-size: 32px; color: var(--accent-color);"></i>
+                <div style="text-align: left;">
+                    <div style="font-weight: 700; font-size: 14px;">Conexão Segura</div>
+                    <div style="font-size: 12px; color: var(--text-muted);">AES-256 Bit</div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+</body>
+</html>

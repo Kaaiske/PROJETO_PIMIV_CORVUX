@@ -1,0 +1,31 @@
+@{
+    Layout = null;
+    ViewData["Title"] = "CorvusIAM Mobile";
+}
+<!doctype html>
+<html lang="pt-BR">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="theme-color" content="#0a66c2" />
+    <link rel="manifest" href="~/mobile/manifest.webmanifest" />
+    <link rel="stylesheet" href="~/mobile/app.css" />
+    <title>CorvusIAM Mobile</title>
+</head>
+<body>
+    <main class="app" aria-labelledby="titulo">
+        <header><p class="marca">CORVUS IAM</p><h1 id="titulo">Olá, @User.Identity?.Name</h1><p>Central de suporte corporativo</p></header>
+        <section aria-labelledby="novo-chamado"><h2 id="novo-chamado">Abrir chamado</h2>
+            <form id="chamado-form">
+                <label>Assunto<input id="assunto" required maxlength="100" autocomplete="off" /></label>
+                <label>Descrição<textarea id="descricao" required maxlength="1000"></textarea></label>
+                <button type="submit">Enviar chamado</button>
+            </form>
+            <p id="mensagem" role="status"></p>
+        </section>
+        <section aria-labelledby="meus-chamados"><h2 id="meus-chamados">Meus chamados</h2><div id="lista" aria-live="polite">Carregando…</div></section>
+        <a class="sair" href="/Auth/Logout">Sair</a>
+    </main>
+    <script src="~/mobile/app.js"></script>
+</body>
+</html>

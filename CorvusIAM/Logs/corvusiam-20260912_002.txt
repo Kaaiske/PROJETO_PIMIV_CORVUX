@@ -1,0 +1,50 @@
+2026-09-12 18:19:49.071 -03:00 [INF] Executed DbCommand (28ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT COUNT(*) FROM "sqlite_master" WHERE "name" = '__EFMigrationsHistory' AND "type" = 'table';
+2026-09-12 18:19:49.259 -03:00 [INF] Executed DbCommand (1ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT COUNT(*) FROM "sqlite_master" WHERE "name" = '__EFMigrationsHistory' AND "type" = 'table';
+2026-09-12 18:19:49.326 -03:00 [INF] Executed DbCommand (2ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT "MigrationId", "ProductVersion"
+FROM "__EFMigrationsHistory"
+ORDER BY "MigrationId";
+2026-09-12 18:19:49.389 -03:00 [INF] Applying migration '20260910022626_InitialCreate_SqlServer'.
+2026-09-12 18:19:49.722 -03:00 [ERR] Failed executing DbCommand (23ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+CREATE TABLE "ConfiguracoesSistema" (
+    "Id" int NOT NULL CONSTRAINT "PK_ConfiguracoesSistema" PRIMARY KEY,
+    "Chave" nvarchar(100) NOT NULL,
+    "Valor" nvarchar(500) NOT NULL
+);
+2026-09-12 18:20:57.216 -03:00 [INF] Executed DbCommand (71ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT COUNT(*) FROM "sqlite_master" WHERE "name" = '__EFMigrationsHistory' AND "type" = 'table';
+2026-09-12 18:20:57.412 -03:00 [INF] Executed DbCommand (1ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT COUNT(*) FROM "sqlite_master" WHERE "name" = '__EFMigrationsHistory' AND "type" = 'table';
+2026-09-12 18:20:57.490 -03:00 [INF] Executed DbCommand (1ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT "MigrationId", "ProductVersion"
+FROM "__EFMigrationsHistory"
+ORDER BY "MigrationId";
+2026-09-12 18:20:57.572 -03:00 [INF] Applying migration '20260910022626_InitialCreate_SqlServer'.
+2026-09-12 18:20:58.068 -03:00 [ERR] Failed executing DbCommand (24ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+CREATE TABLE "ConfiguracoesSistema" (
+    "Id" int NOT NULL CONSTRAINT "PK_ConfiguracoesSistema" PRIMARY KEY,
+    "Chave" nvarchar(100) NOT NULL,
+    "Valor" nvarchar(500) NOT NULL
+);
+2026-09-12 18:21:21.586 -03:00 [INF] Executed DbCommand (26ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT COUNT(*) FROM "sqlite_master" WHERE "name" = '__EFMigrationsHistory' AND "type" = 'table';
+2026-09-12 18:21:21.818 -03:00 [INF] Executed DbCommand (1ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT COUNT(*) FROM "sqlite_master" WHERE "name" = '__EFMigrationsHistory' AND "type" = 'table';
+2026-09-12 18:21:21.895 -03:00 [INF] Executed DbCommand (1ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT "MigrationId", "ProductVersion"
+FROM "__EFMigrationsHistory"
+ORDER BY "MigrationId";
+2026-09-12 18:21:21.998 -03:00 [INF] Applying migration '20260910022626_InitialCreate_SqlServer'.
+2026-09-12 18:21:22.756 -03:00 [ERR] Failed executing DbCommand (5ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+CREATE TABLE "ConfiguracoesSistema" (
+    "Id" int NOT NULL CONSTRAINT "PK_ConfiguracoesSistema" PRIMARY KEY,
+    "Chave" nvarchar(100) NOT NULL,
+    "Valor" nvarchar(500) NOT NULL
+);
+2026-09-12 18:21:44.299 -03:00 [INF] User profile is available. Using 'C:\Users\Kaiiske\AppData\Local\ASP.NET\DataProtection-Keys' as key repository and Windows DPAPI to encrypt keys at rest.
+2026-09-12 18:21:46.239 -03:00 [INF] Now listening on: http://localhost:5052
+2026-09-12 18:21:46.246 -03:00 [INF] Application started. Press Ctrl+C to shut down.
+2026-09-12 18:21:46.247 -03:00 [INF] Hosting environment: Development
+2026-09-12 18:21:46.247 -03:00 [INF] Content root path: C:\Users\Kaiiske\Desktop\CorvusIAM-20260830T010159Z-1-001\CorvusIAM

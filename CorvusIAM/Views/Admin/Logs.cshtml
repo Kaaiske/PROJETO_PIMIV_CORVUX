@@ -1,0 +1,61 @@
+@model IEnumerable<CorvusIAM.Entities.LogAuditoria>
+@{
+    Layout = "_Layout";
+    ViewData["Title"] = "Logs Globais";
+}
+
+<div class="mb-[24px] flex justify-between items-end">
+    <div>
+        <h1 class="text-[16px] font-[600] text-gray-900 dark:text-white flex items-center gap-2">
+            <i class="ph ph-list-magnifying-glass text-brand-500"></i> Logs de Auditoria Globais
+        </h1>
+        <p class="text-[12px] text-gray-500 dark:text-gray-400 mt-1">Trilhas de todas as ações no sistema</p>
+    </div>
+    <button class="bg-brand-600 hover:bg-[#1D4ED8] text-white text-[12px] font-medium px-3 py-1.5 rounded-[6px] shadow-sm transition-colors flex items-center gap-1.5">
+        <i class="ph ph-download-simple"></i> Exportar CSV
+    </button>
+</div>
+
+<div class="bento-card bg-white dark:bg-dark-card border border-gray-200 dark:border-dark-border rounded-[6px] flex flex-col overflow-hidden">
+    <div class="overflow-x-auto">
+        <table class="w-full text-left border-collapse">
+            <thead>
+                <tr class="bg-gray-50 dark:bg-dark-bg/50 border-b border-gray-200 dark:border-dark-border">
+                    <th class="px-[16px] py-[12px] text-[12px] font-[600] text-gray-500 dark:text-gray-400 uppercase tracking-[0.05em]">Data/Hora</th>
+                    <th class="px-[16px] py-[12px] text-[12px] font-[600] text-gray-500 dark:text-gray-400 uppercase tracking-[0.05em]">Ação</th>
+                    <th class="px-[16px] py-[12px] text-[12px] font-[600] text-gray-500 dark:text-gray-400 uppercase tracking-[0.05em]">Detalhe</th>
+                    <th class="px-[16px] py-[12px] text-[12px] font-[600] text-gray-500 dark:text-gray-400 uppercase tracking-[0.05em]">Origem</th>
+                    <th class="px-[16px] py-[12px] text-[12px] font-[600] text-gray-500 dark:text-gray-400 uppercase tracking-[0.05em]">Tipo</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if(!Model.Any()){ 
+                    <tr><td colspan="5" class="px-[16px] py-[24px] text-center text-[13px] text-gray-500 dark:text-gray-400">Nenhum log encontrado.</td></tr> 
+                }
+                @foreach(var l in Model) {
+                    <tr class="group border-b border-gray-100 dark:border-dark-border hover:bg-gray-50 dark:hover:bg-[#1B1F24] transition-colors">
+                        <td class="px-[16px] py-[12px] text-[12px] text-gray-500 font-mono">@l.DataHora.ToString("dd/MM/yy HH:mm:ss")</td>
+                        <td class="px-[16px] py-[12px] text-[13px] font-[500] text-gray-900 dark:text-gray-100">@l.Acao</td>
+                        <td class="px-[16px] py-[12px] text-[13px] text-gray-600 dark:text-gray-300">@l.Detalhe</td>
+                        <td class="px-[16px] py-[12px] text-[12px] text-brand-600 dark:text-brand-400 font-mono">@l.Origem</td>
+                        <td class="px-[16px] py-[12px]">
+                            @if(l.Tipo == "Error") {
+                                <span class="bg-red-500/10 text-red-600 dark:text-red-400 border border-red-500/20 px-2 py-0.5 rounded-[4px] text-[11px] font-[600] uppercase tracking-wider">
+                                    @l.Tipo
+                                </span>
+                            } else if (l.Tipo == "Warning") {
+                                <span class="bg-orange-500/10 text-orange-600 dark:text-orange-400 border border-orange-500/20 px-2 py-0.5 rounded-[4px] text-[11px] font-[600] uppercase tracking-wider">
+                                    @l.Tipo
+                                </span>
+                            } else {
+                                <span class="bg-brand-500/10 text-brand-600 dark:text-brand-400 border border-brand-500/20 px-2 py-0.5 rounded-[4px] text-[11px] font-[600] uppercase tracking-wider">
+                                    @l.Tipo
+                                </span>
+                            }
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

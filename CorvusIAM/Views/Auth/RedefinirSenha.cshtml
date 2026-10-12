@@ -1,0 +1,24 @@
+@{
+    ViewData["Title"] = "Redefinir Senha";
+    Layout = null;
+}
+<!DOCTYPE html>
+<html lang='pt-BR'>
+<head>
+    <title>Redefinir Senha - Corvus IAM</title>
+</head>
+<body>
+    <h2>Redefinir Senha</h2>
+    @if (ViewBag.Erro != null)
+    {
+        <p style='color:red;'>@ViewBag.Erro</p>
+    }
+    <form asp-action='RedefinirSenha' method='post'>
+        <input type='hidden' name='token' value='@ViewBag.Token' />
+        <input type='hidden' name='email' value='@ViewBag.Email' />
+        <label>Nova Senha:</label>
+        <input type='password' name='novaSenha' required minlength='8' />
+        <button type='submit'>Redefinir Senha</button>
+    </form>
+</body>
+</html>

@@ -1,0 +1,369 @@
+@model IEnumerable<CorvusIAM.Entities.Usuario>
+@{
+    Layout = "_Layout";
+    ViewData["Title"] = "Diretório de Usuários";
+}
+
+<div class="mb-[24px] flex justify-between items-end">
+    <div>
+        <h1 class="text-[16px] font-[600] text-gray-900 dark:text-white flex items-center gap-2">
+            <i class="ph ph-users text-brand-500"></i> Diretório Corporativo
+        </h1>
+        <p class="text-[12px] text-gray-500 dark:text-gray-400 mt-1">Gerenciamento de identidades e acessos</p>
+    </div>
+    <div class="flex gap-2">
+        <div class="relative">
+            <i class="ph ph-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"></i>
+            <input type="text" id="searchInput" placeholder="Buscar colaborador..." class="bg-white dark:bg-dark-card border border-gray-200 dark:border-dark-border text-gray-900 dark:text-gray-100 text-[12px] rounded-[6px] pl-9 pr-3 py-1.5 outline-none focus:border-brand-500 transition-colors w-[200px] shadow-sm" />
+        </div>
+        <button onclick="openModal('addUserModal')" class="bg-brand-600 hover:bg-[#1D4ED8] text-white text-[12px] font-medium px-3 py-1.5 rounded-[6px] shadow-sm transition-colors flex items-center gap-1.5">
+            <i class="ph ph-user-plus"></i> Novo Usuário
+        </button>
+    </div>
+</div>
+
+<div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-[24px]" id="userGrid">
+    @foreach(var u in Model) {
+        var initials = string.Join("", u.Nome.Split(' ').Take(2).Select(n => n.Substring(0,1)).ToArray()).ToUpper();
+        <div class="user-card bento-card bg-white dark:bg-dark-card border border-gray-200 dark:border-dark-border rounded-[6px] p-[20px] flex flex-col relative overflow-hidden transition-all hover:border-brand-500 hover:shadow-lg">
+            @if(!u.Ativo) {
+                <div class="absolute top-0 right-0 bg-red-500 text-white text-[9px] font-bold px-2 py-1 rounded-bl-[6px] uppercase tracking-wider">Bloqueado</div>
+            }
+            <div class="flex items-center gap-4 mb-4">
+                <div class="w-12 h-12 rounded-full flex items-center justify-center text-white font-bold text-[14px]" style="background: linear-gradient(135deg, #3b82f6, #8b5cf6)">
+                    @initials
+                </div>
+                <div class="flex-1 overflow-hidden">
+                    <h3 class="text-[14px] font-[600] text-gray-900 dark:text-white m-0 truncate" title="@u.Nome">@u.Nome</h3>
+                    <p class="text-[11px] text-brand-600 dark:text-brand-400 font-mono truncate">@u.Email</p>
+                </div>
+            </div>
+            
+            <div class="flex flex-col gap-2 mb-4 text-[12px] text-gray-600 dark:text-gray-400">
+                <div class="flex items-center gap-2">
+                    <i class="ph ph-briefcase text-gray-400"></i> <span class="truncate">@u.Cargo - @u.Departamento</span>
+                </div>
+                <div class="flex items-center gap-2">
+                    <i class="ph ph-shield-check text-emerald-500"></i> 
+                    <span class="bg-gray-100 dark:bg-dark-bg px-2 py-0.5 rounded-[4px] text-[10px] font-[600] uppercase tracking-wider text-gray-700 dark:text-gray-300">
+                        @(u.UsuarioPerfis?.FirstOrDefault()?.Perfil?.Nome ?? "Sem Perfil")
+                    </span>
+                </div>
+            </div>
+
+            <div class="mt-auto flex justify-between items-center pt-4 border-t border-gray-100 dark:border-dark-border">
+                <div class="text-[10px] text-gray-400 flex items-center gap-1">
+                    <i class="ph ph-clock"></i> Admissão: @(u.DataContratacao?.ToString("MMM/yy") ?? "-")
+                </div>
+                <div class="flex gap-2">
+                    <button onclick="abrirEdit(@u.Id, '@u.Nome', '@u.CPF', '@u.Cargo', '@(u.UsuarioPerfis?.FirstOrDefault()?.Perfil?.Nome)', '@u.Departamento', '@u.Telefone')" class="text-gray-400 hover:text-brand-500 transition-colors" title="Editar">
+                        <i class="ph ph-pencil-simple text-[16px]"></i>
+                    </button>
+                    <button onclick="inativarUsuario(@u.Id)" class="text-gray-400 hover:text-orange-500 transition-colors" title="@(u.Ativo ? "Bloquear" : "Desbloquear")">
+                        <i class="ph @(u.Ativo ? "ph-lock-key" : "ph-lock-key-open") text-[16px]"></i>
+                    </button>
+                    <button onclick="excluirUsuario(@u.Id)" class="text-gray-400 hover:text-red-500 transition-colors" title="Excluir">
+                        <i class="ph ph-trash text-[16px]"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+<!-- Modal Overlay -->
+<div id="modalOverlay" class="fixed inset-0 bg-black/80 z-[100] hidden items-center justify-center p-4 backdrop-blur-sm transition-opacity">
+    <!-- Modal Overlay -->
+<div id="modalOverlay" class="fixed inset-0 bg-black/80 z-[100] hidden items-center justify-center p-4 backdrop-blur-sm transition-opacity">
+    <!-- Novo Usuário Modal -->
+    <div id="newUserModal" class="hidden bg-white dark:bg-dark-card border border-gray-200 dark:border-dark-border rounded-[8px] shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-hidden flex-col">
+        <div class="px-6 py-4 border-b border-gray-200 dark:border-dark-border flex justify-between items-center bg-gray-50 dark:bg-dark-bg/50">
+            <h3 class="text-[14px] font-[600] text-gray-900 dark:text-white flex items-center gap-2">
+                <i class="ph ph-user-plus text-brand-500"></i> Integração de Novo Colaborador
+            </h3>
+            <button onclick="closeModal()" class="text-gray-500 hover:text-gray-900 dark:hover:text-white transition-colors">
+                <i class="ph ph-x text-[16px]"></i>
+            </button>
+        </div>
+        <div class="p-6 overflow-y-auto">
+            <form onsubmit="adicionarUsuario(event)" class="space-y-6">
+                <div>
+                    <h4 class="text-[12px] font-[600] text-brand-500 uppercase tracking-[0.05em] border-b border-gray-200 dark:border-dark-border pb-2 mb-4">Dados Pessoais</h4>
+                    <div class="grid grid-cols-2 gap-4">
+                        <input type="text" id="nome" placeholder="Nome Completo" required class="col-span-2 form-control text-[13px]" />
+                        <input type="text" id="cpf" placeholder="CPF" required oninput="maskCPF(event)" maxlength="14" class="form-control text-[13px]" />
+                        <input type="text" id="rg" placeholder="RG" required oninput="maskRG(event)" maxlength="12" class="form-control text-[13px]" />
+                        <input type="date" id="datanasc" required title="Data de Nascimento" class="form-control text-[13px]" />
+                        <input type="text" id="telefone" placeholder="Telefone / Celular" required class="form-control text-[13px]" />
+                        <input type="text" id="endereco" placeholder="Endereço Completo" required class="col-span-2 form-control text-[13px]" />
+                        <input type="email" id="emailPessoal" placeholder="E-mail Pessoal" class="col-span-2 form-control text-[13px]" />
+                    </div>
+                </div>
+
+                <div>
+                    <h4 class="text-[12px] font-[600] text-brand-500 uppercase tracking-[0.05em] border-b border-gray-200 dark:border-dark-border pb-2 mb-4">Contrato Corporativo</h4>
+                    <div class="grid grid-cols-2 gap-4">
+                        <input type="text" id="departamento" placeholder="Departamento / Setor" required class="form-control text-[13px]" />
+                        <div class="flex gap-2">
+                            <input type="text" id="cargo" placeholder="Cargo / Função" required list="cargosList" class="form-control text-[13px]" />
+                            <datalist id="cargosList">
+                                <option value="Administrador de Redes"></option>
+                                <option value="Analista de Suporte"></option>
+                                <option value="Desenvolvedor de Software"></option>
+                            </datalist>
+                        </div>
+                        <input type="date" id="datacontr" required title="Data de Contratação" class="form-control text-[13px]" />
+                        <select id="perfil" class="form-control text-[13px]">
+                            <option value="Colaborador">Tipo: Usuário Padrão</option>
+                            <option value="Recursos Humanos">Tipo: Recursos Humanos (RH)</option>
+                            <option value="Contabilidade">Tipo: Contabilidade</option>
+                            <option value="Help Desk">Tipo: Suporte de TI / Help Desk</option>
+                            <option value="Admin">Tipo: Administrador do Sistema</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="flex justify-end gap-3 pt-4 border-t border-gray-200 dark:border-dark-border">
+                    <button type="button" onclick="closeModal()" class="px-4 py-2 text-[12px] font-medium text-gray-700 dark:text-gray-300 border border-gray-300 dark:border-dark-border rounded-[6px] hover:bg-gray-50 dark:hover:bg-[#1B1F24] transition-colors">Cancelar</button>
+                    <button type="submit" class="px-4 py-2 text-[12px] font-medium text-white bg-brand-600 rounded-[6px] hover:bg-[#1D4ED8] transition-colors">Salvar Colaborador</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Editar Usuário Modal -->
+    <div id="editUserModal" class="hidden bg-white dark:bg-dark-card border border-gray-200 dark:border-dark-border rounded-[8px] shadow-2xl w-full max-w-xl max-h-[90vh] overflow-hidden flex-col">
+        <div class="px-6 py-4 border-b border-gray-200 dark:border-dark-border flex justify-between items-center bg-gray-50 dark:bg-dark-bg/50">
+            <h3 class="text-[14px] font-[600] text-gray-900 dark:text-white flex items-center gap-2">
+                <i class="ph ph-pencil-simple text-brand-500"></i> Editar Colaborador
+            </h3>
+            <button onclick="closeModal()" class="text-gray-500 hover:text-gray-900 dark:hover:text-white transition-colors">
+                <i class="ph ph-x text-[16px]"></i>
+            </button>
+        </div>
+        <div class="p-6 overflow-y-auto">
+            <form onsubmit="salvarEdicao(event)" class="space-y-4">
+                <input type="hidden" id="editId" />
+                <div class="grid grid-cols-2 gap-4">
+                    <input type="text" id="editNome" placeholder="Nome Completo" required class="col-span-2 form-control text-[13px]" />
+                    <input type="text" id="editTelefone" placeholder="Telefone" required class="form-control text-[13px]" />
+                    <input type="text" id="editDepartamento" placeholder="Departamento" required class="col-span-2 form-control text-[13px]" />
+                    <input type="text" id="editCpf" placeholder="CPF" required oninput="maskCPF(event)" maxlength="14" class="form-control text-[13px]" />
+                    <input type="text" id="editCargo" placeholder="Cargo" required class="col-span-2 form-control text-[13px]" />
+                    <select id="editPerfil" class="col-span-2 form-control text-[13px]">
+                        <option value="Colaborador">Tipo: Usuário Padrão</option>
+                        <option value="Recursos Humanos">Tipo: Recursos Humanos (RH)</option>
+                        <option value="Contabilidade">Tipo: Contabilidade</option>
+                        <option value="Help Desk">Tipo: Suporte de TI / Help Desk</option>
+                        <option value="Admin">Tipo: Administrador do Sistema</option>
+                    </select>
+                </div>
+                
+                <button type="button" onclick="resetarSenhaAdmin()" class="w-full mt-4 py-2 px-4 border border-orange-500/30 bg-orange-500/10 text-orange-500 rounded-[6px] text-[12px] font-[500] hover:bg-orange-500/20 transition-colors flex items-center justify-center gap-2">
+                    <i class="ph ph-key"></i> Gerar Nova Senha Aleatória
+                </button>
+
+                <div class="flex justify-end gap-3 pt-4 mt-6 border-t border-gray-200 dark:border-dark-border">
+                    <button type="button" onclick="closeModal()" class="px-4 py-2 text-[12px] font-medium text-gray-700 dark:text-gray-300 border border-gray-300 dark:border-dark-border rounded-[6px] hover:bg-gray-50 dark:hover:bg-[#1B1F24] transition-colors">Cancelar</button>
+                    <button type="submit" class="px-4 py-2 text-[12px] font-medium text-white bg-brand-600 rounded-[6px] hover:bg-[#1D4ED8] transition-colors">Salvar Alterações</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+
+@section Scripts {
+    <script>
+        function openModal(id) { 
+            const overlay = document.getElementById('modalOverlay');
+            overlay.classList.remove('hidden');
+            overlay.classList.add('flex');
+            
+            document.getElementById('newUserModal').classList.add('hidden');
+            document.getElementById('editUserModal').classList.add('hidden');
+            
+            const modal = document.getElementById(id);
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+        }
+        
+        function closeModal() { 
+            const overlay = document.getElementById('modalOverlay');
+            overlay.classList.add('hidden');
+            overlay.classList.remove('flex');
+        }
+
+        // Close on escape
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') closeModal();
+        });
+        
+        function maskCPF(e) {
+            let v = e.target.value.replace(/\D/g,"");
+            v = v.replace(/(\d{3})(\d)/,"$1.$2");
+            v = v.replace(/(\d{3})(\d)/,"$1.$2");
+            v = v.replace(/(\d{3})(\d{1,2})$/,"$1-$2");
+            e.target.value = v;
+        }
+
+        function maskRG(e) {
+            let v = e.target.value.replace(/\D/g,"");
+            v = v.replace(/(\d{2})(\d)/,"$1.$2");
+            v = v.replace(/(\d{3})(\d)/,"$1.$2");
+            v = v.replace(/(\d{3})(\d{1,2})$/,"$1-$2");
+            e.target.value = v;
+        }
+
+        async function adicionarUsuario(e) {
+            e.preventDefault();
+            const btn = e.target.querySelector('button[type="submit"]');
+            btn.disabled = true;
+            btn.innerText = 'Processando...';
+
+            const payload = { 
+                Nome: document.getElementById('nome').value, 
+                CPF: document.getElementById('cpf').value, 
+                RG: document.getElementById('rg').value,
+                DataNascimento: document.getElementById('datanasc').value,
+                Telefone: document.getElementById('telefone').value,
+                Endereco: document.getElementById('endereco').value,
+                Departamento: document.getElementById('departamento').value,
+                Cargo: document.getElementById('cargo').value,
+                DataContratacao: document.getElementById('datacontr').value,
+                Perfil: document.getElementById('perfil').value,
+                EmailPessoal: document.getElementById('emailPessoal').value 
+            };
+            const res = await fetch('/Admin/AdicionarUsuario', { method: 'POST', headers: { 'Content-Type': 'application/json', 'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]').value }, body: JSON.stringify(payload) });
+            if(res.ok) {
+                const data = await res.json();
+                Swal.fire({
+                    title: 'Sucesso!',
+                    html: `E-mail corporativo gerado: <b>${data.email}</b><br>Senha Inicial: <b>${data.senha}</b>`,
+                    icon: 'success',
+                    background: '#121418', color: '#fff', confirmButtonColor: '#3B82F6'
+                }).then(() => window.location.reload());
+            } else {
+                let errorMsg = 'Não foi possível salvar.';
+                try {
+                    const errData = await res.json();
+                    if(errData.message) errorMsg = errData.message;
+                } catch (e) {}
+
+                Swal.fire({ title: 'Erro!', text: errorMsg, icon: 'error', background: '#121418', color: '#fff', confirmButtonColor: '#3B82F6' });
+                btn.disabled = false;
+                btn.innerText = 'Salvar Colaborador';
+            }
+        }
+
+        function abrirEdit(id, nome, cpf, cargo, perfil, departamento, telefone) {
+            document.getElementById('editDepartamento').value = departamento;
+            document.getElementById('editTelefone').value = telefone;
+            document.getElementById('editId').value = id;
+            document.getElementById('editNome').value = nome;
+            document.getElementById('editCpf').value = cpf;
+            document.getElementById('editCargo').value = cargo;
+            document.getElementById('editPerfil').value = perfil || 'Colaborador';
+            openModal('editUserModal');
+        }
+
+        async function resetarSenhaAdmin() {
+            const id = document.getElementById('editId').value;
+            closeModal();
+            const result = await Swal.fire({
+                title: 'Gerar Nova Senha?',
+                text: "O sistema irá gerar uma nova senha aleatória segura para este usuário.",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#f97316',
+                cancelButtonColor: '#333',
+                confirmButtonText: 'Sim, gerar',
+                cancelButtonText: 'Cancelar',
+                background: '#121418', color: '#fff'
+            });
+            
+            if (result.isConfirmed) {
+                const res = await fetch('/Admin/ResetarSenhaUsuario', { method: 'POST', headers: { 'Content-Type': 'application/json', 'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]').value }, body: JSON.stringify(id) });
+                if (res.ok) {
+                    const data = await res.json();
+                    Swal.fire({
+                        title: 'Senha Redefinida!',
+                        html: `A nova senha é: <br><b class="text-brand-500 text-lg font-mono">${data.senha}</b><br><br><span class="text-[11px] text-gray-500">(Esta senha foi validada contra vazamentos). Copie-a e envie ao colaborador.</span>`,
+                        icon: 'success',
+                        background: '#121418', color: '#fff', confirmButtonColor: '#3B82F6'
+                    });
+                } else {
+                    Swal.fire({ title: 'Erro!', text: 'Não foi possível redefinir a senha.', icon: 'error', background: '#121418', color: '#fff' });
+                }
+            }
+        }
+
+        async function salvarEdicao(e) {
+            e.preventDefault();
+            const payload = {
+                Id: document.getElementById('editId').value,
+                Nome: document.getElementById('editNome').value,
+                CPF: document.getElementById('editCpf').value,
+                Cargo: document.getElementById('editCargo').value,
+                Departamento: document.getElementById('editDepartamento').value,
+                Telefone: document.getElementById('editTelefone').value,
+                Perfil: document.getElementById('editPerfil').value
+            };
+            const res = await fetch('/Admin/EditarUsuario', { method: 'POST', headers: { 'Content-Type': 'application/json', 'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]').value }, body: JSON.stringify(payload) });
+            if(res.ok) {
+                Swal.fire({ title: 'Salvo!', icon: 'success', background: '#121418', color: '#fff', confirmButtonColor: '#3B82F6' }).then(() => window.location.reload());
+            } else {
+                Swal.fire({ title: 'Erro!', icon: 'error', background: '#121418', color: '#fff', confirmButtonColor: '#3B82F6' });
+            }
+        }
+
+        async function inativarUsuario(id) {
+            const result = await Swal.fire({
+                title: 'Alterar Status?',
+                text: "Deseja alterar o status de bloqueio deste usuário?",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#3B82F6',
+                cancelButtonColor: '#333',
+                confirmButtonText: 'Sim',
+                cancelButtonText: 'Cancelar',
+                background: '#121418', color: '#fff'
+            });
+            
+            if (result.isConfirmed) {
+                const res = await fetch('/Admin/InativarUsuario', { method: 'POST', headers: { 'Content-Type': 'application/json', 'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]').value }, body: JSON.stringify(id) });
+                if (res.ok) window.location.reload(); 
+                else Swal.fire({ title: 'Erro!', text: 'Não foi possível alterar.', icon: 'error', background: '#121418', color: '#fff' });
+            }
+        }
+
+        async function excluirUsuario(id) {
+            const result = await Swal.fire({
+                title: 'Excluir usuário?',
+                text: "Esta ação não pode ser desfeita!",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#ef4444',
+                cancelButtonColor: '#333',
+                confirmButtonText: 'Sim, excluir',
+                cancelButtonText: 'Cancelar',
+                background: '#121418', color: '#fff'
+            });
+            
+            if (result.isConfirmed) {
+                const res = await fetch('/Admin/ExcluirUsuario', { method: 'POST', headers: { 'Content-Type': 'application/json', 'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]').value }, body: JSON.stringify(id) });
+                if (res.ok) window.location.reload(); 
+                else Swal.fire({ title: 'Erro!', text: 'Não foi possível excluir.', icon: 'error', background: '#121418', color: '#fff' });
+            }
+        }
+    
+        document.getElementById('searchInput').addEventListener('input', function(e) {
+            const term = e.target.value.toLowerCase();
+            document.querySelectorAll('.user-card').forEach(card => {
+                const text = card.innerText.toLowerCase();
+                if(text.includes(term)) card.style.display = 'flex';
+                else card.style.display = 'none';
+            });
+        });
+</script>
+}

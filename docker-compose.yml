@@ -1,0 +1,25 @@
+version: '3.4'
+
+services:
+  corvusiam.web:
+    image: corvusiamweb
+    build:
+      context: ./CorvusIAM
+      dockerfile: Dockerfile
+    ports:
+      - "8080:80"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ConnectionStrings__SqlServerConnection=Server=sqlserver;Database=CorvusIAMDb;User Id=sa;Password=${SQL_SA_PASSWORD};TrustServerCertificate=True;
+      - DatabaseProvider=SqlServer
+    depends_on:
+      - sqlserver
+
+  sqlserver:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    ports:
+      - "1433:1433"
+    environment:
+      - ACCEPT_EULA=Y
+      - SA_PASSWORD=${SQL_SA_PASSWORD}
+

@@ -1,0 +1,9 @@
+{
+  "name": "CorvusIAM Mobile",
+  "short_name": "CorvusIAM",
+  "start_url": "/Mobile",
+  "display": "standalone",
+  "background_color": "#07111f",
+  "theme_color": "#0a66c2",
+  "description": "Aplicação móvel corporativa para abertura e acompanhamento de chamados."
+}

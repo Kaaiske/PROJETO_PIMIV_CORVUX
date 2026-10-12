@@ -1,0 +1,23 @@
+@{
+    ViewData["Title"] = "Esqueci Minha Senha";
+    Layout = null;
+}
+<!DOCTYPE html>
+<html lang='pt-BR'>
+<head>
+    <title>Recuperação de Senha - Corvus IAM</title>
+</head>
+<body>
+    <h2>Esqueci Minha Senha</h2>
+    @if (ViewBag.Mensagem != null)
+    {
+        <p style='color:green;'>@ViewBag.Mensagem</p>
+    }
+    <form asp-action='EsqueciSenha' method='post'>
+        <label>Seu E-mail:</label>
+        <input type='email' name='email' required />
+        <button type='submit'>Enviar Link</button>
+    </form>
+    <a href='/Auth/Login'>Voltar ao Login</a>
+</body>
+</html>
