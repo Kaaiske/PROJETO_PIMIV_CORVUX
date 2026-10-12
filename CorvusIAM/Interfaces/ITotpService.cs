@@ -10,3 +10,4 @@ namespace CorvusIAM.Interfaces
         bool ValidateCode(string secretKey, string code);
     }
 }
+

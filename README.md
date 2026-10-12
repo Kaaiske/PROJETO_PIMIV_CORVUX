@@ -59,7 +59,7 @@ A plataforma resolve dores críticas de segurança empresarial:
 | **Etapa 4: Solução Web (.NET Web)** | ASP.NET Core 8 MVC, Razor Views, autenticação híbrida (Cookies + JWT), Rate Limiting, Turnstile e APIs REST. | 🟢 100% |
 | **Etapa 5: Solução Mobile** | App nativo em **React Native (Expo)** em `CorvusIAM.Mobile` e **PWA Offline-First** (`/Mobile`) com IndexedDB e Service Worker. | 🟢 100% |
 | **Etapa 6: Arquitetura de Software (.NET)** | Organização em camadas desacopladas (Controllers, Services, Repositories, Entities, DTOs, Middlewares, DI). | 🟢 100% |
-| **Etapa 7: Banco de Dados** | SQL Server 2022 / SQLite, modelo físico normalizado, Stored Procedure `sp_RegistrarLog` e Trigger `trg_AuditoriaUsuarios`. | 🟢 100% |
+| **Etapa 7: Banco de Dados** | SQL Server 2022 / SQLite, modelo físico normalizado, Stored Procedures (`sp_RegistrarLog`, `sp_InativarColaborador`, `sp_ObterResumoAuditoria`) e Triggers (`trg_AuditoriaUsuarios`, `trg_AuditoriaChamados`). | 🟢 100% |
 | **Etapa 8: Cloud Computing & DevOps** | Dockerfile, `docker-compose.yml`, pipeline automatizado no GitHub Actions, Health Checks (`/health`) e métricas Prometheus. | 🟢 100% |
 | **Etapa 9: Gerenciamento Ágil de Projetos** | Planejamento em 4 Sprints, Product Backlog priorizado, Sprint Backlogs e Quadro Kanban integrado. | 🟢 100% |
 
@@ -86,9 +86,14 @@ A plataforma resolve dores críticas de segurança empresarial:
 ### Banco de Dados
 - **Microsoft SQL Server 2022** (Ambiente de Produção e Docker)
 - **SQLite** (Ambiente de Desenvolvimento Rápido e Testes Automatizados)
-- **Recursos Avançados:**
-  - Stored Procedure `sp_RegistrarLog`
-  - Trigger `trg_AuditoriaUsuarios`
+- **Recursos Avançados de Banco de Dados:**
+  - **Stored Procedures:**
+    - `sp_RegistrarLog`: Inserção atômica e padronizada de eventos na tabela `LogsAuditoria`.
+    - `sp_InativarColaborador`: Inativação de usuário com invalidação de tokens e registro na auditoria (Soft Delete LGPD).
+    - `sp_ObterResumoAuditoria`: Relatório consolidado de métricas analíticas e incidentes críticos por período.
+  - **Triggers:**
+    - `trg_AuditoriaUsuarios`: Auditoria automática em tempo real para comandos `INSERT`, `UPDATE` e `DELETE` em `Usuarios`.
+    - `trg_AuditoriaChamados`: Rastreabilidade e auditoria automática de transições de status em `ChamadosSuporte`.
 
 ### DevOps & Nuvem
 - **Docker & Docker Compose** (Multi-container: Web Application + SQL Server)
@@ -258,6 +263,93 @@ npx expo start
 - **Módulo de Anexos Seguros (Storage Local & S3):** Upload seguro de anexos em chamados de Help Desk com validação de tipos MIME e isolamento de arquivos.
 - **Exportação de Relatórios Gerenciais:** Download instantâneo de colaboradores e trilhas de auditoria em formato CSV com UTF-8 BOM.
 - **Rastreabilidade Obrigatória:** Cada ação administrativa, criação de usuário, deleção ou abertura de chamado gera um evento imutável com data UTC, IP de origem e identificador do usuário.
+
+---
+
+## 🗄️ Como Gerar o Banco de Dados (com Stored Procedures e Triggers)
+
+O CorvuxIAM oferece **dois métodos oficiais** para geração completa e inicialização do banco de dados relacional com integridade referencial, tabelas normalizadas, cargas iniciais (*seeds*), Stored Procedures e Triggers (atendendo à **Etapa 7 do PIM IV - UNIP**).
+
+### Método 1: Geração Automática (Docker / Entity Framework Core) — *Recomendado*
+
+Quando a aplicação inicializa em ambiente de produção ou desenvolvimento, ela executa automaticamente:
+1. `context.Database.Migrate()` — Criação estrutural das tabelas e chaves estrangeiras via EF Core.
+2. Script de integridade e DDL avançado em `Program.cs` — Aplica comandos `CREATE OR ALTER PROCEDURE` e `CREATE OR ALTER TRIGGER`.
+3. Inserção automática de dados mestres (*seeds*): perfis de acesso, permissões de segurança e o usuário administrador padrão (`admin@corvus.com` / `Cv1670!`).
+
+Para inicializar tudo de forma 100% automatizada no servidor ou máquina local:
+```bash
+# Na raiz do projeto, suba o orquestrador Docker Compose
+docker compose up -d --build
+```
+> O container `sqlserver` iniciará primeiro, e o container `corvusiam.web` aguardará a prontidão do SQL Server, executando todas as migrações, procedures e triggers sem intervenção manual.
+
+---
+
+### Método 2: Geração Manual via Script SQL (`CorvusIAM/DatabaseScript.sql`)
+
+Caso deseje recriar o banco do zero ou executar via ferramentas de administração de banco de dados (como **SQL Server Management Studio - SSMS**, **Azure Data Studio**, **DBeaver** ou via terminal `sqlcmd`), utilize o arquivo oficial [`CorvusIAM/DatabaseScript.sql`](CorvusIAM/DatabaseScript.sql).
+
+#### Execução via Linha de Comando (no container Docker):
+```bash
+# Executa o script DatabaseScript.sql diretamente no SQL Server do container
+docker compose exec -i sqlserver /opt/mssql-tools18/bin/sqlcmd -C -S localhost -U sa -P "CorvuxAdmin@2026!" < CorvusIAM/DatabaseScript.sql
+```
+
+#### Execução no Servidor de Produção (VPS Ubuntu):
+```bash
+cd /var/www/PROJETO_PIMIV_CORVUX
+docker compose exec -i sqlserver /opt/mssql-tools18/bin/sqlcmd -C -S localhost -U sa -P "CorvuxAdmin@2026!" < CorvusIAM/DatabaseScript.sql
+```
+
+#### Execução via Interface Gráfica (SSMS / Azure Data Studio):
+1. Conecte ao servidor:
+   - **Host / Server:** `localhost,1433` (ou IP da VPS `179.236.228.30,1433`)
+   - **Autenticação:** SQL Server Authentication
+   - **Usuário:** `sa`
+   - **Senha:** `CorvuxAdmin@2026!` (ou a definida no seu `.env`)
+   - **Trust Server Certificate:** `True` (Sim)
+2. Abra o arquivo `CorvusIAM/DatabaseScript.sql`.
+3. Clique em **Execute** (`F5`). O script criará o banco `CorvusIAMDb`, todas as tabelas, índices, triggers, procedures e carga inicial.
+
+---
+
+### 📋 Stored Procedures Implementadas no Projeto (Etapa 7 - PIM IV)
+
+| Stored Procedure | Parâmetros de Entrada | Finalidade & Regra de Negócio |
+| :--- | :--- | :--- |
+| **`sp_RegistrarLog`** | `@UsuarioId INT`, `@Acao NVARCHAR(100)`, `@Detalhe NVARCHAR(MAX)`, `@Tipo NVARCHAR(50)`, `@Origem NVARCHAR(50)` | Centraliza a inserção imutável de eventos na tabela `LogsAuditoria`, garantindo trilha de auditoria para conformidade com ISO 27001 e LGPD. Utilizada pelo backend C# e pelas triggers. |
+| **`sp_InativarColaborador`** | `@UsuarioId INT`, `@AdminId INT` | Executa soft delete transacional de um usuário: seta `Ativo = 0`, revoga tokens de sessão (`RefreshToken`, `ResetSenhaToken`) e registra auditoria formal de inativação. |
+| **`sp_ObterResumoAuditoria`** | `@DiasRetroativos INT` (Padrão: 30) | Gera dois conjuntos de resultados: (1) Total de ocorrências agrupadas por Tipo e Origem; (2) Top 10 incidentes e alertas críticos (`Danger`, `Warning`, `SecurityAlert`). |
+
+#### Exemplo de Teste de Execução de Procedure no SQL Server:
+```sql
+USE [CorvusIAMDb];
+GO
+
+-- 1. Testar registro de log via Stored Procedure
+EXEC sp_RegistrarLog 
+    @UsuarioId = 1, 
+    @Acao = 'Teste Manual de Procedure', 
+    @Detalhe = 'Validação da procedure sp_RegistrarLog via SSMS', 
+    @Tipo = 'Info', 
+    @Origem = 'SSMS';
+
+-- 2. Testar relatório analítico via Stored Procedure
+EXEC sp_ObterResumoAuditoria @DiasRetroativos = 30;
+
+-- 3. Visualizar os registros gerados
+SELECT TOP 5 * FROM LogsAuditoria ORDER BY DataHora DESC;
+```
+
+---
+
+### ⚡ Triggers Implementadas no Projeto (Etapa 7 - PIM IV)
+
+| Trigger | Tabela Associada | Evento | Comportamento & Regra de Negócio |
+| :--- | :--- | :--- | :--- |
+| **`trg_AuditoriaUsuarios`** | `Usuarios` | `AFTER INSERT, UPDATE, DELETE` | Monitora mutações cadastrais na tabela de colaboradores. Mesmo que um comando DML seja executado fora do sistema (ex: direto no banco via SSMS), a trigger intercepta e gera log de auditoria automático informando alterações de status e perfil. |
+| **`trg_AuditoriaChamados`** | `ChamadosSuporte` | `AFTER UPDATE` | Monitora transições de status nos chamados de Help Desk (ex: de *Aberto* para *Resolvido* ou *Fechado*), gravando o histórico de mudança na trilha de auditoria. |
 
 ---
 

@@ -10,3 +10,4 @@ namespace CorvusIAM.Interfaces
         string GetFileUrl(string fileKey);
     }
 }
+

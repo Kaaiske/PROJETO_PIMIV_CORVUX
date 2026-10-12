@@ -251,6 +251,109 @@ using (var scope = app.Services.CreateScope())
                             IF NOT EXISTS (SELECT * FROM sys.columns WHERE object_id = OBJECT_ID(N'[ChamadosSuporte]') AND name = 'AnexoNomeOriginal')
                                 ALTER TABLE [ChamadosSuporte] ADD [AnexoNomeOriginal] NVARCHAR(255) NULL;
                         ");
+
+                        // Assegura criação/atualização das Stored Procedures (PIM IV)
+                        context.Database.ExecuteSqlRaw(@"
+                            CREATE OR ALTER PROCEDURE sp_RegistrarLog
+                                @UsuarioId INT = NULL,
+                                @Acao NVARCHAR(100),
+                                @Detalhe NVARCHAR(MAX),
+                                @Tipo NVARCHAR(50) = 'Info',
+                                @Origem NVARCHAR(50) = 'Sistema'
+                            AS
+                            BEGIN
+                                SET NOCOUNT ON;
+                                INSERT INTO LogsAuditoria (UsuarioId, DataHora, Acao, Detalhe, Tipo, Origem)
+                                VALUES (@UsuarioId, GETUTCDATE(), @Acao, @Detalhe, @Tipo, @Origem);
+                            END;
+                        ");
+
+                        context.Database.ExecuteSqlRaw(@"
+                            CREATE OR ALTER PROCEDURE sp_InativarColaborador
+                                @UsuarioId INT,
+                                @AdminId INT = NULL
+                            AS
+                            BEGIN
+                                SET NOCOUNT ON;
+                                BEGIN TRANSACTION;
+                                BEGIN TRY
+                                    UPDATE Usuarios
+                                    SET Ativo = 0,
+                                        RefreshToken = '',
+                                        RefreshTokenExpiracao = NULL,
+                                        ResetSenhaToken = '',
+                                        ResetSenhaExpiracao = NULL
+                                    WHERE Id = @UsuarioId;
+
+                                    INSERT INTO LogsAuditoria (UsuarioId, DataHora, Acao, Detalhe, Tipo, Origem)
+                                    VALUES (@AdminId, GETUTCDATE(), 'Inativação de Colaborador', CONCAT('Colaborador ID ', @UsuarioId, ' inativado via Stored Procedure sp_InativarColaborador'), 'Warning', 'Stored Procedure');
+
+                                    COMMIT TRANSACTION;
+                                END TRY
+                                BEGIN CATCH
+                                    IF @@TRANCOUNT > 0 ROLLBACK TRANSACTION;
+                                    THROW;
+                                END CATCH;
+                            END;
+                        ");
+
+                        context.Database.ExecuteSqlRaw(@"
+                            CREATE OR ALTER PROCEDURE sp_ObterResumoAuditoria
+                                @DiasRetroativos INT = 30
+                            AS
+                            BEGIN
+                                SET NOCOUNT ON;
+                                DECLARE @DataLimite DATETIME2 = DATEADD(DAY, -@DiasRetroativos, GETUTCDATE());
+
+                                SELECT Tipo, Origem, COUNT(*) AS TotalEventos, MIN(DataHora) AS PrimeiroRegistro, MAX(DataHora) AS UltimoRegistro
+                                FROM LogsAuditoria WHERE DataHora >= @DataLimite GROUP BY Tipo, Origem ORDER BY TotalEventos DESC;
+
+                                SELECT TOP 10 Id, UsuarioId, DataHora, Acao, Detalhe, Tipo, Origem
+                                FROM LogsAuditoria WHERE DataHora >= @DataLimite AND Tipo IN ('Danger', 'Warning', 'SecurityAlert') ORDER BY DataHora DESC;
+                            END;
+                        ");
+
+                        // Assegura criação/atualização dos Triggers (PIM IV)
+                        context.Database.ExecuteSqlRaw(@"
+                            CREATE OR ALTER TRIGGER trg_AuditoriaUsuarios
+                            ON Usuarios
+                            AFTER INSERT, UPDATE, DELETE
+                            AS
+                            BEGIN
+                                SET NOCOUNT ON;
+                                IF EXISTS (SELECT 1 FROM inserted) AND NOT EXISTS (SELECT 1 FROM deleted)
+                                BEGIN
+                                    INSERT INTO LogsAuditoria (UsuarioId, DataHora, Acao, Detalhe, Tipo, Origem)
+                                    SELECT i.Id, GETUTCDATE(), 'Criação de Usuário', CONCAT('Novo colaborador cadastrado: ', i.Email, ' (Nome: ', i.Nome, ')'), 'Info', 'DB Trigger [trg_AuditoriaUsuarios]'
+                                    FROM inserted i;
+                                END;
+                                IF EXISTS (SELECT 1 FROM inserted) AND EXISTS (SELECT 1 FROM deleted)
+                                BEGIN
+                                    INSERT INTO LogsAuditoria (UsuarioId, DataHora, Acao, Detalhe, Tipo, Origem)
+                                    SELECT i.Id, GETUTCDATE(), 'Alteração Cadastral', CONCAT('Usuário ', i.Email, ' modificado. Ativo: ', CAST(i.Ativo AS VARCHAR(1)), ', MFA: ', CAST(i.MfaHabilitado AS VARCHAR(1))), 'Warning', 'DB Trigger [trg_AuditoriaUsuarios]'
+                                    FROM inserted i;
+                                END;
+                                IF NOT EXISTS (SELECT 1 FROM inserted) AND EXISTS (SELECT 1 FROM deleted)
+                                BEGIN
+                                    INSERT INTO LogsAuditoria (UsuarioId, DataHora, Acao, Detalhe, Tipo, Origem)
+                                    SELECT d.Id, GETUTCDATE(), 'Exclusão Física de Usuário', CONCAT('Registro removido fisicamente da base: ', d.Email), 'Danger', 'DB Trigger [trg_AuditoriaUsuarios]'
+                                    FROM deleted d;
+                                END;
+                            END;
+                        ");
+
+                        context.Database.ExecuteSqlRaw(@"
+                            CREATE OR ALTER TRIGGER trg_AuditoriaChamados
+                            ON ChamadosSuporte
+                            AFTER UPDATE
+                            AS
+                            BEGIN
+                                SET NOCOUNT ON;
+                                INSERT INTO LogsAuditoria (UsuarioId, DataHora, Acao, Detalhe, Tipo, Origem)
+                                SELECT i.UsuarioId, GETUTCDATE(), 'Transição de Chamado', CONCAT('Chamado #', i.Id, ' alterado de status [', d.Status, '] para [', i.Status, ']'), CASE WHEN i.Status IN ('Fechado', 'Resolvido') THEN 'Info' ELSE 'Warning' END, 'DB Trigger [trg_AuditoriaChamados]'
+                                FROM inserted i INNER JOIN deleted d ON i.Id = d.Id WHERE i.Status <> d.Status;
+                            END;
+                        ");
                     }
                     else if (context.Database.IsSqlite())
                     {

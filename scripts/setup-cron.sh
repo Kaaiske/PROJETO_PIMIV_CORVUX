@@ -26,3 +26,4 @@ echo ""
 echo "Rotinas ativas no Crontab:"
 crontab -l | grep -F "backup-db.sh"
 echo "=================================================="
+
