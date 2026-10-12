@@ -1,4 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using CorvusIAM.Entities;
 using System;
 
@@ -63,11 +63,11 @@ namespace CorvusIAM.Data
 
             // Seed Data
             modelBuilder.Entity<Perfil>().HasData(
-                new Perfil { Id = 1, Nome = "Admin", Descricao = "Administrador do Sistema" },
-                new Perfil { Id = 2, Nome = "Recursos Humanos", Descricao = "Recursos Humanos (RH)" },
-                new Perfil { Id = 3, Nome = "Contabilidade", Descricao = "Contabilidade" },
-                new Perfil { Id = 4, Nome = "Help Desk", Descricao = "Suporte de TI / Help Desk" },
-                new Perfil { Id = 5, Nome = "Colaborador", Descricao = "Usuário Padrão" }
+                new Perfil { Id = 1, Nome = "Admin", Descricao = "Administrador do Sistema", Ativo = true },
+                new Perfil { Id = 2, Nome = "Recursos Humanos", Descricao = "Recursos Humanos (RH)", Ativo = true },
+                new Perfil { Id = 3, Nome = "Contabilidade", Descricao = "Contabilidade", Ativo = true },
+                new Perfil { Id = 4, Nome = "Help Desk", Descricao = "Suporte de TI / Help Desk", Ativo = true },
+                new Perfil { Id = 5, Nome = "Colaborador", Descricao = "Usuário Padrão", Ativo = true }
             );
 
             modelBuilder.Entity<Permissao>().HasData(
@@ -108,7 +108,9 @@ namespace CorvusIAM.Data
                 RG = "00.000.000-0",
                 Telefone = "(11) 99999-9999",
                 Departamento = "Tecnologia",
-                Endereco = "Av. Paulista, 1000 - SP"
+                Endereco = "Av. Paulista, 1000 - SP",
+                MfaHabilitado = false,
+                MfaSecretKey = string.Empty
             });
 
             modelBuilder.Entity<UsuarioPerfil>().HasData(

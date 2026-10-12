@@ -73,6 +73,30 @@
             <i class="ph ph-check-circle text-[48px] text-emerald-500 mx-auto"></i>
             <h4 class="text-[16px] font-[600] text-emerald-600 dark:text-emerald-400 mt-3 mb-1">Senha Alterada</h4>
             <p class="text-[12px] text-gray-500">Sua senha foi atualizada com sucesso e já está valendo para o próximo login.</p>
+        <!-- MFA / 2FA Status & Action -->
+        <div class="w-full max-w-sm mt-4 pt-4 border-t border-gray-100 dark:border-dark-border flex flex-col gap-2">
+            <div class="flex items-center justify-between">
+                <div>
+                    <div class="text-[12px] font-[600] text-gray-900 dark:text-white">Autenticação em 2 Etapas (2FA)</div>
+                    <div class="text-[11px] text-gray-500">Google / Microsoft Authenticator</div>
+                </div>
+                <div>
+                    @if (Model.Usuario.MfaHabilitado) {
+                        <span class="bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 px-2 py-0.5 rounded-[4px] text-[10px] font-[600] uppercase">Ativo</span>
+                    } else {
+                        <span class="bg-gray-500/10 text-gray-600 dark:text-gray-400 border border-gray-500/20 px-2 py-0.5 rounded-[4px] text-[10px] font-[600] uppercase">Inativo</span>
+                    }
+                </div>
+            </div>
+            @if (Model.Usuario.MfaHabilitado) {
+                <button type="button" onclick="desativarMfaModal()" class="w-full bg-red-500/10 hover:bg-red-500/20 text-red-500 text-[11px] font-medium py-1.5 rounded-[6px] transition-colors border border-red-500/20">
+                    Desativar 2FA
+                </button>
+            } else {
+                <button type="button" onclick="configurarMfaModal()" class="w-full bg-brand-50 hover:bg-brand-100 dark:bg-brand-900/20 dark:hover:bg-brand-900/30 text-brand-600 dark:text-brand-400 text-[11px] font-medium py-1.5 rounded-[6px] transition-colors border border-brand-200 dark:border-brand-800 flex items-center justify-center gap-1.5">
+                    <i class="ph ph-qr-code"></i> Configurar 2FA (TOTP)
+                </button>
+            }
         </div>
     </div>
 
@@ -95,6 +119,7 @@
                             <th class="px-[16px] py-[12px] text-[12px] font-[600] text-gray-500 dark:text-gray-400 uppercase tracking-[0.05em]">ID</th>
                             <th class="px-[16px] py-[12px] text-[12px] font-[600] text-gray-500 dark:text-gray-400 uppercase tracking-[0.05em]">Assunto</th>
                             <th class="px-[16px] py-[12px] text-[12px] font-[600] text-gray-500 dark:text-gray-400 uppercase tracking-[0.05em]">Data Abertura</th>
+                            <th class="px-[16px] py-[12px] text-[12px] font-[600] text-gray-500 dark:text-gray-400 uppercase tracking-[0.05em]">Anexo</th>
                             <th class="px-[16px] py-[12px] text-[12px] font-[600] text-gray-500 dark:text-gray-400 uppercase tracking-[0.05em]">Status</th>
                         </tr>
                     </thead>
@@ -104,6 +129,15 @@
                                 <td class="px-[16px] py-[12px] text-[12px] font-mono text-brand-500">#@c.Id</td>
                                 <td class="px-[16px] py-[12px] text-[13px] font-[500] text-gray-900 dark:text-gray-100">@c.Assunto</td>
                                 <td class="px-[16px] py-[12px] text-[12px] text-gray-500">@c.DataAbertura.ToString("dd/MM/yyyy HH:mm")</td>
+                                <td class="px-[16px] py-[12px] text-[12px]">
+                                    @if(!string.IsNullOrEmpty(c.AnexoUrl)) {
+                                        <a href="@c.AnexoUrl" target="_blank" class="inline-flex items-center gap-1 text-brand-600 dark:text-brand-400 hover:underline font-medium text-[11px]">
+                                            <i class="ph ph-paperclip"></i> Anexo
+                                        </a>
+                                    } else {
+                                        <span class="text-gray-400 text-[11px]">-</span>
+                                    }
+                                </td>
                                 <td class="px-[16px] py-[12px]">
                                     @if(c.Status == "Aberto") { <span class="bg-orange-500/10 text-orange-600 dark:text-orange-400 border border-orange-500/20 px-2 py-0.5 rounded-[4px] text-[11px] font-[600] uppercase tracking-wider">Aberto</span> }
                                     else if(c.Status == "Fechado") { <span class="bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 px-2 py-0.5 rounded-[4px] text-[11px] font-[600] uppercase tracking-wider">Fechado</span> }
@@ -178,10 +212,39 @@
                 </select>
                 <input type="text" id="chamadoAssunto" placeholder="Assunto (Ex: Computador não liga)" required class="w-full bg-gray-50 dark:bg-dark-bg border border-gray-200 dark:border-dark-border text-gray-900 dark:text-gray-100 text-[13px] rounded-[6px] px-3 py-2 outline-none focus:border-brand-500" />
                 <textarea id="chamadoDesc" placeholder="Descreva o problema com detalhes..." required rows="4" class="w-full bg-gray-50 dark:bg-dark-bg border border-gray-200 dark:border-dark-border text-gray-900 dark:text-gray-100 text-[13px] rounded-[6px] px-3 py-2 resize-none outline-none focus:border-brand-500"></textarea>
+                <div>
+                    <label class="block text-[11px] font-medium text-gray-500 mb-1">Anexo (Opcional - PNG, JPG, PDF, TXT):</label>
+                    <input type="file" id="chamadoAnexo" accept=".png,.jpg,.jpeg,.pdf,.txt,.csv,.log" class="w-full bg-gray-50 dark:bg-dark-bg border border-gray-200 dark:border-dark-border text-gray-900 dark:text-gray-100 text-[12px] rounded-[6px] px-3 py-1.5 outline-none focus:border-brand-500" />
+                </div>
                 
                 <div class="flex justify-end gap-3 pt-4 border-t border-gray-200 dark:border-dark-border mt-4">
                     <button type="button" onclick="closeModal()" class="px-4 py-2 text-[12px] font-medium text-gray-700 dark:text-gray-300 border border-gray-300 dark:border-dark-border rounded-[6px] hover:bg-gray-50 dark:hover:bg-[#1B1F24] transition-colors">Cancelar</button>
                     <button type="submit" class="px-4 py-2 text-[12px] font-medium text-white bg-brand-600 rounded-[6px] hover:bg-[#1D4ED8] transition-colors">Enviar Solicitação</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    <!-- Modal Configurar 2FA (TOTP) -->
+    <div id="modalMfa" class="hidden bg-white dark:bg-dark-card border border-gray-200 dark:border-dark-border rounded-[8px] shadow-2xl w-full max-w-sm overflow-hidden flex-col">
+        <div class="px-6 py-4 border-b border-gray-200 dark:border-dark-border flex justify-between items-center bg-gray-50 dark:bg-dark-bg/50">
+            <h3 class="text-[14px] font-[600] text-gray-900 dark:text-white flex items-center gap-2 m-0">
+                <i class="ph ph-qr-code text-brand-500"></i> Ativar 2FA (TOTP)
+            </h3>
+            <button onclick="closeModal()" class="text-gray-500 hover:text-gray-900 dark:hover:text-white transition-colors">
+                <i class="ph ph-x text-[16px]"></i>
+            </button>
+        </div>
+        <div class="p-6 text-center">
+            <p class="text-[12px] text-gray-500 mb-3">Escaneie o QR Code abaixo com o <b>Google Authenticator</b> ou <b>Microsoft Authenticator</b>:</p>
+            <div id="mfaQrContainer" class="flex justify-center mb-3">
+                <img id="mfaQrImage" src="" alt="QR Code 2FA" class="w-48 h-48 border border-gray-200 dark:border-dark-border rounded-lg p-1 bg-white" />
+            </div>
+            <p class="text-[11px] text-gray-400 mb-4 font-mono select-all" id="mfaSecretText"></p>
+            <form onsubmit="confirmarMfa(event)" class="space-y-3">
+                <input type="text" id="mfaCodigoInput" placeholder="Código de 6 dígitos" maxlength="6" required class="w-full text-center tracking-widest text-[16px] font-mono bg-gray-50 dark:bg-dark-bg border border-gray-200 dark:border-dark-border text-gray-900 dark:text-gray-100 rounded-[6px] px-3 py-2 outline-none focus:border-brand-500" />
+                <div class="flex justify-end gap-2 pt-2 border-t border-gray-200 dark:border-dark-border">
+                    <button type="button" onclick="closeModal()" class="px-3 py-1.5 text-[12px] font-medium text-gray-700 dark:text-gray-300 border border-gray-300 dark:border-dark-border rounded-[6px]">Cancelar</button>
+                    <button type="submit" class="px-3 py-1.5 text-[12px] font-medium text-white bg-brand-600 rounded-[6px]">Confirmar e Ativar</button>
                 </div>
             </form>
         </div>
@@ -207,11 +270,81 @@
             
             document.getElementById('modalChamado').classList.add('hidden');
             document.getElementById('modalChamado').classList.remove('flex');
+            document.getElementById('modalMfa')?.classList.add('hidden');
+            document.getElementById('modalMfa')?.classList.remove('flex');
         }
 
         document.addEventListener('keydown', (e) => {
             if (e.key === 'Escape') closeModal();
         });
+
+
+        async function configurarMfaModal() {
+            try {
+                const res = await fetch('/Portal/ObterMfaSetup');
+                if (res.ok) {
+                    const data = await res.json();
+                    document.getElementById('mfaQrImage').src = data.qrCodeUrl;
+                    document.getElementById('mfaSecretText').innerText = `Chave manual: ${data.secretKey}`;
+                    openModal('modalMfa');
+                } else {
+                    Swal.fire({ title: 'Erro!', text: 'Não foi possível carregar o setup do 2FA.', icon: 'error', background: '#121418', color: '#fff' });
+                }
+            } catch(e) {
+                Swal.fire({ title: 'Erro!', text: 'Falha de comunicação.', icon: 'error', background: '#121418', color: '#fff' });
+            }
+        }
+
+        async function confirmarMfa(e) {
+            e.preventDefault();
+            const codigo = document.getElementById('mfaCodigoInput').value;
+            try {
+                const res = await fetch('/Portal/ConfirmarAtivacaoMfa', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ Codigo: codigo })
+                });
+                if (res.ok) {
+                    Swal.fire({ title: '2FA Ativado!', text: 'Autenticação em duas etapas ativada com sucesso.', icon: 'success', background: '#121418', color: '#fff', confirmButtonColor: '#3B82F6' })
+                        .then(() => window.location.reload());
+                } else {
+                    const data = await res.json().catch(() => ({}));
+                    Swal.fire({ title: 'Erro!', text: data.message || 'Código incorreto.', icon: 'error', background: '#121418', color: '#fff' });
+                }
+            } catch(e) {
+                Swal.fire({ title: 'Erro!', text: 'Falha de comunicação.', icon: 'error', background: '#121418', color: '#fff' });
+            }
+        }
+
+        async function desativarMfaModal() {
+            const { value: codigo } = await Swal.fire({
+                title: 'Desativar 2FA?',
+                text: 'Insira o código de 6 dígitos do seu aplicativo autenticador para confirmar a desativação:',
+                input: 'text',
+                inputAttributes: { maxlength: '6', autocomplete: 'off' },
+                showCancelButton: true,
+                confirmButtonColor: '#ef4444',
+                cancelButtonColor: '#4b5563',
+                confirmButtonText: 'Confirmar Desativação',
+                cancelButtonText: 'Cancelar',
+                background: '#121418', color: '#fff'
+            });
+
+            if (codigo) {
+                const res = await fetch('/Portal/DesativarMfa', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ Codigo: codigo })
+                });
+                if (res.ok) {
+                    Swal.fire({ title: '2FA Desativado!', text: 'A autenticação em duas etapas foi desativada.', icon: 'success', background: '#121418', color: '#fff' })
+                        .then(() => window.location.reload());
+                } else {
+                    const data = await res.json().catch(() => ({}));
+                    Swal.fire({ title: 'Erro!', text: data.message || 'Código inválido.', icon: 'error', background: '#121418', color: '#fff' });
+                }
+            }
+        }
 
         async function alterarSenha(e) {
             e.preventDefault();
@@ -270,11 +403,19 @@
 
             const assuntoFinal = `[${cat}] ${assunto}`;
 
+            const formData = new FormData();
+            formData.append('Assunto', assuntoFinal);
+            formData.append('Descricao', desc);
+            formData.append('Categoria', cat);
+            const fileInput = document.getElementById('chamadoAnexo');
+            if (fileInput && fileInput.files.length > 0) {
+                formData.append('Anexo', fileInput.files[0]);
+            }
+
             try {
                 const res = await fetch('/Portal/AbrirChamado', {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ Assunto: assuntoFinal, Descricao: desc })
+                    body: formData
                 });
 
                 if (res.ok) {

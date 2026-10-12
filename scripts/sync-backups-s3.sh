@@ -39,3 +39,4 @@ aws s3 sync "${BACKUP_DIR}" "s3://${S3_BUCKET}/${S3_PREFIX}/" \
     --storage-class STANDARD_IA
 
 echo "[CorvuxIAM] Sincronização com Amazon S3 concluída com sucesso!"
+

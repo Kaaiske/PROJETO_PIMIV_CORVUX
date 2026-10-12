@@ -43,6 +43,8 @@ builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<ILogAuditoriaService, LogAuditoriaService>();
 builder.Services.AddScoped<IUsuarioService, UsuarioService>();
 builder.Services.AddScoped<IPasswordGeneratorService, PasswordGeneratorService>();
+builder.Services.AddScoped<ITotpService, TotpService>();
+builder.Services.AddScoped<IStorageService, StorageService>();
 
 // External API Services
 static IAsyncPolicy<HttpResponseMessage> GetRetryPolicy()
@@ -232,6 +234,38 @@ using (var scope = app.Services.CreateScope())
             try
             {
                 context.Database.Migrate();
+
+                try
+                {
+                    if (context.Database.IsSqlServer())
+                    {
+                        context.Database.ExecuteSqlRaw(@"
+                            IF NOT EXISTS (SELECT * FROM sys.columns WHERE object_id = OBJECT_ID(N'[Perfis]') AND name = 'Ativo')
+                                ALTER TABLE [Perfis] ADD [Ativo] BIT NOT NULL CONSTRAINT DF_Perfis_Ativo DEFAULT 1;
+                            IF NOT EXISTS (SELECT * FROM sys.columns WHERE object_id = OBJECT_ID(N'[Usuarios]') AND name = 'MfaHabilitado')
+                                ALTER TABLE [Usuarios] ADD [MfaHabilitado] BIT NOT NULL CONSTRAINT DF_Usuarios_Mfa DEFAULT 0;
+                            IF NOT EXISTS (SELECT * FROM sys.columns WHERE object_id = OBJECT_ID(N'[Usuarios]') AND name = 'MfaSecretKey')
+                                ALTER TABLE [Usuarios] ADD [MfaSecretKey] NVARCHAR(100) NULL;
+                            IF NOT EXISTS (SELECT * FROM sys.columns WHERE object_id = OBJECT_ID(N'[ChamadosSuporte]') AND name = 'AnexoUrl')
+                                ALTER TABLE [ChamadosSuporte] ADD [AnexoUrl] NVARCHAR(500) NULL;
+                            IF NOT EXISTS (SELECT * FROM sys.columns WHERE object_id = OBJECT_ID(N'[ChamadosSuporte]') AND name = 'AnexoNomeOriginal')
+                                ALTER TABLE [ChamadosSuporte] ADD [AnexoNomeOriginal] NVARCHAR(255) NULL;
+                        ");
+                    }
+                    else if (context.Database.IsSqlite())
+                    {
+                        try { context.Database.ExecuteSqlRaw("ALTER TABLE Perfis ADD COLUMN Ativo INTEGER NOT NULL DEFAULT 1;"); } catch { }
+                        try { context.Database.ExecuteSqlRaw("ALTER TABLE Usuarios ADD COLUMN MfaHabilitado INTEGER NOT NULL DEFAULT 0;"); } catch { }
+                        try { context.Database.ExecuteSqlRaw("ALTER TABLE Usuarios ADD COLUMN MfaSecretKey TEXT NULL;"); } catch { }
+                        try { context.Database.ExecuteSqlRaw("ALTER TABLE ChamadosSuporte ADD COLUMN AnexoUrl TEXT NULL;"); } catch { }
+                        try { context.Database.ExecuteSqlRaw("ALTER TABLE ChamadosSuporte ADD COLUMN AnexoNomeOriginal TEXT NULL;"); } catch { }
+                    }
+                }
+                catch (Exception sqlEx)
+                {
+                    Log.Information("Esquema do banco validado: {Msg}", sqlEx.Message);
+                }
+
                 break;
             }
             catch (Exception ex)

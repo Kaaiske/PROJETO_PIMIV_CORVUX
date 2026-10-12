@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
 using CorvusIAM.Data;
 using CorvusIAM.Interfaces;
@@ -13,11 +13,19 @@ namespace CorvusIAM.Controllers {
         
         private readonly ApplicationDbContext _context;
         private readonly IPasswordPwnedService _passwordPwned;
+        private readonly ITotpService _totpService;
+        private readonly IStorageService _storageService;
 
-        public PortalController(ApplicationDbContext context, IPasswordPwnedService passwordPwned)
+        public PortalController(
+            ApplicationDbContext context, 
+            IPasswordPwnedService passwordPwned,
+            ITotpService totpService,
+            IStorageService storageService)
         {
             _context = context;
             _passwordPwned = passwordPwned;
+            _totpService = totpService;
+            _storageService = storageService;
         }
 
         [Authorize(Policy = "RequireHR")]
@@ -66,23 +74,137 @@ namespace CorvusIAM.Controllers {
         }
 
         [HttpPost]
-        public IActionResult AbrirChamado([FromBody] NovoChamadoDTO dto)
+        public async Task<IActionResult> AbrirChamado([FromForm] NovoChamadoFormDTO form)
         {
             var userIdClaim = User.FindFirstValue(ClaimTypes.NameIdentifier);
             if (string.IsNullOrEmpty(userIdClaim)) return Unauthorized();
 
+            if (string.IsNullOrWhiteSpace(form.Assunto))
+            {
+                return BadRequest(new { message = "O assunto do chamado é obrigatório." });
+            }
+
+            string? anexoUrl = null;
+            string? anexoNome = null;
+
+            if (form.Anexo != null && form.Anexo.Length > 0)
+            {
+                try
+                {
+                    using var stream = form.Anexo.OpenReadStream();
+                    anexoUrl = await _storageService.UploadFileAsync(stream, form.Anexo.FileName, form.Anexo.ContentType);
+                    anexoNome = form.Anexo.FileName;
+                }
+                catch (Exception ex)
+                {
+                    return BadRequest(new { message = $"Erro ao anexar arquivo: {ex.Message}" });
+                }
+            }
+
             var chamado = new CorvusIAM.Entities.ChamadoSuporte {
                 UsuarioId = int.Parse(userIdClaim),
-                Assunto = dto.Assunto,
-                Descricao = dto.Descricao,
+                Assunto = form.Assunto,
+                Descricao = form.Descricao ?? string.Empty,
                 Status = "Aberto",
-                DataAbertura = System.DateTime.Now
+                DataAbertura = DateTime.UtcNow,
+                DataAtualizacao = DateTime.UtcNow,
+                AnexoUrl = anexoUrl,
+                AnexoNomeOriginal = anexoNome
             };
 
             _context.ChamadosSuporte.Add(chamado);
+            await _context.SaveChangesAsync();
+
+            return Ok(new { message = "Chamado aberto com sucesso!", id = chamado.Id });
+        }
+
+        [HttpGet]
+        public IActionResult ObterMfaSetup()
+        {
+            var userIdClaim = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (string.IsNullOrEmpty(userIdClaim)) return Unauthorized();
+
+            var user = _context.Usuarios.Find(int.Parse(userIdClaim));
+            if (user == null) return NotFound();
+
+            string secret = string.IsNullOrEmpty(user.MfaSecretKey) 
+                ? _totpService.GenerateSecretKey() 
+                : user.MfaSecretKey;
+
+            if (string.IsNullOrEmpty(user.MfaSecretKey))
+            {
+                user.MfaSecretKey = secret;
+                _context.SaveChanges();
+            }
+
+            string qrCodeUrl = _totpService.GenerateQrCodeImageUrl(user.Email, secret);
+            string setupUri = _totpService.GenerateQrCodeUri(user.Email, secret);
+
+            return Ok(new {
+                habilitado = user.MfaHabilitado,
+                secretKey = secret,
+                qrCodeUrl = qrCodeUrl,
+                setupUri = setupUri
+            });
+        }
+
+        [HttpPost]
+        public IActionResult ConfirmarAtivacaoMfa([FromBody] ValidarMfaDTO dto)
+        {
+            var userIdClaim = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (string.IsNullOrEmpty(userIdClaim)) return Unauthorized();
+
+            var user = _context.Usuarios.Find(int.Parse(userIdClaim));
+            if (user == null) return NotFound();
+
+            bool valido = _totpService.ValidateCode(user.MfaSecretKey, dto.Codigo);
+            if (!valido)
+            {
+                return BadRequest(new { message = "Código de verificação incorreto ou expirado. Tente novamente." });
+            }
+
+            user.MfaHabilitado = true;
+            _context.LogsAuditoria.Add(new Entities.LogAuditoria {
+                UsuarioId = user.Id,
+                DataHora = DateTime.UtcNow,
+                Acao = "MFA Ativado",
+                Detalhe = "Autenticação em dois fatores (TOTP) configurada com sucesso.",
+                Tipo = "Segurança",
+                Origem = "Portal Colaborador"
+            });
             _context.SaveChanges();
 
-            return Ok(new { message = "Chamado aberto com sucesso!" });
+            return Ok(new { message = "Autenticação em dois fatores ativada com sucesso!" });
+        }
+
+        [HttpPost]
+        public IActionResult DesativarMfa([FromBody] ValidarMfaDTO dto)
+        {
+            var userIdClaim = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (string.IsNullOrEmpty(userIdClaim)) return Unauthorized();
+
+            var user = _context.Usuarios.Find(int.Parse(userIdClaim));
+            if (user == null) return NotFound();
+
+            bool valido = _totpService.ValidateCode(user.MfaSecretKey, dto.Codigo);
+            if (!valido)
+            {
+                return BadRequest(new { message = "Código de autenticação inválido para desativação." });
+            }
+
+            user.MfaHabilitado = false;
+            user.MfaSecretKey = string.Empty;
+            _context.LogsAuditoria.Add(new Entities.LogAuditoria {
+                UsuarioId = user.Id,
+                DataHora = DateTime.UtcNow,
+                Acao = "MFA Desativado",
+                Detalhe = "Autenticação em dois fatores (TOTP) desativada pelo usuário.",
+                Tipo = "Warning",
+                Origem = "Portal Colaborador"
+            });
+            _context.SaveChanges();
+
+            return Ok(new { message = "Autenticação em dois fatores desativada com sucesso." });
         }
 
         public class MinhaContaViewModel {
@@ -94,6 +216,16 @@ namespace CorvusIAM.Controllers {
         public class NovoChamadoDTO {
             public string Assunto { get; set; } = string.Empty;
             public string Descricao { get; set; } = string.Empty;
+        }
+
+        public class NovoChamadoFormDTO {
+            public string Assunto { get; set; } = string.Empty;
+            public string Descricao { get; set; } = string.Empty;
+            public Microsoft.AspNetCore.Http.IFormFile? Anexo { get; set; }
+        }
+
+        public class ValidarMfaDTO {
+            public string Codigo { get; set; } = string.Empty;
         }
 
         [HttpPost]

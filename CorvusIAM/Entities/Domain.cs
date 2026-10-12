@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
@@ -24,6 +24,10 @@ namespace CorvusIAM.Entities
         public string RefreshToken { get; set; } = string.Empty;
         public DateTime? RefreshTokenExpiracao { get; set; }
         
+        // Autenticação Multifator (MFA / 2FA)
+        public bool MfaHabilitado { get; set; } = false;
+        public string MfaSecretKey { get; set; } = string.Empty;
+        
         // Dados Pessoais
         [MaxLength(14)] public string CPF { get; set; } = string.Empty;
         public DateTime? DataNascimento { get; set; }
@@ -43,6 +47,7 @@ namespace CorvusIAM.Entities
         [Key] public int Id { get; set; }
         [Required, MaxLength(50)] public string Nome { get; set; } = string.Empty;
         [MaxLength(200)] public string Descricao { get; set; } = string.Empty;
+        public bool Ativo { get; set; } = true;
 
         // Navegação
         public ICollection<UsuarioPerfil> UsuarioPerfis { get; set; } = new List<UsuarioPerfil>();
@@ -114,6 +119,12 @@ namespace CorvusIAM.Entities
         public DateTime? DataResolucao { get; set; }
         public DateTime? DataFechamento { get; set; }
         public string Solucao { get; set; } = string.Empty;
+        
+        // Anexos de Arquivos (Storage Local / S3)
+        [MaxLength(500)]
+        public string? AnexoUrl { get; set; }
+        [MaxLength(255)]
+        public string? AnexoNomeOriginal { get; set; }
         
         [Timestamp]
         public byte[] RowVersion { get; set; } = Array.Empty<byte>();

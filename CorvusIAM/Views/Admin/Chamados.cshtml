@@ -24,6 +24,7 @@
                         <th class="px-[16px] py-[12px] text-[12px] font-[600] text-gray-500 dark:text-gray-400 uppercase tracking-[0.05em]">Usuário</th>
                         <th class="px-[16px] py-[12px] text-[12px] font-[600] text-gray-500 dark:text-gray-400 uppercase tracking-[0.05em]">Assunto</th>
                         <th class="px-[16px] py-[12px] text-[12px] font-[600] text-gray-500 dark:text-gray-400 uppercase tracking-[0.05em]">Data</th>
+                        <th class="px-[16px] py-[12px] text-[12px] font-[600] text-gray-500 dark:text-gray-400 uppercase tracking-[0.05em]">Anexo</th>
                         <th class="px-[16px] py-[12px] text-[12px] font-[600] text-gray-500 dark:text-gray-400 uppercase tracking-[0.05em]">Status</th>
                         <th class="px-[16px] py-[12px] text-[12px] font-[600] text-gray-500 dark:text-gray-400 uppercase tracking-[0.05em] text-right">Ações</th>
                     </tr>
@@ -35,6 +36,15 @@
                             <td class="px-[16px] py-[12px] text-[13px] font-[500] text-gray-900 dark:text-gray-100">@c.Usuario.Nome</td>
                             <td class="px-[16px] py-[12px] text-[13px] text-gray-600 dark:text-gray-300">@c.Assunto</td>
                             <td class="px-[16px] py-[12px] text-[12px] text-gray-500">@c.DataAbertura.ToString("dd/MM HH:mm")</td>
+                            <td class="px-[16px] py-[12px] text-[12px]">
+                                @if(!string.IsNullOrEmpty(c.AnexoUrl)) {
+                                    <a href="@c.AnexoUrl" target="_blank" class="inline-flex items-center gap-1 text-brand-600 dark:text-brand-400 hover:underline font-medium text-[11px] bg-brand-50 dark:bg-brand-900/30 px-2 py-0.5 rounded border border-brand-200 dark:border-brand-800">
+                                        <i class="ph ph-paperclip"></i> Anexo
+                                    </a>
+                                } else {
+                                    <span class="text-gray-400 text-[11px]">-</span>
+                                }
+                            </td>
                             <td class="px-[16px] py-[12px]">
                                 @if(c.Status == "Aberto") { <span class="text-orange-500 text-[12px] font-[500] flex items-center gap-1"><i class="ph ph-warning-circle"></i> Aberto</span> }
                                 else if(c.Status == "Fechado") { <span class="text-emerald-500 text-[12px] font-[500] flex items-center gap-1"><i class="ph ph-check-circle"></i> Fechado</span> }

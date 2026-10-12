@@ -101,11 +101,12 @@ namespace CorvusIAM.Controllers
         public IActionResult Politicas() => View(_context.PoliticasAcesso.ToList());
         
         [Authorize(Policy = "RequireAdmin")]
-        public IActionResult Perfis() => View(_context.Perfis.ToList());
+        public IActionResult Perfis() => View(_context.Perfis.Where(p => p.Ativo).ToList());
 
         [HttpPost]
         [Authorize(Policy = "RequireAdmin")]
         public IActionResult AdicionarPerfil([FromBody] Perfil p) {
+            p.Ativo = true;
             _context.Perfis.Add(p);
             _context.SaveChanges();
             return Ok();
@@ -119,12 +120,13 @@ namespace CorvusIAM.Controllers
                 if (p.UsuarioPerfis != null && p.UsuarioPerfis.Any()) {
                     return BadRequest(new { message = $"Não é possível excluir o perfil '{p.Nome}' pois existem {p.UsuarioPerfis.Count} colaborador(es) associados a ele." });
                 }
-                _context.Perfis.Remove(p);
+                // Soft Delete em Perfil
+                p.Ativo = false;
                 var adminId = User.FindFirstValue(System.Security.Claims.ClaimTypes.NameIdentifier) ?? "1";
                 _context.LogsAuditoria.Add(new LogAuditoria {
                     DataHora = DateTime.Now,
-                    Acao = "Exclusão de Perfil",
-                    Detalhe = $"Perfil '{p.Nome}' (ID: {p.Id}) excluído do sistema",
+                    Acao = "Inativação de Perfil (Soft Delete)",
+                    Detalhe = $"Perfil '{p.Nome}' (ID: {p.Id}) inativado via Soft Delete",
                     Tipo = "Danger",
                     Origem = "Admin Panel",
                     UsuarioId = int.Parse(adminId)
@@ -134,10 +136,59 @@ namespace CorvusIAM.Controllers
                     return Ok(); 
                 } 
                 catch { 
-                    return BadRequest(new { message = "Falha de integridade ao persistir exclusão no banco de dados." }); 
+                    return BadRequest(new { message = "Falha de integridade ao persistir inativação no banco de dados." }); 
                 }
             }
             return NotFound(new { message = "Perfil não encontrado." });
+        }
+
+        [HttpGet]
+        [Authorize(Policy = "RequireHR")]
+        public IActionResult ExportarUsuariosCsv()
+        {
+            var usuarios = _context.Usuarios
+                .Include(u => u.UsuarioPerfis)
+                .ThenInclude(up => up.Perfil)
+                .OrderBy(u => u.Nome)
+                .ToList();
+
+            var sb = new System.Text.StringBuilder();
+            sb.AppendLine("ID;Nome;Email;CPF;Cargo;Departamento;Perfil;Data Contratacao;Status");
+
+            foreach (var u in usuarios)
+            {
+                var perfil = u.UsuarioPerfis.FirstOrDefault()?.Perfil?.Nome ?? "Colaborador";
+                var status = u.Ativo ? "Ativo" : "Inativo";
+                var dtContr = u.DataContratacao?.ToString("dd/MM/yyyy") ?? "-";
+                sb.AppendLine($"{u.Id};\"{u.Nome}\";{u.Email};{u.CPF};\"{u.Cargo}\";\"{u.Departamento}\";\"{perfil}\";{dtContr};{status}");
+            }
+
+            var bytes = System.Text.Encoding.UTF8.GetPreamble().Concat(System.Text.Encoding.UTF8.GetBytes(sb.ToString())).ToArray();
+            return File(bytes, "text/csv; charset=utf-8", $"CorvuxIAM_Colaboradores_{DateTime.UtcNow:yyyyMMdd_HHmm}.csv");
+        }
+
+        [HttpGet]
+        [Authorize(Policy = "RequireAdmin")]
+        public IActionResult ExportarLogsAuditoriaCsv()
+        {
+            var logs = _context.LogsAuditoria
+                .Include(l => l.Usuario)
+                .OrderByDescending(l => l.DataHora)
+                .Take(1000)
+                .ToList();
+
+            var sb = new System.Text.StringBuilder();
+            sb.AppendLine("ID;Data/Hora (UTC);Usuario;Acao;Detalhe;Tipo;Origem");
+
+            foreach (var l in logs)
+            {
+                var userStr = l.Usuario != null ? $"{l.Usuario.Nome} ({l.Usuario.Email})" : (l.UsuarioId.HasValue ? $"ID: {l.UsuarioId}" : "Sistema");
+                var cleanDetail = (l.Detalhe ?? "").Replace("\"", "\"\"");
+                sb.AppendLine($"{l.Id};{l.DataHora:dd/MM/yyyy HH:mm:ss};\"{userStr}\";\"{l.Acao}\";\"{cleanDetail}\";{l.Tipo};\"{l.Origem}\"");
+            }
+
+            var bytes = System.Text.Encoding.UTF8.GetPreamble().Concat(System.Text.Encoding.UTF8.GetBytes(sb.ToString())).ToArray();
+            return File(bytes, "text/csv; charset=utf-8", $"CorvuxIAM_AuditLogs_{DateTime.UtcNow:yyyyMMdd_HHmm}.csv");
         }
         [Authorize(Policy = "RequireAdmin")]
         public IActionResult Cloud() => View();

@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc;
 using System.Linq;
 using CorvusIAM.Data;
 using CorvusIAM.Interfaces;
@@ -18,19 +18,22 @@ namespace CorvusIAM.Controllers
         private readonly IIpGeolocationService _geoService;
         private readonly IEmailSenderService _emailSender;
         private readonly Microsoft.Extensions.Caching.Memory.IMemoryCache _cache;
+        private readonly ITotpService _totpService;
 
         public AuthController(
             ApplicationDbContext context, 
             ITurnstileService turnstileService, 
             IIpGeolocationService geoService,
             IEmailSenderService emailSender,
-            Microsoft.Extensions.Caching.Memory.IMemoryCache cache)
+            Microsoft.Extensions.Caching.Memory.IMemoryCache cache,
+            ITotpService totpService)
         {
             _context = context;
             _turnstileService = turnstileService;
             _geoService = geoService;
             _emailSender = emailSender;
             _cache = cache;
+            _totpService = totpService;
         }
 
         [HttpGet]
@@ -98,6 +101,14 @@ namespace CorvusIAM.Controllers
                 user.TentativasLogin = 0;
                 user.DataDesbloqueio = null;
                 await _context.SaveChangesAsync();
+
+                // Autenticação em Duas Etapas (MFA / 2FA com TOTP)
+                if (user.MfaHabilitado && !string.IsNullOrEmpty(user.MfaSecretKey))
+                {
+                    var mfaSessionToken = Guid.NewGuid().ToString("N");
+                    _cache.Set($"mfa_user_{mfaSessionToken}", user.Id, TimeSpan.FromMinutes(5));
+                    return RedirectToAction("ValidarMfa", "Auth", new { token = mfaSessionToken });
+                }
 
                 var role = user.UsuarioPerfis.FirstOrDefault()?.Perfil?.Nome ?? "Colaborador";
                 
@@ -279,6 +290,89 @@ namespace CorvusIAM.Controllers
             await _context.SaveChangesAsync();
 
             return RedirectToAction("Login", new { mensagem = "Senha redefinida com sucesso. Faça o login." });
+        }
+
+        [HttpGet]
+        public IActionResult ValidarMfa(string token)
+        {
+            if (string.IsNullOrEmpty(token) || !_cache.TryGetValue($"mfa_user_{token}", out int _))
+            {
+                return RedirectToAction("Login", "Auth");
+            }
+            ViewBag.Token = token;
+            return View();
+        }
+
+        [HttpPost]
+        public async System.Threading.Tasks.Task<IActionResult> ValidarMfa(string token, string codigo)
+        {
+            if (string.IsNullOrEmpty(token) || !_cache.TryGetValue($"mfa_user_{token}", out int userId))
+            {
+                ViewBag.Erro = "Sessão de verificação expirada. Faça o login novamente.";
+                return View();
+            }
+
+            var user = _context.Usuarios
+                .Include(u => u.UsuarioPerfis)
+                .ThenInclude(up => up.Perfil)
+                .ThenInclude(p => p.PerfilPermissoes)
+                .ThenInclude(pp => pp.Permissao)
+                .FirstOrDefault(u => u.Id == userId);
+
+            if (user == null) return RedirectToAction("Login", "Auth");
+
+            bool valido = _totpService.ValidateCode(user.MfaSecretKey, codigo);
+            if (!valido)
+            {
+                ViewBag.Token = token;
+                ViewBag.Erro = "Código de verificação incorreto ou expirado. Tente novamente.";
+                return View();
+            }
+
+            // Remove o token de MFA temporário
+            _cache.Remove($"mfa_user_{token}");
+
+            var role = user.UsuarioPerfis.FirstOrDefault()?.Perfil?.Nome ?? "Colaborador";
+            var ip = HttpContext.Connection.RemoteIpAddress?.ToString() ?? "Desconhecido";
+
+            var claims = new System.Collections.Generic.List<System.Security.Claims.Claim>
+            {
+                new System.Security.Claims.Claim(System.Security.Claims.ClaimTypes.NameIdentifier, user.Id.ToString()),
+                new System.Security.Claims.Claim(System.Security.Claims.ClaimTypes.Name, user.Nome),
+                new System.Security.Claims.Claim(System.Security.Claims.ClaimTypes.Email, user.Email),
+                new System.Security.Claims.Claim(System.Security.Claims.ClaimTypes.Role, role)
+            };
+
+            foreach (var permissao in user.UsuarioPerfis
+                .SelectMany(up => up.Perfil?.PerfilPermissoes ?? Array.Empty<Entities.PerfilPermissao>())
+                .Select(pp => pp.Permissao?.Nome)
+                .Where(nome => !string.IsNullOrWhiteSpace(nome))
+                .Distinct())
+            {
+                claims.Add(new System.Security.Claims.Claim("permission", permissao!));
+            }
+
+            var claimsIdentity = new System.Security.Claims.ClaimsIdentity(claims, "Cookies");
+            var claimsPrincipal = new System.Security.Claims.ClaimsPrincipal(claimsIdentity);
+            
+            await HttpContext.SignInAsync("Cookies", claimsPrincipal);
+
+            _context.LogsAuditoria.Add(new Entities.LogAuditoria
+            {
+                UsuarioId = user.Id,
+                Acao = "Login MFA Efetuado",
+                Detalhe = $"Login com validação de segundo fator (TOTP) bem-sucedido. IP: {ip}",
+                Tipo = "Autenticação",
+                Origem = "Web WebApp"
+            });
+            await _context.SaveChangesAsync();
+
+            if (role.Contains("Admin")) return RedirectToAction("Index", "Admin");
+            if (role.Contains("Humanos")) return RedirectToAction("Usuarios", "Admin");
+            if (role.Contains("Contabilidade")) return RedirectToAction("Contabilidade", "Portal");
+            if (role.Contains("Help")) return RedirectToAction("Chamados", "Admin");
+            
+            return RedirectToAction("MinhaConta", "Portal");
         }
     }
 }

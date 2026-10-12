@@ -1,0 +1,151 @@
+@{
+    Layout = null;
+}
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Autenticação de Dois Fatores (MFA) - CorvusIAM</title>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+    <style>
+        :root {
+            --bg-body: #000000;
+            --bg-card: #111111;
+            --text-main: #FFFFFF;
+            --text-muted: #888888;
+            --accent-color: #3b82f6;
+            --accent-color-hover: #2563eb;
+            --border-color: #222222;
+            --input-bg: #0A0A0A;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: var(--bg-body);
+            color: var(--text-main);
+            font-family: 'Space Grotesk', sans-serif;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .mfa-card {
+            width: 100%;
+            max-width: 440px;
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 36px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+            text-align: center;
+        }
+
+        .icon-shield {
+            font-size: 48px;
+            color: var(--accent-color);
+            margin-bottom: 16px;
+        }
+
+        h2 {
+            font-size: 20px;
+            margin-bottom: 8px;
+            font-weight: 700;
+        }
+
+        p {
+            font-size: 13px;
+            color: var(--text-muted);
+            line-height: 1.5;
+            margin-bottom: 24px;
+        }
+
+        .code-input {
+            width: 100%;
+            box-sizing: border-box;
+            background: var(--input-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 14px;
+            color: #fff;
+            font-size: 24px;
+            text-align: center;
+            letter-spacing: 12px;
+            font-family: monospace;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        .code-input:focus {
+            border-color: var(--accent-color);
+        }
+
+        .btn-submit {
+            width: 100%;
+            margin-top: 20px;
+            padding: 12px;
+            background: var(--accent-color);
+            border: none;
+            border-radius: 8px;
+            color: #fff;
+            font-weight: 600;
+            font-size: 14px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .btn-submit:hover {
+            background: var(--accent-color-hover);
+        }
+
+        .error-message {
+            background: rgba(239, 68, 68, 0.1);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            color: #ef4444;
+            padding: 10px;
+            border-radius: 6px;
+            font-size: 12px;
+            margin-bottom: 16px;
+        }
+
+        .back-link {
+            display: inline-block;
+            margin-top: 20px;
+            color: var(--text-muted);
+            text-decoration: none;
+            font-size: 12px;
+        }
+
+        .back-link:hover {
+            color: #fff;
+        }
+    </style>
+</head>
+<body>
+    <div class="mfa-card">
+        <i class="bi bi-shield-lock-fill icon-shield"></i>
+        <h2>Verificação em Duas Etapas</h2>
+        <p>Insira o código de 6 dígitos gerado pelo seu aplicativo autenticador (Google Authenticator, Microsoft Authenticator ou similar).</p>
+
+        @if (!string.IsNullOrEmpty(ViewBag.Erro as string))
+        {
+            <div class="error-message">
+                <i class="bi bi-exclamation-triangle-fill"></i> @ViewBag.Erro
+            </div>
+        }
+
+        <form method="post" action="/Auth/ValidarMfa">
+            <input type="hidden" name="token" value="@ViewBag.Token" />
+            <input type="text" name="codigo" class="code-input" maxlength="6" autofocus placeholder="000000" autocomplete="one-time-code" required />
+            <button type="submit" class="btn-submit">Confirmar Acesso</button>
+        </form>
+
+        <a href="/Auth/Login" class="back-link">
+            <i class="bi bi-arrow-left"></i> Voltar para a tela de login
+        </a>
+    </div>
+</body>
+</html>

@@ -46,3 +46,4 @@ echo "=================================================="
 echo "[CorvuxIAM] Aplicando política de retenção (${RETENTION_DAYS} dias)..."
 find "${BACKUP_DIR}" -type f -name "CorvusIAMDb_*.bak" -mtime +${RETENTION_DAYS} -exec rm -f {} \; || true
 echo "[CorvuxIAM] Limpeza de arquivos antigos concluída."
+

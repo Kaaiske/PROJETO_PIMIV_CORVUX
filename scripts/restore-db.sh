@@ -63,3 +63,4 @@ echo "=================================================="
 echo " [CorvuxIAM] Restauração concluída com sucesso!"
 echo " A integridade do banco foi restabelecida."
 echo "=================================================="
+

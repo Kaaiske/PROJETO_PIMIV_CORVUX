@@ -8,7 +8,7 @@
 [![Docker](https://img.shields.io/badge/Docker-Compose-2496ED?logo=docker&logoColor=white)](https://www.docker.com/)
 [![SQL Server](https://img.shields.io/badge/SQL%20Server-2022-CC292B?logo=microsoftsqlserver&logoColor=white)](https://www.microsoft.com/sql-server)
 [![CI/CD](https://img.shields.io/badge/GitHub%20Actions-CI%2FCD-2088FF?logo=githubactions&logoColor=white)](https://github.com/Kaaiske/PROJETO_PIMIV_CORVUX/actions)
-[![Tests](https://img.shields.io/badge/Tests-19%20Passed-brightgreen?logo=checkmarx&logoColor=white)](CorvusIAM.Tests/)
+[![Tests](https://img.shields.io/badge/Tests-25%20Passed-brightgreen?logo=checkmarx&logoColor=white)](CorvusIAM.Tests/)
 [![Production](https://img.shields.io/badge/Production-corvuxiam.tech-success?logo=googlechrome&logoColor=white)](https://corvuxiam.tech)
 
 **Solução Corporativa Integrada para Transformação Digital, Governança e Segurança da Informação**
@@ -249,11 +249,14 @@ npx expo start
 ## 🔒 Segurança & Políticas de Acesso
 
 - **CORS Configurado:** Habilitado para requisições originadas do domínio oficial `https://corvuxiam.tech` e ambientes de desenvolvimento autorizados.
+- **Autenticação em Duas Etapas (MFA / 2FA com TOTP):** Padrão RFC 6238 nativo compatível com Google Authenticator, Microsoft Authenticator e apps TOTP.
 - **Armazenamento de Senhas:** Hash irreversível via algoritmo BCrypt com verificação contra a base pública de senhas comprometidas (HaveIBeenPwned).
 - **Proteção contra Força Bruta:** Rate Limiting com bloqueio temporário após 5 tentativas consecutivas de autenticação incorreta e bloqueio de IP.
 - **Desafio Anti-Bot (Cloudflare Turnstile):** Validação resiliente de CAPTCHA inteligente na autenticação com chave de homologação e bypass automático para testes/desenvolvimento.
 - **Prevenção contra Ações Acidentais:** Modais interativos de confirmação em duas etapas (SweetAlert2) com identificação visual do registro e consequências antes de qualquer exclusão.
-- **Soft Delete & Conformidade LGPD:** Exclusão lógica com anonimização de dados cadastrais sensíveis (PII), preservando a integridade referencial dos registros de auditoria.
+- **Soft Delete Universal:** Exclusão lógica com anonimização LGPD para colaboradores e inativação segura para perfis de acesso.
+- **Módulo de Anexos Seguros (Storage Local & S3):** Upload seguro de anexos em chamados de Help Desk com validação de tipos MIME e isolamento de arquivos.
+- **Exportação de Relatórios Gerenciais:** Download instantâneo de colaboradores e trilhas de auditoria em formato CSV com UTF-8 BOM.
 - **Rastreabilidade Obrigatória:** Cada ação administrativa, criação de usuário, deleção ou abertura de chamado gera um evento imutável com data UTC, IP de origem e identificador do usuário.
 
 ---
@@ -269,16 +272,17 @@ Em estrita conformidade com os requisitos de Governança e Continuidade de Negó
   - `scripts/backup-db.sh` — Executa backup com compressão, verificação `CHECKSUM` e expurgo de retenção de 30 dias.
   - `scripts/restore-db.sh` — Procedimento seguro de restauração em modo de usuário único (`SINGLE_USER`).
   - `scripts/sync-backups-s3.sh` — Replicação off-site para Amazon S3 com criptografia SSE-S3 (AES-256).
+  - `scripts/setup-cron.sh` — Instalador do agendamento diário automático no Crontab da VPS.
 - **Custo Operacional Total Estimado:** ~ R$ 44,85 / mês (Hostinger VPS + S3 Standard-IA + Domínio), gerando alta viabilidade econômica.
 
 ---
 
 ## 🧪 Testes Automatizados
 
-A suíte de testes em `CorvusIAM.Tests` conta com **19 testes automatizados** cobrindo autenticação, autorização, CRUD de usuários, repositórios e endpoints de integração:
+A suíte de testes em `CorvusIAM.Tests` conta com **25 testes automatizados** cobrindo autenticação, MFA/TOTP, armazenamento seguro, autorização, CRUD de usuários, repositórios e endpoints de integração:
 
 ```bash
-Passed!  - Failed: 0, Passed: 19, Skipped: 0, Total: 19 - CorvusIAM.Tests.dll (net8.0)
+Passed!  - Failed: 0, Passed: 25, Skipped: 0, Total: 25 - CorvusIAM.Tests.dll (net8.0)
 ```
 
 ---
@@ -290,6 +294,10 @@ Passed!  - Failed: 0, Passed: 19, Skipped: 0, Total: 19 - CorvusIAM.Tests.dll (n
 | `POST` | `/api/Auth/login` | Autenticação de usuário e emissão de JWT Token |
 | `GET` | `/api/Usuarios` | Listagem paginada de colaboradores cadastrados |
 | `POST` | `/api/Usuarios` | Cadastro de novo usuário com perfil atribuído |
+| `GET` | `/Admin/ExportarUsuariosCsv` | Download de relatório de colaboradores em CSV |
+| `GET` | `/Admin/ExportarLogsAuditoriaCsv` | Download de trilhas de auditoria em CSV |
+| `GET` | `/Portal/ObterMfaSetup` | Chave secreta e QR Code para configuração de 2FA |
+| `POST` | `/Portal/ConfirmarAtivacaoMfa` | Validação de código TOTP e ativação do 2FA |
 | `GET` | `/api/Perfis` | Consulta de perfis de acesso do sistema |
 | `GET` | `/api/Politicas` | Consulta de políticas ativas de segurança |
 | `GET` | `/api/Chamados` | Listagem de chamados do usuário logado |
