@@ -1,4 +1,4 @@
-﻿using CorvusIAM.Data;
+using CorvusIAM.Data;
 using CorvusIAM.Entities;
 using CorvusIAM.Models;
 using Microsoft.AspNetCore.Mvc;
@@ -114,12 +114,30 @@ namespace CorvusIAM.Controllers
         [HttpPost]
         [Authorize(Policy = "RequireAdmin")]
         public IActionResult ExcluirPerfil([FromBody] int id) {
-            var p = _context.Perfis.Find(id);
+            var p = _context.Perfis.Include(x => x.UsuarioPerfis).FirstOrDefault(x => x.Id == id);
             if (p != null) {
+                if (p.UsuarioPerfis != null && p.UsuarioPerfis.Any()) {
+                    return BadRequest(new { message = $"Não é possível excluir o perfil '{p.Nome}' pois existem {p.UsuarioPerfis.Count} colaborador(es) associados a ele." });
+                }
                 _context.Perfis.Remove(p);
-                try { _context.SaveChanges(); return Ok(); } catch { return BadRequest(); }
+                var adminId = User.FindFirstValue(System.Security.Claims.ClaimTypes.NameIdentifier) ?? "1";
+                _context.LogsAuditoria.Add(new LogAuditoria {
+                    DataHora = DateTime.Now,
+                    Acao = "Exclusão de Perfil",
+                    Detalhe = $"Perfil '{p.Nome}' (ID: {p.Id}) excluído do sistema",
+                    Tipo = "Danger",
+                    Origem = "Admin Panel",
+                    UsuarioId = int.Parse(adminId)
+                });
+                try { 
+                    _context.SaveChanges(); 
+                    return Ok(); 
+                } 
+                catch { 
+                    return BadRequest(new { message = "Falha de integridade ao persistir exclusão no banco de dados." }); 
+                }
             }
-            return NotFound();
+            return NotFound(new { message = "Perfil não encontrado." });
         }
         [Authorize(Policy = "RequireAdmin")]
         public IActionResult Cloud() => View();

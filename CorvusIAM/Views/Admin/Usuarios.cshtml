@@ -62,7 +62,7 @@
                     <button onclick="inativarUsuario(@u.Id)" class="text-gray-400 hover:text-orange-500 transition-colors" title="@(u.Ativo ? "Bloquear" : "Desbloquear")">
                         <i class="ph @(u.Ativo ? "ph-lock-key" : "ph-lock-key-open") text-[16px]"></i>
                     </button>
-                    <button onclick="excluirUsuario(@u.Id)" class="text-gray-400 hover:text-red-500 transition-colors" title="Excluir">
+                    <button onclick="excluirUsuario(@u.Id, '@u.Nome', '@u.Email')" class="text-gray-400 hover:text-red-500 transition-colors" title="Excluir">
                         <i class="ph ph-trash text-[16px]"></i>
                     </button>
                 </div>
@@ -337,23 +337,44 @@
             }
         }
 
-        async function excluirUsuario(id) {
+        async function excluirUsuario(id, nome, email) {
             const result = await Swal.fire({
-                title: 'Excluir usuário?',
-                text: "Esta ação não pode ser desfeita!",
+                title: 'Confirmar exclusão?',
+                html: `Você está prestes a excluir o colaborador <b>${nome || 'identificado'}</b> (${email || 'ID: ' + id}).<br><br>Essa ação pode ser irreversível e resultará na inativação do acesso e anonimização dos dados pessoais conforme as diretrizes da LGPD.<br><br><span class="text-xs text-gray-400">Verifique as informações antes de continuar.</span>`,
                 icon: 'warning',
                 showCancelButton: true,
                 confirmButtonColor: '#ef4444',
-                cancelButtonColor: '#333',
-                confirmButtonText: 'Sim, excluir',
+                cancelButtonColor: '#4b5563',
+                confirmButtonText: 'Confirmar exclusão',
                 cancelButtonText: 'Cancelar',
                 background: '#121418', color: '#fff'
             });
             
             if (result.isConfirmed) {
-                const res = await fetch('/Admin/ExcluirUsuario', { method: 'POST', headers: { 'Content-Type': 'application/json', 'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]').value }, body: JSON.stringify(id) });
-                if (res.ok) window.location.reload(); 
-                else Swal.fire({ title: 'Erro!', text: 'Não foi possível excluir.', icon: 'error', background: '#121418', color: '#fff' });
+                const token = document.querySelector('input[name="__RequestVerificationToken"]')?.value || '';
+                const res = await fetch('/Admin/ExcluirUsuario', { 
+                    method: 'POST', 
+                    headers: { 
+                        'Content-Type': 'application/json', 
+                        'RequestVerificationToken': token 
+                    }, 
+                    body: JSON.stringify(id) 
+                });
+                if (res.ok) {
+                    Swal.fire({
+                        title: 'Excluído com sucesso!',
+                        text: 'O colaborador foi inativado e seus dados foram anonimizados no banco.',
+                        icon: 'success',
+                        background: '#121418', color: '#fff', confirmButtonColor: '#3B82F6'
+                    }).then(() => window.location.reload());
+                } else {
+                    let errorMsg = 'Não foi possível excluir o usuário.';
+                    try {
+                        const err = await res.json();
+                        if (err.message) errorMsg = err.message;
+                    } catch(e) {}
+                    Swal.fire({ title: 'Erro!', text: errorMsg, icon: 'error', background: '#121418', color: '#fff', confirmButtonColor: '#3B82F6' });
+                }
             }
         }
     

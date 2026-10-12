@@ -110,7 +110,19 @@
         }
 
         async function removerIntegracao(nome) {
-            if(confirm('Tem certeza que deseja remover esta integração?')) {
+            const result = await Swal.fire({
+                title: 'Confirmar exclusão?',
+                html: `Você está prestes a remover o módulo de integração <b>${nome || 'selecionado'}</b>.<br><br>Essa ação pode ser irreversível e interromperá a sincronização de dados com este sistema externo.<br><br><span class="text-xs text-gray-400">Verifique as informações antes de continuar.</span>`,
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#ef4444',
+                cancelButtonColor: '#4b5563',
+                confirmButtonText: 'Confirmar exclusão',
+                cancelButtonText: 'Cancelar',
+                background: '#121418', color: '#fff'
+            });
+            
+            if(result.isConfirmed) {
                 const token = document.querySelector('input[name="__RequestVerificationToken"]');
                 const res = await fetch('/Admin/RemoveIntegracao', { 
                     method: 'POST', 
@@ -120,8 +132,18 @@
                     }, 
                     body: JSON.stringify(nome) 
                 });
-                if(res.ok) window.location.reload();
+                if(res.ok) {
+                    Swal.fire({
+                        title: 'Removido com sucesso!',
+                        text: 'Integração removida do sistema.',
+                        icon: 'success',
+                        background: '#121418', color: '#fff', confirmButtonColor: '#3B82F6'
+                    }).then(() => window.location.reload());
+                } else {
+                    Swal.fire({ title: 'Erro!', text: 'Falha ao remover a integração.', icon: 'error', background: '#121418', color: '#fff', confirmButtonColor: '#3B82F6' });
+                }
             }
         }
+    }
     </script>
 }

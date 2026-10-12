@@ -26,4 +26,10 @@ services:
     environment:
       - ACCEPT_EULA=Y
       - SA_PASSWORD=${SQL_SA_PASSWORD:-CorvuxAdmin@2026!}
+    volumes:
+      - sqlserver_data:/var/opt/mssql/data
+      - ./backups:/var/opt/mssql/backup
     restart: unless-stopped
+
+volumes:
+  sqlserver_data:

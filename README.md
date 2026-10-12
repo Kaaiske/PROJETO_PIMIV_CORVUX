@@ -250,9 +250,26 @@ npx expo start
 
 - **CORS Configurado:** Habilitado para requisições originadas do domínio oficial `https://corvuxiam.tech` e ambientes de desenvolvimento autorizados.
 - **Armazenamento de Senhas:** Hash irreversível via algoritmo BCrypt com verificação contra a base pública de senhas comprometidas (HaveIBeenPwned).
-- **Proteção contra Força Bruta:** Rate Limiting com bloqueio temporário após 5 tentativas consecutivas de autenticação incorreta.
+- **Proteção contra Força Bruta:** Rate Limiting com bloqueio temporário após 5 tentativas consecutivas de autenticação incorreta e bloqueio de IP.
 - **Desafio Anti-Bot (Cloudflare Turnstile):** Validação resiliente de CAPTCHA inteligente na autenticação com chave de homologação e bypass automático para testes/desenvolvimento.
-- **Rastreabilidade Obrigatória:** Cada ação administrativa, criação de usuário, deleção ou abertura de chamado gera um evento imutável com data, IP de origem e identificador do usuário.
+- **Prevenção contra Ações Acidentais:** Modais interativos de confirmação em duas etapas (SweetAlert2) com identificação visual do registro e consequências antes de qualquer exclusão.
+- **Soft Delete & Conformidade LGPD:** Exclusão lógica com anonimização de dados cadastrais sensíveis (PII), preservando a integridade referencial dos registros de auditoria.
+- **Rastreabilidade Obrigatória:** Cada ação administrativa, criação de usuário, deleção ou abertura de chamado gera um evento imutável com data UTC, IP de origem e identificador do usuário.
+
+---
+
+## 🗄️ Política de Backup, Recuperação de Desastre e Custos (RPO & RTO)
+
+Em estrita conformidade com os requisitos de Governança e Continuidade de Negócios do PIM IV, o sistema conta com política documentada em [`CorvusIAM/docs/politica-backup-e-custos.md`](CorvusIAM/docs/politica-backup-e-custos.md):
+
+- **RPO (Recovery Point Objective):** 24 Horas para backups completos automatizados / 0 Horas para logs persistidos.
+- **RTO (Recovery Time Objective):** < 30 Minutos para restauração completa de desastre (*Disaster Recovery*).
+- **Estratégia 3-2-1:** 3 cópias (Banco ativo, dump local `.bak` e cópia em nuvem), 2 mídias diferentes (SSD NVMe e Cloud Object Storage) e 1 cópia off-site remota.
+- **Scripts Automatizados de Infraestrutura:**
+  - `scripts/backup-db.sh` — Executa backup com compressão, verificação `CHECKSUM` e expurgo de retenção de 30 dias.
+  - `scripts/restore-db.sh` — Procedimento seguro de restauração em modo de usuário único (`SINGLE_USER`).
+  - `scripts/sync-backups-s3.sh` — Replicação off-site para Amazon S3 com criptografia SSE-S3 (AES-256).
+- **Custo Operacional Total Estimado:** ~ R$ 44,85 / mês (Hostinger VPS + S3 Standard-IA + Domínio), gerando alta viabilidade econômica.
 
 ---
 
