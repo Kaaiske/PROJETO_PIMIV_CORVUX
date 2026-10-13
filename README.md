@@ -70,6 +70,7 @@ A plataforma resolve dores críticas de segurança empresarial:
 ### Backend & APIs
 - **C# / .NET 8 (LTS)** — ASP.NET Core MVC e Web API RESTful
 - **Entity Framework Core 8** — Mapeamento objeto-relacional (ORM) e migrations
+- **Resiliência e Null-Safety:** Mapeamento objeto-relacional com Nullable Reference Types (C# 12 / EF Core 8) e sanitização automática de valores nulos no startup
 - **Autenticação:** Cookie Authentication (Web) + JWT Bearer Tokens (Mobile/API)
 - **Segurança:** BCrypt para hash de senhas, Cloudflare Turnstile CAPTCHA, HaveIBeenPwned API (verificação de senhas vazadas), MaxMind/IP Geolocation, Rate Limiter (5 req/min no login)
 - **Documentação de API:** Swagger / OpenAPI 3.0 com suporte ao domínio `https://corvuxiam.tech`

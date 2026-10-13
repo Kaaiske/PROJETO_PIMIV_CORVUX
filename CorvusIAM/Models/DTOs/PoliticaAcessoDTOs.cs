@@ -4,14 +4,14 @@ namespace CorvusIAM.Models.DTOs
     {
         public int Id { get; set; }
         public string Nome { get; set; } = string.Empty;
-        public string Descricao { get; set; } = string.Empty;
+        public string? Descricao { get; set; } = string.Empty;
         public bool Ativa { get; set; }
     }
 
     public class PoliticaCreateDTO
     {
         public string Nome { get; set; } = string.Empty;
-        public string Descricao { get; set; } = string.Empty;
+        public string? Descricao { get; set; } = string.Empty;
         public bool Ativa { get; set; } = true;
     }
 
@@ -19,7 +19,7 @@ namespace CorvusIAM.Models.DTOs
     {
         public int Id { get; set; }
         public string Nome { get; set; } = string.Empty;
-        public string Descricao { get; set; } = string.Empty;
+        public string? Descricao { get; set; } = string.Empty;
         public bool Ativa { get; set; }
     }
 }

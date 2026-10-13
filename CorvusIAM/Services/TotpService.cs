@@ -29,7 +29,7 @@ namespace CorvusIAM.Services
             return $"https://api.qrserver.com/v1/create-qr-code/?size=220x220&data={Uri.EscapeDataString(uri)}";
         }
 
-        public bool ValidateCode(string secretKey, string code)
+        public bool ValidateCode(string? secretKey, string code)
         {
             if (string.IsNullOrWhiteSpace(secretKey) || string.IsNullOrWhiteSpace(code))
                 return false;

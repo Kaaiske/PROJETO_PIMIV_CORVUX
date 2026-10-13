@@ -407,7 +407,7 @@ namespace CorvusIAM.Controllers
             csv.AppendLine("Id,DataHora,Acao,Detalhe,Tipo,Origem");
             foreach (var log in logs)
             {
-                string SafeCsvField(string input)
+                string SafeCsvField(string? input)
                 {
                     if (string.IsNullOrEmpty(input)) return string.Empty;
                     var clean = input.Replace(',', ' ');

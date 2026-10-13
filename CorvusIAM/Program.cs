@@ -250,6 +250,16 @@ using (var scope = app.Services.CreateScope())
                                 ALTER TABLE [ChamadosSuporte] ADD [AnexoUrl] NVARCHAR(500) NULL;
                             IF NOT EXISTS (SELECT * FROM sys.columns WHERE object_id = OBJECT_ID(N'[ChamadosSuporte]') AND name = 'AnexoNomeOriginal')
                                 ALTER TABLE [ChamadosSuporte] ADD [AnexoNomeOriginal] NVARCHAR(255) NULL;
+
+                            UPDATE [Usuarios] SET [MfaSecretKey] = '' WHERE [MfaSecretKey] IS NULL;
+                            UPDATE [Usuarios] SET [ResetSenhaToken] = '' WHERE [ResetSenhaToken] IS NULL;
+                            UPDATE [Usuarios] SET [RefreshToken] = '' WHERE [RefreshToken] IS NULL;
+                            UPDATE [Usuarios] SET [CPF] = '' WHERE [CPF] IS NULL;
+                            UPDATE [Usuarios] SET [Cargo] = '' WHERE [Cargo] IS NULL;
+                            UPDATE [Usuarios] SET [RG] = '' WHERE [RG] IS NULL;
+                            UPDATE [Usuarios] SET [Telefone] = '' WHERE [Telefone] IS NULL;
+                            UPDATE [Usuarios] SET [Departamento] = '' WHERE [Departamento] IS NULL;
+                            UPDATE [Usuarios] SET [Endereco] = '' WHERE [Endereco] IS NULL;
                         ");
 
                         // Assegura criação/atualização das Stored Procedures (PIM IV)

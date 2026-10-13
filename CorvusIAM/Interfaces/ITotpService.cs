@@ -7,7 +7,7 @@ namespace CorvusIAM.Interfaces
         string GenerateSecretKey();
         string GenerateQrCodeUri(string email, string secretKey);
         string GenerateQrCodeImageUrl(string email, string secretKey);
-        bool ValidateCode(string secretKey, string code);
+        bool ValidateCode(string? secretKey, string code);
     }
 }
 
