@@ -73,6 +73,8 @@
             <i class="ph ph-check-circle text-[48px] text-emerald-500 mx-auto"></i>
             <h4 class="text-[16px] font-[600] text-emerald-600 dark:text-emerald-400 mt-3 mb-1">Senha Alterada</h4>
             <p class="text-[12px] text-gray-500">Sua senha foi atualizada com sucesso e já está valendo para o próximo login.</p>
+        </div>
+
         <!-- MFA / 2FA Status & Action -->
         <div class="w-full max-w-sm mt-4 pt-4 border-t border-gray-100 dark:border-dark-border flex flex-col gap-2">
             <div class="flex items-center justify-between">
@@ -301,7 +303,7 @@
             try {
                 const res = await fetch('/Portal/ConfirmarAtivacaoMfa', {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
+                    headers: { 'Content-Type': 'application/json', 'RequestVerificationToken': getCsrfToken() },
                     body: JSON.stringify({ Codigo: codigo })
                 });
                 if (res.ok) {
@@ -333,7 +335,7 @@
             if (codigo) {
                 const res = await fetch('/Portal/DesativarMfa', {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
+                    headers: { 'Content-Type': 'application/json', 'RequestVerificationToken': getCsrfToken() },
                     body: JSON.stringify({ Codigo: codigo })
                 });
                 if (res.ok) {
@@ -365,7 +367,7 @@
             try {
                 const res = await fetch('/Portal/AlterarSenha', {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
+                    headers: { 'Content-Type': 'application/json', 'RequestVerificationToken': getCsrfToken() },
                     body: JSON.stringify(payload)
                 });
 

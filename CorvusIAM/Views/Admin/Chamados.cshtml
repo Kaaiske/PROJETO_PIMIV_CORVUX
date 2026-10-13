@@ -3,13 +3,17 @@
     Layout = "_Layout";
     ViewData["Title"] = "Fila Help Desk";
 }
-@Html.AntiForgeryToken()
 
-<div class="mb-[24px]">
-    <h1 class="text-[16px] font-[600] text-gray-900 dark:text-white flex items-center gap-2">
-        <i class="ph ph-headset text-brand-500"></i> Suporte e Help Desk
-    </h1>
-    <p class="text-[12px] text-gray-500 dark:text-gray-400 mt-1">Gestão de Chamados e Requisições de Acesso</p>
+<div class="mb-[24px] flex flex-col sm:flex-row sm:justify-between sm:items-end gap-3">
+    <div>
+        <h1 class="text-[16px] font-[600] text-gray-900 dark:text-white flex items-center gap-2">
+            <i class="ph ph-headset text-brand-500"></i> Suporte e Fila de Chamados
+        </h1>
+        <p class="text-[12px] text-gray-500 dark:text-gray-400 mt-1">Gestão de chamados, solicitações de acesso e requisições de TI</p>
+    </div>
+    <button onclick="openNovaIssueModal()" class="bg-brand-600 hover:bg-[#1D4ED8] text-white text-[12px] font-medium px-3 py-1.5 rounded-[6px] shadow-sm transition-colors flex items-center gap-1.5 cursor-pointer">
+        <i class="ph ph-plus"></i> Novo Chamado / Issue
+    </button>
 </div>
 
 <div class="bento-card bg-white dark:bg-dark-card border border-gray-200 dark:border-dark-border rounded-[6px] flex flex-col overflow-hidden">
@@ -33,7 +37,7 @@
                     @foreach(var c in Model){
                         <tr class="group border-b border-gray-100 dark:border-dark-border hover:bg-gray-50 dark:hover:bg-[#1B1F24] transition-colors">
                             <td class="px-[16px] py-[12px] text-[13px] text-brand-500 font-mono">CORV-@c.Id</td>
-                            <td class="px-[16px] py-[12px] text-[13px] font-[500] text-gray-900 dark:text-gray-100">@c.Usuario.Nome</td>
+                            <td class="px-[16px] py-[12px] text-[13px] font-[500] text-gray-900 dark:text-gray-100">@(c.Usuario?.Nome ?? "Colaborador")</td>
                             <td class="px-[16px] py-[12px] text-[13px] text-gray-600 dark:text-gray-300">@c.Assunto</td>
                             <td class="px-[16px] py-[12px] text-[12px] text-gray-500">@c.DataAbertura.ToString("dd/MM HH:mm")</td>
                             <td class="px-[16px] py-[12px] text-[12px]">
@@ -51,7 +55,7 @@
                                 else { <span class="text-brand-500 text-[12px] font-[500] flex items-center gap-1"><i class="ph ph-spinner-gap animate-spin"></i> @c.Status</span> }
                             </td>
                             <td class="px-[16px] py-[12px] text-right">
-                                <select onchange="updateStatus(@c.Id, this.value)" class="bg-gray-50 dark:bg-dark-bg border border-gray-200 dark:border-dark-border text-[12px] text-gray-700 dark:text-gray-300 rounded-[4px] px-2 py-1 outline-none focus:border-brand-500">
+                                <select onchange="updateStatus(@c.Id, this.value)" class="bg-gray-50 dark:bg-dark-bg border border-gray-200 dark:border-dark-border text-[12px] text-gray-700 dark:text-gray-300 rounded-[4px] px-2 py-1 outline-none focus:border-brand-500 cursor-pointer">
                                     <option value="" selected disabled>Mudar Status...</option>
                                     <option value="Aberto">Aberto</option>
                                     <option value="Em Andamento">Em Andamento</option>
@@ -69,18 +73,22 @@
 @section Scripts {
     <script>
         async function updateStatus(id, status) {
-            const res = await fetch('/Admin/AtualizarChamado', {
-                method: 'POST',
-                headers: { 
-                    'Content-Type': 'application/json',
-                    'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]').value
-                },
-                body: JSON.stringify({ Id: id, Status: status })
-            });
-            if(res.ok) {
-                Swal.fire({ title: 'Sucesso', text: 'Status atualizado.', icon: 'success', background: '#121418', color: '#ffffff', confirmButtonColor: '#3B82F6' }).then(() => window.location.reload());
-            } else {
-                Swal.fire({ title: 'Erro', text: 'Falha ao atualizar.', icon: 'error', background: '#121418', color: '#ffffff', confirmButtonColor: '#3B82F6' });
+            try {
+                const res = await fetch('/Admin/AtualizarChamado', {
+                    method: 'POST',
+                    headers: { 
+                        'Content-Type': 'application/json',
+                        'RequestVerificationToken': getCsrfToken()
+                    },
+                    body: JSON.stringify({ Id: id, Status: status })
+                });
+                if(res.ok) {
+                    Swal.fire({ title: 'Status Atualizado!', text: `Chamado CORV-${id} alterado para ${status}.`, icon: 'success', background: '#121418', color: '#ffffff', confirmButtonColor: '#3B82F6' }).then(() => window.location.reload());
+                } else {
+                    Swal.fire({ title: 'Erro', text: 'Falha ao atualizar chamado.', icon: 'error', background: '#121418', color: '#ffffff', confirmButtonColor: '#3B82F6' });
+                }
+            } catch(e) {
+                Swal.fire({ title: 'Erro de Conexão', text: 'Não foi possível atualizar o chamado.', icon: 'error', background: '#121418', color: '#ffffff' });
             }
         }
     </script>

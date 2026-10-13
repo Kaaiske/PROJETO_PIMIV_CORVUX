@@ -1,84 +1,649 @@
 @{
     Layout = "_Layout";
-    ViewData["Title"] = "Infra Cloud e DevOps";
+    ViewData["Title"] = "Saúde de Dispositivos & Infraestrutura";
 }
 
-<div class="mb-[24px]">
-    <h1 class="text-[16px] font-[600] text-gray-900 dark:text-white flex items-center gap-2">
-        <i class="ph ph-cloud text-brand-500"></i> Infraestrutura em Nuvem (DevOps)
-    </h1>
-    <p class="text-[12px] text-gray-500 dark:text-gray-400 mt-1">Métricas e Pipelines de Deploy</p>
+<div class="mb-[24px] flex flex-col sm:flex-row sm:justify-between sm:items-end gap-3">
+    <div>
+        <h1 class="text-[16px] font-[600] text-gray-900 dark:text-white flex items-center gap-2">
+            <i class="ph ph-desktop text-brand-500"></i> Infraestrutura & Saúde de Dispositivos (Endpoints / DevOps)
+        </h1>
+        <p class="text-[12px] text-gray-500 dark:text-gray-400 mt-1">Varredura contínua de computadores na rede corporativa, telemetria de recursos e conformidade EDR</p>
+    </div>
+    <div class="flex gap-2">
+        <button onclick="remediarTodosLote()" class="bg-orange-600 hover:bg-orange-700 text-white text-[12px] font-medium px-3 py-1.5 rounded-[6px] shadow-sm transition-colors flex items-center gap-1.5 cursor-pointer">
+            <i class="ph ph-wrench"></i> Corrigir Alertas em Lote
+        </button>
+        <button onclick="executarVarreduraGlobal()" id="btnVarreduraGlobal" class="bg-brand-600 hover:bg-[#1D4ED8] text-white text-[12px] font-medium px-3 py-1.5 rounded-[6px] shadow-sm transition-colors flex items-center gap-1.5 cursor-pointer">
+            <i class="ph ph-radar"></i> Escanear Toda a Rede
+        </button>
+    </div>
 </div>
 
-<div class="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-[24px] mb-[24px]">
-    <div class="bento-card bg-white dark:bg-dark-card border border-gray-200 dark:border-dark-border rounded-[6px] p-[24px] flex flex-col items-center justify-center relative overflow-hidden">
-        <h4 class="text-[12px] font-[600] text-gray-500 dark:text-gray-400 uppercase tracking-[0.05em] mb-4 text-center">Uso de CPU</h4>
+<!-- KPI Cards -->
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-[24px] mb-[24px]">
+    <div class="bento-card bg-white dark:bg-dark-card border border-gray-200 dark:border-dark-border rounded-[6px] p-[20px] flex flex-col justify-between relative overflow-hidden">
         <div class="absolute -top-[24px] -right-[24px] w-[96px] h-[96px] bg-brand-500/10 blur-[32px] rounded-full pointer-events-none"></div>
-        <div class="text-[36px] font-[700] text-gray-900 dark:text-white leading-[1]">45%</div>
-        <div class="text-[12px] text-emerald-600 dark:text-emerald-500 mt-2 flex items-center gap-1">
-            <i class="ph ph-trend-down"></i> Estável
+        <div class="text-[11px] font-[600] text-gray-500 dark:text-gray-400 uppercase tracking-[0.05em] flex justify-between items-center mb-3">
+            Computadores na Rede
+            <i class="ph ph-devices text-brand-500 text-[18px]"></i>
+        </div>
+        <div>
+            <div class="text-[28px] font-[700] text-gray-900 dark:text-white leading-[1]" id="kpiTotalDevices">18</div>
+            <div class="text-[11px] text-gray-500 mt-1">14 Estações • 4 Servidores</div>
         </div>
     </div>
-    <div class="bento-card bg-white dark:bg-dark-card border border-gray-200 dark:border-dark-border rounded-[6px] p-[24px] flex flex-col items-center justify-center relative overflow-hidden">
-        <h4 class="text-[12px] font-[600] text-gray-500 dark:text-gray-400 uppercase tracking-[0.05em] mb-4 text-center">Memória RAM</h4>
-        <div class="absolute -top-[24px] -right-[24px] w-[96px] h-[96px] bg-orange-500/10 blur-[32px] rounded-full pointer-events-none"></div>
-        <div class="text-[36px] font-[700] text-gray-900 dark:text-white leading-[1]">78%</div>
-        <div class="text-[12px] text-orange-600 dark:text-orange-500 mt-2 flex items-center gap-1">
-            <i class="ph ph-warning-circle"></i> Atenção
-        </div>
-    </div>
-    <div class="bento-card bg-white dark:bg-dark-card border border-gray-200 dark:border-dark-border rounded-[6px] p-[24px] flex flex-col items-center justify-center relative overflow-hidden">
-        <h4 class="text-[12px] font-[600] text-gray-500 dark:text-gray-400 uppercase tracking-[0.05em] mb-4 text-center">Último Deploy</h4>
+
+    <div class="bento-card bg-white dark:bg-dark-card border border-gray-200 dark:border-dark-border rounded-[6px] p-[20px] flex flex-col justify-between relative overflow-hidden">
         <div class="absolute -top-[24px] -right-[24px] w-[96px] h-[96px] bg-emerald-500/10 blur-[32px] rounded-full pointer-events-none"></div>
-        <div class="text-[36px] font-[700] text-gray-900 dark:text-white leading-[1] text-emerald-500">Sucesso</div>
-        <div class="text-[12px] text-gray-500 mt-2 font-mono">Há 2 horas</div>
+        <div class="text-[11px] font-[600] text-gray-500 dark:text-gray-400 uppercase tracking-[0.05em] flex justify-between items-center mb-3">
+            100% Saudáveis
+            <i class="ph ph-check-circle text-emerald-500 text-[18px]"></i>
+        </div>
+        <div>
+            <div class="text-[28px] font-[700] text-emerald-500 leading-[1]" id="kpiHealthyDevices">15</div>
+            <div class="text-[11px] text-emerald-600 dark:text-emerald-400 mt-1 font-medium">Sem vulnerabilidades ativas</div>
+        </div>
+    </div>
+
+    <div class="bento-card bg-white dark:bg-dark-card border border-gray-200 dark:border-dark-border rounded-[6px] p-[20px] flex flex-col justify-between relative overflow-hidden">
+        <div class="absolute -top-[24px] -right-[24px] w-[96px] h-[96px] bg-orange-500/10 blur-[32px] rounded-full pointer-events-none"></div>
+        <div class="text-[11px] font-[600] text-gray-500 dark:text-gray-400 uppercase tracking-[0.05em] flex justify-between items-center mb-3">
+            Requerem Atenção
+            <i class="ph ph-warning text-orange-500 text-[18px]"></i>
+        </div>
+        <div>
+            <div class="text-[28px] font-[700] text-orange-500 leading-[1]" id="kpiWarningDevices">3</div>
+            <div class="text-[11px] text-orange-600 dark:text-orange-400 mt-1 font-medium">Patches ou recursos críticos</div>
+        </div>
+    </div>
+
+    <div class="bento-card bg-white dark:bg-dark-card border border-gray-200 dark:border-dark-border rounded-[6px] p-[20px] flex flex-col justify-between relative overflow-hidden">
+        <div class="absolute -top-[24px] -right-[24px] w-[96px] h-[96px] bg-blue-500/10 blur-[32px] rounded-full pointer-events-none"></div>
+        <div class="text-[11px] font-[600] text-gray-500 dark:text-gray-400 uppercase tracking-[0.05em] flex justify-between items-center mb-3">
+            Latência de Rede
+            <i class="ph ph-wifi-high text-blue-500 text-[18px]"></i>
+        </div>
+        <div>
+            <div class="text-[28px] font-[700] text-gray-900 dark:text-white leading-[1]">3.8 ms</div>
+            <div class="text-[11px] text-blue-600 dark:text-blue-400 mt-1 font-medium">VLAN Corporativa 1 Gbps</div>
+        </div>
     </div>
 </div>
 
-<div class="bento-card bg-white dark:bg-dark-card border border-gray-200 dark:border-dark-border rounded-[6px] flex flex-col overflow-hidden">
-    <div class="p-[16px] border-b border-gray-100 dark:border-dark-border bg-gray-50 dark:bg-dark-bg/50">
-        <h3 class="text-[12px] font-[600] text-gray-500 dark:text-gray-400 uppercase tracking-[0.05em]">Serviços Ativos</h3>
+<!-- Painel de Análise do Agente & Diagnóstico -->
+<div class="bento-card bg-amber-500/5 border border-amber-500/20 rounded-[6px] p-[20px] mb-[24px]">
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+        <div class="flex items-start gap-3">
+            <div class="p-2 rounded bg-amber-500/10 text-amber-500">
+                <i class="ph ph-robot text-[24px]"></i>
+            </div>
+            <div>
+                <h3 class="text-[13px] font-[600] text-gray-900 dark:text-white m-0">Diagnóstico Preditivo do Agente CorvusSec</h3>
+                <p class="text-[12px] text-gray-600 dark:text-gray-400 mt-0.5" id="aiDiagText">
+                    Foram identificadas <b>3 máquinas que precisam de atenção</b> imediata: <span class="text-orange-500 font-mono">WS-FIN-03</span> (RAM a 92% e 2 patches pendentes), <span class="text-orange-500 font-mono">WS-RH-01</span> (antivírus desatualizado) e <span class="text-red-500 font-mono">SRV-CORVUS-API</span> (disco C:/ em 89%).
+                </p>
+            </div>
+        </div>
+        <button onclick="remediarTodosLote()" class="whitespace-nowrap px-3 py-1.5 bg-amber-600 hover:bg-amber-700 text-white rounded text-[11px] font-medium transition-colors cursor-pointer self-start sm:self-auto">
+            Aplicar Correções
+        </button>
     </div>
+</div>
+
+<!-- Tabela de Máquinas e Telemetria -->
+<div class="bento-card bg-white dark:bg-dark-card border border-gray-200 dark:border-dark-border rounded-[6px] flex flex-col overflow-hidden">
+    <div class="p-[16px] border-b border-gray-100 dark:border-dark-border bg-gray-50 dark:bg-dark-bg/50 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+        <div>
+            <h3 class="text-[12px] font-[600] text-gray-500 dark:text-gray-400 uppercase tracking-[0.05em] m-0">Inventário de Dispositivos e Telemetria em Tempo Real</h3>
+        </div>
+        <div class="flex gap-1.5" id="filterTabs">
+            <button onclick="filtrarDispositivos('todos')" id="tab-todos" class="tab-btn px-2.5 py-1 text-[11px] font-medium rounded bg-brand-600 text-white transition-colors cursor-pointer">Todos (18)</button>
+            <button onclick="filtrarDispositivos('atencao')" id="tab-atencao" class="tab-btn px-2.5 py-1 text-[11px] font-medium rounded text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-dark-border transition-colors cursor-pointer">Requer Atenção (3)</button>
+            <button onclick="filtrarDispositivos('estacoes')" id="tab-estacoes" class="tab-btn px-2.5 py-1 text-[11px] font-medium rounded text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-dark-border transition-colors cursor-pointer">Estações (14)</button>
+            <button onclick="filtrarDispositivos('servidores')" id="tab-servidores" class="tab-btn px-2.5 py-1 text-[11px] font-medium rounded text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-dark-border transition-colors cursor-pointer">Servidores (4)</button>
+        </div>
+    </div>
+    
     <div class="overflow-x-auto">
-        <table class="w-full text-left border-collapse">
+        <table class="w-full text-left border-collapse" id="tabelaEndpoints">
             <thead>
-                <tr class="border-b border-gray-200 dark:border-dark-border bg-gray-50 dark:bg-dark-bg/50">
-                    <th class="px-[16px] py-[12px] text-[12px] font-[600] text-gray-500 dark:text-gray-400 uppercase tracking-[0.05em]">Serviço</th>
-                    <th class="px-[16px] py-[12px] text-[12px] font-[600] text-gray-500 dark:text-gray-400 uppercase tracking-[0.05em]">Região</th>
-                    <th class="px-[16px] py-[12px] text-[12px] font-[600] text-gray-500 dark:text-gray-400 uppercase tracking-[0.05em]">Status</th>
-                    <th class="px-[16px] py-[12px] text-[12px] font-[600] text-gray-500 dark:text-gray-400 uppercase tracking-[0.05em] text-right">Ações</th>
+                <tr class="border-b border-gray-200 dark:border-dark-border bg-gray-50 dark:bg-dark-bg/50 text-[11px] font-[600] text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                    <th class="px-4 py-3">Dispositivo / Host</th>
+                    <th class="px-4 py-3">IP & Rede</th>
+                    <th class="px-4 py-3">Sistema Operacional</th>
+                    <th class="px-4 py-3">Consumo de Recursos</th>
+                    <th class="px-4 py-3">EDR / Antivírus</th>
+                    <th class="px-4 py-3">Patches & Segurança</th>
+                    <th class="px-4 py-3">Status</th>
+                    <th class="px-4 py-3 text-right">Ações Rápidas</th>
                 </tr>
             </thead>
-            <tbody>
-                <tr class="border-b border-gray-100 dark:border-dark-border hover:bg-gray-50 dark:hover:bg-[#1B1F24] transition-colors">
-                    <td class="px-[16px] py-[12px] text-[13px] font-[500] text-gray-900 dark:text-gray-100">AppServer-01</td>
-                    <td class="px-[16px] py-[12px] text-[12px] font-mono text-gray-600 dark:text-gray-400">us-east-1</td>
-                    <td class="px-[16px] py-[12px]">
-                        <span class="bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 px-2 py-0.5 rounded-[4px] text-[11px] font-[600] flex items-center gap-1 w-max">
-                            <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span> Running
+            <tbody id="endpointTbody">
+                <!-- Device 1: Critico -->
+                <tr class="device-row border-b border-gray-100 dark:border-dark-border hover:bg-gray-50 dark:hover:bg-[#1B1F24] transition-colors" data-type="estacoes" data-status="atencao">
+                    <td class="px-4 py-3">
+                        <div class="font-[600] text-[13px] text-gray-900 dark:text-gray-100 flex items-center gap-1.5">
+                            <i class="ph ph-laptop text-orange-500"></i> WS-FIN-03
+                        </div>
+                        <div class="text-[11px] text-gray-400">Usuário: amanda.lima@corvusiam.tech</div>
+                    </td>
+                    <td class="px-4 py-3 text-[12px] font-mono text-gray-600 dark:text-gray-400">
+                        192.168.10.45 <br><span class="text-[10px] text-gray-400">VLAN 10 - Finanças</span>
+                    </td>
+                    <td class="px-4 py-3 text-[12px] text-gray-700 dark:text-gray-300">
+                        Windows 11 Pro 23H2
+                    </td>
+                    <td class="px-4 py-3 text-[11px]">
+                        <div class="flex items-center justify-between text-gray-500 mb-1">
+                            <span>CPU: 42%</span> <span class="text-orange-500 font-bold">RAM: 92%</span> <span>Disco: 55%</span>
+                        </div>
+                        <div class="w-28 h-1.5 bg-gray-200 dark:bg-dark-bg rounded-full overflow-hidden">
+                            <div class="w-[92%] h-full bg-orange-500"></div>
+                        </div>
+                    </td>
+                    <td class="px-4 py-3">
+                        <span class="inline-flex items-center gap-1 text-[11px] font-medium text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded border border-emerald-500/20">
+                            <i class="ph ph-shield-check"></i> EDR Ativo
                         </span>
                     </td>
-                    <td class="px-[16px] py-[12px] text-right">
-                        <button onclick="alert('Serviço AppServer-01 reiniciado com sucesso!')" class="bg-white dark:bg-dark-bg border border-gray-200 dark:border-dark-border text-gray-700 dark:text-gray-300 text-[12px] font-medium px-3 py-1.5 rounded-[4px] hover:bg-gray-50 dark:hover:bg-[#1B1F24] transition-colors">
-                            Reiniciar
-                        </button>
+                    <td class="px-4 py-3">
+                        <span class="inline-flex items-center gap-1 text-[11px] font-medium text-orange-600 dark:text-orange-400 bg-orange-500/10 px-2 py-0.5 rounded border border-orange-500/20">
+                            <i class="ph ph-warning"></i> 2 Patches Pendentes
+                        </span>
+                    </td>
+                    <td class="px-4 py-3">
+                        <span class="inline-flex items-center gap-1 text-[11px] font-bold text-orange-500 bg-orange-500/10 px-2 py-0.5 rounded">
+                            <span class="w-1.5 h-1.5 rounded-full bg-orange-500 animate-pulse"></span> Alerta
+                        </span>
+                    </td>
+                    <td class="px-4 py-3 text-right">
+                        <div class="flex justify-end gap-1">
+                            <button onclick="escanearDispositivo('WS-FIN-03')" class="px-2 py-1 bg-brand-50 hover:bg-brand-100 dark:bg-brand-900/20 dark:hover:bg-brand-900/30 text-brand-600 dark:text-brand-400 text-xs rounded transition-colors cursor-pointer" title="Escanear">Escanear</button>
+                            <button onclick="aplicarPatchesDispositivo('WS-FIN-03')" class="px-2 py-1 bg-emerald-50 hover:bg-emerald-100 dark:bg-emerald-900/20 dark:hover:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400 text-xs rounded transition-colors cursor-pointer" title="Aplicar Patches">Atualizar</button>
+                            <button onclick="isolarDispositivo('WS-FIN-03', this)" class="px-2 py-1 bg-red-50 hover:bg-red-100 dark:bg-red-900/20 dark:hover:bg-red-900/30 text-red-600 dark:text-red-400 text-xs rounded transition-colors cursor-pointer" title="Isolar">Isolar</button>
+                        </div>
                     </td>
                 </tr>
-                <tr class="border-b border-gray-100 dark:border-dark-border hover:bg-gray-50 dark:hover:bg-[#1B1F24] transition-colors">
-                    <td class="px-[16px] py-[12px] text-[13px] font-[500] text-gray-900 dark:text-gray-100">Database-Main</td>
-                    <td class="px-[16px] py-[12px] text-[12px] font-mono text-gray-600 dark:text-gray-400">sa-east-1</td>
-                    <td class="px-[16px] py-[12px]">
-                        <span class="bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 px-2 py-0.5 rounded-[4px] text-[11px] font-[600] flex items-center gap-1 w-max">
-                            <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span> Running
+
+                <!-- Device 2: Alerta RH -->
+                <tr class="device-row border-b border-gray-100 dark:border-dark-border hover:bg-gray-50 dark:hover:bg-[#1B1F24] transition-colors" data-type="estacoes" data-status="atencao">
+                    <td class="px-4 py-3">
+                        <div class="font-[600] text-[13px] text-gray-900 dark:text-gray-100 flex items-center gap-1.5">
+                            <i class="ph ph-laptop text-orange-500"></i> WS-RH-01
+                        </div>
+                        <div class="text-[11px] text-gray-400">Usuário: carla.rh@corvusiam.tech</div>
+                    </td>
+                    <td class="px-4 py-3 text-[12px] font-mono text-gray-600 dark:text-gray-400">
+                        192.168.10.12 <br><span class="text-[10px] text-gray-400">VLAN 20 - Recursos Humanos</span>
+                    </td>
+                    <td class="px-4 py-3 text-[12px] text-gray-700 dark:text-gray-300">
+                        Windows 11 Pro 22H2
+                    </td>
+                    <td class="px-4 py-3 text-[11px]">
+                        <div class="flex items-center justify-between text-gray-500 mb-1">
+                            <span>CPU: 18%</span> <span>RAM: 64%</span> <span>Disco: 40%</span>
+                        </div>
+                        <div class="w-28 h-1.5 bg-gray-200 dark:bg-dark-bg rounded-full overflow-hidden">
+                            <div class="w-[64%] h-full bg-emerald-500"></div>
+                        </div>
+                    </td>
+                    <td class="px-4 py-3">
+                        <span class="inline-flex items-center gap-1 text-[11px] font-medium text-orange-600 dark:text-orange-400 bg-orange-500/10 px-2 py-0.5 rounded border border-orange-500/20">
+                            <i class="ph ph-warning-circle"></i> Assinatura Antiga
                         </span>
                     </td>
-                    <td class="px-[16px] py-[12px] text-right">
-                        <button onclick="alert('Serviço Database-Main reiniciado com sucesso!')" class="bg-white dark:bg-dark-bg border border-gray-200 dark:border-dark-border text-gray-700 dark:text-gray-300 text-[12px] font-medium px-3 py-1.5 rounded-[4px] hover:bg-gray-50 dark:hover:bg-[#1B1F24] transition-colors">
-                            Reiniciar
-                        </button>
+                    <td class="px-4 py-3">
+                        <span class="inline-flex items-center gap-1 text-[11px] font-medium text-orange-600 dark:text-orange-400 bg-orange-500/10 px-2 py-0.5 rounded border border-orange-500/20">
+                            <i class="ph ph-warning"></i> 1 Patch de KB
+                        </span>
+                    </td>
+                    <td class="px-4 py-3">
+                        <span class="inline-flex items-center gap-1 text-[11px] font-bold text-orange-500 bg-orange-500/10 px-2 py-0.5 rounded">
+                            <span class="w-1.5 h-1.5 rounded-full bg-orange-500 animate-pulse"></span> Alerta
+                        </span>
+                    </td>
+                    <td class="px-4 py-3 text-right">
+                        <div class="flex justify-end gap-1">
+                            <button onclick="escanearDispositivo('WS-RH-01')" class="px-2 py-1 bg-brand-50 hover:bg-brand-100 dark:bg-brand-900/20 dark:hover:bg-brand-900/30 text-brand-600 dark:text-brand-400 text-xs rounded transition-colors cursor-pointer">Escanear</button>
+                            <button onclick="aplicarPatchesDispositivo('WS-RH-01')" class="px-2 py-1 bg-emerald-50 hover:bg-emerald-100 dark:bg-emerald-900/20 dark:hover:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400 text-xs rounded transition-colors cursor-pointer">Atualizar</button>
+                            <button onclick="isolarDispositivo('WS-RH-01', this)" class="px-2 py-1 bg-red-50 hover:bg-red-100 dark:bg-red-900/20 dark:hover:bg-red-900/30 text-red-600 dark:text-red-400 text-xs rounded transition-colors cursor-pointer">Isolar</button>
+                        </div>
+                    </td>
+                </tr>
+
+                <!-- Device 3: Servidor Alerta Disco -->
+                <tr class="device-row border-b border-gray-100 dark:border-dark-border hover:bg-gray-50 dark:hover:bg-[#1B1F24] transition-colors" data-type="servidores" data-status="atencao">
+                    <td class="px-4 py-3">
+                        <div class="font-[600] text-[13px] text-gray-900 dark:text-gray-100 flex items-center gap-1.5">
+                            <i class="ph ph-hard-drives text-red-500"></i> SRV-CORVUS-API
+                        </div>
+                        <div class="text-[11px] text-gray-400">Serviço: Backend Web API (.NET 8)</div>
+                    </td>
+                    <td class="px-4 py-3 text-[12px] font-mono text-gray-600 dark:text-gray-400">
+                        10.0.1.15 <br><span class="text-[10px] text-gray-400">VLAN 99 - Servidores DMZ</span>
+                    </td>
+                    <td class="px-4 py-3 text-[12px] text-gray-700 dark:text-gray-300">
+                        Ubuntu Server 24.04 LTS
+                    </td>
+                    <td class="px-4 py-3 text-[11px]">
+                        <div class="flex items-center justify-between text-gray-500 mb-1">
+                            <span>CPU: 35%</span> <span>RAM: 72%</span> <span class="text-red-500 font-bold">Disco: 89%</span>
+                        </div>
+                        <div class="w-28 h-1.5 bg-gray-200 dark:bg-dark-bg rounded-full overflow-hidden">
+                            <div class="w-[89%] h-full bg-red-500"></div>
+                        </div>
+                    </td>
+                    <td class="px-4 py-3">
+                        <span class="inline-flex items-center gap-1 text-[11px] font-medium text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded border border-emerald-500/20">
+                            <i class="ph ph-shield-check"></i> ClamAV / AppArmor
+                        </span>
+                    </td>
+                    <td class="px-4 py-3">
+                        <span class="inline-flex items-center gap-1 text-[11px] font-medium text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded border border-emerald-500/20">
+                            <i class="ph ph-check"></i> Kernel Atualizado
+                        </span>
+                    </td>
+                    <td class="px-4 py-3">
+                        <span class="inline-flex items-center gap-1 text-[11px] font-bold text-red-500 bg-red-500/10 px-2 py-0.5 rounded">
+                            <span class="w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse"></span> Disco Crítico
+                        </span>
+                    </td>
+                    <td class="px-4 py-3 text-right">
+                        <div class="flex justify-end gap-1">
+                            <button onclick="escanearDispositivo('SRV-CORVUS-API')" class="px-2 py-1 bg-brand-50 hover:bg-brand-100 dark:bg-brand-900/20 dark:hover:bg-brand-900/30 text-brand-600 dark:text-brand-400 text-xs rounded transition-colors cursor-pointer">Escanear</button>
+                            <button onclick="limparDiscoServidor('SRV-CORVUS-API')" class="px-2 py-1 bg-orange-50 hover:bg-orange-100 dark:bg-orange-900/20 dark:hover:bg-orange-900/30 text-orange-600 dark:text-orange-400 text-xs rounded transition-colors cursor-pointer">Limpar Logs</button>
+                            <button onclick="reiniciarAgente('SRV-CORVUS-API')" class="px-2 py-1 bg-gray-100 hover:bg-gray-200 dark:bg-dark-border text-gray-700 dark:text-gray-300 text-xs rounded transition-colors cursor-pointer">Reiniciar</button>
+                        </div>
+                    </td>
+                </tr>
+
+                <!-- Device 4: Database Main (Saudável) -->
+                <tr class="device-row border-b border-gray-100 dark:border-dark-border hover:bg-gray-50 dark:hover:bg-[#1B1F24] transition-colors" data-type="servidores" data-status="saudavel">
+                    <td class="px-4 py-3">
+                        <div class="font-[600] text-[13px] text-gray-900 dark:text-gray-100 flex items-center gap-1.5">
+                            <i class="ph ph-database text-emerald-500"></i> SRV-SQL-DATABASE
+                        </div>
+                        <div class="text-[11px] text-gray-400">Serviço: Microsoft SQL Server 2022</div>
+                    </td>
+                    <td class="px-4 py-3 text-[12px] font-mono text-gray-600 dark:text-gray-400">
+                        10.0.1.20 <br><span class="text-[10px] text-gray-400">VLAN 99 - Servidores DB</span>
+                    </td>
+                    <td class="px-4 py-3 text-[12px] text-gray-700 dark:text-gray-300">
+                        Ubuntu 22.04 LTS (Container)
+                    </td>
+                    <td class="px-4 py-3 text-[11px]">
+                        <div class="flex items-center justify-between text-gray-500 mb-1">
+                            <span>CPU: 22%</span> <span>RAM: 68%</span> <span>Disco: 42%</span>
+                        </div>
+                        <div class="w-28 h-1.5 bg-gray-200 dark:bg-dark-bg rounded-full overflow-hidden">
+                            <div class="w-[68%] h-full bg-emerald-500"></div>
+                        </div>
+                    </td>
+                    <td class="px-4 py-3">
+                        <span class="inline-flex items-center gap-1 text-[11px] font-medium text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded border border-emerald-500/20">
+                            <i class="ph ph-shield-check"></i> Seguro
+                        </span>
+                    </td>
+                    <td class="px-4 py-3">
+                        <span class="inline-flex items-center gap-1 text-[11px] font-medium text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded border border-emerald-500/20">
+                            <i class="ph ph-check"></i> Atualizado
+                        </span>
+                    </td>
+                    <td class="px-4 py-3">
+                        <span class="inline-flex items-center gap-1 text-[11px] font-bold text-emerald-500 bg-emerald-500/10 px-2 py-0.5 rounded">
+                            <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span> Saudável
+                        </span>
+                    </td>
+                    <td class="px-4 py-3 text-right">
+                        <div class="flex justify-end gap-1">
+                            <button onclick="escanearDispositivo('SRV-SQL-DATABASE')" class="px-2 py-1 bg-brand-50 hover:bg-brand-100 dark:bg-brand-900/20 dark:hover:bg-brand-900/30 text-brand-600 dark:text-brand-400 text-xs rounded transition-colors cursor-pointer">Escanear</button>
+                            <button onclick="reiniciarAgente('SRV-SQL-DATABASE')" class="px-2 py-1 bg-gray-100 hover:bg-gray-200 dark:bg-dark-border text-gray-700 dark:text-gray-300 text-xs rounded transition-colors cursor-pointer">Reiniciar</button>
+                        </div>
+                    </td>
+                </tr>
+
+                <!-- Device 5: Workstation Dev (Saudável) -->
+                <tr class="device-row border-b border-gray-100 dark:border-dark-border hover:bg-gray-50 dark:hover:bg-[#1B1F24] transition-colors" data-type="estacoes" data-status="saudavel">
+                    <td class="px-4 py-3">
+                        <div class="font-[600] text-[13px] text-gray-900 dark:text-gray-100 flex items-center gap-1.5">
+                            <i class="ph ph-laptop text-emerald-500"></i> WS-DEV-GABRIEL
+                        </div>
+                        <div class="text-[11px] text-gray-400">Usuário: gabriel.ti@corvusiam.tech</div>
+                    </td>
+                    <td class="px-4 py-3 text-[12px] font-mono text-gray-600 dark:text-gray-400">
+                        192.168.30.88 <br><span class="text-[10px] text-gray-400">VLAN 30 - Desenvolvimento</span>
+                    </td>
+                    <td class="px-4 py-3 text-[12px] text-gray-700 dark:text-gray-300">
+                        Fedora Workstation 40
+                    </td>
+                    <td class="px-4 py-3 text-[11px]">
+                        <div class="flex items-center justify-between text-gray-500 mb-1">
+                            <span>CPU: 12%</span> <span>RAM: 45%</span> <span>Disco: 38%</span>
+                        </div>
+                        <div class="w-28 h-1.5 bg-gray-200 dark:bg-dark-bg rounded-full overflow-hidden">
+                            <div class="w-[45%] h-full bg-emerald-500"></div>
+                        </div>
+                    </td>
+                    <td class="px-4 py-3">
+                        <span class="inline-flex items-center gap-1 text-[11px] font-medium text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded border border-emerald-500/20">
+                            <i class="ph ph-shield-check"></i> SELinux Enforcing
+                        </span>
+                    </td>
+                    <td class="px-4 py-3">
+                        <span class="inline-flex items-center gap-1 text-[11px] font-medium text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded border border-emerald-500/20">
+                            <i class="ph ph-check"></i> Totalmente Seguro
+                        </span>
+                    </td>
+                    <td class="px-4 py-3">
+                        <span class="inline-flex items-center gap-1 text-[11px] font-bold text-emerald-500 bg-emerald-500/10 px-2 py-0.5 rounded">
+                            <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span> Saudável
+                        </span>
+                    </td>
+                    <td class="px-4 py-3 text-right">
+                        <div class="flex justify-end gap-1">
+                            <button onclick="escanearDispositivo('WS-DEV-GABRIEL')" class="px-2 py-1 bg-brand-50 hover:bg-brand-100 dark:bg-brand-900/20 dark:hover:bg-brand-900/30 text-brand-600 dark:text-brand-400 text-xs rounded transition-colors cursor-pointer">Escanear</button>
+                            <button onclick="isolarDispositivo('WS-DEV-GABRIEL', this)" class="px-2 py-1 bg-red-50 hover:bg-red-100 dark:bg-red-900/20 dark:hover:bg-red-900/30 text-red-600 dark:text-red-400 text-xs rounded transition-colors cursor-pointer">Isolar</button>
+                        </div>
+                    </td>
+                </tr>
+
+                <!-- Device 6: Workstation Diretoria (Saudável) -->
+                <tr class="device-row border-b border-gray-100 dark:border-dark-border hover:bg-gray-50 dark:hover:bg-[#1B1F24] transition-colors" data-type="estacoes" data-status="saudavel">
+                    <td class="px-4 py-3">
+                        <div class="font-[600] text-[13px] text-gray-900 dark:text-gray-100 flex items-center gap-1.5">
+                            <i class="ph ph-laptop text-emerald-500"></i> WS-DIR-MACBOOK
+                        </div>
+                        <div class="text-[11px] text-gray-400">Usuário: diretor.executivo@corvusiam.tech</div>
+                    </td>
+                    <td class="px-4 py-3 text-[12px] font-mono text-gray-600 dark:text-gray-400">
+                        192.168.10.99 <br><span class="text-[10px] text-gray-400">VLAN 10 - Executiva</span>
+                    </td>
+                    <td class="px-4 py-3 text-[12px] text-gray-700 dark:text-gray-300">
+                        macOS Sonoma 14.5
+                    </td>
+                    <td class="px-4 py-3 text-[11px]">
+                        <div class="flex items-center justify-between text-gray-500 mb-1">
+                            <span>CPU: 8%</span> <span>RAM: 52%</span> <span>Disco: 29%</span>
+                        </div>
+                        <div class="w-28 h-1.5 bg-gray-200 dark:bg-dark-bg rounded-full overflow-hidden">
+                            <div class="w-[52%] h-full bg-emerald-500"></div>
+                        </div>
+                    </td>
+                    <td class="px-4 py-3">
+                        <span class="inline-flex items-center gap-1 text-[11px] font-medium text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded border border-emerald-500/20">
+                            <i class="ph ph-shield-check"></i> FileVault & EDR OK
+                        </span>
+                    </td>
+                    <td class="px-4 py-3">
+                        <span class="inline-flex items-center gap-1 text-[11px] font-medium text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded border border-emerald-500/20">
+                            <i class="ph ph-check"></i> Atualizado
+                        </span>
+                    </td>
+                    <td class="px-4 py-3">
+                        <span class="inline-flex items-center gap-1 text-[11px] font-bold text-emerald-500 bg-emerald-500/10 px-2 py-0.5 rounded">
+                            <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span> Saudável
+                        </span>
+                    </td>
+                    <td class="px-4 py-3 text-right">
+                        <div class="flex justify-end gap-1">
+                            <button onclick="escanearDispositivo('WS-DIR-MACBOOK')" class="px-2 py-1 bg-brand-50 hover:bg-brand-100 dark:bg-brand-900/20 dark:hover:bg-brand-900/30 text-brand-600 dark:text-brand-400 text-xs rounded transition-colors cursor-pointer">Escanear</button>
+                            <button onclick="reiniciarAgente('WS-DIR-MACBOOK')" class="px-2 py-1 bg-gray-100 hover:bg-gray-200 dark:bg-dark-border text-gray-700 dark:text-gray-300 text-xs rounded transition-colors cursor-pointer">Reiniciar</button>
+                        </div>
                     </td>
                 </tr>
             </tbody>
         </table>
     </div>
 </div>
+
+@section Scripts {
+    <script>
+        function filtrarDispositivos(tipo) {
+            document.querySelectorAll('.tab-btn').forEach(b => {
+                b.classList.remove('bg-brand-600', 'text-white');
+                b.classList.add('text-gray-600', 'dark:text-gray-400');
+            });
+            const activeTab = document.getElementById(`tab-${tipo}`);
+            if (activeTab) {
+                activeTab.classList.remove('text-gray-600', 'dark:text-gray-400');
+                activeTab.classList.add('bg-brand-600', 'text-white');
+            }
+
+            const rows = document.querySelectorAll('.device-row');
+            rows.forEach(r => {
+                const rowType = r.getAttribute('data-type');
+                const rowStatus = r.getAttribute('data-status');
+                if (tipo === 'todos') {
+                    r.style.display = '';
+                } else if (tipo === 'atencao') {
+                    r.style.display = (rowStatus === 'atencao') ? '' : 'none';
+                } else if (tipo === 'estacoes') {
+                    r.style.display = (rowType === 'estacoes') ? '' : 'none';
+                } else if (tipo === 'servidores') {
+                    r.style.display = (rowType === 'servidores') ? '' : 'none';
+                }
+            });
+        }
+
+        async function escanearDispositivo(host) {
+            Swal.fire({
+                title: `Escaneando ${host}...`,
+                html: '<div class="text-xs text-gray-400">Verificando integridade de arquivos, processos em execução e portas abertas...</div>',
+                allowOutsideClick: false,
+                didOpen: () => Swal.showLoading(),
+                background: '#121418', color: '#fff'
+            });
+
+            try {
+                await fetch('/Admin/ExecutarAcaoEndpoint', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'RequestVerificationToken': getCsrfToken() },
+                    body: JSON.stringify({ Hostname: host, Acao: 'Scan' })
+                });
+
+                setTimeout(() => {
+                    Swal.fire({
+                        title: 'Varredura Concluída!',
+                        html: `O host <b>${host}</b> foi verificado com sucesso pelo agente local.<br><br><span class="text-emerald-400 text-xs font-mono">0 malwares encontrados • Assinaturas EDR atualizadas</span>`,
+                        icon: 'success',
+                        background: '#121418', color: '#fff', confirmButtonColor: '#3B82F6'
+                    });
+                }, 1200);
+            } catch(e) {
+                Swal.fire({ title: 'Erro!', text: 'Falha de comunicação com o agente remoto.', icon: 'error', background: '#121418', color: '#fff' });
+            }
+        }
+
+        async function aplicarPatchesDispositivo(host) {
+            const res = await Swal.fire({
+                title: `Aplicar Atualizações em ${host}?`,
+                text: 'Serão aplicados os patches de segurança do Windows Defender e atualizações críticas de SO.',
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonColor: '#10b981',
+                confirmButtonText: 'Instalar Patches Agora',
+                cancelButtonText: 'Cancelar',
+                background: '#121418', color: '#fff'
+            });
+
+            if(res.isConfirmed) {
+                Swal.fire({
+                    title: 'Instalando Patches...',
+                    html: '<div class="text-xs text-gray-400">Baixando KBs assinadas e aplicando sem reiniciar...</div>',
+                    allowOutsideClick: false,
+                    didOpen: () => Swal.showLoading(),
+                    background: '#121418', color: '#fff'
+                });
+
+                await fetch('/Admin/ExecutarAcaoEndpoint', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'RequestVerificationToken': getCsrfToken() },
+                    body: JSON.stringify({ Hostname: host, Acao: 'Patch' })
+                });
+
+                setTimeout(() => {
+                    Swal.fire({
+                        title: 'Patches Aplicados!',
+                        text: `Host ${host} atualizado com êxito. Sistema em total conformidade.`,
+                        icon: 'success',
+                        background: '#121418', color: '#fff', confirmButtonColor: '#3B82F6'
+                    }).then(() => window.location.reload());
+                }, 1500);
+            }
+        }
+
+        async function isolarDispositivo(host, btn) {
+            const estaIsolado = btn.classList.contains('bg-gray-700');
+            const acao = estaIsolado ? 'Liberar' : 'Isolar';
+
+            const confirm = await Swal.fire({
+                title: `${acao} ${host} da Rede?`,
+                html: estaIsolado ? `Reestabelecer acesso de rede corporativa para <b>${host}</b>?` : `Isolar <b>${host}</b> preventivamente da rede local e internet? Apenas tráfego seguro de gerenciamento será mantido.`,
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: estaIsolado ? '#10b981' : '#ef4444',
+                confirmButtonText: `Sim, ${acao}`,
+                cancelButtonText: 'Cancelar',
+                background: '#121418', color: '#fff'
+            });
+
+            if (confirm.isConfirmed) {
+                await fetch('/Admin/ExecutarAcaoEndpoint', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'RequestVerificationToken': getCsrfToken() },
+                    body: JSON.stringify({ Hostname: host, Acao: estaIsolado ? 'Reconnect' : 'Isolate' })
+                });
+
+                if (!estaIsolado) {
+                    btn.classList.remove('bg-red-50', 'text-red-600');
+                    btn.classList.add('bg-gray-700', 'text-white');
+                    btn.innerText = 'Liberar';
+                    Swal.fire({ title: 'Dispositivo Isolado!', text: `${host} foi colocado em quarentena de rede.`, icon: 'warning', background: '#121418', color: '#fff' });
+                } else {
+                    btn.classList.remove('bg-gray-700', 'text-white');
+                    btn.classList.add('bg-red-50', 'text-red-600');
+                    btn.innerText = 'Isolar';
+                    Swal.fire({ title: 'Acesso Restaurado!', text: `${host} reconectado à rede.`, icon: 'success', background: '#121418', color: '#fff' });
+                }
+            }
+        }
+
+        async function limparDiscoServidor(host) {
+            Swal.fire({
+                title: `Limpando arquivos temporários e logs em ${host}...`,
+                allowOutsideClick: false,
+                didOpen: () => Swal.showLoading(),
+                background: '#121418', color: '#fff'
+            });
+
+            await fetch('/Admin/ExecutarAcaoEndpoint', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'RequestVerificationToken': getCsrfToken() },
+                body: JSON.stringify({ Hostname: host, Acao: 'CleanDisk' })
+            });
+
+            setTimeout(() => {
+                Swal.fire({
+                    title: 'Disco Otimizado!',
+                    html: `Foram liberados <b>18.4 GB</b> de logs de depuração antigos em <b>${host}</b>.<br><span class="text-emerald-400 font-mono text-xs">Uso de disco reduzido para 54%.</span>`,
+                    icon: 'success',
+                    background: '#121418', color: '#fff', confirmButtonColor: '#3B82F6'
+                }).then(() => window.location.reload());
+            }, 1200);
+        }
+
+        async function reiniciarAgente(host) {
+            Swal.fire({
+                title: `Reiniciando Agente em ${host}...`,
+                allowOutsideClick: false,
+                didOpen: () => Swal.showLoading(),
+                background: '#121418', color: '#fff'
+            });
+
+            await fetch('/Admin/ExecutarAcaoEndpoint', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'RequestVerificationToken': getCsrfToken() },
+                body: JSON.stringify({ Hostname: host, Acao: 'RestartAgent' })
+            });
+
+            setTimeout(() => {
+                Swal.fire({
+                    title: 'Agente Reiniciado!',
+                    text: `O serviço daemon de telemetria em ${host} foi reiniciado e está operacional.`,
+                    icon: 'success',
+                    background: '#121418', color: '#fff', confirmButtonColor: '#3B82F6'
+                });
+            }, 1000);
+        }
+
+        async function executarVarreduraGlobal() {
+            const btn = document.getElementById('btnVarreduraGlobal');
+            btn.disabled = true;
+            btn.innerHTML = '<i class="ph ph-spinner-gap animate-spin"></i> Escaneando Rede...';
+
+            Swal.fire({
+                title: 'Varredura Global de Endpoints',
+                html: 'Enviando pulsos de telemetria para 18 computadores e servidores conectados...',
+                allowOutsideClick: false,
+                didOpen: () => Swal.showLoading(),
+                background: '#121418', color: '#fff'
+            });
+
+            await fetch('/Admin/ExecutarAcaoEndpoint', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'RequestVerificationToken': getCsrfToken() },
+                body: JSON.stringify({ Hostname: 'ALL_NETWORK', Acao: 'GlobalNetworkScan' })
+            });
+
+            setTimeout(() => {
+                btn.disabled = false;
+                btn.innerHTML = '<i class="ph ph-radar"></i> Escanear Toda a Rede';
+                Swal.fire({
+                    title: 'Varredura Concluída!',
+                    html: 'Todos os <b>18 dispositivos</b> responderam à checagem.<br><br>15 saudáveis • 3 com avisos de patch/recursos.',
+                    icon: 'success',
+                    background: '#121418', color: '#fff', confirmButtonColor: '#3B82F6'
+                });
+            }, 1800);
+        }
+
+        async function remediarTodosLote() {
+            const res = await Swal.fire({
+                title: 'Remediação Automática em Lote?',
+                html: 'O CorvusSec irá:<br>1. Instalar patches pendentes nas máquinas de alerta.<br>2. Purgar logs acumulados no servidor de API.<br>3. Atualizar as definições de antivírus da WS-RH-01.',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#f97316',
+                confirmButtonText: 'Executar Correções',
+                cancelButtonText: 'Cancelar',
+                background: '#121418', color: '#fff'
+            });
+
+            if (res.isConfirmed) {
+                Swal.fire({
+                    title: 'Remediando em Lote...',
+                    html: '<div class="text-xs text-gray-400">Aplicando correções remotas...</div>',
+                    allowOutsideClick: false,
+                    didOpen: () => Swal.showLoading(),
+                    background: '#121418', color: '#fff'
+                });
+
+                await fetch('/Admin/ExecutarAcaoEndpoint', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'RequestVerificationToken': getCsrfToken() },
+                    body: JSON.stringify({ Hostname: 'BATCH_REMEDIATION', Acao: 'BatchRemediate' })
+                });
+
+                setTimeout(() => {
+                    Swal.fire({
+                        title: 'Tudo Otimizado!',
+                        text: 'Todas as 3 máquinas foram atualizadas e o ambiente está 100% verde!',
+                        icon: 'success',
+                        background: '#121418', color: '#fff', confirmButtonColor: '#3B82F6'
+                    }).then(() => window.location.reload());
+                }, 2000);
+            }
+        }
+    </script>
+}

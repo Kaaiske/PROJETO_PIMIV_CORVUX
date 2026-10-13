@@ -9,9 +9,9 @@
         <h1 class="text-[16px] font-[600] text-gray-900 dark:text-white flex items-center gap-2">
             <i class="ph ph-identification-badge text-brand-500"></i> Perfis e Permissões
         </h1>
-        <p class="text-[12px] text-gray-500 dark:text-gray-400 mt-1">Controle de Acesso Baseado em Funções (RBAC)</p>
+        <p class="text-[12px] text-gray-500 dark:text-gray-400 mt-1">Controle de Acesso Baseado em Funções (RBAC) e Papéis Corporativos</p>
     </div>
-    <button onclick="openModal('newPerfilModal')" class="bg-brand-600 hover:bg-[#1D4ED8] text-white text-[12px] font-medium px-3 py-1.5 rounded-[6px] shadow-sm transition-colors flex items-center gap-1.5">
+    <button onclick="openModal('newPerfilModal')" class="bg-brand-600 hover:bg-[#1D4ED8] text-white text-[12px] font-medium px-3 py-1.5 rounded-[6px] shadow-sm transition-colors flex items-center gap-1.5 cursor-pointer">
         <i class="ph ph-plus"></i> Novo Perfil
     </button>
 </div>
@@ -37,11 +37,11 @@
                             <td class="px-[16px] py-[12px] text-[13px] font-[500] text-gray-900 dark:text-gray-100">@p.Nome</td>
                             <td class="px-[16px] py-[12px]">
                                 <span class="bg-brand-500/10 text-brand-600 dark:text-brand-400 border border-brand-500/20 px-2 py-0.5 rounded-[4px] text-[11px] font-[600]">
-                                    @p.Descricao
+                                    @(p.Descricao ?? "Perfil padrão do sistema")
                                 </span>
                             </td>
                             <td class="px-[16px] py-[12px] text-right">
-                                <button onclick="excluirPerfil(@p.Id, '@p.Nome')" class="text-gray-500 hover:text-red-500 transition-colors" title="Excluir">
+                                <button onclick="excluirPerfil(@p.Id, '@Html.Raw(System.Web.HttpUtility.JavaScriptStringEncode(p.Nome))')" class="text-gray-400 hover:text-red-500 transition-colors cursor-pointer" title="Excluir">
                                     <i class="ph ph-trash text-[16px]"></i>
                                 </button>
                             </td>
@@ -58,20 +58,26 @@
     <div id="newPerfilModal" class="hidden bg-white dark:bg-dark-card border border-gray-200 dark:border-dark-border rounded-[8px] shadow-2xl w-full max-w-sm overflow-hidden flex-col">
         <div class="px-6 py-4 border-b border-gray-200 dark:border-dark-border flex justify-between items-center bg-gray-50 dark:bg-dark-bg/50">
             <h3 class="text-[14px] font-[600] text-gray-900 dark:text-white flex items-center gap-2 m-0">
-                <i class="ph ph-shield-check text-brand-500"></i> Novo Perfil
+                <i class="ph ph-shield-check text-brand-500"></i> Novo Perfil RBAC
             </h3>
-            <button onclick="closeModal()" class="text-gray-500 hover:text-gray-900 dark:hover:text-white transition-colors">
+            <button onclick="closeModal()" class="text-gray-500 hover:text-gray-900 dark:hover:text-white transition-colors cursor-pointer">
                 <i class="ph ph-x text-[16px]"></i>
             </button>
         </div>
         <div class="p-6">
             <form onsubmit="adicionarPerfil(event)" class="space-y-4">
-                <input type="text" id="nomePerfil" placeholder="Nome (Ex: Financeiro)" required class="w-full bg-gray-50 dark:bg-dark-bg border border-gray-200 dark:border-dark-border text-gray-900 dark:text-gray-100 text-[13px] rounded-[6px] px-3 py-2 outline-none focus:border-brand-500" />
-                <input type="text" id="descricaoPerfil" placeholder="Descrição (Ex: Acesso financeiro)" required class="w-full bg-gray-50 dark:bg-dark-bg border border-gray-200 dark:border-dark-border text-gray-900 dark:text-gray-100 text-[13px] rounded-[6px] px-3 py-2 outline-none focus:border-brand-500" />
+                <div>
+                    <label class="block text-[11px] font-semibold text-gray-500 uppercase tracking-wider mb-1">Nome do Papel</label>
+                    <input type="text" id="nomePerfil" placeholder="Ex: Auditoria Financeira" required class="w-full bg-gray-50 dark:bg-dark-bg border border-gray-200 dark:border-dark-border text-gray-900 dark:text-gray-100 text-[13px] rounded-[6px] px-3 py-2 outline-none focus:border-brand-500" />
+                </div>
+                <div>
+                    <label class="block text-[11px] font-semibold text-gray-500 uppercase tracking-wider mb-1">Descrição</label>
+                    <input type="text" id="descricaoPerfil" placeholder="Ex: Permissão de visualização contábil" required class="w-full bg-gray-50 dark:bg-dark-bg border border-gray-200 dark:border-dark-border text-gray-900 dark:text-gray-100 text-[13px] rounded-[6px] px-3 py-2 outline-none focus:border-brand-500" />
+                </div>
                 
                 <div class="flex justify-end gap-3 pt-4 border-t border-gray-200 dark:border-dark-border mt-4">
-                    <button type="button" onclick="closeModal()" class="px-4 py-2 text-[12px] font-medium text-gray-700 dark:text-gray-300 border border-gray-300 dark:border-dark-border rounded-[6px] hover:bg-gray-50 dark:hover:bg-[#1B1F24] transition-colors">Cancelar</button>
-                    <button type="submit" class="px-4 py-2 text-[12px] font-medium text-white bg-brand-600 rounded-[6px] hover:bg-[#1D4ED8] transition-colors">Salvar</button>
+                    <button type="button" onclick="closeModal()" class="px-4 py-2 text-[12px] font-medium text-gray-700 dark:text-gray-300 border border-gray-300 dark:border-dark-border rounded-[6px] hover:bg-gray-50 dark:hover:bg-[#1B1F24] transition-colors cursor-pointer">Cancelar</button>
+                    <button type="submit" id="btnSalvarPerfil" class="px-4 py-2 text-[12px] font-medium text-white bg-brand-600 rounded-[6px] hover:bg-[#1D4ED8] transition-colors cursor-pointer">Salvar Perfil</button>
                 </div>
             </form>
         </div>
@@ -79,24 +85,31 @@
 </div>
 
 @section Scripts {
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
         function openModal(id) { 
             const overlay = document.getElementById('modalOverlay');
+            if(!overlay) return;
             overlay.classList.remove('hidden');
             overlay.classList.add('flex');
             
-            document.getElementById('newPerfilModal').classList.add('hidden');
-            
             const modal = document.getElementById(id);
-            modal.classList.remove('hidden');
-            modal.classList.add('flex');
+            if(modal) {
+                modal.classList.remove('hidden');
+                modal.classList.add('flex');
+            }
         }
         
         function closeModal() { 
             const overlay = document.getElementById('modalOverlay');
+            if(!overlay) return;
             overlay.classList.add('hidden');
             overlay.classList.remove('flex');
+
+            const modal = document.getElementById('newPerfilModal');
+            if(modal) {
+                modal.classList.add('hidden');
+                modal.classList.remove('flex');
+            }
         }
 
         document.addEventListener('keydown', (e) => {
@@ -105,29 +118,42 @@
 
         async function adicionarPerfil(e) {
             e.preventDefault();
+            const btn = document.getElementById('btnSalvarPerfil');
+            btn.disabled = true;
+            btn.innerText = 'Salvando...';
+
             const payload = { 
                 Nome: document.getElementById('nomePerfil').value, 
                 Descricao: document.getElementById('descricaoPerfil').value 
             };
-            const res = await fetch('/Admin/AdicionarPerfil', { 
-                method: 'POST', 
-                headers: { 
-                    'Content-Type': 'application/json',
-                    'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]')?.value || ''
-                }, 
-                body: JSON.stringify(payload) 
-            });
-            if(res.ok) {
-                window.location.reload();
-            } else {
-                Swal.fire({ title: 'Erro', text: 'Falha ao salvar.', icon: 'error', background: '#121418', color: '#fff', confirmButtonColor: '#3B82F6' });
+            try {
+                const res = await fetch('/Admin/AdicionarPerfil', { 
+                    method: 'POST', 
+                    headers: { 
+                        'Content-Type': 'application/json', 
+                        'RequestVerificationToken': getCsrfToken() 
+                    }, 
+                    body: JSON.stringify(payload) 
+                });
+                if(res.ok) {
+                    closeModal();
+                    Swal.fire({ title: 'Perfil Criado!', text: 'O novo perfil RBAC foi cadastrado.', icon: 'success', background: '#121418', color: '#fff', confirmButtonColor: '#3B82F6' }).then(() => window.location.reload());
+                } else {
+                    Swal.fire({ title: 'Aviso', text: 'Falha ao salvar perfil.', icon: 'error', background: '#121418', color: '#fff', confirmButtonColor: '#3B82F6' });
+                    btn.disabled = false;
+                    btn.innerText = 'Salvar Perfil';
+                }
+            } catch(err) {
+                Swal.fire({ title: 'Erro de Conexão', text: 'Não foi possível salvar.', icon: 'error', background: '#121418', color: '#fff' });
+                btn.disabled = false;
+                btn.innerText = 'Salvar Perfil';
             }
         }
 
         async function excluirPerfil(id, nome) {
             const result = await Swal.fire({
-                title: 'Confirmar exclusão?',
-                html: `Você está prestes a excluir o perfil de acesso <b>${nome || 'selecionado'}</b>.<br><br>Essa ação pode ser irreversível e resultará na perda permanente das permissões vinculadas a esta regra.<br><br><span class="text-xs text-gray-400">Verifique as informações antes de continuar.</span>`,
+                title: 'Excluir Perfil?',
+                html: `Você está prestes a excluir o perfil <b>${nome}</b>.`,
                 icon: 'warning',
                 showCancelButton: true,
                 confirmButtonColor: '#ef4444',
@@ -138,33 +164,24 @@
             });
             
             if(result.isConfirmed) {
-                const token = document.querySelector('input[name="__RequestVerificationToken"]')?.value || '';
-                const res = await fetch('/Admin/ExcluirPerfil', { 
-                    method: 'POST', 
-                    headers: { 
-                        'Content-Type': 'application/json', 
-                        'RequestVerificationToken': token 
-                    }, 
-                    body: JSON.stringify(id) 
-                });
-                if(res.ok) {
-                    Swal.fire({
-                        title: 'Excluído com sucesso!',
-                        text: 'Perfil de acesso removido.',
-                        icon: 'success',
-                        background: '#121418', color: '#fff', confirmButtonColor: '#3B82F6'
-                    }).then(() => window.location.reload());
-                } else {
-                    let errorMsg = 'Não foi possível excluir este perfil. Verifique se existem colaboradores associados.';
-                    try {
-                        const err = await res.json();
-                        if (err.message) errorMsg = err.message;
-                    } catch(e) {}
-                    Swal.fire({ title: 'Erro!', text: errorMsg, icon: 'error', background: '#121418', color: '#fff', confirmButtonColor: '#3B82F6' });
+                try {
+                    const res = await fetch('/Admin/ExcluirPerfil', { 
+                        method: 'POST', 
+                        headers: { 
+                            'Content-Type': 'application/json', 
+                            'RequestVerificationToken': getCsrfToken() 
+                        }, 
+                        body: JSON.stringify(id) 
+                    });
+                    if(res.ok) {
+                        Swal.fire({ title: 'Excluído!', text: 'Perfil removido com sucesso.', icon: 'success', background: '#121418', color: '#fff' }).then(() => window.location.reload());
+                    } else {
+                        Swal.fire({ title: 'Erro', text: 'Não foi possível excluir o perfil.', icon: 'error', background: '#121418', color: '#fff' });
+                    }
+                } catch(err) {
+                    Swal.fire({ title: 'Erro de Conexão', text: 'Falha ao comunicar com o servidor.', icon: 'error', background: '#121418', color: '#fff' });
                 }
             }
-        }
-    }
         }
     </script>
 }

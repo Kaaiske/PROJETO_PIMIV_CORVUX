@@ -8,28 +8,71 @@
     <h1 class="text-[16px] font-[600] text-gray-900 dark:text-white flex items-center gap-2">
         <i class="ph ph-gear text-brand-500"></i> Configurações do Sistema
     </h1>
-    <p class="text-[12px] text-gray-500 dark:text-gray-400 mt-1">Ajustes gerais do PIM IV e variáveis de ambiente</p>
+    <p class="text-[12px] text-gray-500 dark:text-gray-400 mt-1">Ajustes gerais do ambiente, domínio corporativo e políticas globais</p>
 </div>
 
 <div class="bento-card bg-white dark:bg-dark-card border border-gray-200 dark:border-dark-border rounded-[6px] p-[24px] max-w-3xl">
     @if(!Model.Any()) {
-        <p class="text-[13px] text-gray-500 dark:text-gray-400 m-0">Nenhuma configuração cadastrada.</p>
+        <p class="text-[13px] text-gray-500 dark:text-gray-400 m-0">Nenhuma configuração customizada cadastrada.</p>
     }
     
-    <div class="space-y-6">
+    <form onsubmit="salvarConfiguracoes(event)" class="space-y-6">
         @foreach(var c in Model) {
             <div>
                 <label class="block text-[12px] font-[600] text-gray-500 dark:text-gray-400 uppercase tracking-[0.05em] mb-2">@c.Chave</label>
-                <input type="text" value="@c.Valor" class="w-full bg-gray-50 dark:bg-dark-bg border border-gray-200 dark:border-dark-border text-gray-900 dark:text-gray-100 text-[13px] rounded-[6px] px-3 py-2 outline-none focus:border-brand-500 transition-colors font-mono" />
+                <input type="text" data-chave="@c.Chave" value="@c.Valor" class="cfg-input w-full bg-gray-50 dark:bg-dark-bg border border-gray-200 dark:border-dark-border text-gray-900 dark:text-gray-100 text-[13px] rounded-[6px] px-3 py-2 outline-none focus:border-brand-500 transition-colors font-mono" />
             </div>
         }
         
-        @if(Model.Any()) {
-            <div class="pt-4 border-t border-gray-100 dark:border-dark-border flex justify-end">
-                <button class="bg-brand-600 hover:bg-[#1D4ED8] text-white text-[12px] font-medium px-4 py-2 rounded-[6px] shadow-sm transition-colors flex items-center gap-1.5">
-                    <i class="ph ph-floppy-disk"></i> Salvar Configurações
-                </button>
-            </div>
-        }
-    </div>
+        <div class="pt-4 border-t border-gray-100 dark:border-dark-border flex justify-end">
+            <button type="submit" id="btnSalvarCfg" class="bg-brand-600 hover:bg-[#1D4ED8] text-white text-[12px] font-medium px-4 py-2 rounded-[6px] shadow-sm transition-colors flex items-center gap-1.5 cursor-pointer">
+                <i class="ph ph-floppy-disk"></i> Salvar Configurações
+            </button>
+        </div>
+    </form>
 </div>
+
+@section Scripts {
+    <script>
+        async function salvarConfiguracoes(e) {
+            e.preventDefault();
+            const btn = document.getElementById('btnSalvarCfg');
+            btn.disabled = true;
+            btn.innerHTML = '<i class="ph ph-spinner-gap animate-spin"></i> Salvando...';
+
+            const configs = {};
+            document.querySelectorAll('.cfg-input').forEach(inp => {
+                const chave = inp.getAttribute('data-chave');
+                configs[chave] = inp.value;
+            });
+
+            try {
+                const res = await fetch('/Admin/SalvarConfiguracoes', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'RequestVerificationToken': getCsrfToken()
+                    },
+                    body: JSON.stringify({ Configs: configs })
+                });
+
+                if (res.ok) {
+                    Swal.fire({
+                        title: 'Configurações Salvas!',
+                        text: 'Os parâmetros do sistema foram atualizados com sucesso.',
+                        icon: 'success',
+                        background: '#121418', color: '#fff', confirmButtonColor: '#3B82F6'
+                    }).then(() => window.location.reload());
+                } else {
+                    Swal.fire({ title: 'Erro!', text: 'Falha ao salvar as configurações.', icon: 'error', background: '#121418', color: '#fff' });
+                    btn.disabled = false;
+                    btn.innerHTML = '<i class="ph ph-floppy-disk"></i> Salvar Configurações';
+                }
+            } catch (err) {
+                Swal.fire({ title: 'Erro de Conexão', text: 'Não foi possível comunicar com o servidor.', icon: 'error', background: '#121418', color: '#fff' });
+                btn.disabled = false;
+                btn.innerHTML = '<i class="ph ph-floppy-disk"></i> Salvar Configurações';
+            }
+        }
+    </script>
+}

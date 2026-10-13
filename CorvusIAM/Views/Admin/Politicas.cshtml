@@ -9,9 +9,9 @@
         <h1 class="text-[16px] font-[600] text-gray-900 dark:text-white flex items-center gap-2">
             <i class="ph ph-shield-check text-brand-500"></i> Políticas de Acesso (IAM)
         </h1>
-        <p class="text-[12px] text-gray-500 dark:text-gray-400 mt-1">Configurações de segurança e regras do Single Sign-On</p>
+        <p class="text-[12px] text-gray-500 dark:text-gray-400 mt-1">Configurações de segurança, regras de autorização condicional e Single Sign-On</p>
     </div>
-    <button onclick="openModal('newPolModal')" class="bg-brand-600 hover:bg-[#1D4ED8] text-white text-[12px] font-medium px-3 py-1.5 rounded-[6px] shadow-sm transition-colors flex items-center gap-1.5">
+    <button onclick="openModal('newPolModal')" class="bg-brand-600 hover:bg-[#1D4ED8] text-white text-[12px] font-medium px-3 py-1.5 rounded-[6px] shadow-sm transition-colors flex items-center gap-1.5 cursor-pointer">
         <i class="ph ph-plus"></i> Nova Política
     </button>
 </div>
@@ -19,7 +19,7 @@
 <div class="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-[24px]">
     @if(!Model.Any()) {
         <div class="col-span-3 text-[13px] text-gray-500 dark:text-gray-400 p-[24px] bento-card bg-white dark:bg-dark-card border border-gray-200 dark:border-dark-border rounded-[6px]">
-            Nenhuma política cadastrada.
+            Nenhuma política de acesso cadastrada até o momento.
         </div>
     }
     @foreach(var p in Model) {
@@ -28,17 +28,28 @@
                 <h3 class="text-[14px] font-[600] text-gray-900 dark:text-white flex items-center gap-2 m-0">
                     <i class="ph ph-shield text-brand-500 text-[18px]"></i> @p.Nome
                 </h3>
-                @if(p.Ativa) {
-                    <span class="bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 px-2 py-0.5 rounded-[4px] text-[10px] font-[600] tracking-wider uppercase">
-                        Ativa
-                    </span>
-                } else {
-                    <span class="bg-gray-500/10 text-gray-600 dark:text-gray-400 border border-gray-500/20 px-2 py-0.5 rounded-[4px] text-[10px] font-[600] tracking-wider uppercase">
-                        Inativa
-                    </span>
-                }
+                <div class="flex items-center gap-2">
+                    @if(p.Ativa) {
+                        <span class="bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 px-2 py-0.5 rounded-[4px] text-[10px] font-[600] tracking-wider uppercase">
+                            Ativa
+                        </span>
+                    } else {
+                        <span class="bg-gray-500/10 text-gray-600 dark:text-gray-400 border border-gray-500/20 px-2 py-0.5 rounded-[4px] text-[10px] font-[600] tracking-wider uppercase">
+                            Inativa
+                        </span>
+                    }
+                </div>
             </div>
             <p class="text-[12px] text-gray-600 dark:text-gray-400 leading-relaxed m-0 flex-1">@p.Descricao</p>
+            
+            <div class="mt-4 pt-4 border-t border-gray-100 dark:border-dark-border flex justify-end gap-2">
+                <button onclick="alternarPolitica(@p.Id, @p.Ativa.ToString().ToLower())" class="text-xs px-2.5 py-1 rounded border @(p.Ativa ? "border-orange-500/30 text-orange-500 hover:bg-orange-500/10" : "border-emerald-500/30 text-emerald-500 hover:bg-emerald-500/10") transition-colors cursor-pointer" title="@(p.Ativa ? "Desativar regra" : "Ativar regra")">
+                    <i class="ph @(p.Ativa ? "ph-pause" : "ph-play") mr-1"></i> @(p.Ativa ? "Desativar" : "Ativar")
+                </button>
+                <button onclick="excluirPolitica(@p.Id, '@Html.Raw(System.Web.HttpUtility.JavaScriptStringEncode(p.Nome))')" class="text-xs px-2.5 py-1 rounded border border-red-500/30 text-red-500 hover:bg-red-500/10 transition-colors cursor-pointer" title="Excluir política">
+                    <i class="ph ph-trash"></i>
+                </button>
+            </div>
         </div>
     }
 </div>
@@ -48,25 +59,31 @@
     <div id="newPolModal" class="hidden bg-white dark:bg-dark-card border border-gray-200 dark:border-dark-border rounded-[8px] shadow-2xl w-full max-w-lg overflow-hidden flex-col">
         <div class="px-6 py-4 border-b border-gray-200 dark:border-dark-border flex justify-between items-center bg-gray-50 dark:bg-dark-bg/50">
             <h3 class="text-[14px] font-[600] text-gray-900 dark:text-white flex items-center gap-2 m-0">
-                <i class="ph ph-shield-check text-brand-500"></i> Nova Política
+                <i class="ph ph-shield-check text-brand-500"></i> Nova Política de Segurança
             </h3>
             <div class="flex items-center gap-3">
-                <button type="button" onclick="sugerirIA()" class="text-[11px] px-2 py-1 bg-brand-500/10 text-brand-600 dark:text-brand-400 border border-brand-500/30 rounded-[4px] hover:bg-brand-500/20 transition-colors flex items-center gap-1">
+                <button type="button" onclick="sugerirIA()" class="text-[11px] px-2 py-1 bg-brand-500/10 text-brand-600 dark:text-brand-400 border border-brand-500/30 rounded-[4px] hover:bg-brand-500/20 transition-colors flex items-center gap-1 cursor-pointer">
                     <i class="ph ph-robot"></i> Gerar com IA
                 </button>
-                <button onclick="closeModal()" class="text-gray-500 hover:text-gray-900 dark:hover:text-white transition-colors">
+                <button onclick="closeModal()" class="text-gray-500 hover:text-gray-900 dark:hover:text-white transition-colors cursor-pointer">
                     <i class="ph ph-x text-[16px]"></i>
                 </button>
             </div>
         </div>
         <div class="p-6">
             <form onsubmit="adicionarPol(event)" class="space-y-4">
-                <input type="text" id="pnome" placeholder="Nome da Regra (ex: Bloqueio Geográfico)" required class="w-full bg-gray-50 dark:bg-dark-bg border border-gray-200 dark:border-dark-border text-gray-900 dark:text-gray-100 text-[13px] rounded-[6px] px-3 py-2 outline-none focus:border-brand-500" />
-                <textarea id="pdesc" placeholder="Descrição completa..." required class="w-full bg-gray-50 dark:bg-dark-bg border border-gray-200 dark:border-dark-border text-gray-900 dark:text-gray-100 text-[13px] rounded-[6px] px-3 py-2 h-24 resize-none outline-none focus:border-brand-500"></textarea>
+                <div>
+                    <label class="block text-[11px] font-semibold text-gray-500 uppercase tracking-wider mb-1">Nome da Regra</label>
+                    <input type="text" id="pnome" placeholder="Ex: Bloqueio Geográfico Fora do Brasil" required class="w-full bg-gray-50 dark:bg-dark-bg border border-gray-200 dark:border-dark-border text-gray-900 dark:text-gray-100 text-[13px] rounded-[6px] px-3 py-2 outline-none focus:border-brand-500" />
+                </div>
+                <div>
+                    <label class="block text-[11px] font-semibold text-gray-500 uppercase tracking-wider mb-1">Descrição e Condição de Aplicação</label>
+                    <textarea id="pdesc" placeholder="Descreva os critérios e a ação que será aplicada aos usuários..." required class="w-full bg-gray-50 dark:bg-dark-bg border border-gray-200 dark:border-dark-border text-gray-900 dark:text-gray-100 text-[13px] rounded-[6px] px-3 py-2 h-24 resize-none outline-none focus:border-brand-500"></textarea>
+                </div>
                 
                 <div class="flex justify-end gap-3 pt-4 border-t border-gray-200 dark:border-dark-border mt-4">
-                    <button type="button" onclick="closeModal()" class="px-4 py-2 text-[12px] font-medium text-gray-700 dark:text-gray-300 border border-gray-300 dark:border-dark-border rounded-[6px] hover:bg-gray-50 dark:hover:bg-[#1B1F24] transition-colors">Cancelar</button>
-                    <button type="submit" class="px-4 py-2 text-[12px] font-medium text-white bg-brand-600 rounded-[6px] hover:bg-[#1D4ED8] transition-colors">Salvar Regra</button>
+                    <button type="button" onclick="closeModal()" class="px-4 py-2 text-[12px] font-medium text-gray-700 dark:text-gray-300 border border-gray-300 dark:border-dark-border rounded-[6px] hover:bg-gray-50 dark:hover:bg-[#1B1F24] transition-colors cursor-pointer">Cancelar</button>
+                    <button type="submit" id="btnSalvarPol" class="px-4 py-2 text-[12px] font-medium text-white bg-brand-600 rounded-[6px] hover:bg-[#1D4ED8] transition-colors cursor-pointer">Salvar Regra</button>
                 </div>
             </form>
         </div>
@@ -74,24 +91,30 @@
 </div>
 
 @section Scripts {
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
         function openModal(id) { 
             const overlay = document.getElementById('modalOverlay');
+            if(!overlay) return;
             overlay.classList.remove('hidden');
             overlay.classList.add('flex');
             
-            document.getElementById('newPolModal').classList.add('hidden');
-            
-            const modal = document.getElementById(id);
-            modal.classList.remove('hidden');
-            modal.classList.add('flex');
+            const target = document.getElementById(id);
+            if(target) {
+                target.classList.remove('hidden');
+                target.classList.add('flex');
+            }
         }
         
         function closeModal() { 
             const overlay = document.getElementById('modalOverlay');
+            if(!overlay) return;
             overlay.classList.add('hidden');
             overlay.classList.remove('flex');
+            const target = document.getElementById('newPolModal');
+            if(target) {
+                target.classList.add('hidden');
+                target.classList.remove('flex');
+            }
         }
 
         document.addEventListener('keydown', (e) => {
@@ -100,19 +123,102 @@
 
         async function adicionarPol(e) {
             e.preventDefault();
-            const payload = { Nome: document.getElementById('pnome').value, Descricao: document.getElementById('pdesc').value };
-            const res = await fetch('/Admin/AdicionarPolitica', { 
-                method: 'POST', 
-                headers: { 
-                    'Content-Type': 'application/json',
-                    'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]').value
-                }, 
-                body: JSON.stringify(payload) 
+            const btn = document.getElementById('btnSalvarPol');
+            btn.disabled = true;
+            btn.innerText = 'Salvando...';
+
+            const payload = { 
+                Nome: document.getElementById('pnome').value, 
+                Descricao: document.getElementById('pdesc').value 
+            };
+
+            try {
+                const res = await fetch('/Admin/AdicionarPolitica', { 
+                    method: 'POST', 
+                    headers: { 
+                        'Content-Type': 'application/json',
+                        'RequestVerificationToken': getCsrfToken()
+                    }, 
+                    body: JSON.stringify(payload) 
+                });
+                if(res.ok) {
+                    closeModal();
+                    Swal.fire({
+                        title: 'Política Salva!',
+                        text: 'A nova política de segurança foi ativada.',
+                        icon: 'success',
+                        background: '#121418', color: '#fff', confirmButtonColor: '#3B82F6'
+                    }).then(() => window.location.reload());
+                } else {
+                    Swal.fire({ title: 'Aviso', text: 'Não foi possível salvar a política.', icon: 'error', background: '#121418', color: '#fff', confirmButtonColor: '#3B82F6' });
+                    btn.disabled = false;
+                    btn.innerText = 'Salvar Regra';
+                }
+            } catch(err) {
+                Swal.fire({ title: 'Erro de Conexão', text: 'Falha ao comunicar com o servidor.', icon: 'error', background: '#121418', color: '#fff' });
+                btn.disabled = false;
+                btn.innerText = 'Salvar Regra';
+            }
+        }
+
+        async function alternarPolitica(id, ativaAtual) {
+            try {
+                const res = await fetch('/Admin/AlternarPolitica', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'RequestVerificationToken': getCsrfToken()
+                    },
+                    body: JSON.stringify(id)
+                });
+                if(res.ok) {
+                    Swal.fire({
+                        title: ativaAtual ? 'Regra Desativada' : 'Regra Ativada',
+                        icon: 'success',
+                        timer: 1500,
+                        showConfirmButton: false,
+                        background: '#121418', color: '#fff'
+                    }).then(() => window.location.reload());
+                } else {
+                    Swal.fire({ title: 'Erro', text: 'Não foi possível alterar a política.', icon: 'error', background: '#121418', color: '#fff' });
+                }
+            } catch(e) {
+                Swal.fire({ title: 'Erro', text: 'Falha de comunicação.', icon: 'error', background: '#121418', color: '#fff' });
+            }
+        }
+
+        async function excluirPolitica(id, nome) {
+            const result = await Swal.fire({
+                title: 'Excluir Política?',
+                html: `Deseja realmente remover a regra <b>${nome}</b>?`,
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#ef4444',
+                cancelButtonColor: '#4b5563',
+                confirmButtonText: 'Confirmar exclusão',
+                cancelButtonText: 'Cancelar',
+                background: '#121418', color: '#fff'
             });
-            if(res.ok) {
-                window.location.reload();
-            } else {
-                Swal.fire({ title: 'Erro!', text: 'Falha ao salvar política.', icon: 'error', background: '#121418', color: '#fff', confirmButtonColor: '#3B82F6' });
+
+            if(result.isConfirmed) {
+                try {
+                    const res = await fetch('/Admin/ExcluirPolitica', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'RequestVerificationToken': getCsrfToken()
+                        },
+                        body: JSON.stringify(id)
+                    });
+                    if(res.ok) {
+                        Swal.fire({ title: 'Excluída!', text: 'Política removida.', icon: 'success', background: '#121418', color: '#fff', confirmButtonColor: '#3B82F6' })
+                            .then(() => window.location.reload());
+                    } else {
+                        Swal.fire({ title: 'Erro', text: 'Não foi possível excluir a política.', icon: 'error', background: '#121418', color: '#fff' });
+                    }
+                } catch(e) {
+                    Swal.fire({ title: 'Erro', text: 'Falha de conexão.', icon: 'error', background: '#121418', color: '#fff' });
+                }
             }
         }
 
@@ -120,14 +226,15 @@
             const politicas = [
                 { nome: "Zero Trust Interno", desc: "Acesso a sistemas sensíveis exige re-autenticação MFA mesmo dentro da rede local." },
                 { nome: "Sessão Ociosa (ERP)", desc: "Força logoff automático após 15 minutos sem interação nos módulos financeiros." },
-                { nome: "Alerta de Invasão", desc: "Bloqueia o IP e notifica o administrador via SMS após 3 falhas de login consecutivas." }
+                { nome: "Alerta de Invasão Automático", desc: "Bloqueia o IP e notifica o administrador via webhook após 3 falhas de login consecutivas." },
+                { nome: "Bloqueio Geográfico Fora do Brasil", desc: "Rejeita tentativas de autenticação oriundas de endereços IP estrangeiros não autorizados." },
+                { nome: "Restrição de Acesso Fora do Expediente", desc: "Exige aprovação do gestor para login realizado entre 22h e 06h nos dias úteis." }
             ];
             const pol = politicas[Math.floor(Math.random() * politicas.length)];
             
             const nomeInput = document.getElementById('pnome');
             const descInput = document.getElementById('pdesc');
             
-            // Add a little visual feedback
             nomeInput.classList.add('ring-2', 'ring-brand-500', 'transition-all');
             descInput.classList.add('ring-2', 'ring-brand-500', 'transition-all');
             

@@ -401,6 +401,41 @@ Passed!  - Failed: 0, Passed: 25, Skipped: 0, Total: 25 - CorvusIAM.Tests.dll (n
 
 ---
 
+## 🚀 Atualização v2.4 — Otimizações Críticas e Módulos Corporativos
+
+A versão **v2.4** trouxe melhorias de usabilidade, estabilidade e novas ferramentas para os administradores:
+
+1. **Eliminação de Latência:**
+   - Resolução definitiva de lentidão via cache em memória (24h) e fast-path para IPs privados/intranet no `IpGeolocationService`.
+   - Remoção de retentativas síncronas excessivas de 14s no pipeline de inicialização.
+
+2. **Diretório de Usuários Totalmente Interativo:**
+   - Correção do seletor modal de inclusão de colaboradores (`newUserModal`).
+   - Implementação do helper global de CSRF `getCsrfToken()`, reativando os fluxos de **Novo Usuário**, **Editar**, **Trancar/Destrancar**, **Excluir (Anonimização LGPD)** e **Resetar Senha Temporária**.
+
+3. **Infraestrutura em Nuvem & Saúde de Endpoints (DevOps):**
+   - Monitoramento contínuo de 18 dispositivos e servidores na rede com métricas de CPU, RAM, Disco e conformidade EDR.
+   - Diagnóstico automatizado com IA e remediação em lote.
+   - Ações remotas interativas por máquina: **Escanear Agora**, **Aplicar Patches**, **Isolar da Rede / Liberar** e **Reiniciar Agente**.
+
+4. **Agente IA & SecOps Copilot:**
+   - Terminal interativo com linha de comando para simulação de ataques, auditoria e consultas de segurança.
+   - Radar de vulnerabilidades CVE e gerenciamento ativo do Firewall WAF (bloqueio manual e desbloqueio).
+   - Acionamento imediato de resposta a incidentes (**Modo Lock-Down**, expiração em massa de sessões e purga de regras temporárias).
+
+5. **Hub de APIs & Conexões Externas:**
+   - Gestão de conectores de outros apps (Slack, Jira, AWS, GitHub, Webhooks).
+   - Teste instantâneo de latência e conectividade via **Ping TLS 1.3**.
+   - Chave pública de API para integrações de terceiros via `https://corvuxiam.tech/api/v1/`.
+
+6. **Interatividade em Todos os Painéis Departamentais:**
+   - **Contabilidade:** Emissão de NFS-e com protocolo SEFAZ, fechamento contábil e exportação de SPED.
+   - **Recursos Humanos:** Processamento de folha de pagamento com e-Social, agendamento de férias e espelho de ponto.
+   - **Help Desk:** Atendimento de chamados com parecer técnico e abertura rápida via botão global `+ Nova Issue`.
+   - **Portal do Colaborador:** Correção do bloco visual de Autenticação em Duas Etapas (2FA/MFA TOTP).
+
+---
+
 ## 📄 Licença e Direitos
 
 Projeto desenvolvido como parte dos requisitos acadêmicos da **Universidade Paulista (UNIP)** para a disciplina **Projeto Integrado Multidisciplinar IV (PIM IV)** do CST em Análise e Desenvolvimento de Sistemas.

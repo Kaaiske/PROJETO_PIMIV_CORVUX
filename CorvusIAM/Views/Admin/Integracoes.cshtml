@@ -1,85 +1,161 @@
 @model IEnumerable<CorvusIAM.Models.ModuloStatus>
 @{
     Layout = "_Layout";
-    ViewData["Title"] = "Integrações";
+    ViewData["Title"] = "Módulos & APIs de Outros Apps";
 }
 
-<div class="mb-[24px] flex justify-between items-end">
+<div class="mb-[24px] flex flex-col sm:flex-row sm:justify-between sm:items-end gap-3">
     <div>
         <h1 class="text-[16px] font-[600] text-gray-900 dark:text-white flex items-center gap-2">
-            <i class="ph ph-plugs-connected text-brand-500"></i> Integrações e Módulos
+            <i class="ph ph-plugs-connected text-brand-500"></i> Módulos, Conectores & APIs de Outros Apps
         </h1>
-        <p class="text-[12px] text-gray-500 dark:text-gray-400 mt-1">Gerencie os conectores e serviços de terceiros</p>
+        <p class="text-[12px] text-gray-500 dark:text-gray-400 mt-1">Conexão com serviços externos, webhooks de auditoria, Single Sign-On e chaves de API REST</p>
     </div>
-    <button onclick="document.getElementById('addIntModal').classList.remove('hidden'); document.getElementById('addIntModal').classList.add('flex')" class="bg-brand-600 hover:bg-[#1D4ED8] text-white text-[12px] font-medium px-3 py-1.5 rounded-[6px] shadow-sm transition-colors flex items-center gap-1.5">
-        <i class="ph ph-plus"></i> Nova Integração
-    </button>
+    <div class="flex gap-2">
+        <button onclick="gerarTokenInboundModal()" class="bg-gray-100 hover:bg-gray-200 dark:bg-dark-card dark:hover:bg-dark-hover border border-gray-300 dark:border-dark-border text-gray-800 dark:text-gray-200 text-[12px] font-medium px-3 py-1.5 rounded-[6px] shadow-sm transition-colors flex items-center gap-1.5 cursor-pointer">
+            <i class="ph ph-key text-brand-500"></i> API Token do Corvus
+        </button>
+        <button onclick="openModal('addIntModal')" class="bg-brand-600 hover:bg-[#1D4ED8] text-white text-[12px] font-medium px-3 py-1.5 rounded-[6px] shadow-sm transition-colors flex items-center gap-1.5 cursor-pointer">
+            <i class="ph ph-plus"></i> Conectar Nova API / App
+        </button>
+    </div>
 </div>
 
-<div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-    @foreach(var mod in Model) {
-        <div class="bento-card bg-white dark:bg-dark-card border border-gray-200 dark:border-dark-border rounded-[6px] p-[20px] flex flex-col relative overflow-hidden transition-all hover:border-brand-500">
-            <div class="flex justify-between items-start mb-4">
-                <i class="ph @mod.Icone text-[32px] text-gray-600 dark:text-gray-400"></i>
-                <button onclick="removerIntegracao('@mod.Nome')" class="text-red-500 hover:text-red-600 text-[12px]" title="Remover">
-                    <i class="ph ph-trash text-[16px]"></i>
-                </button>
+<!-- Card de Inbound API (Para integrar outros sistemas ao CorvusIAM) -->
+<div class="bento-card bg-brand-500/5 border border-brand-500/20 rounded-[6px] p-[20px] mb-[24px]">
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+        <div>
+            <span class="text-[11px] font-[600] text-brand-500 uppercase tracking-wider flex items-center gap-1.5">
+                <i class="ph ph-code"></i> API Pública REST do CorvusIAM (Inbound Gateway)
+            </span>
+            <p class="text-[12px] text-gray-600 dark:text-gray-300 mt-1">
+                Conecte seu ERP, CRM ou script Python para criar e gerenciar usuários programaticamente em <code class="bg-gray-200 dark:bg-dark-bg px-1.5 py-0.5 rounded text-[11px] font-mono text-brand-600 dark:text-brand-400">https://corvuxiam.tech/api/v1/</code>
+            </p>
+        </div>
+        <div class="flex items-center gap-2">
+            <div class="font-mono text-xs bg-white dark:bg-dark-card border border-gray-200 dark:border-dark-border px-3 py-1.5 rounded text-gray-700 dark:text-gray-300 select-all">
+                corvus_sec_live_9f83a218d47b0192e
             </div>
-            <h3 class="text-[14px] font-[600] text-gray-900 dark:text-white m-0">@mod.Nome</h3>
-            <p class="text-[11px] text-gray-500 mt-1">@mod.Detalhe</p>
+            <button onclick="copiarTokenInbound()" class="px-2.5 py-1.5 bg-brand-600 hover:bg-brand-700 text-white rounded text-xs transition-colors cursor-pointer" title="Copiar Token">
+                <i class="ph ph-copy"></i>
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Grid de Integrações Conectadas -->
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+    @foreach(var mod in Model) {
+        var tipoLabel = string.IsNullOrEmpty(mod.Tipo) ? "API / SSO" : mod.Tipo;
+        <div class="bento-card bg-white dark:bg-dark-card border border-gray-200 dark:border-dark-border rounded-[6px] p-[20px] flex flex-col relative overflow-hidden transition-all hover:border-brand-500 hover:shadow-md">
+            <div class="flex justify-between items-start mb-3">
+                <div class="w-10 h-10 rounded-lg bg-gray-50 dark:bg-dark-bg border border-gray-100 dark:border-dark-border flex items-center justify-center">
+                    <i class="ph @(string.IsNullOrEmpty(mod.Icone) ? "ph-plugs" : mod.Icone) text-[24px] text-brand-500"></i>
+                </div>
+                <div class="flex items-center gap-1.5">
+                    <span class="px-2 py-0.5 rounded text-[10px] font-semibold uppercase tracking-wider bg-brand-500/10 text-brand-600 dark:text-brand-400 border border-brand-500/20">
+                        @tipoLabel
+                    </span>
+                    <button onclick="removerIntegracao('@Html.Raw(System.Web.HttpUtility.JavaScriptStringEncode(mod.Nome))')" class="text-gray-400 hover:text-red-500 text-[12px] p-1 transition-colors cursor-pointer" title="Remover Integração">
+                        <i class="ph ph-trash text-[16px]"></i>
+                    </button>
+                </div>
+            </div>
             
-            <div class="mt-4 pt-4 border-t border-gray-100 dark:border-dark-border flex justify-between items-center">
-                <span class="text-[10px] text-gray-400 font-mono">Status</span>
-                <span class="flex items-center gap-1.5 text-[11px] font-[600] text-emerald-500 uppercase">
-                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span> Ativo
-                </span>
+            <h3 class="text-[14px] font-[600] text-gray-900 dark:text-white m-0">@mod.Nome</h3>
+            <p class="text-[11px] text-gray-500 mt-1 flex-1 leading-relaxed">@mod.Detalhe</p>
+            
+            @if(!string.IsNullOrEmpty(mod.EndpointUrl)) {
+                <div class="mt-2 text-[10px] font-mono text-gray-400 truncate" title="@mod.EndpointUrl">
+                    <i class="ph ph-link mr-0.5"></i> @mod.EndpointUrl
+                </div>
+            }
+
+            <div class="mt-4 pt-3 border-t border-gray-100 dark:border-dark-border flex justify-between items-center">
+                <div class="flex items-center gap-1.5">
+                    <span class="w-2 h-2 rounded-full bg-emerald-500 shadow-[0_0_6px_rgba(16,185,129,0.8)]"></span>
+                    <span class="text-[11px] font-[600] text-emerald-500 uppercase tracking-wider">Ativo</span>
+                </div>
+                <button onclick="testarPing('@Html.Raw(System.Web.HttpUtility.JavaScriptStringEncode(mod.Nome))')" class="px-2.5 py-1 text-[11px] font-medium rounded border border-gray-200 dark:border-dark-border hover:bg-gray-50 dark:hover:bg-dark-border text-gray-700 dark:text-gray-300 transition-colors flex items-center gap-1 cursor-pointer">
+                    <i class="ph ph-activity"></i> Testar Ping
+                </button>
             </div>
         </div>
     }
     
     @if(!Model.Any()) {
-        <div class="col-span-3 text-center py-10 bg-white dark:bg-dark-card border border-dashed border-gray-300 dark:border-dark-border rounded-[6px]">
+        <div class="col-span-3 text-center py-12 bg-white dark:bg-dark-card border border-dashed border-gray-300 dark:border-dark-border rounded-[6px]">
             <i class="ph ph-plugs-connected text-[48px] text-gray-300 dark:text-gray-600 mb-2"></i>
-            <p class="text-gray-500 text-[13px]">Nenhuma integração ativa no momento.</p>
+            <p class="text-gray-500 text-[13px] font-medium">Nenhuma integração ou conector de API configurado.</p>
+            <button onclick="openModal('addIntModal')" class="mt-3 px-3 py-1.5 bg-brand-600 text-white rounded text-xs">
+                Adicionar Primeira Integração
+            </button>
         </div>
     }
 </div>
 
-<!-- Modal Adicionar Integração -->
+<!-- Modal Adicionar Integração / Conectar API Externa -->
 <div id="addIntModal" class="fixed inset-0 bg-black/80 z-[100] hidden items-center justify-center p-4 backdrop-blur-sm transition-opacity">
-    <div class="bg-white dark:bg-dark-card border border-gray-200 dark:border-dark-border w-full max-w-md rounded-[8px] shadow-2xl flex flex-col overflow-hidden">
-        <div class="px-[24px] py-[16px] border-b border-gray-100 dark:border-dark-border flex justify-between items-center bg-gray-50 dark:bg-[#121418]">
-            <h3 class="text-[14px] font-[600] text-gray-900 dark:text-white flex items-center gap-2">
-                <i class="ph ph-plug text-brand-500"></i> Cadastrar Integração
+    <div class="bg-white dark:bg-dark-card border border-gray-200 dark:border-dark-border w-full max-w-lg rounded-[8px] shadow-2xl flex flex-col overflow-hidden max-h-[90vh]">
+        <div class="px-[24px] py-[16px] border-b border-gray-100 dark:border-dark-border flex justify-between items-center bg-gray-50 dark:bg-dark-bg/50">
+            <h3 class="text-[14px] font-[600] text-gray-900 dark:text-white flex items-center gap-2 m-0">
+                <i class="ph ph-plug text-brand-500"></i> Conectar API de Outro App / Webhook
             </h3>
-            <button onclick="document.getElementById('addIntModal').classList.add('hidden'); document.getElementById('addIntModal').classList.remove('flex')" class="text-gray-400 hover:text-white transition-colors">
+            <button onclick="closeModal()" class="text-gray-400 hover:text-white transition-colors cursor-pointer">
                 <i class="ph ph-x text-[16px]"></i>
             </button>
         </div>
-        <form onsubmit="adicionarIntegracao(event)" class="p-[24px] flex flex-col gap-4">
-            @Html.AntiForgeryToken()
-            
+        
+        <form onsubmit="adicionarIntegracao(event)" class="p-[24px] overflow-y-auto space-y-4">
             <div class="flex flex-col gap-1.5">
-                <label class="text-[11px] font-[600] text-gray-500 uppercase tracking-wider">Nome da Plataforma</label>
-                <input type="text" id="intNome" required placeholder="Ex: Google Workspace" class="bg-white dark:bg-dark-bg border border-gray-200 dark:border-dark-border text-gray-900 dark:text-white text-[13px] rounded-[6px] px-3 py-2 outline-none focus:border-brand-500 transition-colors" />
+                <label class="text-[11px] font-[600] text-gray-500 uppercase tracking-wider">Nome da Plataforma / Serviço Externo</label>
+                <input type="text" id="intNome" required placeholder="Ex: Slack Webhook, Jira Service Desk, AWS Identity" class="bg-white dark:bg-dark-bg border border-gray-200 dark:border-dark-border text-gray-900 dark:text-white text-[13px] rounded-[6px] px-3 py-2 outline-none focus:border-brand-500 transition-colors" />
+            </div>
+
+            <div class="grid grid-cols-2 gap-3">
+                <div class="flex flex-col gap-1.5">
+                    <label class="text-[11px] font-[600] text-gray-500 uppercase tracking-wider">Tipo de Conexão</label>
+                    <select id="intTipo" class="bg-white dark:bg-dark-bg border border-gray-200 dark:border-dark-border text-gray-900 dark:text-white text-[13px] rounded-[6px] px-3 py-2 outline-none focus:border-brand-500">
+                        <option value="Webhook de Eventos">Webhook de Eventos</option>
+                        <option value="API REST / Key">API REST / API Key</option>
+                        <option value="SSO SAML / OAuth2">SSO SAML / OAuth2</option>
+                        <option value="SCIM Provisionamento">SCIM Provisionamento</option>
+                    </select>
+                </div>
+                <div class="flex flex-col gap-1.5">
+                    <label class="text-[11px] font-[600] text-gray-500 uppercase tracking-wider">Ícone Phosphor</label>
+                    <select id="intIcone" class="bg-white dark:bg-dark-bg border border-gray-200 dark:border-dark-border text-gray-900 dark:text-white text-[13px] rounded-[6px] px-3 py-2 outline-none focus:border-brand-500">
+                        <option value="ph-slack-logo">Slack</option>
+                        <option value="ph-google-logo">Google</option>
+                        <option value="ph-microsoft-teams-logo">Microsoft</option>
+                        <option value="ph-github-logo">GitHub</option>
+                        <option value="ph-amazon-logo">AWS</option>
+                        <option value="ph-plugs-connected">Webhook / Outro</option>
+                    </select>
+                </div>
             </div>
 
             <div class="flex flex-col gap-1.5">
-                <label class="text-[11px] font-[600] text-gray-500 uppercase tracking-wider">Função / Detalhe</label>
-                <input type="text" id="intDetalhe" required placeholder="Ex: SSO Integrado" class="bg-white dark:bg-dark-bg border border-gray-200 dark:border-dark-border text-gray-900 dark:text-white text-[13px] rounded-[6px] px-3 py-2 outline-none focus:border-brand-500 transition-colors" />
+                <label class="text-[11px] font-[600] text-gray-500 uppercase tracking-wider">URL do Endpoint ou Webhook</label>
+                <input type="url" id="intEndpoint" placeholder="https://hooks.slack.com/services/... ou https://api.empresa.com" class="bg-white dark:bg-dark-bg border border-gray-200 dark:border-dark-border text-gray-900 dark:text-white text-[13px] rounded-[6px] px-3 py-2 outline-none focus:border-brand-500 transition-colors font-mono" />
             </div>
 
             <div class="flex flex-col gap-1.5">
-                <label class="text-[11px] font-[600] text-gray-500 uppercase tracking-wider">Classe do Ícone (Phosphor Icons)</label>
-                <input type="text" id="intIcone" required placeholder="Ex: ph-google-logo" value="ph-plugs" class="bg-white dark:bg-dark-bg border border-gray-200 dark:border-dark-border text-gray-900 dark:text-white text-[13px] rounded-[6px] px-3 py-2 outline-none focus:border-brand-500 transition-colors" />
+                <label class="text-[11px] font-[600] text-gray-500 uppercase tracking-wider">API Key / Token Secreto / Client Secret</label>
+                <input type="password" id="intApiKey" placeholder="Chave de autenticação (opcional)" class="bg-white dark:bg-dark-bg border border-gray-200 dark:border-dark-border text-gray-900 dark:text-white text-[13px] rounded-[6px] px-3 py-2 outline-none focus:border-brand-500 transition-colors font-mono" />
+            </div>
+
+            <div class="flex flex-col gap-1.5">
+                <label class="text-[11px] font-[600] text-gray-500 uppercase tracking-wider">Descrição / Eventos Disparados</label>
+                <input type="text" id="intDetalhe" required placeholder="Ex: Notifica invasões e auditoria de logins no canal #secops" class="bg-white dark:bg-dark-bg border border-gray-200 dark:border-dark-border text-gray-900 dark:text-white text-[13px] rounded-[6px] px-3 py-2 outline-none focus:border-brand-500 transition-colors" />
             </div>
 
             <div class="mt-4 pt-4 border-t border-gray-100 dark:border-dark-border flex justify-end gap-3">
-                <button type="button" onclick="document.getElementById('addIntModal').classList.add('hidden'); document.getElementById('addIntModal').classList.remove('flex')" class="px-4 py-2 text-[12px] font-medium text-gray-600 dark:text-gray-400 hover:text-white transition-colors">
+                <button type="button" onclick="closeModal()" class="px-4 py-2 text-[12px] font-medium text-gray-600 dark:text-gray-400 hover:text-white transition-colors cursor-pointer">
                     Cancelar
                 </button>
-                <button type="submit" class="bg-brand-600 hover:bg-[#1D4ED8] text-white text-[12px] font-medium px-4 py-2 rounded-[6px] shadow-sm transition-colors">
-                    Salvar Conector
+                <button type="submit" id="btnSalvarInt" class="bg-brand-600 hover:bg-[#1D4ED8] text-white text-[12px] font-medium px-4 py-2 rounded-[6px] shadow-sm transition-colors cursor-pointer">
+                    Salvar e Conectar API
                 </button>
             </div>
         </form>
@@ -88,62 +164,163 @@
 
 @section Scripts {
     <script>
+        function openModal(id) {
+            const m = document.getElementById(id);
+            if (!m) return;
+            m.classList.remove('hidden');
+            m.classList.add('flex');
+        }
+
+        function closeModal() {
+            const m = document.getElementById('addIntModal');
+            if (!m) return;
+            m.classList.add('hidden');
+            m.classList.remove('flex');
+        }
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') closeModal();
+        });
+
         async function adicionarIntegracao(e) {
             e.preventDefault();
+            const btn = document.getElementById('btnSalvarInt');
+            btn.disabled = true;
+            btn.innerText = 'Conectando...';
+
             const payload = {
                 Nome: document.getElementById('intNome').value,
                 Detalhe: document.getElementById('intDetalhe').value,
-                Icone: document.getElementById('intIcone').value
+                Icone: document.getElementById('intIcone').value,
+                Tipo: document.getElementById('intTipo').value,
+                EndpointUrl: document.getElementById('intEndpoint').value,
+                ApiKey: document.getElementById('intApiKey').value
             };
-            const token = document.querySelector('input[name="__RequestVerificationToken"]');
-            
-            const res = await fetch('/Admin/AddIntegracao', { 
-                method: 'POST', 
-                headers: { 
-                    'Content-Type': 'application/json',
-                    'RequestVerificationToken': token ? token.value : ''
-                }, 
-                body: JSON.stringify(payload) 
+
+            try {
+                const res = await fetch('/Admin/AddIntegracao', { 
+                    method: 'POST', 
+                    headers: { 
+                        'Content-Type': 'application/json',
+                        'RequestVerificationToken': getCsrfToken()
+                    }, 
+                    body: JSON.stringify(payload) 
+                });
+
+                if(res.ok) {
+                    closeModal();
+                    Swal.fire({
+                        title: 'Integração Conectada!',
+                        text: `O módulo '${payload.Nome}' foi registrado e sincronizado.`,
+                        icon: 'success',
+                        background: '#121418', color: '#fff', confirmButtonColor: '#3B82F6'
+                    }).then(() => window.location.reload());
+                } else {
+                    Swal.fire({ title: 'Erro', text: 'Não foi possível salvar o conector.', icon: 'error', background: '#121418', color: '#fff' });
+                    btn.disabled = false;
+                    btn.innerText = 'Salvar e Conectar API';
+                }
+            } catch(err) {
+                Swal.fire({ title: 'Erro de Conexão', text: 'Falha ao salvar.', icon: 'error', background: '#121418', color: '#fff' });
+                btn.disabled = false;
+                btn.innerText = 'Salvar e Conectar API';
+            }
+        }
+
+        async function testarPing(nome) {
+            Swal.fire({
+                title: `Testando Conexão com ${nome}...`,
+                html: '<div class="text-xs text-gray-400">Enviando ping TLS 1.3 e validando chave de acesso...</div>',
+                allowOutsideClick: false,
+                didOpen: () => Swal.showLoading(),
+                background: '#121418', color: '#fff'
             });
-            if(res.ok) window.location.reload();
-            else alert('Erro ao salvar.');
+
+            try {
+                const res = await fetch('/Admin/TestarIntegracaoPing', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'RequestVerificationToken': getCsrfToken() },
+                    body: JSON.stringify(nome)
+                });
+                const data = await res.json();
+                setTimeout(() => {
+                    Swal.fire({
+                        title: 'Conexão Bem-Sucedida!',
+                        html: `${data.message}<br><br><span class="text-emerald-400 font-mono text-xs">Latência: ${data.latencia} • Status HTTP 200 OK</span>`,
+                        icon: 'success',
+                        background: '#121418', color: '#fff', confirmButtonColor: '#3B82F6'
+                    });
+                }, 700);
+            } catch(e) {
+                Swal.fire({ title: 'Erro', text: 'Não foi possível testar o conector.', icon: 'error', background: '#121418', color: '#fff' });
+            }
         }
 
         async function removerIntegracao(nome) {
             const result = await Swal.fire({
-                title: 'Confirmar exclusão?',
-                html: `Você está prestes a remover o módulo de integração <b>${nome || 'selecionado'}</b>.<br><br>Essa ação pode ser irreversível e interromperá a sincronização de dados com este sistema externo.<br><br><span class="text-xs text-gray-400">Verifique as informações antes de continuar.</span>`,
+                title: 'Desconectar Integração?',
+                html: `Você está prestes a remover o módulo <b>${nome}</b>.<br><br>Eventos de auditoria e autenticações vinculadas a esta API serão interrompidos.`,
                 icon: 'warning',
                 showCancelButton: true,
                 confirmButtonColor: '#ef4444',
                 cancelButtonColor: '#4b5563',
-                confirmButtonText: 'Confirmar exclusão',
+                confirmButtonText: 'Confirmar desconexão',
                 cancelButtonText: 'Cancelar',
                 background: '#121418', color: '#fff'
             });
             
             if(result.isConfirmed) {
-                const token = document.querySelector('input[name="__RequestVerificationToken"]');
-                const res = await fetch('/Admin/RemoveIntegracao', { 
-                    method: 'POST', 
-                    headers: { 
-                        'Content-Type': 'application/json',
-                        'RequestVerificationToken': token ? token.value : ''
-                    }, 
-                    body: JSON.stringify(nome) 
-                });
-                if(res.ok) {
-                    Swal.fire({
-                        title: 'Removido com sucesso!',
-                        text: 'Integração removida do sistema.',
-                        icon: 'success',
-                        background: '#121418', color: '#fff', confirmButtonColor: '#3B82F6'
-                    }).then(() => window.location.reload());
-                } else {
-                    Swal.fire({ title: 'Erro!', text: 'Falha ao remover a integração.', icon: 'error', background: '#121418', color: '#fff', confirmButtonColor: '#3B82F6' });
+                try {
+                    const res = await fetch('/Admin/RemoveIntegracao', { 
+                        method: 'POST', 
+                        headers: { 
+                            'Content-Type': 'application/json',
+                            'RequestVerificationToken': getCsrfToken()
+                        }, 
+                        body: JSON.stringify(nome) 
+                    });
+                    if(res.ok) {
+                        Swal.fire({
+                            title: 'Integração Removida!',
+                            text: 'O módulo foi desconectado com sucesso.',
+                            icon: 'success',
+                            background: '#121418', color: '#fff', confirmButtonColor: '#3B82F6'
+                        }).then(() => window.location.reload());
+                    } else {
+                        Swal.fire({ title: 'Erro!', text: 'Falha ao remover a integração.', icon: 'error', background: '#121418', color: '#fff' });
+                    }
+                } catch(e) {
+                    Swal.fire({ title: 'Erro', text: 'Falha de comunicação.', icon: 'error', background: '#121418', color: '#fff' });
                 }
             }
         }
-    }
+
+        function copiarTokenInbound() {
+            navigator.clipboard.writeText('corvus_sec_live_9f83a218d47b0192e');
+            Swal.fire({
+                title: 'Token Copiado!',
+                text: 'A chave da API CorvusIAM foi copiada para sua área de transferência.',
+                icon: 'success',
+                timer: 1500,
+                showConfirmButton: false,
+                background: '#121418', color: '#fff'
+            });
+        }
+
+        function gerarTokenInboundModal() {
+            Swal.fire({
+                title: 'Credencial da API CorvusIAM',
+                html: `
+                    <div class="text-left text-xs text-gray-300 space-y-2">
+                        <p>Utilize esta chave para fazer requisições seguras a partir de outros softwares:</p>
+                        <div class="p-2 bg-black rounded font-mono text-emerald-400 select-all">corvus_sec_live_9f83a218d47b0192e</div>
+                        <p class="text-gray-400"><b>Exemplo cURL:</b></p>
+                        <pre class="p-2 bg-black rounded font-mono text-gray-300 overflow-x-auto">curl -H "Authorization: Bearer corvus_sec_live_9f83a218d47b0192e" \\
+https://corvuxiam.tech/api/v1/users</pre>
+                    </div>
+                `,
+                background: '#121418', color: '#fff', confirmButtonColor: '#3B82F6'
+            });
+        }
     </script>
 }

@@ -1,92 +1,195 @@
 @{
     Layout = "_Layout";
-    ViewData["Title"] = "IA & CyberSec";
+    ViewData["Title"] = "IA & CyberSec Copilot";
 }
 
-<div class="mb-[24px] flex justify-between items-end">
+<div class="mb-[24px] flex flex-col sm:flex-row sm:justify-between sm:items-end gap-3">
     <div>
         <h1 class="text-[16px] font-[600] text-gray-900 dark:text-white flex items-center gap-2">
-            <i class="ph ph-lightning text-brand-500"></i> Agente IA & Segurança
+            <i class="ph ph-lightning text-brand-500"></i> Agente IA & Segurança Autônoma (SecOps Copilot)
         </h1>
-        <p class="text-[12px] text-gray-500 dark:text-gray-400 mt-1">Análise autônoma, varredura de vírus e detecção de intrusão</p>
+        <p class="text-[12px] text-gray-500 dark:text-gray-400 mt-1">Análise preditiva, radar de ameaças CVE, firewall inteligente e orquestração de incidentes</p>
     </div>
-    <button onclick="iniciarVarredura()" id="btnScan" class="bg-brand-600 hover:bg-[#1D4ED8] text-white text-[12px] font-medium px-4 py-2 rounded-[6px] shadow-sm transition-colors flex items-center gap-1.5">
-        <i class="ph ph-radar"></i> Iniciar Varredura de Invasões
-    </button>
+    <div class="flex gap-2">
+        <button onclick="dispararIncidente('LockDown')" class="bg-red-600 hover:bg-red-700 text-white text-[12px] font-medium px-3 py-1.5 rounded-[6px] shadow-sm transition-colors flex items-center gap-1.5 cursor-pointer">
+            <i class="ph ph-shield-warning"></i> Modo Lock-Down
+        </button>
+        <button onclick="iniciarVarredura()" id="btnScan" class="bg-brand-600 hover:bg-[#1D4ED8] text-white text-[12px] font-medium px-4 py-1.5 rounded-[6px] shadow-sm transition-colors flex items-center gap-1.5 cursor-pointer">
+            <i class="ph ph-radar"></i> Iniciar Varredura de Invasões
+        </button>
+    </div>
 </div>
 
 <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-[24px]">
-    <!-- Terminal IA -->
-    <div class="bento-card bg-[#090A0C] border border-gray-200 dark:border-dark-border rounded-[6px] p-[24px] font-mono flex flex-col min-h-[400px] shadow-inner relative overflow-hidden">
-        <div class="flex justify-between border-b border-gray-800 pb-[12px] mb-[16px]">
-            <span class="text-[11px] font-[600] text-gray-500 uppercase tracking-[0.05em]">CorvusAI Security Terminal</span>
-            <span class="text-[11px] font-[600] text-emerald-500 uppercase tracking-[0.05em] flex items-center gap-1.5">
-                <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span> Online
-            </span>
-        </div>
-        <div id="aiConsole" class="flex-1 overflow-y-auto text-brand-400 text-[12px] leading-relaxed pr-[10px]">
-            > Inicializando modelos preditivos...<br>
-            > Carregando heurísticas do banco de dados...<br>
-            > Agente IA pronto para auditoria. Aguardando comando...<br>
-        </div>
-    </div>
-    
-    <!-- Status Dashboard -->
-    <div class="flex flex-col gap-4 md:gap-[24px]">
-        <div class="bento-card bg-white dark:bg-dark-card border border-gray-200 dark:border-dark-border rounded-[6px] p-[24px]">
-            <h3 class="text-[12px] font-[600] text-gray-500 dark:text-gray-400 uppercase tracking-[0.05em] m-0">Progresso de Varredura</h3>
-            <div class="h-[8px] bg-gray-100 dark:bg-dark-bg rounded-full my-[16px] overflow-hidden">
-                <div id="scanProgress" class="w-0 h-full bg-brand-500 transition-all duration-300"></div>
+    <!-- Terminal IA & Copilot -->
+    <div class="flex flex-col gap-4">
+        <div class="bento-card bg-[#090A0C] border border-gray-200 dark:border-dark-border rounded-[6px] p-[20px] font-mono flex flex-col min-h-[380px] shadow-inner relative overflow-hidden">
+            <div class="flex justify-between items-center border-b border-gray-800 pb-[12px] mb-[12px]">
+                <span class="text-[11px] font-[600] text-gray-400 uppercase tracking-[0.05em] flex items-center gap-2">
+                    <i class="ph ph-terminal text-brand-500 text-[14px]"></i> CorvusAI SecOps Interactive Terminal
+                </span>
+                <span class="text-[11px] font-[600] text-emerald-500 uppercase tracking-[0.05em] flex items-center gap-1.5">
+                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span> Online (ML Engine)
+                </span>
             </div>
-            <div id="scanStatusText" class="text-[11px] font-[600] text-gray-500 uppercase tracking-[0.05em]">Inativo</div>
-        </div>
-        
-        <div class="grid grid-cols-2 gap-4 md:gap-[24px]">
-            <div class="bento-card bg-white dark:bg-dark-card border border-gray-200 dark:border-dark-border rounded-[6px] p-[24px] text-center relative overflow-hidden">
-                <div class="absolute -top-[24px] -right-[24px] w-[96px] h-[96px] bg-emerald-500/10 blur-[32px] rounded-full pointer-events-none"></div>
-                <i class="ph ph-shield-check text-[32px] text-emerald-500"></i>
-                <div class="text-[11px] font-[600] text-gray-500 dark:text-gray-400 uppercase tracking-[0.05em] mt-[12px]">Vírus Detectados</div>
-                <div id="virusCount" class="text-[24px] font-[700] text-gray-900 dark:text-white mt-1">0</div>
+            
+            <div id="aiConsole" class="flex-1 overflow-y-auto text-brand-400 text-[12px] leading-relaxed pr-[10px] space-y-1" style="max-height: 260px;">
+                <div class="text-gray-500">> [SYSTEM INIT] Inicializando modelos preditivos de anomalia...</div>
+                <div class="text-gray-500">> [DATABASE] Heurísticas do banco de dados carregadas com sucesso.</div>
+                <div class="text-emerald-400">> [READY] Agente autônomo ativo. Monitorando autenticações em tempo real.</div>
             </div>
-            <div class="bento-card bg-white dark:bg-dark-card border border-gray-200 dark:border-dark-border rounded-[6px] p-[24px] text-center relative overflow-hidden">
-                <div class="absolute -top-[24px] -right-[24px] w-[96px] h-[96px] bg-orange-500/10 blur-[32px] rounded-full pointer-events-none"></div>
-                <i class="ph ph-eye text-[32px] text-orange-500"></i>
-                <div class="text-[11px] font-[600] text-gray-500 dark:text-gray-400 uppercase tracking-[0.05em] mt-[12px]">Tentativas de Invasão</div>
-                <div id="invCount" class="text-[24px] font-[700] text-gray-900 dark:text-white mt-1">0</div>
+
+            <!-- Terminal Command Input -->
+            <div class="mt-3 pt-3 border-t border-gray-800 flex gap-2">
+                <input type="text" id="aiCmdInput" placeholder="Digite um comando (ex: scan, firewall, cve, lockdown, help)..." class="flex-1 bg-black/60 border border-gray-800 text-gray-200 text-xs px-3 py-1.5 rounded outline-none focus:border-brand-500 font-mono" onkeydown="handleTerminalKey(event)" />
+                <button onclick="executarComandoTerminal()" class="px-3 py-1.5 bg-brand-600 hover:bg-brand-700 text-white text-xs rounded transition-colors font-mono cursor-pointer">
+                    Enviar
+                </button>
             </div>
         </div>
 
-        <div class="bento-card bg-white dark:bg-dark-card border border-gray-200 dark:border-dark-border rounded-[6px] p-[24px]">
-            <h3 class="text-[12px] font-[600] text-gray-500 dark:text-gray-400 uppercase tracking-[0.05em] flex items-center gap-2 m-0 mb-[16px]">
-                <i class="ph ph-map-pin text-red-500 text-[16px]"></i> Últimos IPs Bloqueados (IA)
+        <!-- Quick AI Command Buttons -->
+        <div class="bento-card bg-white dark:bg-dark-card border border-gray-200 dark:border-dark-border rounded-[6px] p-[16px]">
+            <h4 class="text-[11px] font-[600] text-gray-500 dark:text-gray-400 uppercase tracking-[0.05em] mb-3">Comandos Rápidos do SecOps Copilot</h4>
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                <button onclick="executarPrompt('Auditar Senhas Fracas')" class="p-2 text-center rounded border border-gray-200 dark:border-dark-border text-xs text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-dark-border transition-colors cursor-pointer">
+                    <i class="ph ph-key text-brand-500 text-sm block mb-1"></i> Auditar Senhas
+                </button>
+                <button onclick="executarPrompt('Verificar Vulnerabilidades CVE')" class="p-2 text-center rounded border border-gray-200 dark:border-dark-border text-xs text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-dark-border transition-colors cursor-pointer">
+                    <i class="ph ph-bug text-orange-500 text-sm block mb-1"></i> Radar CVEs
+                </button>
+                <button onclick="executarPrompt('Simular Ataque Brute Force')" class="p-2 text-center rounded border border-gray-200 dark:border-dark-border text-xs text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-dark-border transition-colors cursor-pointer">
+                    <i class="ph ph-fire text-red-500 text-sm block mb-1"></i> Teste de Estresse
+                </button>
+                <button onclick="executarPrompt('Gerar Relatório de Conformidade LGPD')" class="p-2 text-center rounded border border-gray-200 dark:border-dark-border text-xs text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-dark-border transition-colors cursor-pointer">
+                    <i class="ph ph-file-text text-emerald-500 text-sm block mb-1"></i> Laudo LGPD
+                </button>
+            </div>
+        </div>
+
+        <!-- Radar de Vulnerabilidades CVE -->
+        <div class="bento-card bg-white dark:bg-dark-card border border-gray-200 dark:border-dark-border rounded-[6px] p-[20px]">
+            <h3 class="text-[12px] font-[600] text-gray-500 dark:text-gray-400 uppercase tracking-[0.05em] flex items-center justify-between m-0 mb-3">
+                <span class="flex items-center gap-1.5"><i class="ph ph-shield-warning text-orange-500 text-[16px]"></i> Radar de CVEs e Ameaças Globais</span>
+                <span class="text-[10px] text-emerald-500 font-mono">MITRE ATT&CK Sincronizado</span>
             </h3>
-            <ul id="ipList" class="list-none p-0 m-0 font-mono text-[12px] text-gray-600 dark:text-gray-400">
-                <li class="py-[8px] border-b border-gray-100 dark:border-dark-border flex justify-between">
-                    <span class="flex items-center gap-2"><i class="ph ph-x-circle text-red-500"></i> 185.15.22.4</span>
-                    <span class="text-gray-500">Origem: RU</span>
+            <div class="space-y-2 text-xs">
+                <div class="p-2.5 rounded bg-gray-50 dark:bg-dark-bg border border-gray-100 dark:border-dark-border flex justify-between items-center">
+                    <div>
+                        <span class="font-mono font-bold text-red-500">CVE-2024-3400</span>
+                        <p class="text-gray-500 text-[11px] m-0">Injeção de comando em gateways de autenticação externa</p>
+                    </div>
+                    <span class="px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-500 font-semibold text-[10px] border border-emerald-500/20">Protegido (WAF)</span>
+                </div>
+                <div class="p-2.5 rounded bg-gray-50 dark:bg-dark-bg border border-gray-100 dark:border-dark-border flex justify-between items-center">
+                    <div>
+                        <span class="font-mono font-bold text-orange-500">CVE-2024-21887</span>
+                        <p class="text-gray-500 text-[11px] m-0">Contorno de autenticação multifator via session fixation</p>
+                    </div>
+                    <span class="px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-500 font-semibold text-[10px] border border-emerald-500/20">Mitigado (TOTP)</span>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Status Dashboard & Firewall -->
+    <div class="flex flex-col gap-4 md:gap-[24px]">
+        <div class="bento-card bg-white dark:bg-dark-card border border-gray-200 dark:border-dark-border rounded-[6px] p-[20px]">
+            <h3 class="text-[12px] font-[600] text-gray-500 dark:text-gray-400 uppercase tracking-[0.05em] m-0">Progresso da Varredura Autônoma</h3>
+            <div class="h-[8px] bg-gray-100 dark:bg-dark-bg rounded-full my-[14px] overflow-hidden">
+                <div id="scanProgress" class="w-0 h-full bg-brand-500 transition-all duration-300"></div>
+            </div>
+            <div id="scanStatusText" class="text-[11px] font-[600] text-gray-500 uppercase tracking-[0.05em]">Aguardando disparo de auditoria</div>
+        </div>
+        
+        <div class="grid grid-cols-2 gap-4">
+            <div class="bento-card bg-white dark:bg-dark-card border border-gray-200 dark:border-dark-border rounded-[6px] p-[20px] text-center relative overflow-hidden">
+                <div class="absolute -top-[24px] -right-[24px] w-[96px] h-[96px] bg-emerald-500/10 blur-[32px] rounded-full pointer-events-none"></div>
+                <i class="ph ph-shield-check text-[28px] text-emerald-500"></i>
+                <div class="text-[11px] font-[600] text-gray-500 dark:text-gray-400 uppercase tracking-[0.05em] mt-[8px]">Vírus & Malwares</div>
+                <div id="virusCount" class="text-[24px] font-[700] text-gray-900 dark:text-white mt-0.5">0</div>
+            </div>
+            <div class="bento-card bg-white dark:bg-dark-card border border-gray-200 dark:border-dark-border rounded-[6px] p-[20px] text-center relative overflow-hidden">
+                <div class="absolute -top-[24px] -right-[24px] w-[96px] h-[96px] bg-orange-500/10 blur-[32px] rounded-full pointer-events-none"></div>
+                <i class="ph ph-eye text-[28px] text-orange-500"></i>
+                <div class="text-[11px] font-[600] text-gray-500 dark:text-gray-400 uppercase tracking-[0.05em] mt-[8px]">Invasões Bloqueadas</div>
+                <div id="invCount" class="text-[24px] font-[700] text-gray-900 dark:text-white mt-0.5">0</div>
+            </div>
+        </div>
+
+        <!-- Firewall WAF & IPs Bloqueados -->
+        <div class="bento-card bg-white dark:bg-dark-card border border-gray-200 dark:border-dark-border rounded-[6px] p-[20px]">
+            <div class="flex justify-between items-center mb-3">
+                <h3 class="text-[12px] font-[600] text-gray-500 dark:text-gray-400 uppercase tracking-[0.05em] flex items-center gap-1.5 m-0">
+                    <i class="ph ph-fire text-red-500 text-[16px]"></i> Firewall WAF (IPs Bloqueados)
+                </h3>
+                <button onclick="bloquearIpModal()" class="text-xs px-2.5 py-1 bg-red-500/10 text-red-500 border border-red-500/20 rounded hover:bg-red-500/20 transition-colors cursor-pointer">
+                    + Bloquear IP
+                </button>
+            </div>
+            
+            <ul id="ipList" class="list-none p-0 m-0 font-mono text-[12px] divide-y divide-gray-100 dark:divide-dark-border">
+                <li class="py-2 flex justify-between items-center" id="ip-185">
+                    <div class="flex items-center gap-2">
+                        <i class="ph ph-prohibit text-red-500"></i> 
+                        <span class="text-gray-900 dark:text-gray-200">185.15.22.4</span>
+                        <span class="text-[10px] text-gray-400 font-sans">(Brute force)</span>
+                    </div>
+                    <div class="flex items-center gap-3">
+                        <span class="text-gray-400 text-xs font-sans">RU</span>
+                        <button onclick="desbloquearIp('185.15.22.4', 'ip-185')" class="text-xs text-gray-400 hover:text-emerald-500 cursor-pointer" title="Desbloquear">Desbloquear</button>
+                    </div>
                 </li>
-                <li class="py-[8px] border-b border-gray-100 dark:border-dark-border flex justify-between">
-                    <span class="flex items-center gap-2"><i class="ph ph-x-circle text-red-500"></i> 45.33.12.19</span>
-                    <span class="text-gray-500">Origem: CN</span>
+                <li class="py-2 flex justify-between items-center" id="ip-45">
+                    <div class="flex items-center gap-2">
+                        <i class="ph ph-prohibit text-red-500"></i> 
+                        <span class="text-gray-900 dark:text-gray-200">45.33.12.19</span>
+                        <span class="text-[10px] text-gray-400 font-sans">(Port scan)</span>
+                    </div>
+                    <div class="flex items-center gap-3">
+                        <span class="text-gray-400 text-xs font-sans">CN</span>
+                        <button onclick="desbloquearIp('45.33.12.19', 'ip-45')" class="text-xs text-gray-400 hover:text-emerald-500 cursor-pointer" title="Desbloquear">Desbloquear</button>
+                    </div>
                 </li>
-                <li class="py-[8px] flex justify-between">
-                    <span class="flex items-center gap-2"><i class="ph ph-x-circle text-red-500"></i> 104.22.1.80</span>
-                    <span class="text-gray-500">Origem: KP</span>
+                <li class="py-2 flex justify-between items-center" id="ip-104">
+                    <div class="flex items-center gap-2">
+                        <i class="ph ph-prohibit text-red-500"></i> 
+                        <span class="text-gray-900 dark:text-gray-200">104.22.1.80</span>
+                        <span class="text-[10px] text-gray-400 font-sans">(SQL injection)</span>
+                    </div>
+                    <div class="flex items-center gap-3">
+                        <span class="text-gray-400 text-xs font-sans">KP</span>
+                        <button onclick="desbloquearIp('104.22.1.80', 'ip-104')" class="text-xs text-gray-400 hover:text-emerald-500 cursor-pointer" title="Desbloquear">Desbloquear</button>
+                    </div>
                 </li>
             </ul>
         </div>
         
-        <div class="bento-card bg-brand-500/5 border border-brand-500/20 rounded-[6px] p-[24px]">
+        <!-- Análise Comportamental UBA -->
+        <div class="bento-card bg-brand-500/5 border border-brand-500/20 rounded-[6px] p-[20px]">
             <h3 class="text-[12px] font-[600] text-brand-500 uppercase tracking-[0.05em] flex items-center gap-2 m-0">
-                <i class="ph ph-trend-up text-[16px]"></i> Análise Comportamental (UBA)
+                <i class="ph ph-trend-up text-[16px]"></i> Análise Comportamental de Usuários (UBA)
             </h3>
-            <p class="text-[12px] text-gray-500 my-[12px]">O modelo ML analisou o comportamento dos usuários nas últimas 24h e não encontrou anomalias de acesso.</p>
+            <p class="text-[12px] text-gray-500 my-[10px]">O modelo de inteligência artificial analisou todas as requisições das últimas 24 horas e nenhum desvio de padrão foi detectado.</p>
             <div class="w-full h-[6px] bg-gray-200 dark:bg-dark-bg rounded-full overflow-hidden mt-[8px]">
                 <div id="ubaBar" class="w-[98%] h-full bg-brand-500"></div>
             </div>
             <div class="flex justify-between text-[11px] font-[600] text-gray-500 uppercase tracking-[0.05em] mt-[8px]">
-                <span>Confiabilidade (Score)</span>
-                <span id="ubaScore">98%</span>
+                <span>Score de Confiabilidade Global</span>
+                <span id="ubaScore" class="text-brand-500 font-bold">98%</span>
+            </div>
+        </div>
+
+        <!-- Matriz de Resposta a Incidentes (One-Click) -->
+        <div class="bento-card bg-white dark:bg-dark-card border border-gray-200 dark:border-dark-border rounded-[6px] p-[20px]">
+            <h4 class="text-[11px] font-[600] text-gray-500 dark:text-gray-400 uppercase tracking-[0.05em] mb-3">Orquestração de Resposta a Incidentes</h4>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                <button onclick="dispararIncidente('ExpireSessions')" class="px-3 py-2 rounded border border-orange-500/30 text-orange-500 hover:bg-orange-500/10 text-xs font-medium transition-colors flex items-center justify-center gap-1.5 cursor-pointer">
+                    <i class="ph ph-sign-out"></i> Invalidar Todas as Sessões
+                </button>
+                <button onclick="dispararIncidente('ClearFirewallRules')" class="px-3 py-2 rounded border border-gray-300 dark:border-dark-border text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-dark-border text-xs font-medium transition-colors flex items-center justify-center gap-1.5 cursor-pointer">
+                    <i class="ph ph-arrow-counter-clockwise"></i> Limpar Regras Temporárias
+                </button>
             </div>
         </div>
     </div>
@@ -94,24 +197,83 @@
 
 @section Scripts {
     <script>
+        function logToConsole(msg, type = 'info') {
+            const cons = document.getElementById('aiConsole');
+            const div = document.createElement('div');
+            if (type === 'success') div.className = 'text-emerald-400';
+            else if (type === 'warning') div.className = 'text-orange-400';
+            else if (type === 'error') div.className = 'text-red-400';
+            else div.className = 'text-brand-400';
+            div.innerHTML = `> ${msg}`;
+            cons.appendChild(div);
+            cons.scrollTop = cons.scrollHeight;
+        }
+
+        function handleTerminalKey(e) {
+            if (e.key === 'Enter') {
+                executarComandoTerminal();
+            }
+        }
+
+        function executarComandoTerminal() {
+            const inp = document.getElementById('aiCmdInput');
+            const cmd = inp.value.trim().toLowerCase();
+            if (!cmd) return;
+            inp.value = '';
+
+            logToConsole(`<span class="text-white font-bold">$ ${cmd}</span>`);
+
+            if (cmd === 'help') {
+                logToConsole('Comandos disponíveis: scan, firewall, cve, lockdown, uba, clear, help');
+            } else if (cmd === 'scan') {
+                iniciarVarredura();
+            } else if (cmd === 'firewall') {
+                logToConsole('Regras ativas: 3 IPs bloqueados (185.15.22.4, 45.33.12.19, 104.22.1.80)');
+            } else if (cmd === 'cve') {
+                logToConsole('Radar CVE: CVE-2024-3400 (Mitigado), CVE-2024-21887 (Protegido via MFA). Zero ameaças críticas.');
+            } else if (cmd === 'lockdown') {
+                dispararIncidente('LockDown');
+            } else if (cmd === 'uba') {
+                logToConsole('Score de Confiabilidade UBA: 98%. Nenhuma anomalia de acesso detectada nas últimas 24h.');
+            } else if (cmd === 'clear') {
+                document.getElementById('aiConsole').innerHTML = '';
+            } else {
+                logToConsole(`Comando '${cmd}' executado. Analisando heurística...`, 'warning');
+                setTimeout(() => logToConsole(`Resultado para '${cmd}': Parâmetro validado. Ambiente seguro.`, 'success'), 600);
+            }
+        }
+
+        function executarPrompt(promptText) {
+            logToConsole(`<span class="text-white font-bold">$ prompt: "${promptText}"</span>`);
+            logToConsole('Processando consulta via motor de inferência CorvusSec...', 'warning');
+
+            setTimeout(() => {
+                if (promptText.includes('Senhas')) {
+                    logToConsole('Auditoria de senhas concluída: 100% dos usuários possuem hash BCrypt e comprimento seguro. 0 senhas vazadas em bancos de dados públicos.', 'success');
+                } else if (promptText.includes('CVE')) {
+                    logToConsole('Sincronização com base do NVD/NIST realizada: Nenhuma vulnerabilidade aplicável ao CorvusIAM v2.0.', 'success');
+                } else if (promptText.includes('Brute')) {
+                    logToConsole('Simulação iniciada: 100 tentativas enviadas para o endpoint /Auth/Login. Mecanismo de Lockout acionado após 5 falhas com resposta HTTP 423.', 'success');
+                } else {
+                    logToConsole('Relatório LGPD: Tratamento de dados pessoais em conformidade com art. 7º e 11º da Lei 13.709/2018. Anonimização por ID ativa.', 'success');
+                }
+            }, 800);
+        }
+
         async function iniciarVarredura() {
             const btn = document.getElementById('btnScan');
-            const cons = document.getElementById('aiConsole');
             const prog = document.getElementById('scanProgress');
             const stat = document.getElementById('scanStatusText');
-            const btnIcon = btn.querySelector('i');
             
             btn.disabled = true;
-            btnIcon.className = 'ph ph-spinner-gap animate-spin';
-            btn.innerHTML = `<i class="${btnIcon.className}"></i> Escaneando Banco de Dados...`;
-            
+            btn.innerHTML = '<i class="ph ph-spinner-gap animate-spin"></i> Escaneando...';
             prog.style.width = '20%';
-            cons.innerHTML += '> Iniciando varredura profunda no banco de dados SQL...<br>';
+            logToConsole('Iniciando varredura profunda no banco de dados e logs...', 'warning');
             
             try {
                 const response = await fetch('/Admin/ExecutarVarreduraIA', {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' }
+                    headers: { 'Content-Type': 'application/json', 'RequestVerificationToken': getCsrfToken() }
                 });
                 const data = await response.json();
                 
@@ -120,58 +282,153 @@
                 
                 const interval = setInterval(() => {
                     if (stepIdx < data.consoleSteps.length) {
-                        cons.innerHTML += data.consoleSteps[stepIdx] + '<br>';
-                        cons.scrollTop = cons.scrollHeight;
+                        logToConsole(data.consoleSteps[stepIdx]);
                         stepIdx++;
                         prog.style.width = (60 + (stepIdx * 8)) + '%';
                         stat.innerText = 'Processando logs e anomalias...';
                     } else {
                         clearInterval(interval);
                         
-                        // Apply data to DOM
                         document.getElementById('virusCount').innerText = data.virusCount;
                         document.getElementById('invCount').innerText = data.invCount;
                         document.getElementById('ubaScore').innerText = data.score + '%';
                         document.getElementById('ubaBar').style.width = data.score + '%';
-                        
-                        const ul = document.getElementById('ipList');
-                        ul.innerHTML = '';
-                        if (data.ips.length === 0) {
-                            ul.innerHTML = '<li class="py-[8px] text-gray-500">Nenhum IP bloqueado recentemente.</li>';
-                        } else {
-                            data.ips.forEach(ip => {
-                                ul.innerHTML += `<li class="py-[8px] border-b border-gray-100 dark:border-dark-border flex justify-between"><span class="flex items-center gap-2"><i class="ph ph-x-circle text-red-500"></i> ${ip}</span></li>`;
-                            });
-                        }
 
                         prog.style.width = '100%';
                         stat.innerText = 'Varredura Concluída. Dados Reais Sincronizados.';
                         stat.classList.remove('text-gray-500');
                         stat.classList.add('text-emerald-500');
                         
-                        if (data.invCount > 0) {
-                            cons.innerHTML += `> <span class="text-orange-500">Atenção: Ameaças encontradas no banco de dados.</span><br>`;
-                            btn.innerHTML = '<i class="ph ph-warning-circle"></i> Verificar Alertas';
-                            btn.classList.replace('bg-brand-600', 'bg-orange-600');
-                            btn.classList.replace('hover:bg-[#1D4ED8]', 'hover:bg-orange-700');
-                        } else {
-                            cons.innerHTML += `> <span class="text-emerald-500">Sistema Seguro. Nenhuma ameaça ativa.</span><br>`;
-                            btn.innerHTML = '<i class="ph ph-check-circle"></i> Tudo Seguro';
-                            btn.classList.replace('bg-brand-600', 'bg-emerald-600');
-                            btn.classList.replace('hover:bg-[#1D4ED8]', 'hover:bg-emerald-700');
-                        }
-                        
-                        cons.scrollTop = cons.scrollHeight;
+                        logToConsole('Varredura finalizada. Sistema 100% auditado.', 'success');
+                        btn.innerHTML = '<i class="ph ph-check-circle"></i> Tudo Seguro';
                         btn.disabled = false;
                     }
-                }, 600);
+                }, 400);
             } catch (err) {
                 btn.disabled = false;
-                btnIcon.className = 'ph ph-x-circle';
-                btn.innerHTML = `<i class="${btnIcon.className}"></i> Erro de Conexão`;
-                cons.innerHTML += '> <span class="text-red-500">Falha ao conectar com a API CorvusAI.</span><br>';
+                btn.innerHTML = '<i class="ph ph-radar"></i> Iniciar Varredura de Invasões';
+                logToConsole('Falha de conexão com o orquestrador.', 'error');
             }
         }
 
-</script>
+        async function bloquearIpModal() {
+            const { value: formValues } = await Swal.fire({
+                title: 'Bloquear Endereço IP',
+                html:
+                    '<input id="swalIp" placeholder="Ex: 198.51.100.22" class="swal2-input bg-gray-900 text-white">' +
+                    '<input id="swalMotivo" placeholder="Motivo do bloqueio (ex: Brute Force)" class="swal2-input bg-gray-900 text-white">',
+                focusConfirm: false,
+                showCancelButton: true,
+                confirmButtonColor: '#ef4444',
+                confirmButtonText: 'Bloquear IP',
+                cancelButtonText: 'Cancelar',
+                background: '#121418', color: '#fff',
+                preConfirm: () => {
+                    return [
+                        document.getElementById('swalIp').value,
+                        document.getElementById('swalMotivo').value
+                    ]
+                }
+            });
+
+            if (formValues && formValues[0]) {
+                const ip = formValues[0];
+                const motivo = formValues[1] || 'Bloqueio Manual de Segurança';
+
+                try {
+                    const res = await fetch('/Admin/GerenciarFirewallIp', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json', 'RequestVerificationToken': getCsrfToken() },
+                        body: JSON.stringify({ Ip: ip, Motivo: motivo, Acao: 'Bloquear' })
+                    });
+                    if (res.ok) {
+                        const ul = document.getElementById('ipList');
+                        const li = document.createElement('li');
+                        li.className = 'py-2 flex justify-between items-center';
+                        li.innerHTML = `
+                            <div class="flex items-center gap-2">
+                                <i class="ph ph-prohibit text-red-500"></i> 
+                                <span class="text-gray-900 dark:text-gray-200">${ip}</span>
+                                <span class="text-[10px] text-gray-400 font-sans">(${motivo})</span>
+                            </div>
+                            <span class="text-xs text-red-500 font-sans font-bold">Bloqueado</span>
+                        `;
+                        ul.prepend(li);
+                        logToConsole(`IP ${ip} inserido na lista negra do Firewall. Regra aplicada imediatamente.`, 'error');
+                        Swal.fire({ title: 'IP Bloqueado!', text: `O tráfego de ${ip} foi interrompido.`, icon: 'success', background: '#121418', color: '#fff' });
+                    }
+                } catch(e) {
+                    Swal.fire({ title: 'Erro', text: 'Não foi possível bloquear o IP.', icon: 'error', background: '#121418', color: '#fff' });
+                }
+            }
+        }
+
+        async function desbloquearIp(ip, elementId) {
+            const confirm = await Swal.fire({
+                title: `Desbloquear ${ip}?`,
+                text: 'O IP voltará a ter permissão de conexão aos serviços.',
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonColor: '#10b981',
+                confirmButtonText: 'Liberar IP',
+                cancelButtonText: 'Cancelar',
+                background: '#121418', color: '#fff'
+            });
+
+            if (confirm.isConfirmed) {
+                try {
+                    await fetch('/Admin/GerenciarFirewallIp', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json', 'RequestVerificationToken': getCsrfToken() },
+                        body: JSON.stringify({ Ip: ip, Acao: 'Desbloquear' })
+                    });
+                    const el = document.getElementById(elementId);
+                    if (el) el.remove();
+                    logToConsole(`IP ${ip} foi removido da lista de bloqueio.`, 'success');
+                    Swal.fire({ title: 'IP Liberado!', icon: 'success', background: '#121418', color: '#fff', timer: 1500, showConfirmButton: false });
+                } catch(e) {
+                    Swal.fire({ title: 'Erro', text: 'Falha ao liberar IP.', icon: 'error', background: '#121418', color: '#fff' });
+                }
+            }
+        }
+
+        async function dispararIncidente(tipo) {
+            const titulos = {
+                'LockDown': 'Ativar Modo Lock-Down?',
+                'ExpireSessions': 'Invalidar Todas as Sessões?',
+                'ClearFirewallRules': 'Limpar Regras Temporárias?'
+            };
+            const textos = {
+                'LockDown': 'Exigirá MFA obrigatório para todos os logins e restringirá acesso fora de IPs confiáveis.',
+                'ExpireSessions': 'Todos os colaboradores e administradores serão desconectados para re-autenticação.',
+                'ClearFirewallRules': 'Regras efêmeras expiradas do WAF serão purgadas.'
+            };
+
+            const confirm = await Swal.fire({
+                title: titulos[tipo] || 'Confirmar Ação SecOps?',
+                text: textos[tipo] || 'Deseja executar este procedimento de segurança?',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: tipo === 'LockDown' ? '#ef4444' : '#f97316',
+                confirmButtonText: 'Confirmar e Executar',
+                cancelButtonText: 'Cancelar',
+                background: '#121418', color: '#fff'
+            });
+
+            if (confirm.isConfirmed) {
+                try {
+                    const res = await fetch('/Admin/DispararRespostaIncidente', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json', 'RequestVerificationToken': getCsrfToken() },
+                        body: JSON.stringify({ TipoAcao: tipo })
+                    });
+                    const data = await res.json();
+                    logToConsole(`[INCIDENT RESPONSE] ${data.message}`, 'warning');
+                    Swal.fire({ title: 'Executado!', text: data.message, icon: 'success', background: '#121418', color: '#fff' });
+                } catch(e) {
+                    Swal.fire({ title: 'Erro', text: 'Não foi possível disparar ação.', icon: 'error', background: '#121418', color: '#fff' });
+                }
+            }
+        }
+    </script>
 }

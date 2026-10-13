@@ -66,9 +66,10 @@ builder.Services.AddHttpClient<IPasswordPwnedService, PasswordPwnedService>()
     .AddPolicyHandler(GetRetryPolicy())
     .AddPolicyHandler(GetCircuitBreakerPolicy());
 
-builder.Services.AddHttpClient<IIpGeolocationService, IpGeolocationService>()
-    .AddPolicyHandler(GetRetryPolicy())
-    .AddPolicyHandler(GetCircuitBreakerPolicy());
+builder.Services.AddHttpClient<IIpGeolocationService, IpGeolocationService>(c =>
+{
+    c.Timeout = TimeSpan.FromMilliseconds(1500);
+});
 
 builder.Services.AddHttpClient<IEmailValidationService, EmailValidationService>()
     .AddPolicyHandler(GetRetryPolicy())

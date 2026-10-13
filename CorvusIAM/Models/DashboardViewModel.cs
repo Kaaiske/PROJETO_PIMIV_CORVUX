@@ -30,5 +30,8 @@ namespace CorvusIAM.Models
         public string Icone { get; set; } = string.Empty;
         public string Cor { get; set; } = string.Empty;
         public string Detalhe { get; set; } = string.Empty;
+        public string? Tipo { get; set; } = "API / Webhook";
+        public string? EndpointUrl { get; set; } = string.Empty;
+        public string? ApiKey { get; set; } = string.Empty;
     }
 }

@@ -41,11 +41,10 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
     <script>
-        // Dark Mode Priority as requested in Spec
         if (localStorage.getItem('color-theme') === 'dark' || (!('color-theme' in localStorage))) {
             document.documentElement.classList.add('dark');
         } else {
-            document.documentElement.classList.remove('dark')
+            document.documentElement.classList.remove('dark');
         }
     </script>
 
@@ -57,23 +56,10 @@
         
         body { transition: background-color 0.2s ease, color 0.2s ease; }
         
-        /* Spec: Checkbox 16x16px border-radius 3px */
-        .task-checkbox {
-            appearance: none; width: 16px; height: 16px; border: 1px solid #4B5563; border-radius: 3px; display: grid; place-content: center; cursor: pointer; transition: all 150ms; background-color: transparent;
-        }
-        .task-checkbox:hover { border-color: #3b82f6; }
-        .task-checkbox::before {
-            content: ""; width: 10px; height: 10px; transform: scale(0); transition: 150ms transform ease-in-out; box-shadow: inset 1em 1em white; background-color: white; transform-origin: center; clip-path: polygon(14% 44%, 0 65%, 50% 100%, 100% 16%, 80% 0%, 43% 62%);
-        }
-        .task-checkbox:checked { background-color: #3b82f6; border-color: #3b82f6; }
-        .task-checkbox:checked::before { transform: scale(1); }
-
-        /* Subtle Shadows / Transitions Spec */
         .bento-card { transition: border-color 200ms, box-shadow 200ms; }
         .bento-card:hover { border-color: #d1d5db; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
         .dark .bento-card:hover { border-color: #4b5563; box-shadow: 0 4px 12px rgba(0,0,0,0.20); }
         
-        /* Spec Fallbacks */
         .table { width: 100%; text-align: left; }
         .table th, .table td { padding: 12px; border-bottom: 1px solid #e5e7eb; }
         .dark .table th, .dark .table td { border-bottom: 1px solid #272B33; color: #cbd5e1; }
@@ -83,43 +69,49 @@
     @RenderSection("Styles", required: false)
 </head>
 
-<!-- Spec: Text sizes 13-14px for body -->
 <body class="bg-gray-100 text-slate-800 dark:bg-dark-bg dark:text-slate-300 h-screen flex overflow-hidden antialiased text-[13px]">
+
+    <!-- Hidden Anti-Forgery Form para todas as requisições AJAX do sistema -->
+    <form id="__afForm" style="display:none">@Html.AntiForgeryToken()</form>
 
     <aside class="w-16 hover:w-64 group bg-white dark:bg-dark-card border-r border-gray-200 dark:border-dark-border flex-shrink-0 flex flex-col justify-between transition-all duration-300 z-30 absolute h-full md:relative overflow-hidden">
         <div class="flex flex-col h-full w-64">
             <!-- Logo -->
             <div class="h-14 flex items-center px-4 border-b border-gray-200 dark:border-dark-border">
-                <div class="flex items-center gap-3 w-full p-1 rounded-md cursor-pointer">
+                <a href="/Admin/Index" class="flex items-center gap-3 w-full p-1 rounded-md cursor-pointer">
                     <div class="w-8 h-8 bg-brand-600 rounded-md flex items-center justify-center text-white font-bold flex-shrink-0">
                         C.
                     </div>
                     <span class="font-bold text-gray-900 dark:text-white tracking-tight opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">Corvus Security</span>
-                </div>
+                </a>
             </div>
 
-            <!-- Navega��o -->
-            <nav class="flex-1 py-4 px-3 space-y-2 overflow-y-auto">
-                <div class="text-[11px] font-semibold text-gray-400 uppercase tracking-[0.05em] px-2 mb-2 opacity-0 group-hover:opacity-100 transition-opacity">Dashboard</div>
+            <!-- Navegação -->
+            <nav class="flex-1 py-4 px-3 space-y-1.5 overflow-y-auto">
+                <div class="text-[11px] font-semibold text-gray-400 uppercase tracking-[0.05em] px-2 mb-1.5 opacity-0 group-hover:opacity-100 transition-opacity">Dashboard</div>
                 @if(User.IsInRole("Admin")) { 
                 <a href="/Admin/Index" class="flex items-center gap-3 px-2 py-2 rounded-md transition-colors group/item @(ViewContext.RouteData.Values["Action"]?.ToString() == "Index" ? "bg-gray-100 dark:bg-dark-hover text-gray-900 dark:text-white font-medium" : "text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-dark-hover hover:text-gray-900 dark:hover:text-white")">
                     <i class="ph ph-squares-four text-[18px] flex-shrink-0 @(ViewContext.RouteData.Values["Action"]?.ToString() == "Index" ? "text-brand-600 dark:text-brand-500" : "")"></i>
-                    <span class="opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">Vis�o Geral</span>
+                    <span class="opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">Visão Geral</span>
                 </a> }
                 
-                <div class="text-[11px] font-semibold text-gray-400 uppercase tracking-[0.05em] px-2 mb-2 mt-4 opacity-0 group-hover:opacity-100 transition-opacity">Gerenciamento</div>
+                <div class="text-[11px] font-semibold text-gray-400 uppercase tracking-[0.05em] px-2 mb-1.5 mt-3 opacity-0 group-hover:opacity-100 transition-opacity">Gerenciamento</div>
                 @if(User.IsInRole("Admin") || User.IsInRole("Recursos Humanos")) { 
                 <a href="/Admin/Usuarios" class="flex items-center gap-3 px-2 py-2 rounded-md transition-colors group/item @(ViewContext.RouteData.Values["Action"]?.ToString() == "Usuarios" ? "bg-gray-100 dark:bg-dark-hover text-gray-900 dark:text-white font-medium" : "text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-dark-hover hover:text-gray-900 dark:hover:text-white")">
                     <i class="ph ph-users text-[18px] flex-shrink-0 @(ViewContext.RouteData.Values["Action"]?.ToString() == "Usuarios" ? "text-brand-600 dark:text-brand-500" : "")"></i>
-                    <span class="opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">Diret�rio de Usu�rios</span>
+                    <span class="opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">Diretório de Usuários</span>
                 </a> }
                 @if(User.IsInRole("Admin")) { 
                 <a href="/Admin/Politicas" class="flex items-center gap-3 px-2 py-2 rounded-md transition-colors group/item @(ViewContext.RouteData.Values["Action"]?.ToString() == "Politicas" ? "bg-gray-100 dark:bg-dark-hover text-gray-900 dark:text-white font-medium" : "text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-dark-hover hover:text-gray-900 dark:hover:text-white")">
                     <i class="ph ph-shield-check text-[18px] flex-shrink-0 @(ViewContext.RouteData.Values["Action"]?.ToString() == "Politicas" ? "text-brand-600 dark:text-brand-500" : "")"></i>
-                    <span class="opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">Pol�ticas de Acesso</span>
+                    <span class="opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">Políticas de Acesso</span>
+                </a> 
+                <a href="/Admin/Perfis" class="flex items-center gap-3 px-2 py-2 rounded-md transition-colors group/item @(ViewContext.RouteData.Values["Action"]?.ToString() == "Perfis" ? "bg-gray-100 dark:bg-dark-hover text-gray-900 dark:text-white font-medium" : "text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-dark-hover hover:text-gray-900 dark:hover:text-white")">
+                    <i class="ph ph-identification-card text-[18px] flex-shrink-0 @(ViewContext.RouteData.Values["Action"]?.ToString() == "Perfis" ? "text-brand-600 dark:text-brand-500" : "")"></i>
+                    <span class="opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">Perfis & Permissões</span>
                 </a> }
                 
-                <div class="text-[11px] font-semibold text-gray-400 uppercase tracking-[0.05em] px-2 mb-2 mt-4 opacity-0 group-hover:opacity-100 transition-opacity">Opera��es</div>
+                <div class="text-[11px] font-semibold text-gray-400 uppercase tracking-[0.05em] px-2 mb-1.5 mt-3 opacity-0 group-hover:opacity-100 transition-opacity">Operações</div>
                 @if(User.IsInRole("Admin") || User.IsInRole("Help Desk")) { 
                 <a href="/Admin/Chamados" class="flex items-center gap-3 px-2 py-2 rounded-md transition-colors group/item @(ViewContext.RouteData.Values["Action"]?.ToString() == "Chamados" ? "bg-gray-100 dark:bg-dark-hover text-gray-900 dark:text-white font-medium" : "text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-dark-hover hover:text-gray-900 dark:hover:text-white")">
                     <div class="relative flex-shrink-0">
@@ -130,35 +122,42 @@
                 </a> }
                 @if(User.IsInRole("Admin")) { 
                 <a href="/Admin/Cloud" class="flex items-center gap-3 px-2 py-2 rounded-md transition-colors group/item @(ViewContext.RouteData.Values["Action"]?.ToString() == "Cloud" ? "bg-gray-100 dark:bg-dark-hover text-gray-900 dark:text-white font-medium" : "text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-dark-hover hover:text-gray-900 dark:hover:text-white")">
-                    <i class="ph ph-cloud text-[18px] flex-shrink-0 @(ViewContext.RouteData.Values["Action"]?.ToString() == "Cloud" ? "text-brand-600 dark:text-brand-500" : "")"></i>
-                    <span class="opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">Infraestrutura</span>
+                    <i class="ph ph-desktop text-[18px] flex-shrink-0 @(ViewContext.RouteData.Values["Action"]?.ToString() == "Cloud" ? "text-brand-600 dark:text-brand-500" : "")"></i>
+                    <span class="opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">Infraestrutura & Endpoints</span>
+                </a> 
+                <a href="/Admin/Integracoes" class="flex items-center gap-3 px-2 py-2 rounded-md transition-colors group/item @(ViewContext.RouteData.Values["Action"]?.ToString() == "Integracoes" ? "bg-gray-100 dark:bg-dark-hover text-gray-900 dark:text-white font-medium" : "text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-dark-hover hover:text-gray-900 dark:hover:text-white")">
+                    <i class="ph ph-plugs-connected text-[18px] flex-shrink-0 @(ViewContext.RouteData.Values["Action"]?.ToString() == "Integracoes" ? "text-brand-600 dark:text-brand-500" : "")"></i>
+                    <span class="opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">Módulos & APIs</span>
                 </a> }
                 
-                <div class="text-[11px] font-semibold text-gray-400 uppercase tracking-[0.05em] px-2 mb-2 mt-4 opacity-0 group-hover:opacity-100 transition-opacity">Sistema</div>
+                <div class="text-[11px] font-semibold text-gray-400 uppercase tracking-[0.05em] px-2 mb-1.5 mt-3 opacity-0 group-hover:opacity-100 transition-opacity">Sistema</div>
                 @if(User.IsInRole("Admin")) { 
                 <a href="/Admin/Logs" class="flex items-center gap-3 px-2 py-2 rounded-md transition-colors group/item @(ViewContext.RouteData.Values["Action"]?.ToString() == "Logs" ? "bg-gray-100 dark:bg-dark-hover text-gray-900 dark:text-white font-medium" : "text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-dark-hover hover:text-gray-900 dark:hover:text-white")">
                     <i class="ph ph-list-magnifying-glass text-[18px] flex-shrink-0 @(ViewContext.RouteData.Values["Action"]?.ToString() == "Logs" ? "text-brand-600 dark:text-brand-500" : "")"></i>
                     <span class="opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">Audit Logs</span>
-                </a> }
-                @if(User.IsInRole("Admin")) { 
+                </a> 
                 <a href="/Admin/Inteligencia" class="flex items-center gap-3 px-2 py-2 rounded-md transition-colors group/item @(ViewContext.RouteData.Values["Action"]?.ToString() == "Inteligencia" ? "bg-gray-100 dark:bg-dark-hover text-gray-900 dark:text-white font-medium" : "text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-dark-hover hover:text-gray-900 dark:hover:text-white")">
-                    <i class="ph ph-lightning text-[18px] flex-shrink-0 text-brand-500"></i>
-                    <span class="opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap text-brand-500 font-medium">SecOps AI</span>
-                </a> }
-                @if(User.IsInRole("Admin")) { 
+                    <i class="ph ph-shield-warning text-[18px] flex-shrink-0 text-brand-500"></i>
+                    <span class="opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap text-brand-500 font-medium">SecOps AI & Defesa</span>
+                </a> 
                 <a href="/Admin/Configuracoes" class="flex items-center gap-3 px-2 py-2 rounded-md transition-colors group/item @(ViewContext.RouteData.Values["Action"]?.ToString() == "Configuracoes" ? "bg-gray-100 dark:bg-dark-hover text-gray-900 dark:text-white font-medium" : "text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-dark-hover hover:text-gray-900 dark:hover:text-white")">
                     <i class="ph ph-gear text-[18px] flex-shrink-0 @(ViewContext.RouteData.Values["Action"]?.ToString() == "Configuracoes" ? "text-brand-600 dark:text-brand-500" : "")"></i>
-                    <span class="opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">Configura��es</span>
+                    <span class="opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">Configurações</span>
                 </a> }
             </nav>
 
             <!-- Bottom Actions -->
-            <div class="p-3 border-t border-gray-200 dark:border-dark-border">
-                <a href="/" class="flex items-center gap-3 px-2 py-2 rounded-md text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-dark-hover hover:text-gray-900 dark:hover:text-white transition-colors">
+            <div class="p-3 border-t border-gray-200 dark:border-dark-border flex flex-col gap-1">
+                <a href="/Portal/MinhaConta" class="flex items-center gap-3 px-2 py-2 rounded-md text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-dark-hover hover:text-gray-900 dark:hover:text-white transition-colors" title="Meu Perfil">
                     <div class="w-8 h-8 rounded-md bg-brand-600 flex-shrink-0 flex items-center justify-center text-white font-bold text-[11px]">AD</div>
                     <div class="flex-1 overflow-hidden opacity-0 group-hover:opacity-100 transition-opacity">
-                        <p class="text-[13px] font-medium text-gray-900 dark:text-white truncate">@(Context.Request.Cookies["LoggedUser"] ?? "Admin Sec")</p>
+                        <p class="text-[13px] font-medium text-gray-900 dark:text-white truncate">@(User.Identity?.Name ?? Context.Request.Cookies["LoggedUser"] ?? "Administrador")</p>
+                        <p class="text-[10px] text-gray-400">Minha Conta</p>
                     </div>
+                </a>
+                <a href="/Auth/Logout" class="flex items-center gap-3 px-2 py-1.5 rounded-md text-red-500 hover:bg-red-500/10 transition-colors" title="Sair do Sistema">
+                    <i class="ph ph-sign-out text-[18px] flex-shrink-0"></i>
+                    <span class="opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap text-[12px] font-medium">Encerrar Sessão</span>
                 </a>
             </div>
         </div>
@@ -176,19 +175,22 @@
                 </span>
             </div>
 
-            <div class="flex items-center gap-4">
-                <!-- Spec: Search Compact 256x32px -->
-                <div class="relative hidden sm:block w-64 h-8">
+            <div class="flex items-center gap-3">
+                <!-- Barra de Busca Global Funcional -->
+                <div class="relative hidden sm:block w-72 h-8">
                     <i class="ph ph-magnifying-glass absolute left-2.5 top-1/2 -translate-y-1/2 text-gray-400"></i>
-                    <input type="text" placeholder="Buscar ID, IP ou usu�rio..." class="w-full h-full bg-gray-100 dark:bg-dark-bg border border-gray-200 dark:border-dark-border text-gray-900 dark:text-gray-100 text-[12px] rounded-[4px] pl-8 pr-3 focus:outline-none focus:border-brand-500 focus:ring-1 focus:ring-brand-500 transition-all">
+                    <input type="text" id="globalSearchInput" placeholder="Buscar ID, IP ou colaborador..." class="w-full h-full bg-gray-100 dark:bg-dark-bg border border-gray-200 dark:border-dark-border text-gray-900 dark:text-gray-100 text-[12px] rounded-[6px] pl-8 pr-3 focus:outline-none focus:border-brand-500 focus:ring-1 focus:ring-brand-500 transition-all">
                 </div>
-                <button id="theme-toggle" class="w-8 h-8 flex items-center justify-center rounded-[4px] border border-gray-200 dark:border-dark-border bg-white dark:bg-dark-card text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white transition-colors">
+                
+                <!-- Botão Alternador de Tema -->
+                <button id="theme-toggle" class="w-8 h-8 flex items-center justify-center rounded-[6px] border border-gray-200 dark:border-dark-border bg-white dark:bg-dark-card text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white transition-colors" title="Alternar Tema Claro/Escuro">
                     <i id="theme-toggle-dark-icon" class="ph ph-moon text-[16px] hidden"></i>
                     <i id="theme-toggle-light-icon" class="ph ph-sun text-[16px] hidden"></i>
                 </button>
-                <!-- Spec: Primary Button 12px font-weight 500 border-radius 6px -->
-                <button class="bg-brand-600 hover:bg-[#1D4ED8] text-white text-[12px] font-medium px-3 py-1.5 rounded-[6px] shadow-sm transition-colors flex items-center gap-1.5">
-                    <i class="ph ph-plus"></i> Nova Issue
+                
+                <!-- Botão + Nova Issue / Chamado Totalmente Funcional -->
+                <button type="button" onclick="abrirModalNovaIssue()" class="bg-brand-600 hover:bg-[#1D4ED8] text-white text-[12px] font-medium px-3.5 py-1.5 rounded-[6px] shadow-sm transition-colors flex items-center gap-1.5 cursor-pointer">
+                    <i class="ph ph-plus font-bold"></i> Nova Issue
                 </button>
             </div>
         </header>
@@ -200,7 +202,153 @@
         </div>
     </main>
 
+    <!-- Modal Global: Nova Issue / Abertura de Chamado -->
+    <div id="modalNovaIssue" class="fixed inset-0 bg-black/80 z-[100] hidden items-center justify-center p-4 backdrop-blur-sm transition-opacity">
+        <div class="bg-white dark:bg-dark-card border border-gray-200 dark:border-dark-border rounded-[8px] shadow-2xl w-full max-w-lg overflow-hidden flex flex-col">
+            <div class="px-6 py-4 border-b border-gray-200 dark:border-dark-border flex justify-between items-center bg-gray-50 dark:bg-dark-bg/50">
+                <h3 class="text-[14px] font-[600] text-gray-900 dark:text-white flex items-center gap-2">
+                    <i class="ph ph-ticket text-brand-500"></i> Registrar Nova Solicitação / Issue
+                </h3>
+                <button type="button" onclick="fecharModalNovaIssue()" class="text-gray-400 hover:text-white transition-colors">
+                    <i class="ph ph-x text-[16px]"></i>
+                </button>
+            </div>
+            <form onsubmit="salvarNovaIssueGlobal(event)" class="p-6 space-y-4">
+                <div>
+                    <label class="block text-[11px] font-[600] text-gray-500 uppercase tracking-wider mb-1.5">Assunto da Issue</label>
+                    <input type="text" id="issueAssunto" required placeholder="Ex: Solicitação de Acesso VPN ou Falha de Login" class="form-control text-[13px]" />
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-[11px] font-[600] text-gray-500 uppercase tracking-wider mb-1.5">Categoria</label>
+                        <select id="issueCategoria" class="form-control text-[13px]">
+                            <option value="Acesso">Acesso / Permissões</option>
+                            <option value="Infraestrutura">Infraestrutura / Cloud</option>
+                            <option value="Segurança">Incidente de Segurança</option>
+                            <option value="Bug">Falha / Erro no Sistema</option>
+                            <option value="Outros">Outros Chamados</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-[11px] font-[600] text-gray-500 uppercase tracking-wider mb-1.5">Prioridade</label>
+                        <select id="issuePrioridade" class="form-control text-[13px]">
+                            <option value="Baixa">Baixa</option>
+                            <option value="Normal" selected>Normal</option>
+                            <option value="Alta">Alta</option>
+                            <option value="Critica">Crítica (SLA 2h)</option>
+                        </select>
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-[11px] font-[600] text-gray-500 uppercase tracking-wider mb-1.5">Descrição Detalhada</label>
+                    <textarea id="issueDescricao" required placeholder="Descreva o motivo da solicitação ou problema identificado..." class="form-control text-[13px] h-24 resize-none"></textarea>
+                </div>
+                <div class="flex justify-end gap-3 pt-4 border-t border-gray-200 dark:border-dark-border">
+                    <button type="button" onclick="fecharModalNovaIssue()" class="px-4 py-2 text-[12px] font-medium text-gray-700 dark:text-gray-300 border border-gray-300 dark:border-dark-border rounded-[6px] hover:bg-gray-50 dark:hover:bg-[#1B1F24] transition-colors">Cancelar</button>
+                    <button type="submit" id="btnSalvarIssue" class="px-4 py-2 text-[12px] font-medium text-white bg-brand-600 rounded-[6px] hover:bg-[#1D4ED8] transition-colors flex items-center gap-1.5">
+                        <i class="ph ph-paper-plane-tilt"></i> Registrar Chamado
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <script>
+        // Helper global para obter CSRF Token sem erros em qualquer página
+        function getCsrfToken() {
+            return document.querySelector('input[name="__RequestVerificationToken"]')?.value || '';
+        }
+
+        // Funções da Nova Issue
+        function abrirModalNovaIssue() {
+            const modal = document.getElementById('modalNovaIssue');
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+            document.getElementById('issueAssunto')?.focus();
+        }
+
+        function fecharModalNovaIssue() {
+            const modal = document.getElementById('modalNovaIssue');
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+        }
+
+        async function salvarNovaIssueGlobal(e) {
+            e.preventDefault();
+            const btn = document.getElementById('btnSalvarIssue');
+            btn.disabled = true;
+            btn.innerHTML = '<i class="ph ph-spinner-gap animate-spin"></i> Registrando...';
+
+            const payload = {
+                Assunto: document.getElementById('issueAssunto').value,
+                Categoria: document.getElementById('issueCategoria').value,
+                Prioridade: document.getElementById('issuePrioridade').value,
+                Descricao: document.getElementById('issueDescricao').value
+            };
+
+            try {
+                const res = await fetch('/api/Chamados', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'RequestVerificationToken': getCsrfToken()
+                    },
+                    body: JSON.stringify(payload)
+                });
+
+                if (res.ok) {
+                    fecharModalNovaIssue();
+                    Swal.fire({
+                        title: 'Issue Criada com Sucesso!',
+                        text: 'Sua solicitação foi registrada na fila de suporte de TI e um analista fará a triagem.',
+                        icon: 'success',
+                        background: '#121418',
+                        color: '#fff',
+                        confirmButtonColor: '#3B82F6'
+                    }).then(() => {
+                        if (window.location.pathname.includes('/Chamados')) {
+                            window.location.reload();
+                        }
+                    });
+                } else {
+                    const err = await res.json().catch(() => ({}));
+                    Swal.fire({
+                        title: 'Erro ao Registrar',
+                        text: err.detail || err.message || 'Não foi possível salvar o chamado.',
+                        icon: 'error',
+                        background: '#121418',
+                        color: '#fff',
+                        confirmButtonColor: '#3B82F6'
+                    });
+                }
+            } catch (ex) {
+                Swal.fire({ title: 'Erro de Conexão', text: ex.message, icon: 'error', background: '#121418', color: '#fff' });
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = '<i class="ph ph-paper-plane-tilt"></i> Registrar Chamado';
+            }
+        }
+
+        // Listener da Barra de Busca Global
+        const globalSearch = document.getElementById('globalSearchInput');
+        if (globalSearch) {
+            globalSearch.addEventListener('keydown', function(e) {
+                if (e.key === 'Enter') {
+                    const termo = this.value.trim();
+                    const localSearch = document.getElementById('searchInput');
+                    if (localSearch) {
+                        localSearch.value = termo;
+                        localSearch.dispatchEvent(new Event('input'));
+                        return;
+                    }
+                    if (termo) {
+                        window.location.href = `/Admin/Usuarios?termo=${encodeURIComponent(termo)}`;
+                    }
+                }
+            });
+        }
+
+        // Dark / Light Theme Toggle
         const themeToggleBtn = document.getElementById('theme-toggle');
         const darkIcon = document.getElementById('theme-toggle-dark-icon');
         const lightIcon = document.getElementById('theme-toggle-light-icon');
@@ -214,17 +362,17 @@
                 lightIcon.classList.add('hidden');
             }
         }
-
         updateThemeIcons();
 
-        themeToggleBtn.addEventListener('click', function() {
-            document.documentElement.classList.toggle('dark');
-            localStorage.setItem('color-theme', document.documentElement.classList.contains('dark') ? 'dark' : 'light');
-            updateThemeIcons();
-            if(typeof initChart === 'function') { initChart(); }
-        });
+        if (themeToggleBtn) {
+            themeToggleBtn.addEventListener('click', function() {
+                document.documentElement.classList.toggle('dark');
+                localStorage.setItem('color-theme', document.documentElement.classList.contains('dark') ? 'dark' : 'light');
+                updateThemeIcons();
+            });
+        }
     </script>
-    
+
     @RenderSection("Scripts", required: false)
 </body>
 </html>

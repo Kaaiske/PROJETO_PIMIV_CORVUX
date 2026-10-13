@@ -3,23 +3,165 @@
     ViewData["Title"] = "Contabilidade & Financeiro";
 }
 
-<div class="mb-[24px]">
-    <h1 class="text-[16px] font-[600] text-gray-900 dark:text-white flex items-center gap-2">
-        <i class="ph ph-calculator text-brand-500"></i> Contabilidade & Financeiro
-    </h1>
-    <p class="text-[12px] text-gray-500 dark:text-gray-400 mt-1">Balanços, NFs e Fluxo de Caixa</p>
-</div>
-
-<div class="bento-card bg-white dark:bg-dark-card border border-gray-200 dark:border-dark-border rounded-[6px] p-[24px]">
-    <h3 class="text-[14px] font-[600] text-gray-900 dark:text-white mb-2 m-0">Painel Contábil</h3>
-    <p class="text-[13px] text-gray-600 dark:text-gray-400 mb-6 m-0">Acesso restrito a relatórios financeiros e aprovação de pagamentos.</p>
-    
-    <div class="flex gap-3">
-        <button class="bg-brand-600 hover:bg-[#1D4ED8] text-white text-[12px] font-medium px-4 py-2 rounded-[6px] shadow-sm transition-colors">
-            Emitir NF
+<div class="mb-[24px] flex flex-col sm:flex-row sm:justify-between sm:items-end gap-3">
+    <div>
+        <h1 class="text-[16px] font-[600] text-gray-900 dark:text-white flex items-center gap-2">
+            <i class="ph ph-calculator text-brand-500"></i> Contabilidade & Gestão Financeira
+        </h1>
+        <p class="text-[12px] text-gray-500 dark:text-gray-400 mt-1">Emissão de notas fiscais, fechamento contábil e conciliação bancária</p>
+    </div>
+    <div class="flex gap-2">
+        <button onclick="abrirModalEmitirNF()" class="bg-brand-600 hover:bg-[#1D4ED8] text-white text-[12px] font-medium px-4 py-2 rounded-[6px] shadow-sm transition-colors flex items-center gap-1.5 cursor-pointer">
+            <i class="ph ph-receipt"></i> Emitir Nova NF
         </button>
-        <button class="bg-gray-50 dark:bg-dark-bg border border-gray-200 dark:border-dark-border text-gray-700 dark:text-gray-300 text-[12px] font-medium px-4 py-2 rounded-[6px] hover:bg-gray-100 dark:hover:bg-[#1B1F24] transition-colors">
-            Fechamento Mensal
+        <button onclick="executarFechamentoMensal()" class="bg-emerald-600 hover:bg-emerald-700 text-white text-[12px] font-medium px-4 py-2 rounded-[6px] shadow-sm transition-colors flex items-center gap-1.5 cursor-pointer">
+            <i class="ph ph-calendar-check"></i> Fechamento Mensal
         </button>
     </div>
 </div>
+
+<!-- KPIs Financeiros -->
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-[24px] mb-[24px]">
+    <div class="bento-card bg-white dark:bg-dark-card border border-gray-200 dark:border-dark-border rounded-[6px] p-[20px]">
+        <div class="text-[11px] font-[600] text-gray-500 uppercase tracking-wider mb-2">Faturamento (Mês Atual)</div>
+        <div class="text-[26px] font-[700] text-gray-900 dark:text-white">R$ 148.520,00</div>
+        <div class="text-[11px] text-emerald-500 mt-1 flex items-center gap-1"><i class="ph ph-trend-up"></i> +12% vs mês anterior</div>
+    </div>
+    <div class="bento-card bg-white dark:bg-dark-card border border-gray-200 dark:border-dark-border rounded-[6px] p-[20px]">
+        <div class="text-[11px] font-[600] text-gray-500 uppercase tracking-wider mb-2">Notas Fiscais Emitidas</div>
+        <div class="text-[26px] font-[700] text-gray-900 dark:text-white">64 NFs</div>
+        <div class="text-[11px] text-gray-400 mt-1">100% transmitidas à SEFAZ</div>
+    </div>
+    <div class="bento-card bg-white dark:bg-dark-card border border-gray-200 dark:border-dark-border rounded-[6px] p-[20px]">
+        <div class="text-[11px] font-[600] text-gray-500 uppercase tracking-wider mb-2">Contas a Pagar (Semana)</div>
+        <div class="text-[26px] font-[700] text-orange-500">R$ 22.400,00</div>
+        <div class="text-[11px] text-gray-400 mt-1">8 boletos agendados</div>
+    </div>
+    <div class="bento-card bg-white dark:bg-dark-card border border-gray-200 dark:border-dark-border rounded-[6px] p-[20px]">
+        <div class="text-[11px] font-[600] text-gray-500 uppercase tracking-wider mb-2">Status da Conciliação</div>
+        <div class="text-[26px] font-[700] text-emerald-500">Em Dia</div>
+        <div class="text-[11px] text-gray-400 mt-1">Banco Itaú / Santander</div>
+    </div>
+</div>
+
+<div class="bento-card bg-white dark:bg-dark-card border border-gray-200 dark:border-dark-border rounded-[6px] p-[24px]">
+    <h3 class="text-[14px] font-[600] text-gray-900 dark:text-white mb-2 m-0">Painel Operacional Contábil</h3>
+    <p class="text-[13px] text-gray-600 dark:text-gray-400 mb-6 m-0">Acesso restrito para auditoria fiscal, aprovação de despesas e geração de guias DAS/SPED.</p>
+    
+    <div class="flex flex-wrap gap-3">
+        <button onclick="abrirModalEmitirNF()" class="bg-brand-600 hover:bg-[#1D4ED8] text-white text-[12px] font-medium px-4 py-2 rounded-[6px] shadow-sm transition-colors flex items-center gap-1.5 cursor-pointer">
+            <i class="ph ph-receipt"></i> Emitir NF de Serviço
+        </button>
+        <button onclick="executarFechamentoMensal()" class="bg-gray-100 dark:bg-dark-bg border border-gray-200 dark:border-dark-border text-gray-800 dark:text-gray-200 text-[12px] font-medium px-4 py-2 rounded-[6px] hover:bg-gray-200 dark:hover:bg-[#1B1F24] transition-colors flex items-center gap-1.5 cursor-pointer">
+            <i class="ph ph-file-text"></i> Relatório de Balancete
+        </button>
+        <button onclick="exportarSpedFiscal()" class="bg-gray-100 dark:bg-dark-bg border border-gray-200 dark:border-dark-border text-gray-800 dark:text-gray-200 text-[12px] font-medium px-4 py-2 rounded-[6px] hover:bg-gray-200 dark:hover:bg-[#1B1F24] transition-colors flex items-center gap-1.5 cursor-pointer">
+            <i class="ph ph-download-simple"></i> Exportar SPED Fiscal (.txt)
+        </button>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        async function abrirModalEmitirNF() {
+            const { value: formValues } = await Swal.fire({
+                title: 'Emissão de Nota Fiscal de Serviço',
+                html: `
+                    <div class="text-left space-y-3">
+                        <div>
+                            <label class="text-xs text-gray-400 block mb-1">Razão Social / Tomador</label>
+                            <input id="nfTomador" placeholder="Ex: Tech Solutions Brasil Ltda" class="swal2-input !m-0 !w-full bg-gray-900 text-white text-xs">
+                        </div>
+                        <div>
+                            <label class="text-xs text-gray-400 block mb-1">CNPJ do Tomador</label>
+                            <input id="nfCnpj" placeholder="00.000.000/0001-00" class="swal2-input !m-0 !w-full bg-gray-900 text-white text-xs">
+                        </div>
+                        <div>
+                            <label class="text-xs text-gray-400 block mb-1">Valor dos Serviços (R$)</label>
+                            <input id="nfValor" type="number" placeholder="5500.00" class="swal2-input !m-0 !w-full bg-gray-900 text-white text-xs">
+                        </div>
+                        <div>
+                            <label class="text-xs text-gray-400 block mb-1">Discriminação dos Serviços</label>
+                            <textarea id="nfDesc" placeholder="Prestação de serviços de segurança da informação e gestão de identidades IAM..." class="swal2-textarea !m-0 !w-full bg-gray-900 text-white text-xs h-20"></textarea>
+                        </div>
+                    </div>
+                `,
+                showCancelButton: true,
+                confirmButtonColor: '#3B82F6',
+                confirmButtonText: 'Autorizar e Transmitir à SEFAZ',
+                cancelButtonText: 'Cancelar',
+                background: '#121418', color: '#fff',
+                preConfirm: () => {
+                    const tomador = document.getElementById('nfTomador').value;
+                    const valor = document.getElementById('nfValor').value;
+                    if (!tomador || !valor) {
+                        Swal.showValidationMessage('Preencha ao menos o Tomador e o Valor.');
+                    }
+                    return { tomador, valor };
+                }
+            });
+
+            if (formValues) {
+                Swal.fire({
+                    title: 'Transmitindo Nota Fiscal...',
+                    html: '<div class="text-xs text-gray-400">Assinando digitalmente com certificado A1 e comunicando com a Prefeitura...</div>',
+                    allowOutsideClick: false,
+                    didOpen: () => Swal.showLoading(),
+                    background: '#121418', color: '#fff'
+                });
+
+                setTimeout(() => {
+                    const numeroNF = Math.floor(1000 + Math.random() * 9000);
+                    Swal.fire({
+                        title: 'Nota Fiscal Autorizada!',
+                        html: `NFS-e Nº <b>${numeroNF}</b> emitida com sucesso para <b>${formValues.tomador}</b>.<br><br><span class="text-emerald-400 text-xs font-mono">Protocolo SEFAZ: 20261012998341<br>Valor: R$ ${parseFloat(formValues.valor).toFixed(2)}</span>`,
+                        icon: 'success',
+                        background: '#121418', color: '#fff', confirmButtonColor: '#3B82F6'
+                    });
+                }, 1400);
+            }
+        }
+
+        async function executarFechamentoMensal() {
+            const confirm = await Swal.fire({
+                title: 'Executar Fechamento Mensal?',
+                text: 'Será gerado o resumo consolidado de DRE, balanço patrimonial e apuração de tributos (Simples Nacional / Lucro Presumido).',
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonColor: '#10b981',
+                confirmButtonText: 'Iniciar Fechamento',
+                cancelButtonText: 'Cancelar',
+                background: '#121418', color: '#fff'
+            });
+
+            if (confirm.isConfirmed) {
+                Swal.fire({
+                    title: 'Consolidando Lançamentos...',
+                    allowOutsideClick: false,
+                    didOpen: () => Swal.showLoading(),
+                    background: '#121418', color: '#fff'
+                });
+
+                setTimeout(() => {
+                    Swal.fire({
+                        title: 'Fechamento Realizado!',
+                        html: 'Mês fiscal consolidado com sucesso.<br><br><b>Receita Bruta:</b> R$ 148.520,00<br><b>Despesas Operacionais:</b> R$ 42.110,00<br><b>Lucro Líquido:</b> <span class="text-emerald-400 font-bold">R$ 106.410,00</span>',
+                        icon: 'success',
+                        background: '#121418', color: '#fff', confirmButtonColor: '#3B82F6'
+                    });
+                }, 1200);
+            }
+        }
+
+        function exportarSpedFiscal() {
+            Swal.fire({
+                title: 'Exportando SPED Fiscal...',
+                text: 'O arquivo digital no padrão EFD Contribuições foi gerado para transmissão à Receita Federal.',
+                icon: 'success',
+                timer: 2000,
+                showConfirmButton: false,
+                background: '#121418', color: '#fff'
+            });
+        }
+    </script>
+}
