@@ -59,7 +59,7 @@
             <p class="text-[12px] text-gray-500 mb-[16px] text-center">É recomendado trocar sua senha a cada 90 dias. Utilize senhas fortes.</p>
             <form onsubmit="alterarSenha(event)" class="flex flex-col gap-3">
                 <input type="password" id="senhaAtual" placeholder="Senha Atual" required class="w-full bg-gray-50 dark:bg-dark-bg border border-gray-200 dark:border-dark-border text-gray-900 dark:text-gray-100 text-[13px] rounded-[6px] px-3 py-2 outline-none focus:border-brand-500 transition-colors" />
-                <div class="flex gap-3">
+                <div class="flex flex-col sm:flex-row gap-3">
                     <input type="password" id="novaSenha" placeholder="Nova Senha" required pattern="(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[\W_]).{8,}" title="A senha deve ter no mínimo 8 caracteres." class="w-full bg-gray-50 dark:bg-dark-bg border border-gray-200 dark:border-dark-border text-gray-900 dark:text-gray-100 text-[13px] rounded-[6px] px-3 py-2 outline-none focus:border-brand-500 transition-colors" />
                     <input type="password" id="confirmaSenha" placeholder="Confirmar" required class="w-full bg-gray-50 dark:bg-dark-bg border border-gray-200 dark:border-dark-border text-gray-900 dark:text-gray-100 text-[13px] rounded-[6px] px-3 py-2 outline-none focus:border-brand-500 transition-colors" />
                 </div>

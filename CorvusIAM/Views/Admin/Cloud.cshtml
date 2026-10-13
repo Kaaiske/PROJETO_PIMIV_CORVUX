@@ -17,11 +17,11 @@
         </h1>
         <p class="text-[12px] text-gray-500 dark:text-gray-400 mt-1">Varredura contínua de computadores na rede corporativa, telemetria de recursos e conformidade EDR</p>
     </div>
-    <div class="flex gap-2">
-        <button onclick="remediarTodosLote()" class="bg-orange-600 hover:bg-orange-700 text-white text-[12px] font-medium px-3 py-1.5 rounded-[6px] shadow-sm transition-colors flex items-center gap-1.5 cursor-pointer">
+    <div class="flex flex-wrap gap-2 w-full sm:w-auto">
+        <button onclick="remediarTodosLote()" class="flex-1 sm:flex-initial bg-orange-600 hover:bg-orange-700 text-white text-[12px] font-medium px-3 py-1.5 rounded-[6px] shadow-sm transition-colors flex items-center justify-center gap-1.5 cursor-pointer">
             <i class="ph ph-wrench"></i> Corrigir Alertas em Lote
         </button>
-        <button onclick="executarVarreduraGlobal()" id="btnVarreduraGlobal" class="bg-brand-600 hover:bg-[#1D4ED8] text-white text-[12px] font-medium px-3 py-1.5 rounded-[6px] shadow-sm transition-colors flex items-center gap-1.5 cursor-pointer">
+        <button onclick="executarVarreduraGlobal()" id="btnVarreduraGlobal" class="flex-1 sm:flex-initial bg-brand-600 hover:bg-[#1D4ED8] text-white text-[12px] font-medium px-3 py-1.5 rounded-[6px] shadow-sm transition-colors flex items-center justify-center gap-1.5 cursor-pointer">
             <i class="ph ph-radar"></i> Escanear Toda a Rede
         </button>
     </div>
@@ -111,7 +111,7 @@
         <div>
             <h3 class="text-[12px] font-[600] text-gray-500 dark:text-gray-400 uppercase tracking-[0.05em] m-0">Inventário de Dispositivos e Telemetria em Tempo Real</h3>
         </div>
-        <div class="flex gap-1.5" id="filterTabs">
+        <div class="flex flex-wrap gap-1.5" id="filterTabs">
             <button onclick="filtrarDispositivos('todos')" id="tab-todos" class="tab-btn px-2.5 py-1 text-[11px] font-medium rounded bg-brand-600 text-white transition-colors cursor-pointer">Todos (@total)</button>
             <button onclick="filtrarDispositivos('atencao')" id="tab-atencao" class="tab-btn px-2.5 py-1 text-[11px] font-medium rounded text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-dark-border transition-colors cursor-pointer">Requer Atenção (@atencao)</button>
             <button onclick="filtrarDispositivos('estacoes')" id="tab-estacoes" class="tab-btn px-2.5 py-1 text-[11px] font-medium rounded text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-dark-border transition-colors cursor-pointer">Estações (@estacoes)</button>

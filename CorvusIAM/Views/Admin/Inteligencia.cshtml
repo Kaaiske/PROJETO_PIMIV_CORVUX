@@ -11,11 +11,11 @@
         </h1>
         <p class="text-[12px] text-gray-500 dark:text-gray-400 mt-1">Análise preditiva, radar de ameaças CVE, firewall inteligente e orquestração de incidentes</p>
     </div>
-    <div class="flex gap-2">
-        <button onclick="dispararIncidente('LockDown')" class="bg-red-600 hover:bg-red-700 text-white text-[12px] font-medium px-3 py-1.5 rounded-[6px] shadow-sm transition-colors flex items-center gap-1.5 cursor-pointer">
+    <div class="flex flex-wrap gap-2 w-full sm:w-auto">
+        <button onclick="dispararIncidente('LockDown')" class="flex-1 sm:flex-initial bg-red-600 hover:bg-red-700 text-white text-[12px] font-medium px-3 py-1.5 rounded-[6px] shadow-sm transition-colors flex items-center justify-center gap-1.5 cursor-pointer">
             <i class="ph ph-shield-warning"></i> Modo Lock-Down
         </button>
-        <button onclick="iniciarVarredura()" id="btnScan" class="bg-brand-600 hover:bg-[#1D4ED8] text-white text-[12px] font-medium px-4 py-1.5 rounded-[6px] shadow-sm transition-colors flex items-center gap-1.5 cursor-pointer">
+        <button onclick="iniciarVarredura()" id="btnScan" class="flex-1 sm:flex-initial bg-brand-600 hover:bg-[#1D4ED8] text-white text-[12px] font-medium px-4 py-1.5 rounded-[6px] shadow-sm transition-colors flex items-center justify-center gap-1.5 cursor-pointer">
             <i class="ph ph-radar"></i> Iniciar Varredura de Invasões
         </button>
     </div>

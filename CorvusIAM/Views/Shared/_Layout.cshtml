@@ -80,119 +80,129 @@
     <!-- Hidden Anti-Forgery Form para todas as requisições AJAX do sistema -->
     <form id="__afForm" style="display:none">@Html.AntiForgeryToken()</form>
 
-    <aside class="w-16 hover:w-64 group bg-white dark:bg-dark-card border-r border-gray-200 dark:border-dark-border flex-shrink-0 flex flex-col justify-between transition-all duration-300 z-30 absolute h-full md:relative overflow-hidden">
+    <!-- Backdrop para Mobile -->
+    <div id="mobileBackdrop" onclick="fecharMobileMenu()" class="fixed inset-0 bg-black/70 z-40 hidden md:hidden backdrop-blur-sm transition-opacity"></div>
+
+    <aside id="appSidebar" class="fixed inset-y-0 left-0 z-50 w-64 bg-white dark:bg-dark-card border-r border-gray-200 dark:border-dark-border flex flex-col justify-between transition-transform duration-300 transform -translate-x-full md:translate-x-0 md:static md:w-16 md:hover:w-64 md:flex-shrink-0 group overflow-hidden">
         <div class="flex flex-col h-full w-64">
-            <!-- Logo -->
-            <div class="h-14 flex items-center px-4 border-b border-gray-200 dark:border-dark-border">
-                <a href="/Admin/Index" class="flex items-center gap-3 w-full p-1 rounded-md cursor-pointer">
+            <!-- Logo & Botão Fechar Mobile -->
+            <div class="h-14 flex items-center justify-between px-4 border-b border-gray-200 dark:border-dark-border">
+                <a href="/Admin/Index" class="flex items-center gap-3 p-1 rounded-md cursor-pointer">
                     <div class="w-8 h-8 bg-brand-600 rounded-md flex items-center justify-center text-white font-bold flex-shrink-0">
                         C.
                     </div>
-                    <span class="font-bold text-gray-900 dark:text-white tracking-tight opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">Corvus Security</span>
+                    <span class="font-bold text-gray-900 dark:text-white tracking-tight md:opacity-0 md:group-hover:opacity-100 transition-opacity whitespace-nowrap">Corvus Security</span>
                 </a>
+                <button type="button" onclick="fecharMobileMenu()" class="md:hidden text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white p-1 rounded-[6px] transition-colors" title="Fechar Menu">
+                    <i class="ph ph-x text-[18px]"></i>
+                </button>
             </div>
 
             <!-- Navegação -->
             <nav class="flex-1 py-4 px-3 space-y-1.5 overflow-y-auto">
-                <div class="text-[11px] font-semibold text-gray-400 uppercase tracking-[0.05em] px-2 mb-1.5 opacity-0 group-hover:opacity-100 transition-opacity">Dashboard</div>
+                <div class="text-[11px] font-semibold text-gray-400 uppercase tracking-[0.05em] px-2 mb-1.5 md:opacity-0 md:group-hover:opacity-100 transition-opacity">Dashboard</div>
                 @if(User.IsInRole("Admin")) { 
-                <a href="/Admin/Index" class="flex items-center gap-3 px-2 py-2 rounded-md transition-colors group/item @(ViewContext.RouteData.Values["Action"]?.ToString() == "Index" ? "bg-gray-100 dark:bg-dark-hover text-gray-900 dark:text-white font-medium" : "text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-dark-hover hover:text-gray-900 dark:hover:text-white")">
+                <a href="/Admin/Index" onclick="if(window.innerWidth < 768) fecharMobileMenu()" class="flex items-center gap-3 px-2 py-2 rounded-md transition-colors group/item @(ViewContext.RouteData.Values["Action"]?.ToString() == "Index" ? "bg-gray-100 dark:bg-dark-hover text-gray-900 dark:text-white font-medium" : "text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-dark-hover hover:text-gray-900 dark:hover:text-white")">
                     <i class="ph ph-squares-four text-[18px] flex-shrink-0 @(ViewContext.RouteData.Values["Action"]?.ToString() == "Index" ? "text-brand-600 dark:text-brand-500" : "")"></i>
-                    <span class="opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">Visão Geral</span>
+                    <span class="md:opacity-0 md:group-hover:opacity-100 transition-opacity whitespace-nowrap">Visão Geral</span>
                 </a> }
                 
-                <div class="text-[11px] font-semibold text-gray-400 uppercase tracking-[0.05em] px-2 mb-1.5 mt-3 opacity-0 group-hover:opacity-100 transition-opacity">Gerenciamento</div>
+                <div class="text-[11px] font-semibold text-gray-400 uppercase tracking-[0.05em] px-2 mb-1.5 mt-3 md:opacity-0 md:group-hover:opacity-100 transition-opacity">Gerenciamento</div>
                 @if(User.IsInRole("Admin") || User.IsInRole("Recursos Humanos")) { 
-                <a href="/Admin/Usuarios" class="flex items-center gap-3 px-2 py-2 rounded-md transition-colors group/item @(ViewContext.RouteData.Values["Action"]?.ToString() == "Usuarios" ? "bg-gray-100 dark:bg-dark-hover text-gray-900 dark:text-white font-medium" : "text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-dark-hover hover:text-gray-900 dark:hover:text-white")">
+                <a href="/Admin/Usuarios" onclick="if(window.innerWidth < 768) fecharMobileMenu()" class="flex items-center gap-3 px-2 py-2 rounded-md transition-colors group/item @(ViewContext.RouteData.Values["Action"]?.ToString() == "Usuarios" ? "bg-gray-100 dark:bg-dark-hover text-gray-900 dark:text-white font-medium" : "text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-dark-hover hover:text-gray-900 dark:hover:text-white")">
                     <i class="ph ph-users text-[18px] flex-shrink-0 @(ViewContext.RouteData.Values["Action"]?.ToString() == "Usuarios" ? "text-brand-600 dark:text-brand-500" : "")"></i>
-                    <span class="opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">Diretório de Usuários</span>
+                    <span class="md:opacity-0 md:group-hover:opacity-100 transition-opacity whitespace-nowrap">Diretório de Usuários</span>
                 </a> }
                 @if(User.IsInRole("Admin")) { 
-                <a href="/Admin/Politicas" class="flex items-center gap-3 px-2 py-2 rounded-md transition-colors group/item @(ViewContext.RouteData.Values["Action"]?.ToString() == "Politicas" ? "bg-gray-100 dark:bg-dark-hover text-gray-900 dark:text-white font-medium" : "text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-dark-hover hover:text-gray-900 dark:hover:text-white")">
+                <a href="/Admin/Politicas" onclick="if(window.innerWidth < 768) fecharMobileMenu()" class="flex items-center gap-3 px-2 py-2 rounded-md transition-colors group/item @(ViewContext.RouteData.Values["Action"]?.ToString() == "Politicas" ? "bg-gray-100 dark:bg-dark-hover text-gray-900 dark:text-white font-medium" : "text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-dark-hover hover:text-gray-900 dark:hover:text-white")">
                     <i class="ph ph-shield-check text-[18px] flex-shrink-0 @(ViewContext.RouteData.Values["Action"]?.ToString() == "Politicas" ? "text-brand-600 dark:text-brand-500" : "")"></i>
-                    <span class="opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">Políticas de Acesso</span>
+                    <span class="md:opacity-0 md:group-hover:opacity-100 transition-opacity whitespace-nowrap">Políticas de Acesso</span>
                 </a> 
-                <a href="/Admin/Perfis" class="flex items-center gap-3 px-2 py-2 rounded-md transition-colors group/item @(ViewContext.RouteData.Values["Action"]?.ToString() == "Perfis" ? "bg-gray-100 dark:bg-dark-hover text-gray-900 dark:text-white font-medium" : "text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-dark-hover hover:text-gray-900 dark:hover:text-white")">
+                <a href="/Admin/Perfis" onclick="if(window.innerWidth < 768) fecharMobileMenu()" class="flex items-center gap-3 px-2 py-2 rounded-md transition-colors group/item @(ViewContext.RouteData.Values["Action"]?.ToString() == "Perfis" ? "bg-gray-100 dark:bg-dark-hover text-gray-900 dark:text-white font-medium" : "text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-dark-hover hover:text-gray-900 dark:hover:text-white")">
                     <i class="ph ph-identification-card text-[18px] flex-shrink-0 @(ViewContext.RouteData.Values["Action"]?.ToString() == "Perfis" ? "text-brand-600 dark:text-brand-500" : "")"></i>
-                    <span class="opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">Perfis & Permissões</span>
+                    <span class="md:opacity-0 md:group-hover:opacity-100 transition-opacity whitespace-nowrap">Perfis & Permissões</span>
                 </a> }
                 
-                <div class="text-[11px] font-semibold text-gray-400 uppercase tracking-[0.05em] px-2 mb-1.5 mt-3 opacity-0 group-hover:opacity-100 transition-opacity">Operações</div>
+                <div class="text-[11px] font-semibold text-gray-400 uppercase tracking-[0.05em] px-2 mb-1.5 mt-3 md:opacity-0 md:group-hover:opacity-100 transition-opacity">Operações</div>
                 @if(User.IsInRole("Admin") || User.IsInRole("Help Desk")) { 
-                <a href="/Admin/Chamados" class="flex items-center gap-3 px-2 py-2 rounded-md transition-colors group/item @(ViewContext.RouteData.Values["Action"]?.ToString() == "Chamados" ? "bg-gray-100 dark:bg-dark-hover text-gray-900 dark:text-white font-medium" : "text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-dark-hover hover:text-gray-900 dark:hover:text-white")">
+                <a href="/Admin/Chamados" onclick="if(window.innerWidth < 768) fecharMobileMenu()" class="flex items-center gap-3 px-2 py-2 rounded-md transition-colors group/item @(ViewContext.RouteData.Values["Action"]?.ToString() == "Chamados" ? "bg-gray-100 dark:bg-dark-hover text-gray-900 dark:text-white font-medium" : "text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-dark-hover hover:text-gray-900 dark:hover:text-white")">
                     <div class="relative flex-shrink-0">
                         <i class="ph ph-headset text-[18px] @(ViewContext.RouteData.Values["Action"]?.ToString() == "Chamados" ? "text-brand-600 dark:text-brand-500" : "")"></i>
                         <div class="absolute -top-1 -right-1 w-2 h-2 bg-brand-500 rounded-full border border-white dark:border-dark-card"></div>
                     </div>
-                    <span class="opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">Fila de Chamados</span>
+                    <span class="md:opacity-0 md:group-hover:opacity-100 transition-opacity whitespace-nowrap">Fila de Chamados</span>
                 </a> }
                 @if(User.IsInRole("Admin")) { 
-                <a href="/Admin/Cloud" class="flex items-center gap-3 px-2 py-2 rounded-md transition-colors group/item @(ViewContext.RouteData.Values["Action"]?.ToString() == "Cloud" ? "bg-gray-100 dark:bg-dark-hover text-gray-900 dark:text-white font-medium" : "text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-dark-hover hover:text-gray-900 dark:hover:text-white")">
+                <a href="/Admin/Cloud" onclick="if(window.innerWidth < 768) fecharMobileMenu()" class="flex items-center gap-3 px-2 py-2 rounded-md transition-colors group/item @(ViewContext.RouteData.Values["Action"]?.ToString() == "Cloud" ? "bg-gray-100 dark:bg-dark-hover text-gray-900 dark:text-white font-medium" : "text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-dark-hover hover:text-gray-900 dark:hover:text-white")">
                     <i class="ph ph-desktop text-[18px] flex-shrink-0 @(ViewContext.RouteData.Values["Action"]?.ToString() == "Cloud" ? "text-brand-600 dark:text-brand-500" : "")"></i>
-                    <span class="opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">Infraestrutura & Endpoints</span>
+                    <span class="md:opacity-0 md:group-hover:opacity-100 transition-opacity whitespace-nowrap">Infraestrutura & Endpoints</span>
                 </a> 
-                <a href="/Admin/Integracoes" class="flex items-center gap-3 px-2 py-2 rounded-md transition-colors group/item @(ViewContext.RouteData.Values["Action"]?.ToString() == "Integracoes" ? "bg-gray-100 dark:bg-dark-hover text-gray-900 dark:text-white font-medium" : "text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-dark-hover hover:text-gray-900 dark:hover:text-white")">
+                <a href="/Admin/Integracoes" onclick="if(window.innerWidth < 768) fecharMobileMenu()" class="flex items-center gap-3 px-2 py-2 rounded-md transition-colors group/item @(ViewContext.RouteData.Values["Action"]?.ToString() == "Integracoes" ? "bg-gray-100 dark:bg-dark-hover text-gray-900 dark:text-white font-medium" : "text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-dark-hover hover:text-gray-900 dark:hover:text-white")">
                     <i class="ph ph-plugs-connected text-[18px] flex-shrink-0 @(ViewContext.RouteData.Values["Action"]?.ToString() == "Integracoes" ? "text-brand-600 dark:text-brand-500" : "")"></i>
-                    <span class="opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">Módulos & APIs</span>
+                    <span class="md:opacity-0 md:group-hover:opacity-100 transition-opacity whitespace-nowrap">Módulos & APIs</span>
                 </a> }
                 
-                <div class="text-[11px] font-semibold text-gray-400 uppercase tracking-[0.05em] px-2 mb-1.5 mt-3 opacity-0 group-hover:opacity-100 transition-opacity">Sistema</div>
+                <div class="text-[11px] font-semibold text-gray-400 uppercase tracking-[0.05em] px-2 mb-1.5 mt-3 md:opacity-0 md:group-hover:opacity-100 transition-opacity">Sistema</div>
                 @if(User.IsInRole("Admin")) { 
-                <a href="/Admin/Logs" class="flex items-center gap-3 px-2 py-2 rounded-md transition-colors group/item @(ViewContext.RouteData.Values["Action"]?.ToString() == "Logs" ? "bg-gray-100 dark:bg-dark-hover text-gray-900 dark:text-white font-medium" : "text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-dark-hover hover:text-gray-900 dark:hover:text-white")">
+                <a href="/Admin/Logs" onclick="if(window.innerWidth < 768) fecharMobileMenu()" class="flex items-center gap-3 px-2 py-2 rounded-md transition-colors group/item @(ViewContext.RouteData.Values["Action"]?.ToString() == "Logs" ? "bg-gray-100 dark:bg-dark-hover text-gray-900 dark:text-white font-medium" : "text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-dark-hover hover:text-gray-900 dark:hover:text-white")">
                     <i class="ph ph-list-magnifying-glass text-[18px] flex-shrink-0 @(ViewContext.RouteData.Values["Action"]?.ToString() == "Logs" ? "text-brand-600 dark:text-brand-500" : "")"></i>
-                    <span class="opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">Audit Logs</span>
+                    <span class="md:opacity-0 md:group-hover:opacity-100 transition-opacity whitespace-nowrap">Audit Logs</span>
                 </a> 
-                <a href="/Admin/Inteligencia" class="flex items-center gap-3 px-2 py-2 rounded-md transition-colors group/item @(ViewContext.RouteData.Values["Action"]?.ToString() == "Inteligencia" ? "bg-gray-100 dark:bg-dark-hover text-gray-900 dark:text-white font-medium" : "text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-dark-hover hover:text-gray-900 dark:hover:text-white")">
+                <a href="/Admin/Inteligencia" onclick="if(window.innerWidth < 768) fecharMobileMenu()" class="flex items-center gap-3 px-2 py-2 rounded-md transition-colors group/item @(ViewContext.RouteData.Values["Action"]?.ToString() == "Inteligencia" ? "bg-gray-100 dark:bg-dark-hover text-gray-900 dark:text-white font-medium" : "text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-dark-hover hover:text-gray-900 dark:hover:text-white")">
                     <i class="ph ph-shield-warning text-[18px] flex-shrink-0 text-brand-500"></i>
-                    <span class="opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap text-brand-500 font-medium">SecOps AI & Defesa</span>
+                    <span class="md:opacity-0 md:group-hover:opacity-100 transition-opacity whitespace-nowrap text-brand-500 font-medium">SecOps AI & Defesa</span>
                 </a> 
-                <a href="/Admin/Configuracoes" class="flex items-center gap-3 px-2 py-2 rounded-md transition-colors group/item @(ViewContext.RouteData.Values["Action"]?.ToString() == "Configuracoes" ? "bg-gray-100 dark:bg-dark-hover text-gray-900 dark:text-white font-medium" : "text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-dark-hover hover:text-gray-900 dark:hover:text-white")">
+                <a href="/Admin/Configuracoes" onclick="if(window.innerWidth < 768) fecharMobileMenu()" class="flex items-center gap-3 px-2 py-2 rounded-md transition-colors group/item @(ViewContext.RouteData.Values["Action"]?.ToString() == "Configuracoes" ? "bg-gray-100 dark:bg-dark-hover text-gray-900 dark:text-white font-medium" : "text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-dark-hover hover:text-gray-900 dark:hover:text-white")">
                     <i class="ph ph-gear text-[18px] flex-shrink-0 @(ViewContext.RouteData.Values["Action"]?.ToString() == "Configuracoes" ? "text-brand-600 dark:text-brand-500" : "")"></i>
-                    <span class="opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">Configurações</span>
+                    <span class="md:opacity-0 md:group-hover:opacity-100 transition-opacity whitespace-nowrap">Configurações</span>
                 </a> }
             </nav>
 
             <!-- Bottom Actions -->
             <div class="p-3 border-t border-gray-200 dark:border-dark-border flex flex-col gap-1">
-                <a href="/Portal/MinhaConta" class="flex items-center gap-3 px-2 py-2 rounded-md text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-dark-hover hover:text-gray-900 dark:hover:text-white transition-colors" title="Meu Perfil">
+                <a href="/Portal/MinhaConta" onclick="if(window.innerWidth < 768) fecharMobileMenu()" class="flex items-center gap-3 px-2 py-2 rounded-md text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-dark-hover hover:text-gray-900 dark:hover:text-white transition-colors" title="Meu Perfil">
                     <div class="w-8 h-8 rounded-md bg-brand-600 flex-shrink-0 flex items-center justify-center text-white font-bold text-[11px]">AD</div>
-                    <div class="flex-1 overflow-hidden opacity-0 group-hover:opacity-100 transition-opacity">
+                    <div class="flex-1 overflow-hidden md:opacity-0 md:group-hover:opacity-100 transition-opacity">
                         <p class="text-[13px] font-medium text-gray-900 dark:text-white truncate">@(User.Identity?.Name ?? Context.Request.Cookies["LoggedUser"] ?? "Administrador")</p>
                         <p class="text-[10px] text-gray-400">Minha Conta</p>
                     </div>
                 </a>
                 <a href="/Auth/Logout" class="flex items-center gap-3 px-2 py-1.5 rounded-md text-red-500 hover:bg-red-500/10 transition-colors" title="Sair do Sistema">
                     <i class="ph ph-sign-out text-[18px] flex-shrink-0"></i>
-                    <span class="opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap text-[12px] font-medium">Encerrar Sessão</span>
+                    <span class="md:opacity-0 md:group-hover:opacity-100 transition-opacity whitespace-nowrap text-[12px] font-medium">Encerrar Sessão</span>
                 </a>
             </div>
         </div>
     </aside>
 
-    <main class="flex-1 flex flex-col min-w-0 bg-gray-50 dark:bg-dark-bg ml-16 md:ml-0 transition-all">
+    <main class="flex-1 flex flex-col min-w-0 bg-gray-50 dark:bg-dark-bg w-full transition-all">
         
-        <!-- Header -->
-        <header class="h-14 bg-white/50 dark:bg-dark-card/50 backdrop-blur-md border-b border-gray-200 dark:border-dark-border flex items-center justify-between px-6 flex-shrink-0 sticky top-0 z-20">
-            <div class="flex items-center gap-4">
-                <h1 class="font-semibold text-gray-900 dark:text-white text-[16px]">@ViewData["Title"]</h1>
-                <div class="h-4 w-px bg-gray-300 dark:bg-gray-700"></div>
-                <span class="text-[12px] font-medium text-emerald-600 dark:text-emerald-500 flex items-center gap-1.5 uppercase tracking-wider">
+        <!-- Header Responsivo -->
+        <header class="h-14 bg-white/50 dark:bg-dark-card/50 backdrop-blur-md border-b border-gray-200 dark:border-dark-border flex items-center justify-between px-3 sm:px-6 flex-shrink-0 sticky top-0 z-20">
+            <div class="flex items-center gap-2 sm:gap-4 min-w-0">
+                <!-- Botão Menu Hambúrguer (Mobile) -->
+                <button type="button" onclick="abrirMobileMenu()" class="md:hidden p-1.5 -ml-1 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-dark-hover rounded-[6px] transition-colors cursor-pointer" aria-label="Abrir Menu">
+                    <i class="ph ph-list text-[22px]"></i>
+                </button>
+                <h1 class="font-semibold text-gray-900 dark:text-white text-[14px] sm:text-[16px] truncate">@ViewData["Title"]</h1>
+                <div class="hidden sm:block h-4 w-px bg-gray-300 dark:bg-gray-700"></div>
+                <span class="hidden sm:flex text-[12px] font-medium text-emerald-600 dark:text-emerald-500 items-center gap-1.5 uppercase tracking-wider">
                     <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span> Sistema Operacional
                 </span>
             </div>
 
-            <div class="flex items-center gap-3">
+            <div class="flex items-center gap-1.5 sm:gap-3 flex-shrink-0">
                 <!-- Barra de Busca Global Funcional -->
-                <div class="relative hidden sm:block w-72 h-8">
+                <div class="relative hidden lg:block w-64 h-8">
                     <i class="ph ph-magnifying-glass absolute left-2.5 top-1/2 -translate-y-1/2 text-gray-400"></i>
                     <input type="text" id="globalSearchInput" placeholder="Buscar ID, IP ou colaborador..." class="w-full h-full bg-gray-100 dark:bg-dark-bg border border-gray-200 dark:border-dark-border text-gray-900 dark:text-gray-100 text-[12px] rounded-[6px] pl-8 pr-3 focus:outline-none focus:border-brand-500 focus:ring-1 focus:ring-brand-500 transition-all">
                 </div>
                 
                 <!-- Controles de Acessibilidade (WCAG 2.2 / Etapa 3 PIM IV) -->
-                <div class="flex items-center gap-0.5 bg-gray-100 dark:bg-dark-card border border-gray-200 dark:border-dark-border rounded-[6px] p-0.5" title="Acessibilidade & Inclusão (WCAG 2.2)">
+                <div class="hidden sm:flex items-center gap-0.5 bg-gray-100 dark:bg-dark-card border border-gray-200 dark:border-dark-border rounded-[6px] p-0.5" title="Acessibilidade & Inclusão (WCAG 2.2)">
                     <button type="button" onclick="alterarTamanhoFonte(1)" class="w-7 h-7 flex items-center justify-center rounded text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-dark-border text-xs font-bold transition-colors cursor-pointer" title="Aumentar Fonte (A+)">A+</button>
                     <button type="button" onclick="alterarTamanhoFonte(-1)" class="w-7 h-7 flex items-center justify-center rounded text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-dark-border text-xs font-bold transition-colors cursor-pointer" title="Diminuir Fonte (A-)">A-</button>
-                    <button type="button" onclick="alternarAltoContraste()" class="w-7 h-7 flex items-center justify-center rounded text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-dark-border transition-colors cursor-pointer" title="Alternar Modo Alto Contraste">
+                    <button type="button" onclick="alternarAltoContraste()" class="w-7 h-7 flex items-center justify-center rounded text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-dark-border text-xs transition-colors cursor-pointer" title="Alternar Modo Alto Contraste">
                         <i class="ph ph-circle-half text-[15px]"></i>
                     </button>
                 </div>
@@ -204,13 +214,13 @@
                 </button>
                 
                 <!-- Botão + Nova Issue / Chamado Totalmente Funcional -->
-                <button type="button" onclick="abrirModalNovaIssue()" class="bg-brand-600 hover:bg-[#1D4ED8] text-white text-[12px] font-medium px-3.5 py-1.5 rounded-[6px] shadow-sm transition-colors flex items-center gap-1.5 cursor-pointer">
-                    <i class="ph ph-plus font-bold"></i> Nova Issue
+                <button type="button" onclick="abrirModalNovaIssue()" class="bg-brand-600 hover:bg-[#1D4ED8] text-white text-[12px] font-medium px-2.5 sm:px-3.5 py-1.5 rounded-[6px] shadow-sm transition-colors flex items-center gap-1.5 cursor-pointer">
+                    <i class="ph ph-plus font-bold"></i> <span class="hidden sm:inline">Nova Issue</span>
                 </button>
             </div>
         </header>
 
-        <div class="flex-1 overflow-auto p-4 md:p-[32px] relative">
+        <div class="flex-1 overflow-y-auto overflow-x-hidden p-3 sm:p-5 md:p-[32px] relative">
             <div class="max-w-[1400px] mx-auto h-full flex flex-col">
                 @RenderBody()
             </div>
@@ -406,6 +416,27 @@
             document.documentElement.classList.add('high-contrast');
         }
         aplicarFonte();
+
+        // Controle do Menu Mobile (Off-Canvas Drawer)
+        function abrirMobileMenu() {
+            const sidebar = document.getElementById('appSidebar');
+            const backdrop = document.getElementById('mobileBackdrop');
+            if (sidebar) {
+                sidebar.classList.remove('-translate-x-full');
+                sidebar.classList.add('translate-x-0');
+            }
+            if (backdrop) backdrop.classList.remove('hidden');
+        }
+
+        function fecharMobileMenu() {
+            const sidebar = document.getElementById('appSidebar');
+            const backdrop = document.getElementById('mobileBackdrop');
+            if (sidebar) {
+                sidebar.classList.add('-translate-x-full');
+                sidebar.classList.remove('translate-x-0');
+            }
+            if (backdrop) backdrop.classList.add('hidden');
+        }
     </script>
 
     @RenderSection("Scripts", required: false)

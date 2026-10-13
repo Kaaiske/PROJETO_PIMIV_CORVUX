@@ -4,22 +4,22 @@
     ViewData["Title"] = "Diretório de Usuários";
 }
 
-<div class="mb-[24px] flex justify-between items-end">
+<div class="mb-[24px] flex flex-col sm:flex-row sm:items-end justify-between gap-3">
     <div>
         <h1 class="text-[16px] font-[600] text-gray-900 dark:text-white flex items-center gap-2">
             <i class="ph ph-users text-brand-500"></i> Diretório Corporativo
         </h1>
         <p class="text-[12px] text-gray-500 dark:text-gray-400 mt-1">Gerenciamento de identidades, credenciais e controle de acesso</p>
     </div>
-    <div class="flex gap-2">
-        <div class="relative">
+    <div class="flex flex-wrap sm:flex-nowrap items-center gap-2 w-full sm:w-auto">
+        <div class="relative flex-1 sm:flex-initial w-full sm:w-[200px]">
             <i class="ph ph-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"></i>
-            <input type="text" id="searchInput" placeholder="Buscar colaborador..." class="bg-white dark:bg-dark-card border border-gray-200 dark:border-dark-border text-gray-900 dark:text-gray-100 text-[12px] rounded-[6px] pl-9 pr-3 py-1.5 outline-none focus:border-brand-500 transition-colors w-[200px] shadow-sm" />
+            <input type="text" id="searchInput" placeholder="Buscar colaborador..." class="bg-white dark:bg-dark-card border border-gray-200 dark:border-dark-border text-gray-900 dark:text-gray-100 text-[12px] rounded-[6px] pl-9 pr-3 py-1.5 outline-none focus:border-brand-500 transition-colors w-full shadow-sm" />
         </div>
-        <a href="/Admin/ExportarUsuariosCsv" class="bg-gray-100 hover:bg-gray-200 dark:bg-dark-card dark:hover:bg-dark-hover border border-gray-300 dark:border-dark-border text-gray-800 dark:text-gray-200 text-[12px] font-medium px-3 py-1.5 rounded-[6px] shadow-sm transition-colors flex items-center gap-1.5">
-            <i class="ph ph-file-csv text-[16px] text-emerald-500"></i> Exportar CSV
+        <a href="/Admin/ExportarUsuariosCsv" class="bg-gray-100 hover:bg-gray-200 dark:bg-dark-card dark:hover:bg-dark-hover border border-gray-300 dark:border-dark-border text-gray-800 dark:text-gray-200 text-[12px] font-medium px-3 py-1.5 rounded-[6px] shadow-sm transition-colors flex items-center justify-center gap-1.5 flex-1 sm:flex-initial">
+            <i class="ph ph-file-csv text-[16px] text-emerald-500"></i> <span class="hidden xs:inline sm:inline">Exportar</span> CSV
         </a>
-        <button onclick="openModal('newUserModal')" class="bg-brand-600 hover:bg-[#1D4ED8] text-white text-[12px] font-medium px-3 py-1.5 rounded-[6px] shadow-sm transition-colors flex items-center gap-1.5 cursor-pointer">
+        <button onclick="openModal('newUserModal')" class="bg-brand-600 hover:bg-[#1D4ED8] text-white text-[12px] font-medium px-3 py-1.5 rounded-[6px] shadow-sm transition-colors flex items-center justify-center gap-1.5 cursor-pointer flex-1 sm:flex-initial">
             <i class="ph ph-user-plus"></i> Novo Usuário
         </button>
     </div>
@@ -77,8 +77,8 @@
 <!-- Modal Overlay -->
 <div id="modalOverlay" class="fixed inset-0 bg-black/80 z-[100] hidden items-center justify-center p-4 backdrop-blur-sm transition-opacity">
     <!-- Novo Usuário Modal -->
-    <div id="newUserModal" class="hidden bg-white dark:bg-dark-card border border-gray-200 dark:border-dark-border rounded-[8px] shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-hidden flex-col">
-        <div class="px-6 py-4 border-b border-gray-200 dark:border-dark-border flex justify-between items-center bg-gray-50 dark:bg-dark-bg/50">
+    <div id="newUserModal" class="hidden bg-white dark:bg-dark-card border border-gray-200 dark:border-dark-border rounded-[8px] shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-hidden flex-col mx-2 sm:mx-0">
+        <div class="px-4 sm:px-6 py-3 sm:py-4 border-b border-gray-200 dark:border-dark-border flex justify-between items-center bg-gray-50 dark:bg-dark-bg/50">
             <h3 class="text-[14px] font-[600] text-gray-900 dark:text-white flex items-center gap-2">
                 <i class="ph ph-user-plus text-brand-500"></i> Integração de Novo Colaborador
             </h3>
@@ -86,13 +86,13 @@
                 <i class="ph ph-x text-[16px]"></i>
             </button>
         </div>
-        <div class="p-6 overflow-y-auto">
+        <div class="p-4 sm:p-6 overflow-y-auto">
             <form onsubmit="adicionarUsuario(event)" class="space-y-6">
                 <div>
                     <h4 class="text-[12px] font-[600] text-brand-500 uppercase tracking-[0.05em] border-b border-gray-200 dark:border-dark-border pb-2 mb-4">Dados Pessoais & Diversidade (Etapa 3)</h4>
-                    <div class="grid grid-cols-2 gap-4">
-                        <input type="text" id="nome" placeholder="Nome Completo" required class="col-span-2 form-control text-[13px]" />
-                        <input type="text" id="nomeSocial" placeholder="Nome Social / Pronome (Inclusão e Diversidade - Opcional)" class="col-span-2 form-control text-[13px] border-dashed" />
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+                        <input type="text" id="nome" placeholder="Nome Completo" required class="col-span-1 sm:col-span-2 form-control text-[13px]" />
+                        <input type="text" id="nomeSocial" placeholder="Nome Social / Pronome (Inclusão e Diversidade - Opcional)" class="col-span-1 sm:col-span-2 form-control text-[13px] border-dashed" />
                         <div>
                             <input type="text" id="cpf" placeholder="CPF (000.000.000-00)" required oninput="aoDigitarCpf(event)" maxlength="14" class="form-control text-[13px]" />
                             <div id="cpfStatusBadge" class="text-[11px] mt-1 font-medium hidden"></div>
@@ -102,22 +102,22 @@
                         <input type="text" id="telefone" placeholder="Telefone / Celular" required class="form-control text-[13px]" />
                         
                         <!-- Integracao ViaCEP -->
-                        <div class="col-span-2 grid grid-cols-3 gap-2">
+                        <div class="col-span-1 sm:col-span-2 grid grid-cols-1 sm:grid-cols-3 gap-2">
                             <div class="col-span-1">
                                 <input type="text" id="cep" placeholder="CEP (00000-000)" oninput="consultarCepApi(event)" maxlength="9" class="form-control text-[13px]" />
                             </div>
-                            <div class="col-span-2">
+                            <div class="col-span-1 sm:col-span-2">
                                 <input type="text" id="endereco" placeholder="Endereço (Autopreenchido via ViaCEP)" required class="form-control text-[13px]" />
                             </div>
                         </div>
-                        <input type="email" id="emailPessoal" placeholder="E-mail Pessoal" class="col-span-2 form-control text-[13px]" />
+                        <input type="email" id="emailPessoal" placeholder="E-mail Pessoal" class="col-span-1 sm:col-span-2 form-control text-[13px]" />
                     </div>
                 </div>
 
                 <div>
                     <h4 class="text-[12px] font-[600] text-brand-500 uppercase tracking-[0.05em] border-b border-gray-200 dark:border-dark-border pb-2 mb-4">Contrato Corporativo</h4>
-                    <div class="grid grid-cols-2 gap-4">
-                        <input type="text" id="departamento" placeholder="Departamento / Setor" required class="form-control text-[13px]" />
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+                        <input type="text" id="departamento" placeholder="Setor / Departamento" required class="form-control text-[13px]" />
                         <div class="flex gap-2">
                             <input type="text" id="cargo" placeholder="Cargo / Função" required list="cargosList" class="form-control text-[13px]" />
                             <datalist id="cargosList">
@@ -148,8 +148,8 @@
     </div>
 
     <!-- Editar Usuário Modal -->
-    <div id="editUserModal" class="hidden bg-white dark:bg-dark-card border border-gray-200 dark:border-dark-border rounded-[8px] shadow-2xl w-full max-w-xl max-h-[90vh] overflow-hidden flex-col">
-        <div class="px-6 py-4 border-b border-gray-200 dark:border-dark-border flex justify-between items-center bg-gray-50 dark:bg-dark-bg/50">
+    <div id="editUserModal" class="hidden bg-white dark:bg-dark-card border border-gray-200 dark:border-dark-border rounded-[8px] shadow-2xl w-full max-w-xl max-h-[90vh] overflow-hidden flex-col mx-2 sm:mx-0">
+        <div class="px-4 sm:px-6 py-3 sm:py-4 border-b border-gray-200 dark:border-dark-border flex justify-between items-center bg-gray-50 dark:bg-dark-bg/50">
             <h3 class="text-[14px] font-[600] text-gray-900 dark:text-white flex items-center gap-2">
                 <i class="ph ph-pencil-simple text-brand-500"></i> Editar Colaborador
             </h3>
@@ -157,16 +157,16 @@
                 <i class="ph ph-x text-[16px]"></i>
             </button>
         </div>
-        <div class="p-6 overflow-y-auto">
+        <div class="p-4 sm:p-6 overflow-y-auto">
             <form onsubmit="salvarEdicao(event)" class="space-y-4">
                 <input type="hidden" id="editId" />
-                <div class="grid grid-cols-2 gap-4">
-                    <input type="text" id="editNome" placeholder="Nome Completo" required class="col-span-2 form-control text-[13px]" />
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+                    <input type="text" id="editNome" placeholder="Nome Completo" required class="col-span-1 sm:col-span-2 form-control text-[13px]" />
                     <input type="text" id="editTelefone" placeholder="Telefone" required class="form-control text-[13px]" />
-                    <input type="text" id="editDepartamento" placeholder="Departamento" required class="col-span-2 form-control text-[13px]" />
+                    <input type="text" id="editDepartamento" placeholder="Departamento" required class="form-control text-[13px]" />
                     <input type="text" id="editCpf" placeholder="CPF" required oninput="maskCPF(event)" maxlength="14" class="form-control text-[13px]" />
-                    <input type="text" id="editCargo" placeholder="Cargo" required class="col-span-2 form-control text-[13px]" />
-                    <select id="editPerfil" class="col-span-2 form-control text-[13px]">
+                    <input type="text" id="editCargo" placeholder="Cargo" required class="form-control text-[13px]" />
+                    <select id="editPerfil" class="col-span-1 sm:col-span-2 form-control text-[13px]">
                         <option value="Colaborador">Tipo: Usuário Padrão</option>
                         <option value="Recursos Humanos">Tipo: Recursos Humanos (RH)</option>
                         <option value="Contabilidade">Tipo: Contabilidade</option>
