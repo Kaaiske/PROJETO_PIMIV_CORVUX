@@ -70,10 +70,12 @@
 
         <!-- Radar de Vulnerabilidades CVE -->
         <div class="bento-card bg-white dark:bg-dark-card border border-gray-200 dark:border-dark-border rounded-[6px] p-[20px]">
-            <h3 class="text-[12px] font-[600] text-gray-500 dark:text-gray-400 uppercase tracking-[0.05em] flex items-center justify-between m-0 mb-3">
-                <span class="flex items-center gap-1.5"><i class="ph ph-shield-warning text-orange-500 text-[16px]"></i> Radar de CVEs e Ameaças Globais</span>
+            <div class="flex items-center justify-between mb-3">
+                <h3 class="text-[12px] font-[600] text-gray-500 dark:text-gray-400 uppercase tracking-[0.05em] m-0 flex items-center gap-1.5">
+                    <i class="ph ph-shield-warning text-orange-500 text-[16px]"></i> Radar de CVEs e Ameaças Globais (NIST / CISA)
+                </h3>
                 <span class="text-[10px] text-emerald-500 font-mono">MITRE ATT&CK Sincronizado</span>
-            </h3>
+            </div>
             <div class="space-y-2 text-xs">
                 <div class="p-2.5 rounded bg-gray-50 dark:bg-dark-bg border border-gray-100 dark:border-dark-border flex justify-between items-center">
                     <div>
@@ -88,6 +90,13 @@
                         <p class="text-gray-500 text-[11px] m-0">Contorno de autenticação multifator via session fixation</p>
                     </div>
                     <span class="px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-500 font-semibold text-[10px] border border-emerald-500/20">Mitigado (TOTP)</span>
+                </div>
+                <div class="p-2.5 rounded bg-gray-50 dark:bg-dark-bg border border-gray-100 dark:border-dark-border flex justify-between items-center">
+                    <div>
+                        <span class="font-mono font-bold text-yellow-500">CVE-2024-43461</span>
+                        <p class="text-gray-500 text-[11px] m-0">Spoofing e elevação de privilégio no stack MS Windows</p>
+                    </div>
+                    <span class="px-2 py-0.5 rounded bg-blue-500/10 text-blue-500 font-semibold text-[10px] border border-blue-500/20">Mitigado (EDR)</span>
                 </div>
             </div>
         </div>

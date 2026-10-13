@@ -54,11 +54,43 @@
             <i class="ph ph-money"></i> Processar Folha Mensal
         </button>
         <button onclick="solicitarFeriasModal()" class="bg-gray-100 dark:bg-dark-bg border border-gray-200 dark:border-dark-border text-gray-800 dark:text-gray-200 text-[12px] font-medium px-4 py-2 rounded-[6px] hover:bg-gray-200 dark:hover:bg-[#1B1F24] transition-colors flex items-center gap-1.5 cursor-pointer">
-            <i class="ph ph-calendar"></i> Escala de Férias
+            <i class="ph ph-calendar"></i> Escala de Férias (com Feriados API)
         </button>
         <a href="/Portal/ExportarEspelhoPonto" class="bg-gray-100 dark:bg-dark-bg border border-gray-200 dark:border-dark-border text-gray-800 dark:text-gray-200 text-[12px] font-medium px-4 py-2 rounded-[6px] hover:bg-gray-200 dark:hover:bg-[#1B1F24] transition-colors flex items-center gap-1.5 cursor-pointer no-underline">
             <i class="ph ph-clock"></i> Exportar Espelho de Ponto (AFD)
         </a>
+    </div>
+</div>
+
+<!-- Painel de Feriados Oficiais & Calendário Trabalhista (BrasilAPI) -->
+<div class="bento-card bg-white dark:bg-dark-card border border-gray-200 dark:border-dark-border rounded-[6px] p-[20px] mb-[24px]">
+    <div class="flex justify-between items-center mb-3">
+        <h3 class="text-[12px] font-[600] text-gray-500 dark:text-gray-400 uppercase tracking-[0.05em] m-0 flex items-center gap-2">
+            <i class="ph ph-calendar-check text-brand-500 text-[16px]"></i> Calendário Oficial de Feriados Nacionais (BrasilAPI)
+        </h3>
+        <span class="text-[10px] font-mono text-brand-500 bg-brand-500/10 border border-brand-500/20 px-2 py-0.5 rounded">Ano Vigente (@DateTime.UtcNow.Year)</span>
+    </div>
+    <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2 text-xs" id="feriadosListContainer">
+        <div class="p-2 rounded bg-gray-50 dark:bg-dark-bg border border-gray-100 dark:border-dark-border text-center">
+            <span class="font-mono text-brand-500 text-[11px] block">01/01</span>
+            <span class="text-gray-700 dark:text-gray-300 font-medium">Confraternização</span>
+        </div>
+        <div class="p-2 rounded bg-gray-50 dark:bg-dark-bg border border-gray-100 dark:border-dark-border text-center">
+            <span class="font-mono text-brand-500 text-[11px] block">21/04</span>
+            <span class="text-gray-700 dark:text-gray-300 font-medium">Tiradentes</span>
+        </div>
+        <div class="p-2 rounded bg-gray-50 dark:bg-dark-bg border border-gray-100 dark:border-dark-border text-center">
+            <span class="font-mono text-brand-500 text-[11px] block">01/05</span>
+            <span class="text-gray-700 dark:text-gray-300 font-medium">Dia do Trabalho</span>
+        </div>
+        <div class="p-2 rounded bg-gray-50 dark:bg-dark-bg border border-gray-100 dark:border-dark-border text-center">
+            <span class="font-mono text-brand-500 text-[11px] block">07/09</span>
+            <span class="text-gray-700 dark:text-gray-300 font-medium">Independência</span>
+        </div>
+        <div class="p-2 rounded bg-gray-50 dark:bg-dark-bg border border-gray-100 dark:border-dark-border text-center">
+            <span class="font-mono text-brand-500 text-[11px] block">20/11</span>
+            <span class="text-gray-700 dark:text-gray-300 font-medium">Consciência Negra</span>
+        </div>
     </div>
 </div>
 
@@ -154,9 +186,30 @@
             }
         }
 
+        async function carregarFeriadosAno() {
+            try {
+                const ano = new Date().getFullYear();
+                const res = await fetch(`/api/public/feriados/${ano}`);
+                if (res.ok) {
+                    const list = await res.json();
+                    if (Array.isArray(list) && list.length > 0) {
+                        const container = document.getElementById('feriadosListContainer');
+                        const html = list.slice(0, 10).map(f => `
+                            <div class="p-2 rounded bg-gray-50 dark:bg-dark-bg border border-gray-100 dark:border-dark-border text-center">
+                                <span class="font-mono text-brand-500 text-[11px] block">${f.date.substring(8, 10)}/${f.date.substring(5, 7)}</span>
+                                <span class="text-gray-700 dark:text-gray-300 font-medium truncate block" title="${f.name}">${f.name}</span>
+                            </div>
+                        `).join('');
+                        container.innerHTML = html;
+                    }
+                }
+            } catch(e) {}
+        }
+        window.addEventListener('DOMContentLoaded', carregarFeriadosAno);
+
         async function solicitarFeriasModal() {
             const { value: formValues } = await Swal.fire({
-                title: 'Programação de Férias',
+                title: 'Programação de Férias (com Feriados API)',
                 html: `
                     <div class="text-left space-y-3">
                         <div>
@@ -166,6 +219,7 @@
                         <div>
                             <label class="text-xs text-gray-400 block mb-1">Início das Férias</label>
                             <input id="ferInicio" type="date" class="swal2-input !m-0 !w-full bg-gray-900 text-white text-xs">
+                            <div id="feriadoAviso" class="text-[11px] mt-1 text-emerald-400 font-mono"></div>
                         </div>
                         <div>
                             <label class="text-xs text-gray-400 block mb-1">Dias Concedidos</label>
@@ -182,6 +236,29 @@
                 confirmButtonText: 'Autorizar Férias',
                 cancelButtonText: 'Cancelar',
                 background: '#121418', color: '#fff',
+                didOpen: () => {
+                    document.getElementById('ferInicio').addEventListener('change', async (e) => {
+                        const val = e.target.value;
+                        if (!val) return;
+                        const ano = val.split('-')[0];
+                        const aviso = document.getElementById('feriadoAviso');
+                        aviso.innerText = 'Checando feriados nacionais (BrasilAPI)...';
+                        try {
+                            const res = await fetch(`/api/public/feriados/${ano}`);
+                            if (res.ok) {
+                                const feriados = await res.json();
+                                const proximo = feriados.find(f => f.date >= val);
+                                if (proximo) {
+                                    aviso.innerHTML = `ℹ️ Próximo feriado: <b>${proximo.name}</b> (${proximo.date.substring(8, 10)}/${proximo.date.substring(5, 7)})`;
+                                } else {
+                                    aviso.innerText = '✓ Período sem sobreposição com feriados nacionais.';
+                                }
+                            }
+                        } catch(err) {
+                            aviso.innerText = '';
+                        }
+                    });
+                },
                 preConfirm: () => {
                     const colab = document.getElementById('ferColab').value;
                     const inicio = document.getElementById('ferInicio').value;

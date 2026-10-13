@@ -89,14 +89,27 @@
         <div class="p-6 overflow-y-auto">
             <form onsubmit="adicionarUsuario(event)" class="space-y-6">
                 <div>
-                    <h4 class="text-[12px] font-[600] text-brand-500 uppercase tracking-[0.05em] border-b border-gray-200 dark:border-dark-border pb-2 mb-4">Dados Pessoais</h4>
+                    <h4 class="text-[12px] font-[600] text-brand-500 uppercase tracking-[0.05em] border-b border-gray-200 dark:border-dark-border pb-2 mb-4">Dados Pessoais & Diversidade (Etapa 3)</h4>
                     <div class="grid grid-cols-2 gap-4">
                         <input type="text" id="nome" placeholder="Nome Completo" required class="col-span-2 form-control text-[13px]" />
-                        <input type="text" id="cpf" placeholder="CPF" required oninput="maskCPF(event)" maxlength="14" class="form-control text-[13px]" />
+                        <input type="text" id="nomeSocial" placeholder="Nome Social / Pronome (Inclusão e Diversidade - Opcional)" class="col-span-2 form-control text-[13px] border-dashed" />
+                        <div>
+                            <input type="text" id="cpf" placeholder="CPF (000.000.000-00)" required oninput="aoDigitarCpf(event)" maxlength="14" class="form-control text-[13px]" />
+                            <div id="cpfStatusBadge" class="text-[11px] mt-1 font-medium hidden"></div>
+                        </div>
                         <input type="text" id="rg" placeholder="RG" required oninput="maskRG(event)" maxlength="12" class="form-control text-[13px]" />
                         <input type="date" id="datanasc" required title="Data de Nascimento" class="form-control text-[13px]" />
                         <input type="text" id="telefone" placeholder="Telefone / Celular" required class="form-control text-[13px]" />
-                        <input type="text" id="endereco" placeholder="Endereço Completo" required class="col-span-2 form-control text-[13px]" />
+                        
+                        <!-- Integracao ViaCEP -->
+                        <div class="col-span-2 grid grid-cols-3 gap-2">
+                            <div class="col-span-1">
+                                <input type="text" id="cep" placeholder="CEP (00000-000)" oninput="consultarCepApi(event)" maxlength="9" class="form-control text-[13px]" />
+                            </div>
+                            <div class="col-span-2">
+                                <input type="text" id="endereco" placeholder="Endereço (Autopreenchido via ViaCEP)" required class="form-control text-[13px]" />
+                            </div>
+                        </div>
                         <input type="email" id="emailPessoal" placeholder="E-mail Pessoal" class="col-span-2 form-control text-[13px]" />
                     </div>
                 </div>
@@ -217,6 +230,64 @@
             v = v.replace(/(\d{3})(\d)/,"$1.$2");
             v = v.replace(/(\d{3})(\d{1,2})$/,"$1-$2");
             e.target.value = v;
+            return v;
+        }
+
+        function validarCpfAlgoritmo(cpf) {
+            const raw = cpf.replace(/\D/g, '');
+            if (raw.length !== 11 || /^(\d)\1{10}$/.test(raw)) return false;
+            let soma = 0, resto;
+            for (let i = 1; i <= 9; i++) soma += parseInt(raw.substring(i - 1, i)) * (11 - i);
+            resto = (soma * 10) % 11;
+            if (resto === 10 || resto === 11) resto = 0;
+            if (resto !== parseInt(raw.substring(9, 10))) return false;
+            soma = 0;
+            for (let i = 1; i <= 10; i++) soma += parseInt(raw.substring(i - 1, i)) * (12 - i);
+            resto = (soma * 10) % 11;
+            if (resto === 10 || resto === 11) resto = 0;
+            if (resto !== parseInt(raw.substring(10, 11))) return false;
+            return true;
+        }
+
+        function aoDigitarCpf(e) {
+            const v = maskCPF(e);
+            const badge = document.getElementById('cpfStatusBadge');
+            const raw = v.replace(/\D/g, '');
+            if (raw.length === 11) {
+                badge.classList.remove('hidden');
+                if (validarCpfAlgoritmo(raw)) {
+                    badge.innerHTML = '<span class="text-emerald-500 flex items-center gap-1 font-medium">✓ CPF Válido (Receita Federal - Módulo 11)</span>';
+                } else {
+                    badge.innerHTML = '<span class="text-red-500 flex items-center gap-1 font-medium">✕ CPF Inválido (Dígito Verificador Incorreto)</span>';
+                }
+            } else {
+                badge.classList.add('hidden');
+            }
+        }
+
+        async function consultarCepApi(e) {
+            let v = e.target.value.replace(/\D/g, '');
+            if (v.length > 5) v = v.substring(0, 5) + '-' + v.substring(5, 8);
+            e.target.value = v;
+
+            const raw = v.replace(/\D/g, '');
+            if (raw.length === 8) {
+                const endInput = document.getElementById('endereco');
+                endInput.placeholder = 'Consultando ViaCEP...';
+                try {
+                    const res = await fetch(`/api/public/cep/${raw}`);
+                    if (res.ok) {
+                        const data = await res.json();
+                        if (data.logradouro) {
+                            endInput.value = `${data.logradouro}, ${data.bairro || ''}, ${data.localidade} - ${data.uf}`;
+                            endInput.classList.add('border-emerald-500');
+                            setTimeout(() => endInput.classList.remove('border-emerald-500'), 1500);
+                        }
+                    }
+                } catch (err) {
+                    endInput.placeholder = 'Endereço Completo';
+                }
+            }
         }
 
         function maskRG(e) {
@@ -406,14 +477,22 @@
 
         async function excluirUsuario(id, nome, email) {
             const result = await Swal.fire({
-                title: 'Confirmar exclusão?',
-                html: `Você está prestes a excluir o colaborador <b>${nome || 'identificado'}</b> (${email || 'ID: ' + id}).<br><br>Essa ação desativa o acesso e anonimiza os dados conforme diretrizes da LGPD.<br><br><span class="text-xs text-gray-400">Esta ação é registrada no log de auditoria.</span>`,
+                title: '⚠️ AÇÃO IRREVERSÍVEL: Confirmar Exclusão?',
+                html: `
+                    <div class="text-left bg-red-950/60 border border-red-500/40 p-3 rounded-[6px] mb-3 text-xs text-red-200">
+                        <b class="text-red-400 block mb-1">AUTORIDADE EXIGIDA:</b> Apenas usuários com perfil Administrador possuem autoridade legal para realizar esta operação no sistema.
+                    </div>
+                    <div class="text-left text-xs text-gray-300 space-y-2">
+                        <p>Você está prestes a excluir o colaborador <b>${nome || 'identificado'}</b> (<span class="font-mono text-brand-400">${email || 'ID: ' + id}</span>).</p>
+                        <p><b class="text-red-400">ATENÇÃO:</b> Esta ação é permanente e irreversível. O acesso aos sistemas será imediatamente revogado, as sessões ativas serão canceladas e os dados cadastrais passarão por <b>anonimização conforme a LGPD</b>, sendo arquivados via Stored Procedure <code>sp_InativarColaborador</code>.</p>
+                    </div>
+                `,
                 icon: 'warning',
                 showCancelButton: true,
                 confirmButtonColor: '#ef4444',
                 cancelButtonColor: '#4b5563',
-                confirmButtonText: 'Confirmar exclusão',
-                cancelButtonText: 'Cancelar',
+                confirmButtonText: 'Sim, Executar Exclusão Irreversível',
+                cancelButtonText: 'Cancelar Operação',
                 background: '#121418', color: '#fff'
             });
             

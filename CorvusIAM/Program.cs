@@ -80,6 +80,7 @@ builder.Services.AddHttpClient<ITurnstileService, TurnstileService>()
     .AddPolicyHandler(GetCircuitBreakerPolicy());
 
 builder.Services.AddScoped<IEmailSenderService, EmailSenderService>();
+builder.Services.AddHttpClient();
 
 // CORS for corvuxiam.tech
 builder.Services.AddCors(options =>

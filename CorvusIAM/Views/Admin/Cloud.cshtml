@@ -238,6 +238,101 @@
     </div>
 </div>
 
+<!-- Gestão de Custos de Nuvem & Política de Backup 3-2-1 (Etapa 8 - PIM IV) -->
+<div class="mt-[24px] grid grid-cols-1 lg:grid-cols-3 gap-4 md:gap-[24px]">
+    <!-- Custos Mensais de Infraestrutura -->
+    <div class="bento-card bg-white dark:bg-dark-card border border-gray-200 dark:border-dark-border rounded-[6px] p-[20px] flex flex-col justify-between">
+        <div>
+            <div class="flex justify-between items-center mb-3">
+                <h3 class="text-[12px] font-[600] text-gray-500 dark:text-gray-400 uppercase tracking-[0.05em] m-0 flex items-center gap-2">
+                    <i class="ph ph-currency-dollar-simple text-emerald-500 text-[18px]"></i> Custos Operacionais de Nuvem
+                </h3>
+                <span class="text-[10px] font-mono text-emerald-500 bg-emerald-500/10 border border-emerald-500/20 px-2 py-0.5 rounded">Alta Viabilidade</span>
+            </div>
+            <p class="text-[12px] text-gray-500 mb-4">Investimento mensal otimizado para sustentação da plataforma em nuvem corporativa.</p>
+            <div class="space-y-2.5 text-xs">
+                <div class="flex justify-between items-center py-1.5 border-b border-gray-100 dark:border-dark-border">
+                    <span class="text-gray-700 dark:text-gray-300">VPS Hostinger (Ubuntu, 4 vCPU, 8GB, NVMe)</span>
+                    <span class="font-mono font-semibold text-gray-900 dark:text-white">R$ 34,90</span>
+                </div>
+                <div class="flex justify-between items-center py-1.5 border-b border-gray-100 dark:border-dark-border">
+                    <span class="text-gray-700 dark:text-gray-300">AWS S3 Standard-IA (Backups .bak)</span>
+                    <span class="font-mono font-semibold text-gray-900 dark:text-white">R$ 4,95</span>
+                </div>
+                <div class="flex justify-between items-center py-1.5 border-b border-gray-100 dark:border-dark-border">
+                    <span class="text-gray-700 dark:text-gray-300">Domínio Oficial (corvuxiam.tech)</span>
+                    <span class="font-mono font-semibold text-gray-900 dark:text-white">R$ 5,00</span>
+                </div>
+            </div>
+        </div>
+        <div class="mt-4 pt-3 border-t border-gray-200 dark:border-dark-border flex justify-between items-center">
+            <span class="text-xs font-semibold text-gray-500 uppercase">Custo Total Mensal:</span>
+            <span class="text-base font-bold text-emerald-600 dark:text-emerald-400 font-mono">~ R$ 44,85 / mês</span>
+        </div>
+    </div>
+
+    <!-- Política de Continuidade e Disaster Recovery -->
+    <div class="bento-card bg-white dark:bg-dark-card border border-gray-200 dark:border-dark-border rounded-[6px] p-[20px] flex flex-col justify-between">
+        <div>
+            <div class="flex justify-between items-center mb-3">
+                <h3 class="text-[12px] font-[600] text-gray-500 dark:text-gray-400 uppercase tracking-[0.05em] m-0 flex items-center gap-2">
+                    <i class="ph ph-shield-check text-brand-500 text-[18px]"></i> Estratégia de Backup 3-2-1
+                </h3>
+                <span class="text-[10px] font-mono text-brand-500 bg-brand-500/10 border border-brand-500/20 px-2 py-0.5 rounded">ISO 27001</span>
+            </div>
+            <p class="text-[12px] text-gray-500 mb-4">Garantia de integridade e continuidade de negócios contra desastres ou ataques cibernéticos.</p>
+            <div class="grid grid-cols-2 gap-3 mb-4">
+                <div class="p-2.5 rounded bg-gray-50 dark:bg-dark-bg border border-gray-100 dark:border-dark-border text-center">
+                    <div class="text-[10px] uppercase font-semibold text-gray-400">RPO (Perda Máx)</div>
+                    <div class="text-base font-bold text-gray-900 dark:text-white font-mono mt-0.5">24 Horas</div>
+                    <div class="text-[10px] text-emerald-500 mt-0.5">Backup Diário 03:00</div>
+                </div>
+                <div class="p-2.5 rounded bg-gray-50 dark:bg-dark-bg border border-gray-100 dark:border-dark-border text-center">
+                    <div class="text-[10px] uppercase font-semibold text-gray-400">RTO (Recuperação)</div>
+                    <div class="text-base font-bold text-gray-900 dark:text-white font-mono mt-0.5">&lt; 30 Minutos</div>
+                    <div class="text-[10px] text-emerald-500 mt-0.5">Restore Automatizado</div>
+                </div>
+            </div>
+            <div class="text-[11px] text-gray-600 dark:text-gray-400 space-y-1">
+                <p>• <b>3 Cópias:</b> Banco primário ativo, dump local <code>.bak</code> e cópia na AWS S3.</p>
+                <p>• <b>2 Mídias:</b> SSD NVMe de alta velocidade e Object Storage Cloud.</p>
+                <p>• <b>1 Remota:</b> Armazenamento off-site com criptografia SSE-S3 AES-256.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts de Automação & DevOps -->
+    <div class="bento-card bg-white dark:bg-dark-card border border-gray-200 dark:border-dark-border rounded-[6px] p-[20px] flex flex-col justify-between">
+        <div>
+            <div class="flex justify-between items-center mb-3">
+                <h3 class="text-[12px] font-[600] text-gray-500 dark:text-gray-400 uppercase tracking-[0.05em] m-0 flex items-center gap-2">
+                    <i class="ph ph-terminal text-orange-500 text-[18px]"></i> Scripts de Infra & CI/CD
+                </h3>
+                <span class="text-[10px] font-mono text-orange-500 bg-orange-500/10 border border-orange-500/20 px-2 py-0.5 rounded">DevOps</span>
+            </div>
+            <p class="text-[12px] text-gray-500 mb-3">Automações operacionais prontas no repositório:</p>
+            <div class="space-y-2 text-xs font-mono">
+                <div class="p-2 rounded bg-gray-50 dark:bg-dark-bg border border-gray-100 dark:border-dark-border flex items-center justify-between">
+                    <span class="text-gray-700 dark:text-gray-300">scripts/backup-db.sh</span>
+                    <span class="text-[10px] font-sans font-semibold text-emerald-500 bg-emerald-500/10 px-1.5 py-0.5 rounded">Ativo / Cron</span>
+                </div>
+                <div class="p-2 rounded bg-gray-50 dark:bg-dark-bg border border-gray-100 dark:border-dark-border flex items-center justify-between">
+                    <span class="text-gray-700 dark:text-gray-300">scripts/sync-backups-s3.sh</span>
+                    <span class="text-[10px] font-sans font-semibold text-blue-500 bg-blue-500/10 px-1.5 py-0.5 rounded">AWS CLI Sync</span>
+                </div>
+                <div class="p-2 rounded bg-gray-50 dark:bg-dark-bg border border-gray-100 dark:border-dark-border flex items-center justify-between">
+                    <span class="text-gray-700 dark:text-gray-300">scripts/restore-db.sh</span>
+                    <span class="text-[10px] font-sans font-semibold text-purple-500 bg-purple-500/10 px-1.5 py-0.5 rounded">Homologado</span>
+                </div>
+            </div>
+        </div>
+        <div class="mt-4 pt-3 border-t border-gray-200 dark:border-dark-border flex justify-between items-center text-xs text-gray-500">
+            <span>Retenção: <b>30 dias</b></span>
+            <span>Integridade: <b>SHA-256</b></span>
+        </div>
+    </div>
+</div>
+
 @section Scripts {
     <script>
         function filtrarDispositivos(tipo) {

@@ -65,6 +65,12 @@
         .dark .table th, .dark .table td { border-bottom: 1px solid #272B33; color: #cbd5e1; }
         .form-control { width: 100%; padding: 8px 12px; border: 1px solid #d1d5db; border-radius: 6px; background: transparent; }
         .dark .form-control { border-color: #4b5563; color: white; }
+
+        /* Acessibilidade WCAG 2.2 / Alto Contraste */
+        .high-contrast { filter: contrast(140%) !important; }
+        .high-contrast body { background-color: #000000 !important; color: #ffffff !important; }
+        .high-contrast .bento-card { border-color: #ffffff !important; background-color: #0a0a0a !important; }
+        .high-contrast a, .high-contrast button { text-decoration: underline; }
     </style>
     @RenderSection("Styles", required: false)
 </head>
@@ -182,8 +188,17 @@
                     <input type="text" id="globalSearchInput" placeholder="Buscar ID, IP ou colaborador..." class="w-full h-full bg-gray-100 dark:bg-dark-bg border border-gray-200 dark:border-dark-border text-gray-900 dark:text-gray-100 text-[12px] rounded-[6px] pl-8 pr-3 focus:outline-none focus:border-brand-500 focus:ring-1 focus:ring-brand-500 transition-all">
                 </div>
                 
+                <!-- Controles de Acessibilidade (WCAG 2.2 / Etapa 3 PIM IV) -->
+                <div class="flex items-center gap-0.5 bg-gray-100 dark:bg-dark-card border border-gray-200 dark:border-dark-border rounded-[6px] p-0.5" title="Acessibilidade & Inclusão (WCAG 2.2)">
+                    <button type="button" onclick="alterarTamanhoFonte(1)" class="w-7 h-7 flex items-center justify-center rounded text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-dark-border text-xs font-bold transition-colors cursor-pointer" title="Aumentar Fonte (A+)">A+</button>
+                    <button type="button" onclick="alterarTamanhoFonte(-1)" class="w-7 h-7 flex items-center justify-center rounded text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-dark-border text-xs font-bold transition-colors cursor-pointer" title="Diminuir Fonte (A-)">A-</button>
+                    <button type="button" onclick="alternarAltoContraste()" class="w-7 h-7 flex items-center justify-center rounded text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-dark-border transition-colors cursor-pointer" title="Alternar Modo Alto Contraste">
+                        <i class="ph ph-circle-half text-[15px]"></i>
+                    </button>
+                </div>
+                
                 <!-- Botão Alternador de Tema -->
-                <button id="theme-toggle" class="w-8 h-8 flex items-center justify-center rounded-[6px] border border-gray-200 dark:border-dark-border bg-white dark:bg-dark-card text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white transition-colors" title="Alternar Tema Claro/Escuro">
+                <button id="theme-toggle" class="w-8 h-8 flex items-center justify-center rounded-[6px] border border-gray-200 dark:border-dark-border bg-white dark:bg-dark-card text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white transition-colors cursor-pointer" title="Alternar Tema Claro/Escuro">
                     <i id="theme-toggle-dark-icon" class="ph ph-moon text-[16px] hidden"></i>
                     <i id="theme-toggle-light-icon" class="ph ph-sun text-[16px] hidden"></i>
                 </button>
@@ -371,6 +386,26 @@
                 updateThemeIcons();
             });
         }
+
+        // Recursos de Acessibilidade (WCAG 2.2 / Etapa 3 PIM IV)
+        let fontScale = parseInt(localStorage.getItem('font-scale') || '0');
+        function aplicarFonte() {
+            document.body.style.fontSize = (13 + fontScale) + 'px';
+        }
+        function alterarTamanhoFonte(delta) {
+            fontScale = Math.max(-2, Math.min(4, fontScale + delta));
+            localStorage.setItem('font-scale', fontScale);
+            aplicarFonte();
+        }
+        function alternarAltoContraste() {
+            document.documentElement.classList.toggle('high-contrast');
+            const ativo = document.documentElement.classList.contains('high-contrast');
+            localStorage.setItem('high-contrast', ativo ? 'true' : 'false');
+        }
+        if (localStorage.getItem('high-contrast') === 'true') {
+            document.documentElement.classList.add('high-contrast');
+        }
+        aplicarFonte();
     </script>
 
     @RenderSection("Scripts", required: false)

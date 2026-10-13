@@ -8,7 +8,7 @@
 [![Docker](https://img.shields.io/badge/Docker-Compose-2496ED?logo=docker&logoColor=white)](https://www.docker.com/)
 [![SQL Server](https://img.shields.io/badge/SQL%20Server-2022-CC292B?logo=microsoftsqlserver&logoColor=white)](https://www.microsoft.com/sql-server)
 [![CI/CD](https://img.shields.io/badge/GitHub%20Actions-CI%2FCD-2088FF?logo=githubactions&logoColor=white)](https://github.com/Kaaiske/PROJETO_PIMIV_CORVUX/actions)
-[![Tests](https://img.shields.io/badge/Tests-32%20Passed-brightgreen?logo=checkmarx&logoColor=white)](CorvusIAM.Tests/)
+[![Tests](https://img.shields.io/badge/Tests-40%20Passed-brightgreen?logo=checkmarx&logoColor=white)](CorvusIAM.Tests/)
 [![Production](https://img.shields.io/badge/Production-corvuxiam.tech-success?logo=googlechrome&logoColor=white)](https://corvuxiam.tech)
 
 **Solução Corporativa Integrada para Transformação Digital, Governança e Segurança da Informação**
@@ -49,6 +49,8 @@ A plataforma resolve dores críticas de segurança empresarial:
 - **Infraestrutura em Nuvem (DevOps)** com telemetria e remediação remota de endpoints em tempo real.
 - **Firewall WAF Ativo e Módulo SecOps** com bloqueio real de IPs maliciosos e modo de contingência Lock-Down.
 - **Contabilidade e RH 100% Funcionais** com emissão real de notas fiscais (NFS-e), SPED Fiscal, folha de pagamento e espelho de ponto AFD.
+- **Ecossistema de APIs Nacionais Integradas:** ViaCEP, BrasilAPI (CNPJ e Feriados), AwesomeAPI (Moedas em Tempo Real) e Validação Algorítmica de CPF (Módulo 11).
+- **Acessibilidade Universal & Diversidade (WCAG 2.2):** Alto contraste, redimensionamento de fonte (A+/A-) e suporte a Nome Social.
 
 ---
 
@@ -57,13 +59,13 @@ A plataforma resolve dores críticas de segurança empresarial:
 | Etapa / Disciplina | Implementação no Projeto | Status |
 | :--- | :--- | :---: |
 | **Etapa 1: Caracterização da Organização** | Modelo organizacional com departamentos (TI, RH, Contabilidade, HelpDesk) e fluxos de negócio mapeados. | 🟢 100% |
-| **Etapa 2: Empreendedorismo em TI** | Proposta de valor centrada em redução de fraudes, conformidade com LGPD/ISO 27001 e baixo custo operacional. | 🟢 100% |
-| **Etapa 3: Relações Étnico-Raciais e Diversidade** | Acessibilidade universal (WCAG 2.2, alto contraste, leitor de tela, rótulos semânticos) e regras de acesso justas sem viés discriminatório. | 🟢 100% |
+| **Etapa 2: Empreendedorismo em TI** | Proposta de valor centrada em redução de fraudes, conformidade com LGPD/ISO 27001 e baixo custo operacional (~R$ 44,85/mês). | 🟢 100% |
+| **Etapa 3: Relações Étnico-Raciais e Diversidade** | Acessibilidade universal (WCAG 2.2, botões A+/A-, alto contraste, rótulos semânticos), campos inclusivos de Nome Social/Pronome e políticas sem viés discriminatório. | 🟢 100% |
 | **Etapa 4: Solução Web (.NET Web)** | ASP.NET Core 8 MVC, Razor Views, autenticação híbrida (Cookies + JWT), Rate Limiting, Turnstile e APIs REST. | 🟢 100% |
 | **Etapa 5: Solução Mobile** | App nativo em **React Native (Expo)** em `CorvusIAM.Mobile` e **PWA Offline-First** (`/Mobile`) com IndexedDB e Service Worker. | 🟢 100% |
 | **Etapa 6: Arquitetura de Software (.NET)** | Organização em camadas desacopladas (Controllers, Services, Repositories, Entities, DTOs, Middlewares, DI). | 🟢 100% |
 | **Etapa 7: Banco de Dados** | SQL Server 2022 / SQLite, modelo físico normalizado, Stored Procedures (`sp_RegistrarLog`, `sp_InativarColaborador`, `sp_ObterResumoAuditoria`) e Triggers (`trg_AuditoriaUsuarios`, `trg_AuditoriaChamados`). | 🟢 100% |
-| **Etapa 8: Cloud Computing & DevOps** | Dockerfile, `docker-compose.yml`, pipeline automatizado no GitHub Actions, Health Checks (`/health`) e métricas Prometheus. | 🟢 100% |
+| **Etapa 8: Cloud Computing & DevOps** | Dockerfile, `docker-compose.yml`, pipeline automatizado no GitHub Actions, Health Checks (`/health`), métricas Prometheus, política de backup 3-2-1 e custos documentados. | 🟢 100% |
 | **Etapa 9: Gerenciamento Ágil de Projetos** | Planejamento em 4 Sprints, Product Backlog priorizado, Sprint Backlogs e Quadro Kanban integrado. | 🟢 100% |
 
 ---
@@ -76,12 +78,13 @@ A plataforma resolve dores críticas de segurança empresarial:
 - **Resiliência e Null-Safety:** Mapeamento objeto-relacional com Nullable Reference Types (C# 12 / EF Core 8) e sanitização automática de valores nulos no startup
 - **Autenticação:** Cookie Authentication (Web) + JWT Bearer Tokens (Mobile/API) + API Gateway Token (`X-API-Key`)
 - **Segurança:** BCrypt para hash de senhas, Cloudflare Turnstile CAPTCHA, HaveIBeenPwned API (verificação de senhas vazadas), MaxMind/IP Geolocation, Rate Limiter (5 req/min no login) e WAF de Bloqueio Ativo de IPs
+- **APIs Nacionais & Corporativas:** ViaCEP, BrasilAPI (CNPJ, Feriados Nacionais), AwesomeAPI (Câmbio USD/EUR), Módulo 11 da Receita Federal
 - **Documentação de API:** Swagger / OpenAPI 3.0 com suporte ao domínio `https://corvuxiam.tech`
 
 ### Frontend Web
 - **Razor Views (ASP.NET Core)**
-- **Bootstrap 5.3 & CSS Moderno** (Responsivo e Acessível)
-- **JavaScript Moderno (ES6+)** com proteção Anti-Forgery Token automática e feedback visual com SweetAlert2
+- **Bootstrap 5.3 & Tailwind CSS** (Responsivo e Acessível WCAG 2.2)
+- **Recursos Inclusivos:** Controles A+/A- de fonte, Modo Alto Contraste para pessoas com baixa visão, feedback com SweetAlert2
 
 ### Frontend Mobile
 - **React Native 0.74 / Expo 51 (TypeScript)** — Aplicativo mobile com Axios, Expo SecureStore e React Navigation
@@ -104,6 +107,7 @@ A plataforma resolve dores críticas de segurança empresarial:
 - **Docker & Docker Compose** (Multi-container: Web Application + SQL Server)
 - **GitHub Actions** (CI/CD: Restore, Build, Unit Testing, Docker Image Build)
 - **Health Checks** (`/health`) & **Prometheus Metrics** (`/metrics`)
+- **Política de Backup 3-2-1:** RPO de 24h, RTO < 30min, scripts em `scripts/` e armazenamento em nuvem no Amazon S3 com criptografia SSE-S3.
 
 ---
 
@@ -116,7 +120,7 @@ PROJETO_PIMIV_CORVUX/
 │       └── ci.yml                     # Pipeline automatizado de CI/CD (GitHub Actions)
 ├── CorvusIAM/                         # Aplicação Principal (ASP.NET Core 8 MVC + REST API)
 │   ├── Controllers/                   # Controllers Web (Admin, Auth, Home, Portal, Mobile)
-│   │   └── Api/                       # Controllers de APIs REST (Usuarios, Perfis, Politicas, V1Users, etc.)
+│   │   └── Api/                       # Controllers de APIs REST (Usuarios, Perfis, Politicas, V1Users, PublicIntegrations)
 │   ├── Data/                          # Contextos do EF Core (ApplicationDbContext, DbDataSeeder)
 │   ├── Entities/                      # Entidades de Domínio (Usuario, Perfil, Permissao, Auditoria, Chamado, etc.)
 │   ├── Interfaces/                    # Contratos de Serviços e Repositórios
@@ -138,7 +142,7 @@ PROJETO_PIMIV_CORVUX/
 │   ├── App.tsx                        # Ponto de entrada do aplicativo mobile
 │   └── package.json                   # Dependências do app mobile
 ├── CorvusIAM.Tests/                   # Bateria de Testes Automatizados (xUnit / Moq / InMemory)
-│   ├── Controllers/                   # Testes unitários de controllers (Admin, Portal, Cloud, Firewall, etc.)
+│   ├── Controllers/                   # Testes unitários (Admin, Portal, Cloud, Firewall, PublicIntegrations)
 │   ├── Integration/                   # Testes de integração de endpoints
 │   ├── Repositories/                  # Testes da camada de dados
 │   └── Services/                      # Testes de regras de negócio e autenticação
@@ -237,26 +241,6 @@ snap install --classic certbot && certbot --nginx -d corvuxiam.tech -d www.corvu
 
 ---
 
-### Opção 4: Executar o Aplicativo Mobile (React Native / Expo)
-
-1. Acesse o diretório do app móvel:
-```bash
-cd CorvusIAM.Mobile
-```
-
-2. Instale as dependências:
-```bash
-npm install
-```
-
-3. Inicie o bundler do Expo:
-```bash
-npx expo start
-```
-* Pressione `a` para rodar no emulador Android, `w` para abrir no navegador, ou escaneie o QR Code pelo aplicativo **Expo Go** no celular.
-
----
-
 ## 🔒 Segurança & Políticas de Acesso
 
 - **CORS Configurado:** Habilitado para requisições originadas do domínio oficial `https://corvuxiam.tech` e ambientes de desenvolvimento autorizados.
@@ -265,7 +249,7 @@ npx expo start
 - **Armazenamento de Senhas:** Hash irreversível via algoritmo BCrypt com verificação contra a base pública de senhas comprometidas (HaveIBeenPwned).
 - **Proteção contra Força Bruta:** Rate Limiting com bloqueio temporário após 5 tentativas consecutivas de autenticação incorreta.
 - **Desafio Anti-Bot (Cloudflare Turnstile):** Validação resiliente de CAPTCHA inteligente na autenticação com chave de homologação e bypass automático para testes/desenvolvimento.
-- **Prevenção contra Ações Acidentais:** Modais interativos de confirmação em duas etapas (SweetAlert2) com identificação visual do registro e consequências antes de qualquer exclusão.
+- **Prevenção contra Ações Acidentais:** Modais interativos com alerta severo de **Ação Irreversível**, autoridade exclusiva de Administrador e anonimização LGPD perpétua via Stored Procedure `sp_InativarColaborador`.
 - **Soft Delete Universal:** Exclusão lógica com anonimização LGPD para colaboradores e inativação segura para perfis de acesso.
 - **Módulo de Anexos Seguros (Storage Local & S3):** Upload seguro de anexos em chamados de Help Desk com validação de tipos MIME e isolamento de arquivos.
 - **Exportação de Relatórios Gerenciais:** Download instantâneo de colaboradores e trilhas de auditoria em formato CSV com UTF-8 BOM, além de SPED Fiscal e espelhos de ponto (AFD).
@@ -273,115 +257,12 @@ npx expo start
 
 ---
 
-## 🗄️ Como Gerar o Banco de Dados (com Stored Procedures e Triggers)
-
-O CorvuxIAM oferece **dois métodos oficiais** para geração completa e inicialização do banco de dados relacional com integridade referencial, tabelas normalizadas, cargas iniciais (*seeds*), Stored Procedures e Triggers (atendendo à **Etapa 7 do PIM IV - UNIP**).
-
-### Método 1: Geração Automática (Docker / Entity Framework Core) — *Recomendado*
-
-Quando a aplicação inicializa em ambiente de produção ou desenvolvimento, ela executa automaticamente:
-1. `context.Database.Migrate()` — Criação estrutural das tabelas e chaves estrangeiras via EF Core.
-2. Script de integridade e DDL avançado em `Program.cs` — Aplica comandos `CREATE OR ALTER PROCEDURE` e `CREATE OR ALTER TRIGGER`.
-3. Inserção automática de dados mestres (*seeds*) via `DbDataSeeder`: perfis de acesso, permissões de segurança, usuário administrador padrão (`admin@corvus.com` / `Cv1670!`), 18 dispositivos de rede, notas fiscais, fechamentos contábeis, férias e folhas de pagamento.
-
-Para inicializar tudo de forma 100% automatizada no servidor ou máquina local:
-```bash
-# Na raiz do projeto, suba o orquestrador Docker Compose
-docker compose up -d --build
-```
-> O container `sqlserver` iniciará primeiro, e o container `corvusiam.web` aguardará a prontidão do SQL Server, executando todas as migrações, procedures e triggers sem intervenção manual.
-
----
-
-### Método 2: Geração Manual via Script SQL (`CorvusIAM/DatabaseScript.sql`)
-
-Caso deseje recriar o banco do zero ou executar via ferramentas de administração de banco de dados (como **SQL Server Management Studio - SSMS**, **Azure Data Studio**, **DBeaver** ou via terminal `sqlcmd`), utilize o arquivo oficial [`CorvusIAM/DatabaseScript.sql`](CorvusIAM/DatabaseScript.sql).
-
-#### Execução via Linha de Comando (no container Docker):
-```bash
-# Executa o script DatabaseScript.sql diretamente no SQL Server do container
-docker compose exec -i sqlserver /opt/mssql-tools18/bin/sqlcmd -C -S localhost -U sa -P "CorvuxAdmin@2026!" < CorvusIAM/DatabaseScript.sql
-```
-
-#### Execução no Servidor de Produção (VPS Ubuntu):
-```bash
-cd /var/www/PROJETO_PIMIV_CORVUX
-docker compose exec -i sqlserver /opt/mssql-tools18/bin/sqlcmd -C -S localhost -U sa -P "CorvuxAdmin@2026!" < CorvusIAM/DatabaseScript.sql
-```
-
-#### Execução via Interface Gráfica (SSMS / Azure Data Studio):
-1. Conecte ao servidor:
-   - **Host / Server:** `localhost,1433` (ou IP da VPS `179.236.228.30,1433`)
-   - **Autenticação:** SQL Server Authentication
-   - **Usuário:** `sa`
-   - **Senha:** `CorvuxAdmin@2026!` (ou a definida no seu `.env`)
-   - **Trust Server Certificate:** `True` (Sim)
-2. Abra o arquivo `CorvusIAM/DatabaseScript.sql`.
-3. Clique em **Execute** (`F5`). O script criará o banco `CorvusIAMDb`, todas as tabelas, índices, triggers, procedures e carga inicial.
-
----
-
-### 📋 Stored Procedures Implementadas no Projeto (Etapa 7 - PIM IV)
-
-| Stored Procedure | Parâmetros de Entrada | Finalidade & Regra de Negócio |
-| :--- | :--- | :--- |
-| **`sp_RegistrarLog`** | `@UsuarioId INT`, `@Acao NVARCHAR(100)`, `@Detalhe NVARCHAR(MAX)`, `@Tipo NVARCHAR(50)`, `@Origem NVARCHAR(50)` | Centraliza a inserção imutável de eventos na tabela `LogsAuditoria`, garantindo trilha de auditoria para conformidade com ISO 27001 e LGPD. Utilizada pelo backend C# e pelas triggers. |
-| **`sp_InativarColaborador`** | `@UsuarioId INT`, `@AdminId INT` | Executa soft delete transacional de um usuário: seta `Ativo = 0`, revoga tokens de sessão (`RefreshToken`, `ResetSenhaToken`) e registra auditoria formal de inativação. |
-| **`sp_ObterResumoAuditoria`** | `@DiasRetroativos INT` (Padrão: 30) | Gera dois conjuntos de resultados: (1) Total de ocorrências agrupadas por Tipo e Origem; (2) Top 10 incidentes e alertas críticos (`Danger`, `Warning`, `SecurityAlert`). |
-
-#### Exemplo de Teste de Execução de Procedure no SQL Server:
-```sql
-USE [CorvusIAMDb];
-GO
-
--- 1. Testar registro de log via Stored Procedure
-EXEC sp_RegistrarLog 
-    @UsuarioId = 1, 
-    @Acao = 'Teste Manual de Procedure', 
-    @Detalhe = 'Validação da procedure sp_RegistrarLog via SSMS', 
-    @Tipo = 'Info', 
-    @Origem = 'SSMS';
-
--- 2. Testar relatório analítico via Stored Procedure
-EXEC sp_ObterResumoAuditoria @DiasRetroativos = 30;
-
--- 3. Visualizar os registros gerados
-SELECT TOP 5 * FROM LogsAuditoria ORDER BY DataHora DESC;
-```
-
----
-
-### ⚡ Triggers Implementadas no Projeto (Etapa 7 - PIM IV)
-
-| Trigger | Tabela Associada | Evento | Comportamento & Regra de Negócio |
-| :--- | :--- | :--- | :--- |
-| **`trg_AuditoriaUsuarios`** | `Usuarios` | `AFTER INSERT, UPDATE, DELETE` | Monitora mutações cadastrais na tabela de colaboradores. Mesmo que um comando DML seja executado fora do sistema (ex: direto no banco via SSMS), a trigger intercepta e gera log de auditoria automático informando alterações de status e perfil. |
-| **`trg_AuditoriaChamados`** | `ChamadosSuporte` | `AFTER UPDATE` | Monitora transições de status nos chamados de Help Desk (ex: de *Aberto* para *Resolvido* ou *Fechado*), gravando o histórico de mudança na trilha de auditoria. |
-
----
-
-## 🗄️ Política de Backup, Recuperação de Desastre e Custos (RPO & RTO)
-
-Em estrita conformidade com os requisitos de Governança e Continuidade de Negócios do PIM IV, o sistema conta com política documentada em [`CorvusIAM/docs/politica-backup-e-custos.md`](CorvusIAM/docs/politica-backup-e-custos.md):
-
-- **RPO (Recovery Point Objective):** 24 Horas para backups completos automatizados / 0 Horas para logs persistidos.
-- **RTO (Recovery Time Objective):** < 30 Minutos para restauração completa de desastre (*Disaster Recovery*).
-- **Estratégia 3-2-1:** 3 cópias (Banco ativo, dump local `.bak` e cópia em nuvem), 2 mídias diferentes (SSD NVMe e Cloud Object Storage) e 1 cópia off-site remota.
-- **Scripts Automatizados de Infraestrutura:**
-  - `scripts/backup-db.sh` — Executa backup com compressão, verificação `CHECKSUM` e expurgo de retenção de 30 dias.
-  - `scripts/restore-db.sh` — Procedimento seguro de restauração em modo de usuário único (`SINGLE_USER`).
-  - `scripts/sync-backups-s3.sh` — Replicação off-site para Amazon S3 com criptografia SSE-S3 (AES-256).
-  - `scripts/setup-cron.sh` — Instalador do agendamento diário automático no Crontab da VPS.
-- **Custo Operacional Total Estimado:** ~ R$ 44,85 / mês (Hostinger VPS + S3 Standard-IA + Domínio), gerando alta viabilidade econômica.
-
----
-
 ## 🧪 Testes Automatizados
 
-A suíte de testes em `CorvusIAM.Tests` conta com **32 testes automatizados** cobrindo autenticação, MFA/TOTP, armazenamento seguro, autorização, CRUD de usuários, telemetria de rede DevOps, bloqueio de IP/WAF, emissão de NFS-e, cálculo de folha de pagamento e endpoints de integração:
+A suíte de testes em `CorvusIAM.Tests` conta com **40 testes automatizados** cobrindo autenticação, MFA/TOTP, armazenamento seguro, autorização, CRUD de usuários, telemetria de rede DevOps, bloqueio de IP/WAF, emissão de NFS-e, cálculo de folha de pagamento, validação de CPF e endpoints de integração externa:
 
 ```bash
-Passed!  - Failed: 0, Passed: 32, Skipped: 0, Total: 32, Duration: 11 s - CorvusIAM.Tests.dll (net8.0)
+Passed!  - Failed: 0, Passed: 40, Skipped: 0, Total: 40, Duration: 10 s - CorvusIAM.Tests.dll (net8.0)
 ```
 
 ---
@@ -391,6 +272,11 @@ Passed!  - Failed: 0, Passed: 32, Skipped: 0, Total: 32, Duration: 11 s - Corvus
 | Método | Rota | Descrição |
 | :---: | :--- | :--- |
 | `POST` | `/api/Auth/login` | Autenticação de usuário e emissão de JWT Token |
+| `GET` | `/api/public/cep/{cep}` | Consulta de endereço via webservice público ViaCEP |
+| `GET` | `/api/public/cnpj/{cnpj}` | Consulta de dados fiscais e cadastrais via BrasilAPI |
+| `GET` | `/api/public/cotacoes` | Cotação ao vivo de moedas (USD/BRL e EUR/BRL) via AwesomeAPI |
+| `GET` | `/api/public/feriados/{ano}` | Consulta de feriados nacionais bancários via BrasilAPI |
+| `POST` | `/api/public/validar-cpf` | Validação algorítmica de CPF pelo Módulo 11 oficial |
 | `GET` | `/api/Usuarios` | Listagem paginada de colaboradores cadastrados |
 | `POST` | `/api/Usuarios` | Cadastro de novo usuário com perfil atribuído |
 | `GET` | `/api/v1/ping` | Gateway de status de integração externa autenticada |
@@ -419,26 +305,40 @@ Todos os módulos do CorvuxIAM operam conectados a tabelas relacionais no banco 
    - Telemetrias reais de CPU, Memória, Disco e Agente EDR.
    - Ações operacionais remotas que alteram o banco em tempo real: **Escanear Agora**, **Aplicar Patches**, **Isolar da Rede / Liberar**, **Limpeza de Disco** e **Remediação em Lote**.
 
-2. **Firewall WAF & Defesa Ativa SecOps:**
+2. **Gestão de Custos de Nuvem & Backup AWS S3 (Etapa 8):**
+   - Painel de transparência de custos corporativos na tela de Cloud (~R$ 44,85/mês).
+   - RPO garantido de 24 horas e RTO inferior a 30 minutos.
+   - Estratégia 3-2-1 com replicação automatizada em nuvem e integridade SHA-256.
+
+3. **Firewall WAF & Defesa Ativa SecOps:**
    - Tabela `FirewallRegras` gravando regras manuais e automáticas de bloqueio.
    - O `AuthController.Login` consulta a tabela e rejeita conexões de IPs bloqueados antes mesmo do processamento da senha.
    - Desbloqueio e bloqueio dinâmico no painel `Inteligencia.cshtml`, com acionamento do **Modo Lock-Down**.
+   - Radar de CVEs e vulnerabilidades críticas em conformidade com o catálogo CISA/NIST.
 
-3. **Integrações de API & Gateway Inbound:**
-   - Teste de conectividade real via `HttpClient` e medição de latência com `Stopwatch`.
-   - Conectores externos autenticados no endpoint `/api/v1/users` e `/api/v1/ping` via header `X-API-Key` ou `Bearer Token`.
+4. **Integrações de APIs Nacionais & Automações Cadastrais:**
+   - **ViaCEP:** Preenchimento automático de logradouro, bairro e cidade ao digitar o CEP.
+   - **BrasilAPI CNPJ:** Preenchimento automático de Razão Social, CNAE e regime tributário ao emitir notas fiscais.
+   - **AwesomeAPI Moedas:** Cotação ao vivo de Dólar e Euro no painel contábil.
+   - **BrasilAPI Feriados:** Verificação de dias úteis e feriados na programação de férias.
+   - **Validação de CPF:** Algoritmo do Módulo 11 com feedback visual instantâneo.
 
-4. **Contabilidade & Financeiro Corporativo:**
+5. **Acessibilidade Universal & Diversidade (Etapa 3 - PIM IV):**
+   - Controles no header de redimensionamento de fonte (`A+` e `A-`).
+   - Modo de **Alto Contraste** para pessoas com deficiência visual ou daltonismo.
+   - Campo inclusivo de **Nome Social / Pronome** no cadastro de colaboradores.
+
+6. **Contabilidade & Financeiro Corporativo:**
    - Módulo de NFS-e persistido na tabela `NotasFiscais` com geração de chave SEFAZ de 44 dígitos e alíquotas de ISS/PIS/COFINS.
    - Tabela `FechamentosMensais` com balanço consolidado de receitas e despesas.
    - Exportador do arquivo oficial do **SPED Fiscal** (`.txt`) formatado para envio à Receita.
 
-5. **Recursos Humanos & Departamento Pessoal:**
+7. **Recursos Humanos & Departamento Pessoal:**
    - Tabela `FolhasPagamento` com cálculo de proventos, desconto progressivo de INSS, FGTS e e-Social.
    - Tabela `RegistrosFerias` com aprovação gerencial e período aquisitivo.
    - Exportador de espelho de ponto eletrônico no padrão **Portaria AFD** (`.txt`).
 
-6. **Help Desk & Abertura Rápida de Issues:**
+8. **Help Desk & Abertura Rápida de Issues:**
    - Modal global de abertura de chamados integrado em todas as telas com categorias, prioridades e upload de evidências.
 
 ---

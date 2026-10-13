@@ -21,7 +21,7 @@
     </div>
 </div>
 
-<!-- KPIs Financeiros -->
+<!-- KPIs Financeiros & Cotações em Tempo Real (AwesomeAPI) -->
 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-[24px] mb-[24px]">
     <div class="bento-card bg-white dark:bg-dark-card border border-gray-200 dark:border-dark-border rounded-[6px] p-[20px]">
         <div class="text-[11px] font-[600] text-gray-500 uppercase tracking-wider mb-2">Faturamento Consolidado</div>
@@ -34,14 +34,18 @@
         <div class="text-[11px] text-gray-400 mt-1">Transmitidas à SEFAZ</div>
     </div>
     <div class="bento-card bg-white dark:bg-dark-card border border-gray-200 dark:border-dark-border rounded-[6px] p-[20px]">
-        <div class="text-[11px] font-[600] text-gray-500 uppercase tracking-wider mb-2">Contas a Pagar (Semana)</div>
-        <div class="text-[26px] font-[700] text-orange-500">R$ @((Model?.ContasAPagarSemana ?? 22400).ToString("N2"))</div>
-        <div class="text-[11px] text-gray-400 mt-1">Fornecedores e infraestrutura</div>
+        <div class="text-[11px] font-[600] text-gray-500 uppercase tracking-wider mb-2">Cotação Dólar (USD)</div>
+        <div class="text-[26px] font-[700] text-brand-500 font-mono" id="usdPrice">R$ 5.68</div>
+        <div class="text-[11px] text-emerald-500 mt-1 flex items-center gap-1" id="usdChange">
+            <i class="ph ph-currency-dollar"></i> AwesomeAPI / BACEN (+0.26%)
+        </div>
     </div>
     <div class="bento-card bg-white dark:bg-dark-card border border-gray-200 dark:border-dark-border rounded-[6px] p-[20px]">
-        <div class="text-[11px] font-[600] text-gray-500 uppercase tracking-wider mb-2">Status da Conciliação</div>
-        <div class="text-[26px] font-[700] text-emerald-500">@(Model?.StatusConciliacao ?? "Em Dia")</div>
-        <div class="text-[11px] text-gray-400 mt-1">Contas bancárias integradas</div>
+        <div class="text-[11px] font-[600] text-gray-500 uppercase tracking-wider mb-2">Cotação Euro (EUR)</div>
+        <div class="text-[26px] font-[700] text-purple-500 font-mono" id="eurPrice">R$ 6.14</div>
+        <div class="text-[11px] text-purple-400 mt-1 flex items-center gap-1" id="eurChange">
+            <i class="ph ph-currency-eur"></i> AwesomeAPI / BACEN (-0.13%)
+        </div>
     </div>
 </div>
 
@@ -113,18 +117,68 @@
 
 @section Scripts {
     <script>
+        async function consultarCnpjModal() {
+            const cnpjInput = document.getElementById('nfCnpj');
+            const tomadorInput = document.getElementById('nfTomador');
+            const statusDiv = document.getElementById('cnpjStatusBadge');
+            const clean = (cnpjInput.value || '').replace(/\D/g, '');
+            if (clean.length !== 14) {
+                statusDiv.innerHTML = '<span class="text-orange-400">Digite os 14 dígitos do CNPJ para pesquisar.</span>';
+                return;
+            }
+            statusDiv.innerHTML = '<span class="text-brand-400"><i class="ph ph-spinner-gap animate-spin"></i> Consultando BrasilAPI / Receita...</span>';
+            try {
+                const res = await fetch(`/api/public/cnpj/${clean}`);
+                if (res.ok) {
+                    const data = await res.json();
+                    tomadorInput.value = data.razao_social || data.nome_fantasia || '';
+                    statusDiv.innerHTML = `<span class="text-emerald-400">✓ Localizado: <b>${data.municipio || 'SP'}/${data.uf || 'SP'}</b> • Simples: ${data.opcao_pelo_simples ? 'Optante' : 'Não'}</span>`;
+                } else {
+                    statusDiv.innerHTML = '<span class="text-red-400">CNPJ não encontrado na base pública.</span>';
+                }
+            } catch(e) {
+                statusDiv.innerHTML = '<span class="text-yellow-400">Falha ao conectar com a API pública.</span>';
+            }
+        }
+
+        async function carregarCotacoesAoVivo() {
+            try {
+                const res = await fetch('/api/public/cotacoes');
+                if (res.ok) {
+                    const data = await res.json();
+                    if (data.USDBRL) {
+                        document.getElementById('usdPrice').innerText = 'R$ ' + parseFloat(data.USDBRL.bid).toFixed(2);
+                        const pct = parseFloat(data.USDBRL.pctChange);
+                        document.getElementById('usdChange').innerHTML = `<i class="ph ph-currency-dollar"></i> AwesomeAPI / BACEN (${pct >= 0 ? '+' : ''}${pct.toFixed(2)}%)`;
+                    }
+                    if (data.EURBRL) {
+                        document.getElementById('eurPrice').innerText = 'R$ ' + parseFloat(data.EURBRL.bid).toFixed(2);
+                        const pctE = parseFloat(data.EURBRL.pctChange);
+                        document.getElementById('eurChange').innerHTML = `<i class="ph ph-currency-eur"></i> AwesomeAPI / BACEN (${pctE >= 0 ? '+' : ''}${pctE.toFixed(2)}%)`;
+                    }
+                }
+            } catch(e) {}
+        }
+        window.addEventListener('DOMContentLoaded', carregarCotacoesAoVivo);
+
         async function abrirModalEmitirNF() {
             const { value: formValues } = await Swal.fire({
-                title: 'Emissão de Nota Fiscal de Serviço',
+                title: 'Emissão de Nota Fiscal de Serviço (NFS-e)',
                 html: `
                     <div class="text-left space-y-3">
                         <div>
-                            <label class="text-xs text-gray-400 block mb-1">Razão Social / Tomador</label>
-                            <input id="nfTomador" placeholder="Ex: Tech Solutions Brasil Ltda" class="swal2-input !m-0 !w-full bg-gray-900 text-white text-xs">
+                            <label class="text-xs text-gray-400 block mb-1">CNPJ do Tomador (com consulta automática)</label>
+                            <div class="flex gap-2">
+                                <input id="nfCnpj" placeholder="00.000.000/0001-00" maxlength="18" class="swal2-input !m-0 !w-full bg-gray-900 text-white text-xs">
+                                <button type="button" onclick="consultarCnpjModal()" class="px-3 bg-brand-600 hover:bg-brand-700 text-white text-xs rounded font-medium whitespace-nowrap cursor-pointer">
+                                    <i class="ph ph-magnifying-glass"></i> Buscar CNPJ
+                                </button>
+                            </div>
+                            <div id="cnpjStatusBadge" class="text-[11px] mt-1 font-mono"></div>
                         </div>
                         <div>
-                            <label class="text-xs text-gray-400 block mb-1">CNPJ do Tomador</label>
-                            <input id="nfCnpj" placeholder="00.000.000/0001-00" class="swal2-input !m-0 !w-full bg-gray-900 text-white text-xs">
+                            <label class="text-xs text-gray-400 block mb-1">Razão Social / Tomador</label>
+                            <input id="nfTomador" placeholder="Preenchido automaticamente ou manual" class="swal2-input !m-0 !w-full bg-gray-900 text-white text-xs">
                         </div>
                         <div>
                             <label class="text-xs text-gray-400 block mb-1">Valor dos Serviços (R$)</label>
@@ -132,7 +186,7 @@
                         </div>
                         <div>
                             <label class="text-xs text-gray-400 block mb-1">Discriminação dos Serviços</label>
-                            <textarea id="nfDesc" placeholder="Prestação de serviços de segurança da informação e gestão de identidades IAM..." class="swal2-textarea !m-0 !w-full bg-gray-900 text-white text-xs h-20"></textarea>
+                            <textarea id="nfDesc" placeholder="Prestação de serviços de segurança da informação e gestão de identidades IAM..." class="swal2-textarea !m-0 !w-full bg-gray-900 text-white text-xs h-16"></textarea>
                         </div>
                     </div>
                 `,
@@ -141,6 +195,20 @@
                 confirmButtonText: 'Autorizar e Transmitir à SEFAZ',
                 cancelButtonText: 'Cancelar',
                 background: '#121418', color: '#fff',
+                didOpen: () => {
+                    const cnpjEl = document.getElementById('nfCnpj');
+                    cnpjEl.addEventListener('input', (e) => {
+                        let v = e.target.value.replace(/\D/g,"");
+                        v = v.replace(/^(\d{2})(\d)/,"$1.$2");
+                        v = v.replace(/^(\d{2})\.(\d{3})(\d)/,"$1.$2.$3");
+                        v = v.replace(/\.(\d{3})(\d)/,".$1/$2");
+                        v = v.replace(/(\d{4})(\d)/,"$1-$2");
+                        e.target.value = v;
+                        if (v.replace(/\D/g, '').length === 14) {
+                            consultarCnpjModal();
+                        }
+                    });
+                },
                 preConfirm: () => {
                     const tomador = document.getElementById('nfTomador').value;
                     const cnpj = document.getElementById('nfCnpj').value;
