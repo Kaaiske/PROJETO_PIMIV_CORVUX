@@ -1,0 +1,88 @@
+name: Create Release & Publish Packages
+
+on:
+  push:
+    tags:
+      - 'v*.*.*'
+  workflow_dispatch:
+    inputs:
+      tag_name:
+        description: 'Tag de Versão (ex: v2.4.0)'
+        required: true
+        default: 'v2.4.0'
+      release_name:
+        description: 'Nome do Release'
+        required: true
+        default: 'CorvuxIAM v2.4 Enterprise Release'
+
+permissions:
+  contents: write
+  packages: write
+
+jobs:
+  release:
+    name: Build & Publish Release
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout Code
+      uses: actions/checkout@v4
+
+    - name: Setup .NET SDK 8.0
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: 8.0.x
+
+    - name: Restore Dependencies
+      run: dotnet restore CorvusIAM.sln
+
+    - name: Run Tests
+      run: dotnet test CorvusIAM.sln --configuration Release --verbosity normal
+
+    - name: Publish Binaries (Linux x64)
+      run: |
+        dotnet publish CorvusIAM/CorvusIAM.csproj -c Release -r linux-x64 --self-contained false -o ./publish/linux-x64
+        cd ./publish/linux-x64 && zip -r ../../corvusiam-linux-x64.zip ./* && cd ../..
+
+    - name: Publish Binaries (Windows x64)
+      run: |
+        dotnet publish CorvusIAM/CorvusIAM.csproj -c Release -r win-x64 --self-contained false -o ./publish/win-x64
+        cd ./publish/win-x64 && zip -r ../../corvusiam-win-x64.zip ./* && cd ../..
+
+    - name: Determine Release Version
+      id: vars
+      run: |
+        if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+          echo "tag=${{ github.event.inputs.tag_name }}" >> $GITHUB_OUTPUT
+          echo "title=${{ github.event.inputs.release_name }}" >> $GITHUB_OUTPUT
+        else
+          echo "tag=${{ github.ref_name }}" >> $GITHUB_OUTPUT
+          echo "title=CorvuxIAM ${{ github.ref_name }}" >> $GITHUB_OUTPUT
+        fi
+
+    - name: Create GitHub Release
+      uses: softprops/action-gh-release@v2
+      with:
+        tag_name: ${{ steps.vars.outputs.tag }}
+        name: ${{ steps.vars.outputs.title }}
+        body: |
+          ## 🚀 CorvuxIAM ${{ steps.vars.outputs.tag }} Enterprise Release
+
+          ### 🛡️ O que há de novo:
+          - **Identity & Access Management (IAM):** Autenticação multifator (2FA/TOTP), RBAC e proteção contra força bruta.
+          - **Saúde & Telemetria de Endpoints (DevOps):** Monitoramento contínuo de estações de trabalho e servidores corporativos com remediação remota.
+          - **SecOps Copilot com IA Heurística:** Detecção preditiva de intrusões, terminal interativo e radar de CVEs sincronizado com NIST/CISA.
+          - **Módulos Corporativos:** NFS-e com integração SEFAZ, SPED Fiscal, folha de pagamento, espelho de ponto AFD e controle de férias.
+          - **Experiência Mobile PWA:** Notificação nativa para instalação em smartphones e funcionamento offline via Service Worker e IndexedDB.
+
+          ### 📦 Pacotes & Binários Anexados:
+          - `corvusiam-linux-x64.zip` (Deploy em servidores Linux/Ubuntu)
+          - `corvusiam-win-x64.zip` (Deploy em servidores Windows Server)
+        files: |
+          corvusiam-linux-x64.zip
+          corvusiam-win-x64.zip
+        draft: false
+        prerelease: false
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+

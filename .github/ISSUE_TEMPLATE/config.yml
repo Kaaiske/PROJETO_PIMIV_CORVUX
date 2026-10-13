@@ -1,0 +1,9 @@
+blank_issues_enabled: false
+contact_links:
+  - name: 🌐 Ambiente em Produção
+    url: https://corvuxiam.tech
+    about: Acesse a instância oficial ativa com SSL/TLS
+  - name: 📖 Documentação & Manual PIM IV
+    url: https://github.com/Kaaiske/PROJETO_PIMIV_CORVUX#readme
+    about: Consulte o guia arquitetural, manual e instruções de implantação
+

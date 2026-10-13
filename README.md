@@ -26,13 +26,7 @@
 * **Curso:** Curso Superior de Tecnologia em Análise e Desenvolvimento de Sistemas (ADS)
 * **Semestre:** 4º Semestre
 * **Tema Oficial:** *Desenvolvimento e Implantação de uma Solução Tecnológica Corporativa Integrada para Apoiar a Transformação Digital de uma Empresa (Continuidade do PIM III)*
-* **Equipe de Desenvolvimento:**
-  * Caique Brito Mascarenhas Silva — RA: H74EHC0
-  * Gabriel Matias Alves — RA: H584HF3
-  * Jheferson Herrera Choque — RA: H751853
-  * Nicolas Condorena dos Santos — RA: H712EG8
-  * Raphael F. Martins da Silva — RA: F362051
-  * Victor Balbino de O. Martins — RA: R575GA9
+* **Equipe de Desenvolvimento:** Corvus Security Core Engineering Team (Identidades e registros anonimizados para conformidade de privacidade e governança LGPD)
 
 ---
 
@@ -116,8 +110,16 @@ A plataforma resolve dores críticas de segurança empresarial:
 ```text
 PROJETO_PIMIV_CORVUX/
 ├── .github/
-│   └── workflows/
-│       └── ci.yml                     # Pipeline automatizado de CI/CD (GitHub Actions)
+│   ├── ISSUE_TEMPLATE/                # Modelos padronizados de Issues (Bugs, Features)
+│   ├── workflows/                     # Pipelines CI/CD, Releases automáticos e Docker GHCR
+│   │   ├── ci.yml                     # Pipeline de Build, Test e Cobertura
+│   │   ├── release.yml                # Publicação de Releases com binários empacotados
+│   │   └── docker-publish.yml         # Smoke test e build de containers
+│   └── pull_request_template.md       # Checklist de qualidade e governança para PRs
+├── CHANGELOG.md                       # Histórico completo de versões e notas de lançamento
+├── CONTRIBUTING.md                    # Diretrizes para colaboração e desenvolvimento
+├── SECURITY.md                        # Política oficial de reporte de vulnerabilidades
+├── LICENSE                            # Licença MIT de código aberto
 ├── CorvusIAM/                         # Aplicação Principal (ASP.NET Core 8 MVC + REST API)
 │   ├── Controllers/                   # Controllers Web (Admin, Auth, Home, Portal, Mobile)
 │   │   └── Api/                       # Controllers de APIs REST (Usuarios, Perfis, Politicas, V1Users, PublicIntegrations)

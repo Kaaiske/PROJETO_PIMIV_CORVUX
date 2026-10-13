@@ -47,6 +47,11 @@ namespace CorvusIAM.Controllers
                     var items = System.Text.Json.JsonSerializer.Deserialize<List<ModuloStatus>>(json);
                     if (items != null && items.Count > 0)
                     {
+                        if (!items.Any(i => i.Nome.Contains("Cloudflare")))
+                        {
+                            items.Add(new ModuloStatus { Nome = "Cloudflare Zero Trust / WAF", Versao = "v5.0", Status = "ONLINE", Latencia = "8ms", Icone = "ph-shield-check", Cor = "emerald", Detalhe = "Proteção Edge, DDoS Shield & DNS Filtrado" });
+                            SaveIntegracoes(items);
+                        }
                         return items;
                     }
                 }
@@ -59,7 +64,8 @@ namespace CorvusIAM.Controllers
                 new ModuloStatus { Nome = "Google Workspace", Versao = "v1.9", Status = "ONLINE", Latencia = "18ms", Icone = "ph-google-logo", Cor = "emerald", Detalhe = "Federação OAuth2 & Diretório de Contatos" },
                 new ModuloStatus { Nome = "Slack SecOps Bot", Versao = "v3.2", Status = "ONLINE", Latencia = "12ms", Icone = "ph-slack-logo", Cor = "emerald", Detalhe = "Alertas de Auditoria e Incidentes em Tempo Real" },
                 new ModuloStatus { Nome = "AWS IAM Identity Center", Versao = "v2.0", Status = "ONLINE", Latencia = "31ms", Icone = "ph-cloud", Cor = "emerald", Detalhe = "Federação SAML 2.0 & Gestão de Acessos Cloud" },
-                new ModuloStatus { Nome = "GitHub Enterprise", Versao = "v4.1", Status = "ONLINE", Latencia = "42ms", Icone = "ph-github-logo", Cor = "emerald", Detalhe = "Chaves SSH, MFA Obrigatório & Auditoria de Repositórios" }
+                new ModuloStatus { Nome = "GitHub Enterprise", Versao = "v4.1", Status = "ONLINE", Latencia = "42ms", Icone = "ph-github-logo", Cor = "emerald", Detalhe = "Chaves SSH, MFA Obrigatório & Auditoria de Repositórios" },
+                new ModuloStatus { Nome = "Cloudflare Zero Trust / WAF", Versao = "v5.0", Status = "ONLINE", Latencia = "8ms", Icone = "ph-shield-check", Cor = "emerald", Detalhe = "Proteção Edge, DDoS Shield & DNS Filtrado" }
             };
             SaveIntegracoes(defaults);
             return defaults;

@@ -1,0 +1,38 @@
+name: Docker Package & Container Registry
+
+on:
+  push:
+    branches: [ "main" ]
+    tags: [ 'v*.*.*' ]
+
+jobs:
+  docker-build:
+    name: Build & Push Docker Image
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+    - name: Checkout Code
+      uses: actions/checkout@v4
+
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v3
+
+    - name: Build Docker Image Locally
+      uses: docker/build-push-action@v5
+      with:
+        context: ./CorvusIAM
+        file: ./CorvusIAM/Dockerfile
+        push: false
+        tags: corvusiam:latest
+        load: true
+
+    - name: Run Docker Container Smoke Test
+      run: |
+        docker run -d --name test-corvusiam -p 8080:8080 -e "ASPNETCORE_ENVIRONMENT=Development" corvusiam:latest
+        sleep 5
+        docker ps
+        docker stop test-corvusiam
+

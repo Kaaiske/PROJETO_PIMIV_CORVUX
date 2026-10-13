@@ -7,21 +7,27 @@ on:
     branches: [ "main" ]
 
 jobs:
-  build:
-
+  build-and-test:
+    name: Build & Test (.NET 8)
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v3
-    - name: Setup .NET
-      uses: actions/setup-dotnet@v3
+    - name: Checkout Code
+      uses: actions/checkout@v4
+
+    - name: Setup .NET SDK 8.0
+      uses: actions/setup-dotnet@v4
       with:
         dotnet-version: 8.0.x
-    - name: Restore dependencies
+
+    - name: Restore Dependencies
       run: dotnet restore CorvusIAM.sln
-    - name: Build
+
+    - name: Build Solution (Release)
       run: dotnet build CorvusIAM.sln --no-restore --configuration Release
-    - name: Test
-      run: dotnet test CorvusIAM.sln --no-build --verbosity normal
-    - name: Build Docker Image
+
+    - name: Run Unit Tests
+      run: dotnet test CorvusIAM.sln --no-build --configuration Release --verbosity normal --collect:"XPlat Code Coverage"
+
+    - name: Build Docker Container
       run: docker build -t corvusiam:latest CorvusIAM/
