@@ -1,3 +1,4 @@
+@model CorvusIAM.Models.ContabilidadeViewModel
 @{
     Layout = "_Layout";
     ViewData["Title"] = "Contabilidade & Financeiro";
@@ -23,28 +24,28 @@
 <!-- KPIs Financeiros -->
 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-[24px] mb-[24px]">
     <div class="bento-card bg-white dark:bg-dark-card border border-gray-200 dark:border-dark-border rounded-[6px] p-[20px]">
-        <div class="text-[11px] font-[600] text-gray-500 uppercase tracking-wider mb-2">Faturamento (Mês Atual)</div>
-        <div class="text-[26px] font-[700] text-gray-900 dark:text-white">R$ 148.520,00</div>
-        <div class="text-[11px] text-emerald-500 mt-1 flex items-center gap-1"><i class="ph ph-trend-up"></i> +12% vs mês anterior</div>
+        <div class="text-[11px] font-[600] text-gray-500 uppercase tracking-wider mb-2">Faturamento Consolidado</div>
+        <div class="text-[26px] font-[700] text-gray-900 dark:text-white">R$ @((Model?.TotalFaturamento ?? 0).ToString("N2"))</div>
+        <div class="text-[11px] text-emerald-500 mt-1 flex items-center gap-1"><i class="ph ph-trend-up"></i> Base de dados fiscal ativa</div>
     </div>
     <div class="bento-card bg-white dark:bg-dark-card border border-gray-200 dark:border-dark-border rounded-[6px] p-[20px]">
         <div class="text-[11px] font-[600] text-gray-500 uppercase tracking-wider mb-2">Notas Fiscais Emitidas</div>
-        <div class="text-[26px] font-[700] text-gray-900 dark:text-white">64 NFs</div>
-        <div class="text-[11px] text-gray-400 mt-1">100% transmitidas à SEFAZ</div>
+        <div class="text-[26px] font-[700] text-gray-900 dark:text-white">@(Model?.TotalNotasEmitidas ?? 0) NFs</div>
+        <div class="text-[11px] text-gray-400 mt-1">Transmitidas à SEFAZ</div>
     </div>
     <div class="bento-card bg-white dark:bg-dark-card border border-gray-200 dark:border-dark-border rounded-[6px] p-[20px]">
         <div class="text-[11px] font-[600] text-gray-500 uppercase tracking-wider mb-2">Contas a Pagar (Semana)</div>
-        <div class="text-[26px] font-[700] text-orange-500">R$ 22.400,00</div>
-        <div class="text-[11px] text-gray-400 mt-1">8 boletos agendados</div>
+        <div class="text-[26px] font-[700] text-orange-500">R$ @((Model?.ContasAPagarSemana ?? 22400).ToString("N2"))</div>
+        <div class="text-[11px] text-gray-400 mt-1">Fornecedores e infraestrutura</div>
     </div>
     <div class="bento-card bg-white dark:bg-dark-card border border-gray-200 dark:border-dark-border rounded-[6px] p-[20px]">
         <div class="text-[11px] font-[600] text-gray-500 uppercase tracking-wider mb-2">Status da Conciliação</div>
-        <div class="text-[26px] font-[700] text-emerald-500">Em Dia</div>
-        <div class="text-[11px] text-gray-400 mt-1">Banco Itaú / Santander</div>
+        <div class="text-[26px] font-[700] text-emerald-500">@(Model?.StatusConciliacao ?? "Em Dia")</div>
+        <div class="text-[11px] text-gray-400 mt-1">Contas bancárias integradas</div>
     </div>
 </div>
 
-<div class="bento-card bg-white dark:bg-dark-card border border-gray-200 dark:border-dark-border rounded-[6px] p-[24px]">
+<div class="bento-card bg-white dark:bg-dark-card border border-gray-200 dark:border-dark-border rounded-[6px] p-[24px] mb-[24px]">
     <h3 class="text-[14px] font-[600] text-gray-900 dark:text-white mb-2 m-0">Painel Operacional Contábil</h3>
     <p class="text-[13px] text-gray-600 dark:text-gray-400 mb-6 m-0">Acesso restrito para auditoria fiscal, aprovação de despesas e geração de guias DAS/SPED.</p>
     
@@ -53,11 +54,60 @@
             <i class="ph ph-receipt"></i> Emitir NF de Serviço
         </button>
         <button onclick="executarFechamentoMensal()" class="bg-gray-100 dark:bg-dark-bg border border-gray-200 dark:border-dark-border text-gray-800 dark:text-gray-200 text-[12px] font-medium px-4 py-2 rounded-[6px] hover:bg-gray-200 dark:hover:bg-[#1B1F24] transition-colors flex items-center gap-1.5 cursor-pointer">
-            <i class="ph ph-file-text"></i> Relatório de Balancete
+            <i class="ph ph-file-text"></i> Executar Fechamento Mensal
         </button>
-        <button onclick="exportarSpedFiscal()" class="bg-gray-100 dark:bg-dark-bg border border-gray-200 dark:border-dark-border text-gray-800 dark:text-gray-200 text-[12px] font-medium px-4 py-2 rounded-[6px] hover:bg-gray-200 dark:hover:bg-[#1B1F24] transition-colors flex items-center gap-1.5 cursor-pointer">
+        <a href="/Portal/ExportarSpedFiscal" class="bg-gray-100 dark:bg-dark-bg border border-gray-200 dark:border-dark-border text-gray-800 dark:text-gray-200 text-[12px] font-medium px-4 py-2 rounded-[6px] hover:bg-gray-200 dark:hover:bg-[#1B1F24] transition-colors flex items-center gap-1.5 cursor-pointer no-underline">
             <i class="ph ph-download-simple"></i> Exportar SPED Fiscal (.txt)
-        </button>
+        </a>
+    </div>
+</div>
+
+<!-- Tabela de Notas Fiscais Emitidas -->
+<div class="bento-card bg-white dark:bg-dark-card border border-gray-200 dark:border-dark-border rounded-[6px] flex flex-col overflow-hidden mb-[24px]">
+    <div class="p-[16px] border-b border-gray-100 dark:border-dark-border bg-gray-50 dark:bg-dark-bg/50">
+        <h3 class="text-[12px] font-[600] text-gray-500 dark:text-gray-400 uppercase tracking-[0.05em] m-0">Histórico de Notas Fiscais (NFS-e)</h3>
+    </div>
+    <div class="overflow-x-auto">
+        <table class="w-full text-left border-collapse">
+            <thead>
+                <tr class="border-b border-gray-200 dark:border-dark-border bg-gray-50 dark:bg-dark-bg/50 text-[11px] font-[600] text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                    <th class="px-4 py-3">Número</th>
+                    <th class="px-4 py-3">Tomador / Cliente</th>
+                    <th class="px-4 py-3">CNPJ</th>
+                    <th class="px-4 py-3">Valor</th>
+                    <th class="px-4 py-3">Data Emissão</th>
+                    <th class="px-4 py-3">Protocolo SEFAZ</th>
+                    <th class="px-4 py-3">Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (Model?.NotasFiscais != null && Model.NotasFiscais.Any())
+                {
+                    @foreach (var nf in Model.NotasFiscais)
+                    {
+                        <tr class="border-b border-gray-100 dark:border-dark-border hover:bg-gray-50 dark:hover:bg-[#1B1F24] text-[12px]">
+                            <td class="px-4 py-3 font-mono font-bold text-gray-900 dark:text-white">NFS-e #@nf.Numero</td>
+                            <td class="px-4 py-3 font-medium text-gray-800 dark:text-gray-200">@nf.TomadorNome</td>
+                            <td class="px-4 py-3 font-mono text-gray-500">@nf.TomadorCnpj</td>
+                            <td class="px-4 py-3 font-bold text-emerald-600 dark:text-emerald-400">R$ @nf.Valor.ToString("N2")</td>
+                            <td class="px-4 py-3 text-gray-500">@nf.DataEmissao.ToString("dd/MM/yyyy HH:mm")</td>
+                            <td class="px-4 py-3 font-mono text-[11px] text-gray-400">@nf.ProtocoloSefaz</td>
+                            <td class="px-4 py-3">
+                                <span class="px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-500 text-[10px] font-semibold border border-emerald-500/20">
+                                    @nf.Status
+                                </span>
+                            </td>
+                        </tr>
+                    }
+                }
+                else
+                {
+                    <tr>
+                        <td colspan="7" class="px-4 py-4 text-center text-gray-500 text-xs">Nenhuma nota fiscal emitida ainda.</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
     </div>
 </div>
 
@@ -93,11 +143,13 @@
                 background: '#121418', color: '#fff',
                 preConfirm: () => {
                     const tomador = document.getElementById('nfTomador').value;
+                    const cnpj = document.getElementById('nfCnpj').value;
                     const valor = document.getElementById('nfValor').value;
-                    if (!tomador || !valor) {
-                        Swal.showValidationMessage('Preencha ao menos o Tomador e o Valor.');
+                    const desc = document.getElementById('nfDesc').value;
+                    if (!tomador || !valor || parseFloat(valor) <= 0) {
+                        Swal.showValidationMessage('Preencha ao menos o Tomador e um Valor válido.');
                     }
-                    return { tomador, valor };
+                    return { TomadorNome: tomador, TomadorCnpj: cnpj, Valor: parseFloat(valor), Descricao: desc };
                 }
             });
 
@@ -110,22 +162,33 @@
                     background: '#121418', color: '#fff'
                 });
 
-                setTimeout(() => {
-                    const numeroNF = Math.floor(1000 + Math.random() * 9000);
-                    Swal.fire({
-                        title: 'Nota Fiscal Autorizada!',
-                        html: `NFS-e Nº <b>${numeroNF}</b> emitida com sucesso para <b>${formValues.tomador}</b>.<br><br><span class="text-emerald-400 text-xs font-mono">Protocolo SEFAZ: 20261012998341<br>Valor: R$ ${parseFloat(formValues.valor).toFixed(2)}</span>`,
-                        icon: 'success',
-                        background: '#121418', color: '#fff', confirmButtonColor: '#3B82F6'
+                try {
+                    const res = await fetch('/Portal/EmitirNotaFiscal', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json', 'RequestVerificationToken': getCsrfToken() },
+                        body: JSON.stringify(formValues)
                     });
-                }, 1400);
+                    const data = await res.json();
+                    if (res.ok) {
+                        Swal.fire({
+                            title: 'Nota Fiscal Autorizada!',
+                            html: `NFS-e Nº <b>${data.numero}</b> emitida com sucesso para <b>${data.tomador}</b>.<br><br><span class="text-emerald-400 text-xs font-mono">Protocolo SEFAZ: ${data.protocolo}<br>Valor: R$ ${parseFloat(data.valor).toFixed(2)}</span>`,
+                            icon: 'success',
+                            background: '#121418', color: '#fff', confirmButtonColor: '#3B82F6'
+                        }).then(() => window.location.reload());
+                    } else {
+                        Swal.fire({ title: 'Erro!', text: data.message || 'Falha ao emitir NF.', icon: 'error', background: '#121418', color: '#fff' });
+                    }
+                } catch (e) {
+                    Swal.fire({ title: 'Erro de Conexão', text: 'Não foi possível contatar o servidor.', icon: 'error', background: '#121418', color: '#fff' });
+                }
             }
         }
 
         async function executarFechamentoMensal() {
             const confirm = await Swal.fire({
                 title: 'Executar Fechamento Mensal?',
-                text: 'Será gerado o resumo consolidado de DRE, balanço patrimonial e apuração de tributos (Simples Nacional / Lucro Presumido).',
+                text: 'Será gerado o resumo consolidado de DRE, balanço patrimonial e apuração de tributos salvos no banco.',
                 icon: 'question',
                 showCancelButton: true,
                 confirmButtonColor: '#10b981',
@@ -136,32 +199,32 @@
 
             if (confirm.isConfirmed) {
                 Swal.fire({
-                    title: 'Consolidando Lançamentos...',
+                    title: 'Consolidando Lançamentos no Banco...',
                     allowOutsideClick: false,
                     didOpen: () => Swal.showLoading(),
                     background: '#121418', color: '#fff'
                 });
 
-                setTimeout(() => {
-                    Swal.fire({
-                        title: 'Fechamento Realizado!',
-                        html: 'Mês fiscal consolidado com sucesso.<br><br><b>Receita Bruta:</b> R$ 148.520,00<br><b>Despesas Operacionais:</b> R$ 42.110,00<br><b>Lucro Líquido:</b> <span class="text-emerald-400 font-bold">R$ 106.410,00</span>',
-                        icon: 'success',
-                        background: '#121418', color: '#fff', confirmButtonColor: '#3B82F6'
+                try {
+                    const res = await fetch('/Portal/ExecutarFechamentoMensal', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json', 'RequestVerificationToken': getCsrfToken() }
                     });
-                }, 1200);
+                    const data = await res.json();
+                    if (res.ok) {
+                        Swal.fire({
+                            title: 'Fechamento Realizado!',
+                            html: `Mês fiscal <b>${data.mes}</b> consolidado com sucesso.<br><br><b>Receita Bruta:</b> R$ ${parseFloat(data.receita).toFixed(2)}<br><b>Despesas Operacionais:</b> R$ ${parseFloat(data.despesas).toFixed(2)}<br><b>Lucro Líquido:</b> <span class="text-emerald-400 font-bold">R$ ${parseFloat(data.lucro).toFixed(2)}</span>`,
+                            icon: 'success',
+                            background: '#121418', color: '#fff', confirmButtonColor: '#3B82F6'
+                        }).then(() => window.location.reload());
+                    } else {
+                        Swal.fire({ title: 'Erro!', text: data.message || 'Falha ao processar fechamento.', icon: 'error', background: '#121418', color: '#fff' });
+                    }
+                } catch (e) {
+                    Swal.fire({ title: 'Erro de Conexão', text: 'Não foi possível contatar o servidor.', icon: 'error', background: '#121418', color: '#fff' });
+                }
             }
-        }
-
-        function exportarSpedFiscal() {
-            Swal.fire({
-                title: 'Exportando SPED Fiscal...',
-                text: 'O arquivo digital no padrão EFD Contribuições foi gerado para transmissão à Receita Federal.',
-                icon: 'success',
-                timer: 2000,
-                showConfirmButton: false,
-                background: '#121418', color: '#fff'
-            });
         }
     </script>
 }

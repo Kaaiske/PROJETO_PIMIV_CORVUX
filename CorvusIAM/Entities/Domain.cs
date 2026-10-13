@@ -136,5 +136,91 @@ namespace CorvusIAM.Entities
         [Required, MaxLength(100)] public string Chave { get; set; } = string.Empty;
         [Required, MaxLength(500)] public string Valor { get; set; } = string.Empty;
     }
+
+    public class FirewallRegra
+    {
+        [Key] public int Id { get; set; }
+        [Required, MaxLength(50)] public string Ip { get; set; } = string.Empty;
+        [Required, MaxLength(200)] public string Motivo { get; set; } = string.Empty;
+        [MaxLength(10)] public string PaisOrigem { get; set; } = "BR";
+        public DateTime DataBloqueio { get; set; } = DateTime.UtcNow;
+        public bool Ativo { get; set; } = true;
+        [MaxLength(100)] public string? CriadoPor { get; set; } = "SecOps AI";
+    }
+
+    public class DispositivoRede
+    {
+        [Key] public int Id { get; set; }
+        [Required, MaxLength(100)] public string Hostname { get; set; } = string.Empty;
+        [Required, MaxLength(50)] public string Ip { get; set; } = string.Empty;
+        [MaxLength(50)] public string Vlan { get; set; } = "VLAN 10 - Corporativa";
+        [MaxLength(100)] public string UsuarioResponsavel { get; set; } = string.Empty;
+        [MaxLength(100)] public string SistemaOperacional { get; set; } = string.Empty;
+        [MaxLength(50)] public string Tipo { get; set; } = "estacoes"; // estacoes, servidores
+        public int CpuUsoPercentual { get; set; } = 15;
+        public int RamUsoPercentual { get; set; } = 45;
+        public int DiscoUsoPercentual { get; set; } = 35;
+        public bool EdrAtivo { get; set; } = true;
+        [MaxLength(100)] public string EdrStatus { get; set; } = "EDR Protegido";
+        public int PatchesPendentes { get; set; } = 0;
+        [MaxLength(50)] public string Status { get; set; } = "Saudavel"; // Saudavel, Alerta, Critico
+        public bool IsoladoRede { get; set; } = false;
+        public DateTime? UltimoScan { get; set; } = DateTime.UtcNow;
+        public DateTime UltimoHeartbeat { get; set; } = DateTime.UtcNow;
+    }
+
+    public class NotaFiscal
+    {
+        [Key] public int Id { get; set; }
+        public int Numero { get; set; }
+        [Required, MaxLength(150)] public string TomadorNome { get; set; } = string.Empty;
+        [Required, MaxLength(20)] public string TomadorCnpj { get; set; } = string.Empty;
+        [Column(TypeName = "decimal(18,2)")] public decimal Valor { get; set; }
+        [MaxLength(500)] public string Descricao { get; set; } = string.Empty;
+        public DateTime DataEmissao { get; set; } = DateTime.UtcNow;
+        [MaxLength(50)] public string ProtocoloSefaz { get; set; } = string.Empty;
+        [MaxLength(20)] public string Status { get; set; } = "Autorizada"; // Autorizada, Cancelada
+        public int? EmitidoPorUsuarioId { get; set; }
+        public Usuario? EmitidoPorUsuario { get; set; }
+    }
+
+    public class FechamentoMensal
+    {
+        [Key] public int Id { get; set; }
+        [Required, MaxLength(20)] public string MesAno { get; set; } = string.Empty;
+        [Column(TypeName = "decimal(18,2)")] public decimal ReceitaBruta { get; set; }
+        [Column(TypeName = "decimal(18,2)")] public decimal DespesasOperacionais { get; set; }
+        [Column(TypeName = "decimal(18,2)")] public decimal LucroLiquido { get; set; }
+        public DateTime DataFechamento { get; set; } = DateTime.UtcNow;
+        [MaxLength(20)] public string Status { get; set; } = "Fechado";
+        public int? FechadoPorUsuarioId { get; set; }
+        public Usuario? FechadoPorUsuario { get; set; }
+    }
+
+    public class RegistroFerias
+    {
+        [Key] public int Id { get; set; }
+        public int? UsuarioId { get; set; }
+        public Usuario? Usuario { get; set; }
+        [Required, MaxLength(100)] public string ColaboradorNome { get; set; } = string.Empty;
+        public DateTime DataInicio { get; set; }
+        public DateTime DataFim { get; set; }
+        public int Dias { get; set; } = 30;
+        [MaxLength(30)] public string Status { get; set; } = "Aprovada"; // Agendada, Aprovada, Concluida
+        public DateTime DataAprovacao { get; set; } = DateTime.UtcNow;
+    }
+
+    public class FolhaPagamento
+    {
+        [Key] public int Id { get; set; }
+        [Required, MaxLength(20)] public string MesReferencia { get; set; } = string.Empty;
+        public int TotalColaboradores { get; set; } = 18;
+        [Column(TypeName = "decimal(18,2)")] public decimal ValorBrutoTotal { get; set; }
+        [Column(TypeName = "decimal(18,2)")] public decimal ValorLiquidoTotal { get; set; }
+        [Column(TypeName = "decimal(18,2)")] public decimal InssTotal { get; set; }
+        [Column(TypeName = "decimal(18,2)")] public decimal FgtsTotal { get; set; }
+        public DateTime DataProcessamento { get; set; } = DateTime.UtcNow;
+        [MaxLength(30)] public string Status { get; set; } = "Processada";
+    }
 }
 

@@ -1,3 +1,4 @@
+@model CorvusIAM.Models.RHViewModel
 @{
     Layout = "_Layout";
     ViewData["Title"] = "Portal de Recursos Humanos";
@@ -12,7 +13,7 @@
     </div>
     <div class="flex gap-2">
         <button onclick="gerarFolhaPagamentoModal()" class="bg-brand-600 hover:bg-[#1D4ED8] text-white text-[12px] font-medium px-4 py-2 rounded-[6px] shadow-sm transition-colors flex items-center gap-1.5 cursor-pointer">
-            <i class="ph ph-money"></i> Gerar Folha de Pagamento
+            <i class="ph ph-money"></i> Processar Folha Mensal
         </button>
         <button onclick="solicitarFeriasModal()" class="bg-emerald-600 hover:bg-emerald-700 text-white text-[12px] font-medium px-4 py-2 rounded-[6px] shadow-sm transition-colors flex items-center gap-1.5 cursor-pointer">
             <i class="ph ph-sun"></i> Autorizar Férias
@@ -24,27 +25,27 @@
 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-[24px] mb-[24px]">
     <div class="bento-card bg-white dark:bg-dark-card border border-gray-200 dark:border-dark-border rounded-[6px] p-[20px]">
         <div class="text-[11px] font-[600] text-gray-500 uppercase tracking-wider mb-2">Quadro de Colaboradores</div>
-        <div class="text-[26px] font-[700] text-gray-900 dark:text-white">18 Ativos</div>
-        <div class="text-[11px] text-emerald-500 mt-1"><i class="ph ph-user-plus"></i> 2 admissões este mês</div>
+        <div class="text-[26px] font-[700] text-gray-900 dark:text-white">@(Model?.TotalColaboradoresAtivos ?? 0) Ativos</div>
+        <div class="text-[11px] text-emerald-500 mt-1"><i class="ph ph-user-check"></i> 100% integrados no IAM</div>
     </div>
     <div class="bento-card bg-white dark:bg-dark-card border border-gray-200 dark:border-dark-border rounded-[6px] p-[20px]">
         <div class="text-[11px] font-[600] text-gray-500 uppercase tracking-wider mb-2">Total Folha Salarial</div>
-        <div class="text-[26px] font-[700] text-gray-900 dark:text-white">R$ 84.200,00</div>
-        <div class="text-[11px] text-gray-400 mt-1">Lançamento previsto para dia 05</div>
+        <div class="text-[26px] font-[700] text-gray-900 dark:text-white">R$ @((Model?.TotalFolhaSalarial ?? 0).ToString("N2"))</div>
+        <div class="text-[11px] text-gray-400 mt-1">Líquido consolidado atual</div>
     </div>
     <div class="bento-card bg-white dark:bg-dark-card border border-gray-200 dark:border-dark-border rounded-[6px] p-[20px]">
-        <div class="text-[11px] font-[600] text-gray-500 uppercase tracking-wider mb-2">Férias a Vencer</div>
-        <div class="text-[26px] font-[700] text-orange-500">2 Alertas</div>
-        <div class="text-[11px] text-gray-400 mt-1">Período concessivo próximo</div>
+        <div class="text-[11px] font-[600] text-gray-500 uppercase tracking-wider mb-2">Férias Programadas</div>
+        <div class="text-[26px] font-[700] text-orange-500">@(Model?.FeriasAVencerAlertas ?? 0) Agendadas</div>
+        <div class="text-[11px] text-gray-400 mt-1">Escalas ativas no DP</div>
     </div>
     <div class="bento-card bg-white dark:bg-dark-card border border-gray-200 dark:border-dark-border rounded-[6px] p-[20px]">
         <div class="text-[11px] font-[600] text-gray-500 uppercase tracking-wider mb-2">Controle de Ponto</div>
-        <div class="text-[26px] font-[700] text-emerald-500">100% Regular</div>
-        <div class="text-[11px] text-gray-400 mt-1">Sem inconsistências hoje</div>
+        <div class="text-[26px] font-[700] text-emerald-500">@(Model?.StatusControlePonto ?? "100% Regular")</div>
+        <div class="text-[11px] text-gray-400 mt-1">Conformidade Portaria 671 MTE</div>
     </div>
 </div>
 
-<div class="bento-card bg-white dark:bg-dark-card border border-gray-200 dark:border-dark-border rounded-[6px] p-[24px]">
+<div class="bento-card bg-white dark:bg-dark-card border border-gray-200 dark:border-dark-border rounded-[6px] p-[24px] mb-[24px]">
     <h3 class="text-[14px] font-[600] text-gray-900 dark:text-white mb-2 m-0">Atividades e Rotinas do RH</h3>
     <p class="text-[13px] text-gray-600 dark:text-gray-400 mb-6 m-0">Gerencie holerites, espelhos de ponto, benefícios corporativos e informe de rendimentos dos colaboradores.</p>
     
@@ -55,9 +56,56 @@
         <button onclick="solicitarFeriasModal()" class="bg-gray-100 dark:bg-dark-bg border border-gray-200 dark:border-dark-border text-gray-800 dark:text-gray-200 text-[12px] font-medium px-4 py-2 rounded-[6px] hover:bg-gray-200 dark:hover:bg-[#1B1F24] transition-colors flex items-center gap-1.5 cursor-pointer">
             <i class="ph ph-calendar"></i> Escala de Férias
         </button>
-        <button onclick="exportarEspelhoPonto()" class="bg-gray-100 dark:bg-dark-bg border border-gray-200 dark:border-dark-border text-gray-800 dark:text-gray-200 text-[12px] font-medium px-4 py-2 rounded-[6px] hover:bg-gray-200 dark:hover:bg-[#1B1F24] transition-colors flex items-center gap-1.5 cursor-pointer">
-            <i class="ph ph-clock"></i> Exportar Espelho de Ponto
-        </button>
+        <a href="/Portal/ExportarEspelhoPonto" class="bg-gray-100 dark:bg-dark-bg border border-gray-200 dark:border-dark-border text-gray-800 dark:text-gray-200 text-[12px] font-medium px-4 py-2 rounded-[6px] hover:bg-gray-200 dark:hover:bg-[#1B1F24] transition-colors flex items-center gap-1.5 cursor-pointer no-underline">
+            <i class="ph ph-clock"></i> Exportar Espelho de Ponto (AFD)
+        </a>
+    </div>
+</div>
+
+<!-- Tabela de Férias Concedidas -->
+<div class="bento-card bg-white dark:bg-dark-card border border-gray-200 dark:border-dark-border rounded-[6px] flex flex-col overflow-hidden mb-[24px]">
+    <div class="p-[16px] border-b border-gray-100 dark:border-dark-border bg-gray-50 dark:bg-dark-bg/50">
+        <h3 class="text-[12px] font-[600] text-gray-500 dark:text-gray-400 uppercase tracking-[0.05em] m-0">Escala de Férias dos Colaboradores</h3>
+    </div>
+    <div class="overflow-x-auto">
+        <table class="w-full text-left border-collapse">
+            <thead>
+                <tr class="border-b border-gray-200 dark:border-dark-border bg-gray-50 dark:bg-dark-bg/50 text-[11px] font-[600] text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                    <th class="px-4 py-3">Colaborador</th>
+                    <th class="px-4 py-3">Início das Férias</th>
+                    <th class="px-4 py-3">Término</th>
+                    <th class="px-4 py-3">Dias Concedidos</th>
+                    <th class="px-4 py-3">Data Aprovação</th>
+                    <th class="px-4 py-3">Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (Model?.Ferias != null && Model.Ferias.Any())
+                {
+                    @foreach (var fer in Model.Ferias)
+                    {
+                        <tr class="border-b border-gray-100 dark:border-dark-border hover:bg-gray-50 dark:hover:bg-[#1B1F24] text-[12px]">
+                            <td class="px-4 py-3 font-medium text-gray-900 dark:text-white">@fer.ColaboradorNome</td>
+                            <td class="px-4 py-3 text-gray-600 dark:text-gray-400">@fer.DataInicio.ToString("dd/MM/yyyy")</td>
+                            <td class="px-4 py-3 text-gray-600 dark:text-gray-400">@fer.DataFim.ToString("dd/MM/yyyy")</td>
+                            <td class="px-4 py-3 font-bold text-gray-800 dark:text-gray-200">@fer.Dias dias</td>
+                            <td class="px-4 py-3 text-gray-500">@fer.DataAprovacao.ToString("dd/MM/yyyy HH:mm")</td>
+                            <td class="px-4 py-3">
+                                <span class="px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-500 text-[10px] font-semibold border border-emerald-500/20">
+                                    @fer.Status
+                                </span>
+                            </td>
+                        </tr>
+                    }
+                }
+                else
+                {
+                    <tr>
+                        <td colspan="6" class="px-4 py-4 text-center text-gray-500 text-xs">Nenhum registro de férias cadastrado.</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
     </div>
 </div>
 
@@ -66,7 +114,7 @@
         async function gerarFolhaPagamentoModal() {
             const confirm = await Swal.fire({
                 title: 'Processar Folha de Pagamento?',
-                text: 'Serão apurados proventos, horas extras, descontos legais de INSS e IRRF de todos os 18 colaboradores.',
+                text: 'Serão apurados proventos, horas extras, descontos legais de INSS e IRRF de todos os colaboradores ativos e persistidos no banco.',
                 icon: 'question',
                 showCancelButton: true,
                 confirmButtonColor: '#3B82F6',
@@ -78,20 +126,31 @@
             if (confirm.isConfirmed) {
                 Swal.fire({
                     title: 'Calculando Encargos Trabalhistas...',
-                    html: '<div class="text-xs text-gray-400">Processando e-Social, FGTS Digital e gerando holerites em PDF...</div>',
+                    html: '<div class="text-xs text-gray-400">Processando e-Social, FGTS Digital e registrando no banco de dados...</div>',
                     allowOutsideClick: false,
                     didOpen: () => Swal.showLoading(),
                     background: '#121418', color: '#fff'
                 });
 
-                setTimeout(() => {
-                    Swal.fire({
-                        title: 'Folha de Pagamento Fechada!',
-                        html: 'A folha do mês foi processada com êxito.<br><br><b>Salários Líquidos:</b> R$ 84.200,00<br><b>FGTS a recolher:</b> R$ 6.736,00<br><b>INSS patronal:</b> R$ 9.260,00<br><br><span class="text-emerald-400 text-xs">Holerites disponibilizados no portal dos colaboradores.</span>',
-                        icon: 'success',
-                        background: '#121418', color: '#fff', confirmButtonColor: '#3B82F6'
+                try {
+                    const res = await fetch('/Portal/ProcessarFolhaPagamento', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json', 'RequestVerificationToken': getCsrfToken() }
                     });
-                }, 1500);
+                    const data = await res.json();
+                    if (res.ok) {
+                        Swal.fire({
+                            title: 'Folha de Pagamento Fechada!',
+                            html: `Folha de <b>${data.mes}</b> processada com êxito.<br><br><b>Colaboradores:</b> ${data.colaboradores}<br><b>Salários Líquidos:</b> R$ ${parseFloat(data.liquido).toFixed(2)}<br><b>FGTS a recolher:</b> R$ ${parseFloat(data.fgts).toFixed(2)}<br><b>INSS patronal:</b> R$ ${parseFloat(data.inss).toFixed(2)}<br><br><span class="text-emerald-400 text-xs">Dados persistidos com sucesso!</span>`,
+                            icon: 'success',
+                            background: '#121418', color: '#fff', confirmButtonColor: '#3B82F6'
+                        }).then(() => window.location.reload());
+                    } else {
+                        Swal.fire({ title: 'Erro!', text: data.message || 'Falha ao processar folha.', icon: 'error', background: '#121418', color: '#fff' });
+                    }
+                } catch(e) {
+                    Swal.fire({ title: 'Erro de Conexão', text: 'Não foi possível contatar o servidor.', icon: 'error', background: '#121418', color: '#fff' });
+                }
             }
         }
 
@@ -102,7 +161,7 @@
                     <div class="text-left space-y-3">
                         <div>
                             <label class="text-xs text-gray-400 block mb-1">Colaborador</label>
-                            <input id="ferColab" placeholder="Ex: Lucas Ferreira ou Amanda Lima" class="swal2-input !m-0 !w-full bg-gray-900 text-white text-xs">
+                            <input id="ferColab" placeholder="Ex: Amanda Lima ou Gabriel Ferreira" class="swal2-input !m-0 !w-full bg-gray-900 text-white text-xs">
                         </div>
                         <div>
                             <label class="text-xs text-gray-400 block mb-1">Início das Férias</label>
@@ -129,29 +188,32 @@
                     if (!colab || !inicio) {
                         Swal.showValidationMessage('Preencha o colaborador e a data de início.');
                     }
-                    return { colab, inicio, dias: document.getElementById('ferDias').value };
+                    return { ColaboradorNome: colab, DataInicio: inicio, Dias: parseInt(document.getElementById('ferDias').value) };
                 }
             });
 
             if (formValues) {
-                Swal.fire({
-                    title: 'Férias Autorizadas!',
-                    html: `Período de <b>${formValues.dias} dias</b> agendado para <b>${formValues.colab}</b> com início em <b>${formValues.inicio}</b>.<br><br><span class="text-emerald-400 text-xs">Aviso de férias enviado para assinatura eletrônica do colaborador.</span>`,
-                    icon: 'success',
-                    background: '#121418', color: '#fff', confirmButtonColor: '#3B82F6'
-                });
+                try {
+                    const res = await fetch('/Portal/SolicitarFerias', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json', 'RequestVerificationToken': getCsrfToken() },
+                        body: JSON.stringify(formValues)
+                    });
+                    const data = await res.json();
+                    if (res.ok) {
+                        Swal.fire({
+                            title: 'Férias Autorizadas!',
+                            html: `Período de <b>${data.dias} dias</b> agendado para <b>${data.colaborador}</b> com início em <b>${data.inicio}</b>.<br><br><span class="text-emerald-400 text-xs">Registro gravado no banco de dados e notificação emitida.</span>`,
+                            icon: 'success',
+                            background: '#121418', color: '#fff', confirmButtonColor: '#3B82F6'
+                        }).then(() => window.location.reload());
+                    } else {
+                        Swal.fire({ title: 'Erro!', text: data.message || 'Falha ao autorizar férias.', icon: 'error', background: '#121418', color: '#fff' });
+                    }
+                } catch(e) {
+                    Swal.fire({ title: 'Erro de Conexão', text: 'Não foi possível contatar o servidor.', icon: 'error', background: '#121418', color: '#fff' });
+                }
             }
-        }
-
-        function exportarEspelhoPonto() {
-            Swal.fire({
-                title: 'Exportando Espelho de Ponto',
-                text: 'Relatório do ponto eletrônico com marcações biométricas exportado em formato PDF/AFD.',
-                icon: 'success',
-                timer: 2000,
-                showConfirmButton: false,
-                background: '#121418', color: '#fff'
-            });
         }
     </script>
 }

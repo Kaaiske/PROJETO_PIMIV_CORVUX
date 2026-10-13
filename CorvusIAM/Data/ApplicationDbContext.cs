@@ -18,7 +18,12 @@ namespace CorvusIAM.Data
         public DbSet<LogAuditoria> LogsAuditoria { get; set; }
         public DbSet<ChamadoSuporte> ChamadosSuporte { get; set; }
         public DbSet<ConfiguracaoSistema> ConfiguracoesSistema { get; set; }
-        
+        public DbSet<FirewallRegra> FirewallRegras { get; set; }
+        public DbSet<DispositivoRede> DispositivosRede { get; set; }
+        public DbSet<NotaFiscal> NotasFiscais { get; set; }
+        public DbSet<FechamentoMensal> FechamentosMensais { get; set; }
+        public DbSet<RegistroFerias> RegistrosFerias { get; set; }
+        public DbSet<FolhaPagamento> FolhasPagamento { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

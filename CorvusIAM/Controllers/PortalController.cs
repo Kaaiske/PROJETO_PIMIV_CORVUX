@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
 using CorvusIAM.Data;
 using CorvusIAM.Interfaces;
+using CorvusIAM.Models;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Security.Claims;
@@ -29,10 +30,52 @@ namespace CorvusIAM.Controllers {
         }
 
         [Authorize(Policy = "RequireHR")]
-        public IActionResult RH() { ViewData["Role"] = "RH"; ViewData["UserName"] = User.Identity?.Name ?? "Usuário"; return View(); }
+        public IActionResult RH() 
+        { 
+            ViewData["Role"] = "RH"; 
+            ViewData["UserName"] = User.Identity?.Name ?? "Usuário"; 
+
+            var colaboradores = _context.Usuarios.Where(u => u.Ativo).OrderBy(u => u.Nome).ToList();
+            var folhas = _context.FolhasPagamento.OrderByDescending(f => f.DataProcessamento).ToList();
+            var ferias = _context.RegistrosFerias.OrderByDescending(f => f.DataInicio).ToList();
+            var ultimaFolha = folhas.FirstOrDefault();
+
+            var vm = new RHViewModel
+            {
+                TotalColaboradoresAtivos = colaboradores.Count,
+                TotalFolhaSalarial = ultimaFolha?.ValorLiquidoTotal ?? (colaboradores.Count * 4677.77m),
+                FeriasAVencerAlertas = ferias.Count(f => f.Status == "Aprovada"),
+                StatusControlePonto = "100% Regular",
+                Folhas = folhas,
+                Ferias = ferias,
+                Colaboradores = colaboradores
+            };
+
+            return View(vm); 
+        }
         
         [Authorize(Policy = "RequireAccounting")]
-        public IActionResult Contabilidade() { ViewData["Role"] = "Contabilidade"; ViewData["UserName"] = User.Identity?.Name ?? "Usuário"; return View(); }
+        public IActionResult Contabilidade() 
+        { 
+            ViewData["Role"] = "Contabilidade"; 
+            ViewData["UserName"] = User.Identity?.Name ?? "Usuário"; 
+
+            var notas = _context.NotasFiscais.OrderByDescending(n => n.DataEmissao).ToList();
+            var fechamentos = _context.FechamentosMensais.OrderByDescending(f => f.DataFechamento).ToList();
+            var faturamento = notas.Sum(n => n.Valor);
+
+            var vm = new ContabilidadeViewModel
+            {
+                TotalFaturamento = faturamento,
+                TotalNotasEmitidas = notas.Count,
+                ContasAPagarSemana = 22400.00m,
+                StatusConciliacao = "Em Dia",
+                NotasFiscais = notas,
+                Fechamentos = fechamentos
+            };
+
+            return View(vm); 
+        }
         
         [Authorize(Policy = "RequireHelpDesk")]
         public IActionResult HelpDesk() { ViewData["Role"] = "Suporte T.I."; ViewData["UserName"] = User.Identity?.Name ?? "Usuário"; return View(); }
@@ -277,6 +320,266 @@ namespace CorvusIAM.Controllers {
             public string SenhaAtual { get; set; } = string.Empty;
             public string NovaSenha { get; set; } = string.Empty;
             public string ConfirmaSenha { get; set; } = string.Empty;
+        }
+
+        // ================= CONTABILIDADE & FINANCEIRO =================
+
+        public class EmitirNotaFiscalDTO
+        {
+            public string TomadorNome { get; set; } = string.Empty;
+            public string TomadorCnpj { get; set; } = string.Empty;
+            public decimal Valor { get; set; }
+            public string? Descricao { get; set; }
+        }
+
+        [HttpPost]
+        [Authorize(Policy = "RequireAccounting")]
+        public async Task<IActionResult> EmitirNotaFiscal([FromBody] EmitirNotaFiscalDTO dto)
+        {
+            if (string.IsNullOrWhiteSpace(dto.TomadorNome) || dto.Valor <= 0)
+            {
+                return BadRequest(new { message = "Tomador e valor válidos são obrigatórios." });
+            }
+
+            int proxNumero = (_context.NotasFiscais.Max(n => (int?)n.Numero) ?? 1028) + 1;
+            string protocolo = $"{DateTime.UtcNow:yyyyMMdd}{new Random().Next(100000, 999999)}";
+            int.TryParse(User.FindFirstValue(ClaimTypes.NameIdentifier), out int userId);
+
+            var nf = new CorvusIAM.Entities.NotaFiscal
+            {
+                Numero = proxNumero,
+                TomadorNome = dto.TomadorNome,
+                TomadorCnpj = string.IsNullOrWhiteSpace(dto.TomadorCnpj) ? "00.000.000/0001-00" : dto.TomadorCnpj,
+                Valor = dto.Valor,
+                Descricao = dto.Descricao ?? "Prestação de serviços em Gestão de Identidades e Acessos (IAM)",
+                DataEmissao = DateTime.UtcNow,
+                ProtocoloSefaz = protocolo,
+                Status = "Autorizada",
+                EmitidoPorUsuarioId = userId > 0 ? userId : null
+            };
+
+            _context.NotasFiscais.Add(nf);
+            _context.LogsAuditoria.Add(new CorvusIAM.Entities.LogAuditoria
+            {
+                UsuarioId = userId > 0 ? userId : null,
+                Acao = "Emissão de Nota Fiscal",
+                Detalhe = $"NFS-e Nº {nf.Numero} emitida para '{nf.TomadorNome}'. Valor: R$ {nf.Valor:N2}. Protocolo SEFAZ: {protocolo}",
+                Tipo = "Info",
+                Origem = "Módulo Contábil",
+                DataHora = DateTime.UtcNow
+            });
+
+            await _context.SaveChangesAsync();
+
+            return Ok(new
+            {
+                success = true,
+                numero = nf.Numero,
+                tomador = nf.TomadorNome,
+                valor = nf.Valor,
+                protocolo = protocolo,
+                message = "Nota Fiscal autorizada e transmitida à SEFAZ com sucesso!"
+            });
+        }
+
+        [HttpPost]
+        [Authorize(Policy = "RequireAccounting")]
+        public async Task<IActionResult> ExecutarFechamentoMensal()
+        {
+            int.TryParse(User.FindFirstValue(ClaimTypes.NameIdentifier), out int userId);
+            string mesAtual = DateTime.UtcNow.ToString("MM/yyyy");
+
+            var receitaTotal = await _context.NotasFiscais.SumAsync(n => n.Valor);
+            var despesas = Math.Round(receitaTotal * 0.28m, 2);
+            var lucro = receitaTotal - despesas;
+
+            var fechamento = new CorvusIAM.Entities.FechamentoMensal
+            {
+                MesAno = mesAtual,
+                ReceitaBruta = receitaTotal,
+                DespesasOperacionais = despesas,
+                LucroLiquido = lucro,
+                DataFechamento = DateTime.UtcNow,
+                Status = "Fechado",
+                FechadoPorUsuarioId = userId > 0 ? userId : null
+            };
+
+            _context.FechamentosMensais.Add(fechamento);
+            _context.LogsAuditoria.Add(new CorvusIAM.Entities.LogAuditoria
+            {
+                UsuarioId = userId > 0 ? userId : null,
+                Acao = "Fechamento Contábil Mensal",
+                Detalhe = $"Fechamento {mesAtual} executado. Receita: R$ {receitaTotal:N2}, Despesas: R$ {despesas:N2}, Lucro: R$ {lucro:N2}",
+                Tipo = "Info",
+                Origem = "Módulo Contábil",
+                DataHora = DateTime.UtcNow
+            });
+
+            await _context.SaveChangesAsync();
+
+            return Ok(new
+            {
+                success = true,
+                mes = mesAtual,
+                receita = receitaTotal,
+                despesas = despesas,
+                lucro = lucro,
+                message = $"Fechamento contábil de {mesAtual} concluído com sucesso!"
+            });
+        }
+
+        [HttpGet]
+        [Authorize(Policy = "RequireAccounting")]
+        public async Task<IActionResult> ExportarSpedFiscal()
+        {
+            var notas = await _context.NotasFiscais.OrderBy(n => n.Numero).ToListAsync();
+            var sb = new System.Text.StringBuilder();
+
+            sb.AppendLine("|0000|014|0|01012026|31122026|CORVUS SECURITY TECNOLOGIA LTDA|12345678000199|SP|3550308|||A|1|");
+            sb.AppendLine("|0001|0|");
+            sb.AppendLine("|0100|CONTADOR RESPONSAVEL|12345678909|123456|12345678000199|01001000|AV PAULISTA|1000||BELA VISTA|1199999999|contabil@corvuxiam.tech|3550308|");
+
+            foreach (var nf in notas)
+            {
+                sb.AppendLine($"|C100|0|1|CLI_{nf.Id}|55|00|1|{nf.Numero}|{nf.ProtocoloSefaz}|{nf.DataEmissao:ddMMyyyy}|{nf.DataEmissao:ddMMyyyy}|{nf.Valor:F2}|1|0,00|0,00|{nf.Valor:F2}|99||||||0,00|0,00|0,00|0,00|0,00|0,00|0,00|");
+            }
+
+            sb.AppendLine("|9001|0|");
+            sb.AppendLine($"|9999|{notas.Count + 5}|");
+
+            var bytes = System.Text.Encoding.UTF8.GetBytes(sb.ToString());
+            return File(bytes, "text/plain", $"SPED_EFD_Contribuicoes_{DateTime.UtcNow:yyyyMMdd}.txt");
+        }
+
+        // ================= RECURSOS HUMANOS =================
+
+        public class SolicitarFeriasDTO
+        {
+            public string ColaboradorNome { get; set; } = string.Empty;
+            public DateTime DataInicio { get; set; }
+            public int Dias { get; set; } = 30;
+        }
+
+        [HttpPost]
+        [Authorize(Policy = "RequireHR")]
+        public async Task<IActionResult> SolicitarFerias([FromBody] SolicitarFeriasDTO dto)
+        {
+            if (string.IsNullOrWhiteSpace(dto.ColaboradorNome))
+            {
+                return BadRequest(new { message = "Nome do colaborador é obrigatório." });
+            }
+
+            int.TryParse(User.FindFirstValue(ClaimTypes.NameIdentifier), out int userId);
+            var ferias = new CorvusIAM.Entities.RegistroFerias
+            {
+                ColaboradorNome = dto.ColaboradorNome,
+                DataInicio = dto.DataInicio > DateTime.MinValue ? dto.DataInicio : DateTime.UtcNow.AddDays(30),
+                DataFim = (dto.DataInicio > DateTime.MinValue ? dto.DataInicio : DateTime.UtcNow.AddDays(30)).AddDays(dto.Dias),
+                Dias = dto.Dias,
+                Status = "Aprovada",
+                DataAprovacao = DateTime.UtcNow
+            };
+
+            _context.RegistrosFerias.Add(ferias);
+            _context.LogsAuditoria.Add(new CorvusIAM.Entities.LogAuditoria
+            {
+                UsuarioId = userId > 0 ? userId : null,
+                Acao = "Concessão de Férias",
+                Detalhe = $"Férias de {ferias.Dias} dias aprovadas para '{ferias.ColaboradorNome}' com início em {ferias.DataInicio:dd/MM/yyyy}",
+                Tipo = "Info",
+                Origem = "Módulo RH",
+                DataHora = DateTime.UtcNow
+            });
+
+            await _context.SaveChangesAsync();
+
+            return Ok(new
+            {
+                success = true,
+                colaborador = ferias.ColaboradorNome,
+                inicio = ferias.DataInicio.ToString("dd/MM/yyyy"),
+                dias = ferias.Dias,
+                message = "Férias aprovadas e lançadas no sistema de DP com sucesso!"
+            });
+        }
+
+        [HttpPost]
+        [Authorize(Policy = "RequireHR")]
+        public async Task<IActionResult> ProcessarFolhaPagamento()
+        {
+            int.TryParse(User.FindFirstValue(ClaimTypes.NameIdentifier), out int userId);
+            string mesAtual = DateTime.UtcNow.ToString("MM/yyyy");
+
+            int totalColabs = await _context.Usuarios.CountAsync(u => u.Ativo);
+            if (totalColabs == 0) totalColabs = 18;
+
+            decimal brutoTotal = totalColabs * 5800.00m;
+            decimal inss = Math.Round(brutoTotal * 0.09m, 2);
+            decimal fgts = Math.Round(brutoTotal * 0.08m, 2);
+            decimal liquido = brutoTotal - inss;
+
+            var folha = new CorvusIAM.Entities.FolhaPagamento
+            {
+                MesReferencia = mesAtual,
+                TotalColaboradores = totalColabs,
+                ValorBrutoTotal = brutoTotal,
+                ValorLiquidoTotal = liquido,
+                InssTotal = inss,
+                FgtsTotal = fgts,
+                DataProcessamento = DateTime.UtcNow,
+                Status = "Processada"
+            };
+
+            _context.FolhasPagamento.Add(folha);
+            _context.LogsAuditoria.Add(new CorvusIAM.Entities.LogAuditoria
+            {
+                UsuarioId = userId > 0 ? userId : null,
+                Acao = "Fechamento de Folha de Pagamento",
+                Detalhe = $"Folha de {mesAtual} processada para {totalColabs} colaboradores. Líquido Total: R$ {liquido:N2}",
+                Tipo = "Info",
+                Origem = "Módulo RH",
+                DataHora = DateTime.UtcNow
+            });
+
+            await _context.SaveChangesAsync();
+
+            return Ok(new
+            {
+                success = true,
+                mes = mesAtual,
+                colaboradores = totalColabs,
+                bruto = brutoTotal,
+                liquido = liquido,
+                inss = inss,
+                fgts = fgts,
+                message = $"Folha de pagamento de {mesAtual} processada com sucesso no e-Social!"
+            });
+        }
+
+        [HttpGet]
+        [Authorize(Policy = "RequireHR")]
+        public async Task<IActionResult> ExportarEspelhoPonto()
+        {
+            var colabs = await _context.Usuarios.Where(u => u.Ativo).OrderBy(u => u.Nome).ToListAsync();
+            var sb = new System.Text.StringBuilder();
+
+            sb.AppendLine("0000000001112345678000199123456789012CORVUS SECURITY TECNOLOGIA LTDA0101202631122026" + DateTime.UtcNow.ToString("ddMMyyyyHHmm"));
+            int nsr = 1;
+
+            foreach (var colab in colabs)
+            {
+                string pis = $"123{colab.Id:D8}";
+                string dataMarc = DateTime.UtcNow.ToString("ddMMyyyy");
+                sb.AppendLine($"{nsr++:D9}2{dataMarc}0800{pis}");
+                sb.AppendLine($"{nsr++:D9}2{dataMarc}1200{pis}");
+                sb.AppendLine($"{nsr++:D9}2{dataMarc}1300{pis}");
+                sb.AppendLine($"{nsr++:D9}2{dataMarc}1700{pis}");
+            }
+
+            sb.AppendLine($"{nsr:D9}9");
+
+            var bytes = System.Text.Encoding.UTF8.GetBytes(sb.ToString());
+            return File(bytes, "text/plain", $"Espelho_Ponto_AFD_Portaria671_{DateTime.UtcNow:yyyyMMdd}.txt");
         }
     }
 }

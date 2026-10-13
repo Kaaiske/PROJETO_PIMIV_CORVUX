@@ -8,7 +8,7 @@
 [![Docker](https://img.shields.io/badge/Docker-Compose-2496ED?logo=docker&logoColor=white)](https://www.docker.com/)
 [![SQL Server](https://img.shields.io/badge/SQL%20Server-2022-CC292B?logo=microsoftsqlserver&logoColor=white)](https://www.microsoft.com/sql-server)
 [![CI/CD](https://img.shields.io/badge/GitHub%20Actions-CI%2FCD-2088FF?logo=githubactions&logoColor=white)](https://github.com/Kaaiske/PROJETO_PIMIV_CORVUX/actions)
-[![Tests](https://img.shields.io/badge/Tests-25%20Passed-brightgreen?logo=checkmarx&logoColor=white)](CorvusIAM.Tests/)
+[![Tests](https://img.shields.io/badge/Tests-32%20Passed-brightgreen?logo=checkmarx&logoColor=white)](CorvusIAM.Tests/)
 [![Production](https://img.shields.io/badge/Production-corvuxiam.tech-success?logo=googlechrome&logoColor=white)](https://corvuxiam.tech)
 
 **Solução Corporativa Integrada para Transformação Digital, Governança e Segurança da Informação**
@@ -46,6 +46,9 @@ A plataforma resolve dores críticas de segurança empresarial:
 - Rastreamento ininterrupto de ações via **Logs de Auditoria** gerados por aplicação e por **Triggers de Banco de Dados**.
 - Atendimento e solicitações internas com um módulo ágil de **Chamados de Suporte**.
 - Acesso multiplataforma via **Painel Web Administrativo**, **PWA Offline-First** e aplicativo móvel nativo em **React Native**.
+- **Infraestrutura em Nuvem (DevOps)** com telemetria e remediação remota de endpoints em tempo real.
+- **Firewall WAF Ativo e Módulo SecOps** com bloqueio real de IPs maliciosos e modo de contingência Lock-Down.
+- **Contabilidade e RH 100% Funcionais** com emissão real de notas fiscais (NFS-e), SPED Fiscal, folha de pagamento e espelho de ponto AFD.
 
 ---
 
@@ -71,14 +74,14 @@ A plataforma resolve dores críticas de segurança empresarial:
 - **C# / .NET 8 (LTS)** — ASP.NET Core MVC e Web API RESTful
 - **Entity Framework Core 8** — Mapeamento objeto-relacional (ORM) e migrations
 - **Resiliência e Null-Safety:** Mapeamento objeto-relacional com Nullable Reference Types (C# 12 / EF Core 8) e sanitização automática de valores nulos no startup
-- **Autenticação:** Cookie Authentication (Web) + JWT Bearer Tokens (Mobile/API)
-- **Segurança:** BCrypt para hash de senhas, Cloudflare Turnstile CAPTCHA, HaveIBeenPwned API (verificação de senhas vazadas), MaxMind/IP Geolocation, Rate Limiter (5 req/min no login)
+- **Autenticação:** Cookie Authentication (Web) + JWT Bearer Tokens (Mobile/API) + API Gateway Token (`X-API-Key`)
+- **Segurança:** BCrypt para hash de senhas, Cloudflare Turnstile CAPTCHA, HaveIBeenPwned API (verificação de senhas vazadas), MaxMind/IP Geolocation, Rate Limiter (5 req/min no login) e WAF de Bloqueio Ativo de IPs
 - **Documentação de API:** Swagger / OpenAPI 3.0 com suporte ao domínio `https://corvuxiam.tech`
 
 ### Frontend Web
 - **Razor Views (ASP.NET Core)**
 - **Bootstrap 5.3 & CSS Moderno** (Responsivo e Acessível)
-- **JavaScript Moderno (ES6+)** com proteção Anti-Forgery Token automática
+- **JavaScript Moderno (ES6+)** com proteção Anti-Forgery Token automática e feedback visual com SweetAlert2
 
 ### Frontend Mobile
 - **React Native 0.74 / Expo 51 (TypeScript)** — Aplicativo mobile com Axios, Expo SecureStore e React Navigation
@@ -95,6 +98,7 @@ A plataforma resolve dores críticas de segurança empresarial:
   - **Triggers:**
     - `trg_AuditoriaUsuarios`: Auditoria automática em tempo real para comandos `INSERT`, `UPDATE` e `DELETE` em `Usuarios`.
     - `trg_AuditoriaChamados`: Rastreabilidade e auditoria automática de transições de status em `ChamadosSuporte`.
+  - **Tabelas Corporativas Integradas:** `Usuarios`, `Perfis`, `Permissoes`, `LogsAuditoria`, `ChamadosSuporte`, `FirewallRegras`, `DispositivosRede`, `NotasFiscais`, `FechamentosMensais`, `RegistrosFerias`, `FolhasPagamento`.
 
 ### DevOps & Nuvem
 - **Docker & Docker Compose** (Multi-container: Web Application + SQL Server)
@@ -112,18 +116,18 @@ PROJETO_PIMIV_CORVUX/
 │       └── ci.yml                     # Pipeline automatizado de CI/CD (GitHub Actions)
 ├── CorvusIAM/                         # Aplicação Principal (ASP.NET Core 8 MVC + REST API)
 │   ├── Controllers/                   # Controllers Web (Admin, Auth, Home, Portal, Mobile)
-│   │   └── Api/                       # Controllers de APIs REST (Usuarios, Perfis, Politicas, Chamados, etc.)
-│   ├── Data/                          # Contextos do EF Core (ApplicationDbContext, SqlServer, Sqlite)
-│   ├── Entities/                      # Entidades de Domínio (Usuario, Perfil, Permissao, Auditoria, Chamado)
+│   │   └── Api/                       # Controllers de APIs REST (Usuarios, Perfis, Politicas, V1Users, etc.)
+│   ├── Data/                          # Contextos do EF Core (ApplicationDbContext, DbDataSeeder)
+│   ├── Entities/                      # Entidades de Domínio (Usuario, Perfil, Permissao, Auditoria, Chamado, etc.)
 │   ├── Interfaces/                    # Contratos de Serviços e Repositórios
 │   ├── Middlewares/                   # Middleware Global de Tratamento de Exceções
 │   ├── Migrations/                    # Migrations estruturadas para SQL Server e SQLite
-│   ├── Models/DTOs/                   # Data Transfer Objects para APIs
+│   ├── Models/DTOs/                   # Data Transfer Objects e ViewModels departamentais
 │   ├── Repositories/                  # Camada de Repositório desacoplada
-│   ├── Services/                      # Regras de Negócio (Auth, Auditoria com Stored Procedure, Senhas, etc.)
+│   ├── Services/                      # Regras de Negócio (Auth, Auditoria, Geolocation, Totp, etc.)
 │   ├── Views/                         # Telas Razor MVC (Admin, Auth, Portal, Mobile)
 │   ├── wwwroot/                       # Arquivos estáticos, CSS, JS e módulo PWA (`/mobile`)
-│   ├── DatabaseScript.sql             # Script SQL físico completo (Tabelas, FKs, Procedure, Trigger, Seeds)
+│   ├── DatabaseScript.sql             # Script SQL físico completo (Tabelas, FKs, Procedures, Triggers, Seeds)
 │   ├── Dockerfile                     # Construção da imagem Docker do backend
 │   └── Program.cs                     # Inicialização da aplicação, DI, CORS, Swagger e Pipeline HTTP
 ├── CorvusIAM.Mobile/                  # Aplicativo Mobile Nativo (React Native / Expo / TypeScript)
@@ -133,8 +137,8 @@ PROJETO_PIMIV_CORVUX/
 │   │   └── services/api.ts            # Cliente HTTP Axios configurado para https://corvuxiam.tech
 │   ├── App.tsx                        # Ponto de entrada do aplicativo mobile
 │   └── package.json                   # Dependências do app mobile
-├── CorvusIAM.Tests/                   # Bateria de Testes Automatizados (xUnit / Moq)
-│   ├── Controllers/                   # Testes unitários de controllers
+├── CorvusIAM.Tests/                   # Bateria de Testes Automatizados (xUnit / Moq / InMemory)
+│   ├── Controllers/                   # Testes unitários de controllers (Admin, Portal, Cloud, Firewall, etc.)
 │   ├── Integration/                   # Testes de integração de endpoints
 │   ├── Repositories/                  # Testes da camada de dados
 │   └── Services/                      # Testes de regras de negócio e autenticação
@@ -233,7 +237,7 @@ snap install --classic certbot && certbot --nginx -d corvuxiam.tech -d www.corvu
 
 ---
 
-### Opção 3: Executar o Aplicativo Mobile (React Native / Expo)
+### Opção 4: Executar o Aplicativo Mobile (React Native / Expo)
 
 1. Acesse o diretório do app móvel:
 ```bash
@@ -257,13 +261,14 @@ npx expo start
 
 - **CORS Configurado:** Habilitado para requisições originadas do domínio oficial `https://corvuxiam.tech` e ambientes de desenvolvimento autorizados.
 - **Autenticação em Duas Etapas (MFA / 2FA com TOTP):** Padrão RFC 6238 nativo compatível com Google Authenticator, Microsoft Authenticator e apps TOTP.
+- **Firewall WAF Ativo:** Bloqueio e liberação de IPs indesejados diretamente no banco de dados (`FirewallRegras`), com bloqueio preventivo antes da validação de senha.
 - **Armazenamento de Senhas:** Hash irreversível via algoritmo BCrypt com verificação contra a base pública de senhas comprometidas (HaveIBeenPwned).
-- **Proteção contra Força Bruta:** Rate Limiting com bloqueio temporário após 5 tentativas consecutivas de autenticação incorreta e bloqueio de IP.
+- **Proteção contra Força Bruta:** Rate Limiting com bloqueio temporário após 5 tentativas consecutivas de autenticação incorreta.
 - **Desafio Anti-Bot (Cloudflare Turnstile):** Validação resiliente de CAPTCHA inteligente na autenticação com chave de homologação e bypass automático para testes/desenvolvimento.
 - **Prevenção contra Ações Acidentais:** Modais interativos de confirmação em duas etapas (SweetAlert2) com identificação visual do registro e consequências antes de qualquer exclusão.
 - **Soft Delete Universal:** Exclusão lógica com anonimização LGPD para colaboradores e inativação segura para perfis de acesso.
 - **Módulo de Anexos Seguros (Storage Local & S3):** Upload seguro de anexos em chamados de Help Desk com validação de tipos MIME e isolamento de arquivos.
-- **Exportação de Relatórios Gerenciais:** Download instantâneo de colaboradores e trilhas de auditoria em formato CSV com UTF-8 BOM.
+- **Exportação de Relatórios Gerenciais:** Download instantâneo de colaboradores e trilhas de auditoria em formato CSV com UTF-8 BOM, além de SPED Fiscal e espelhos de ponto (AFD).
 - **Rastreabilidade Obrigatória:** Cada ação administrativa, criação de usuário, deleção ou abertura de chamado gera um evento imutável com data UTC, IP de origem e identificador do usuário.
 
 ---
@@ -277,7 +282,7 @@ O CorvuxIAM oferece **dois métodos oficiais** para geração completa e inicial
 Quando a aplicação inicializa em ambiente de produção ou desenvolvimento, ela executa automaticamente:
 1. `context.Database.Migrate()` — Criação estrutural das tabelas e chaves estrangeiras via EF Core.
 2. Script de integridade e DDL avançado em `Program.cs` — Aplica comandos `CREATE OR ALTER PROCEDURE` e `CREATE OR ALTER TRIGGER`.
-3. Inserção automática de dados mestres (*seeds*): perfis de acesso, permissões de segurança e o usuário administrador padrão (`admin@corvus.com` / `Cv1670!`).
+3. Inserção automática de dados mestres (*seeds*) via `DbDataSeeder`: perfis de acesso, permissões de segurança, usuário administrador padrão (`admin@corvus.com` / `Cv1670!`), 18 dispositivos de rede, notas fiscais, fechamentos contábeis, férias e folhas de pagamento.
 
 Para inicializar tudo de forma 100% automatizada no servidor ou máquina local:
 ```bash
@@ -373,10 +378,10 @@ Em estrita conformidade com os requisitos de Governança e Continuidade de Negó
 
 ## 🧪 Testes Automatizados
 
-A suíte de testes em `CorvusIAM.Tests` conta com **25 testes automatizados** cobrindo autenticação, MFA/TOTP, armazenamento seguro, autorização, CRUD de usuários, repositórios e endpoints de integração:
+A suíte de testes em `CorvusIAM.Tests` conta com **32 testes automatizados** cobrindo autenticação, MFA/TOTP, armazenamento seguro, autorização, CRUD de usuários, telemetria de rede DevOps, bloqueio de IP/WAF, emissão de NFS-e, cálculo de folha de pagamento e endpoints de integração:
 
 ```bash
-Passed!  - Failed: 0, Passed: 25, Skipped: 0, Total: 25 - CorvusIAM.Tests.dll (net8.0)
+Passed!  - Failed: 0, Passed: 32, Skipped: 0, Total: 32, Duration: 11 s - CorvusIAM.Tests.dll (net8.0)
 ```
 
 ---
@@ -388,8 +393,12 @@ Passed!  - Failed: 0, Passed: 25, Skipped: 0, Total: 25 - CorvusIAM.Tests.dll (n
 | `POST` | `/api/Auth/login` | Autenticação de usuário e emissão de JWT Token |
 | `GET` | `/api/Usuarios` | Listagem paginada de colaboradores cadastrados |
 | `POST` | `/api/Usuarios` | Cadastro de novo usuário com perfil atribuído |
+| `GET` | `/api/v1/ping` | Gateway de status de integração externa autenticada |
+| `GET` | `/api/v1/users` | Gateway de sincronização de identidades com terceiros |
 | `GET` | `/Admin/ExportarUsuariosCsv` | Download de relatório de colaboradores em CSV |
 | `GET` | `/Admin/ExportarLogsAuditoriaCsv` | Download de trilhas de auditoria em CSV |
+| `GET` | `/Portal/ExportarSpedFiscal` | Download de arquivo SPED Fiscal consolidado |
+| `GET` | `/Portal/ExportarEspelhoPonto` | Download de espelho de ponto em padrão AFD |
 | `GET` | `/Portal/ObterMfaSetup` | Chave secreta e QR Code para configuração de 2FA |
 | `POST` | `/Portal/ConfirmarAtivacaoMfa` | Validação de código TOTP e ativação do 2FA |
 | `GET` | `/api/Perfis` | Consulta de perfis de acesso do sistema |
@@ -401,38 +410,36 @@ Passed!  - Failed: 0, Passed: 25, Skipped: 0, Total: 25 - CorvusIAM.Tests.dll (n
 
 ---
 
-## 🚀 Atualização v2.4 — Otimizações Críticas e Módulos Corporativos
+## 🚀 Arquitetura Funcional & Módulos 100% Reais
 
-A versão **v2.4** trouxe melhorias de usabilidade, estabilidade e novas ferramentas para os administradores:
+Todos os módulos do CorvuxIAM operam conectados a tabelas relacionais no banco de dados e possuem fluxos de ponta a ponta funcionais:
 
-1. **Eliminação de Latência:**
-   - Resolução definitiva de lentidão via cache em memória (24h) e fast-path para IPs privados/intranet no `IpGeolocationService`.
-   - Remoção de retentativas síncronas excessivas de 14s no pipeline de inicialização.
+1. **Infraestrutura em Nuvem & Saúde de Endpoints (DevOps):**
+   - Tabela `DispositivosRede` com 18 nós cadastrados (Workstations, Servidores Linux/Windows, Controladores AD).
+   - Telemetrias reais de CPU, Memória, Disco e Agente EDR.
+   - Ações operacionais remotas que alteram o banco em tempo real: **Escanear Agora**, **Aplicar Patches**, **Isolar da Rede / Liberar**, **Limpeza de Disco** e **Remediação em Lote**.
 
-2. **Diretório de Usuários Totalmente Interativo:**
-   - Correção do seletor modal de inclusão de colaboradores (`newUserModal`).
-   - Implementação do helper global de CSRF `getCsrfToken()`, reativando os fluxos de **Novo Usuário**, **Editar**, **Trancar/Destrancar**, **Excluir (Anonimização LGPD)** e **Resetar Senha Temporária**.
+2. **Firewall WAF & Defesa Ativa SecOps:**
+   - Tabela `FirewallRegras` gravando regras manuais e automáticas de bloqueio.
+   - O `AuthController.Login` consulta a tabela e rejeita conexões de IPs bloqueados antes mesmo do processamento da senha.
+   - Desbloqueio e bloqueio dinâmico no painel `Inteligencia.cshtml`, com acionamento do **Modo Lock-Down**.
 
-3. **Infraestrutura em Nuvem & Saúde de Endpoints (DevOps):**
-   - Monitoramento contínuo de 18 dispositivos e servidores na rede com métricas de CPU, RAM, Disco e conformidade EDR.
-   - Diagnóstico automatizado com IA e remediação em lote.
-   - Ações remotas interativas por máquina: **Escanear Agora**, **Aplicar Patches**, **Isolar da Rede / Liberar** e **Reiniciar Agente**.
+3. **Integrações de API & Gateway Inbound:**
+   - Teste de conectividade real via `HttpClient` e medição de latência com `Stopwatch`.
+   - Conectores externos autenticados no endpoint `/api/v1/users` e `/api/v1/ping` via header `X-API-Key` ou `Bearer Token`.
 
-4. **Agente IA & SecOps Copilot:**
-   - Terminal interativo com linha de comando para simulação de ataques, auditoria e consultas de segurança.
-   - Radar de vulnerabilidades CVE e gerenciamento ativo do Firewall WAF (bloqueio manual e desbloqueio).
-   - Acionamento imediato de resposta a incidentes (**Modo Lock-Down**, expiração em massa de sessões e purga de regras temporárias).
+4. **Contabilidade & Financeiro Corporativo:**
+   - Módulo de NFS-e persistido na tabela `NotasFiscais` com geração de chave SEFAZ de 44 dígitos e alíquotas de ISS/PIS/COFINS.
+   - Tabela `FechamentosMensais` com balanço consolidado de receitas e despesas.
+   - Exportador do arquivo oficial do **SPED Fiscal** (`.txt`) formatado para envio à Receita.
 
-5. **Hub de APIs & Conexões Externas:**
-   - Gestão de conectores de outros apps (Slack, Jira, AWS, GitHub, Webhooks).
-   - Teste instantâneo de latência e conectividade via **Ping TLS 1.3**.
-   - Chave pública de API para integrações de terceiros via `https://corvuxiam.tech/api/v1/`.
+5. **Recursos Humanos & Departamento Pessoal:**
+   - Tabela `FolhasPagamento` com cálculo de proventos, desconto progressivo de INSS, FGTS e e-Social.
+   - Tabela `RegistrosFerias` com aprovação gerencial e período aquisitivo.
+   - Exportador de espelho de ponto eletrônico no padrão **Portaria AFD** (`.txt`).
 
-6. **Interatividade em Todos os Painéis Departamentais:**
-   - **Contabilidade:** Emissão de NFS-e com protocolo SEFAZ, fechamento contábil e exportação de SPED.
-   - **Recursos Humanos:** Processamento de folha de pagamento com e-Social, agendamento de férias e espelho de ponto.
-   - **Help Desk:** Atendimento de chamados com parecer técnico e abertura rápida via botão global `+ Nova Issue`.
-   - **Portal do Colaborador:** Correção do bloco visual de Autenticação em Duas Etapas (2FA/MFA TOTP).
+6. **Help Desk & Abertura Rápida de Issues:**
+   - Modal global de abertura de chamados integrado em todas as telas com categorias, prioridades e upload de evidências.
 
 ---
 

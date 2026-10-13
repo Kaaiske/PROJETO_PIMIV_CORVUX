@@ -380,6 +380,15 @@ using (var scope = app.Services.CreateScope())
                     Log.Information("Esquema do banco validado: {Msg}", sqlEx.Message);
                 }
 
+                try
+                {
+                    DbDataSeeder.Seed(context);
+                }
+                catch (Exception seedEx)
+                {
+                    Log.Warning("Aviso ao rodar DbDataSeeder: {Msg}", seedEx.Message);
+                }
+
                 break;
             }
             catch (Exception ex)

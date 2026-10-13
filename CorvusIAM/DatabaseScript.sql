@@ -487,5 +487,107 @@ BEGIN
 END;
 GO
 
+-- 8. Novas Tabelas Corporativas: Firewall, Endpoints DevOps, Contabilidade e RH
+IF OBJECT_ID(N'[FirewallRegras]') IS NULL
+BEGIN
+    CREATE TABLE [FirewallRegras] (
+        [Id] INT IDENTITY(1,1) PRIMARY KEY,
+        [Ip] NVARCHAR(50) NOT NULL,
+        [Motivo] NVARCHAR(200) NOT NULL,
+        [PaisOrigem] NVARCHAR(10) NULL,
+        [DataBloqueio] DATETIME2 NOT NULL DEFAULT GETUTCDATE(),
+        [Ativo] BIT NOT NULL DEFAULT 1,
+        [CriadoPor] NVARCHAR(100) NULL
+    );
+END;
+GO
+
+IF OBJECT_ID(N'[DispositivosRede]') IS NULL
+BEGIN
+    CREATE TABLE [DispositivosRede] (
+        [Id] INT IDENTITY(1,1) PRIMARY KEY,
+        [Hostname] NVARCHAR(100) NOT NULL,
+        [Ip] NVARCHAR(50) NOT NULL,
+        [Vlan] NVARCHAR(50) NULL,
+        [UsuarioResponsavel] NVARCHAR(100) NULL,
+        [SistemaOperacional] NVARCHAR(100) NULL,
+        [Tipo] NVARCHAR(50) NOT NULL DEFAULT 'estacoes',
+        [CpuUsoPercentual] INT NOT NULL DEFAULT 15,
+        [RamUsoPercentual] INT NOT NULL DEFAULT 45,
+        [DiscoUsoPercentual] INT NOT NULL DEFAULT 35,
+        [EdrAtivo] BIT NOT NULL DEFAULT 1,
+        [EdrStatus] NVARCHAR(100) NULL,
+        [PatchesPendentes] INT NOT NULL DEFAULT 0,
+        [Status] NVARCHAR(50) NOT NULL DEFAULT 'Saudavel',
+        [IsoladoRede] BIT NOT NULL DEFAULT 0,
+        [UltimoScan] DATETIME2 NULL,
+        [UltimoHeartbeat] DATETIME2 NOT NULL DEFAULT GETUTCDATE()
+    );
+END;
+GO
+
+IF OBJECT_ID(N'[NotasFiscais]') IS NULL
+BEGIN
+    CREATE TABLE [NotasFiscais] (
+        [Id] INT IDENTITY(1,1) PRIMARY KEY,
+        [Numero] INT NOT NULL,
+        [TomadorNome] NVARCHAR(150) NOT NULL,
+        [TomadorCnpj] NVARCHAR(20) NOT NULL,
+        [Valor] DECIMAL(18,2) NOT NULL,
+        [Descricao] NVARCHAR(500) NULL,
+        [DataEmissao] DATETIME2 NOT NULL DEFAULT GETUTCDATE(),
+        [ProtocoloSefaz] NVARCHAR(50) NULL,
+        [Status] NVARCHAR(20) NOT NULL DEFAULT 'Autorizada',
+        [EmitidoPorUsuarioId] INT NULL
+    );
+END;
+GO
+
+IF OBJECT_ID(N'[FechamentosMensais]') IS NULL
+BEGIN
+    CREATE TABLE [FechamentosMensais] (
+        [Id] INT IDENTITY(1,1) PRIMARY KEY,
+        [MesAno] NVARCHAR(20) NOT NULL,
+        [ReceitaBruta] DECIMAL(18,2) NOT NULL,
+        [DespesasOperacionais] DECIMAL(18,2) NOT NULL,
+        [LucroLiquido] DECIMAL(18,2) NOT NULL,
+        [DataFechamento] DATETIME2 NOT NULL DEFAULT GETUTCDATE(),
+        [Status] NVARCHAR(20) NOT NULL DEFAULT 'Fechado',
+        [FechadoPorUsuarioId] INT NULL
+    );
+END;
+GO
+
+IF OBJECT_ID(N'[RegistrosFerias]') IS NULL
+BEGIN
+    CREATE TABLE [RegistrosFerias] (
+        [Id] INT IDENTITY(1,1) PRIMARY KEY,
+        [UsuarioId] INT NULL,
+        [ColaboradorNome] NVARCHAR(100) NOT NULL,
+        [DataInicio] DATETIME2 NOT NULL,
+        [DataFim] DATETIME2 NOT NULL,
+        [Dias] INT NOT NULL DEFAULT 30,
+        [Status] NVARCHAR(30) NOT NULL DEFAULT 'Aprovada',
+        [DataAprovacao] DATETIME2 NOT NULL DEFAULT GETUTCDATE()
+    );
+END;
+GO
+
+IF OBJECT_ID(N'[FolhasPagamento]') IS NULL
+BEGIN
+    CREATE TABLE [FolhasPagamento] (
+        [Id] INT IDENTITY(1,1) PRIMARY KEY,
+        [MesReferencia] NVARCHAR(20) NOT NULL,
+        [TotalColaboradores] INT NOT NULL DEFAULT 18,
+        [ValorBrutoTotal] DECIMAL(18,2) NOT NULL,
+        [ValorLiquidoTotal] DECIMAL(18,2) NOT NULL,
+        [InssTotal] DECIMAL(18,2) NOT NULL,
+        [FgtsTotal] DECIMAL(18,2) NOT NULL,
+        [DataProcessamento] DATETIME2 NOT NULL DEFAULT GETUTCDATE(),
+        [Status] NVARCHAR(30) NOT NULL DEFAULT 'Processada'
+    );
+END;
+GO
+
 PRINT 'Banco de Dados CorvuxIAM e Stored Procedures configurados com sucesso!';
 GO
