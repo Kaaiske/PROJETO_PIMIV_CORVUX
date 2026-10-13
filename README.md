@@ -197,6 +197,7 @@ docker compose up --build -d
 ```
 * O backend (.NET 8) e o banco SQL Server 2022 iniciarão automaticamente.
 * Aplicação Web no host: `http://localhost:8080` (redirecionada via Nginx para `https://corvuxiam.tech`).
+* O serviço do SQL Server está configurado com `user: root` no Docker Compose para evitar conflitos de permissão de escrita de volumes (`Access is denied`) no Linux/Ubuntu.
 
 ---
 
