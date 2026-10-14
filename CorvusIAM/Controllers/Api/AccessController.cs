@@ -1,15 +1,20 @@
-using Microsoft.AspNetCore.Authorization;
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Linq;
 using CorvusIAM.Data;
 using System.Security.Claims;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Http;
 
 namespace CorvusIAM.Controllers.Api
 {
+    /// <summary>
+    /// Consulta de Permissões e Privilégios Efetivos do Colaborador Autenticado.
+    /// </summary>
     [Authorize]
     [ApiController]
     [Route("api/[controller]")]
+    [Tags("Permissões Efetivas do Colaborador")]
     public class AccessController : ControllerBase
     {
         private readonly ApplicationDbContext _context;
@@ -19,7 +24,16 @@ namespace CorvusIAM.Controllers.Api
             _context = context;
         }
 
+        /// <summary>
+        /// Retorna a lista consolidada de permissões e privilégios concedidos ao colaborador autenticado através de seus perfis (RBAC).
+        /// </summary>
+        /// <response code="200">Lista de permissões do usuário retornada com sucesso.</response>
+        /// <response code="401">Usuário não autenticado na sessão.</response>
+        /// <response code="404">Colaborador não localizado na base de dados.</response>
         [HttpGet]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
         public IActionResult GetAcessos()
         {
             var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;

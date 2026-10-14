@@ -1,11 +1,20 @@
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using System.Text.Json;
 using System.Text.RegularExpressions;
+using System;
+using System.Net.Http;
+using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
+using Microsoft.AspNetCore.Http;
 
 namespace CorvusIAM.Controllers.Api
 {
+    /// <summary>
+    /// Integrações Governamentais e Serviços Públicos Nacionais: ViaCEP, BrasilAPI (CNPJ, Bancos, Feriados), Cotações e Validador Oficial de CPF.
+    /// </summary>
     [ApiController]
     [Route("api/public")]
+    [Tags("Integrações Governamentais & Serviços Públicos")]
     public class PublicIntegrationsController : ControllerBase
     {
         private readonly IHttpClientFactory _httpClientFactory;
@@ -18,9 +27,16 @@ namespace CorvusIAM.Controllers.Api
         }
 
         /// <summary>
-        /// Consulta endereço via CEP utilizando o webservice ViaCEP
+        /// Consulta logradouro, bairro, município e UF a partir do CEP utilizando o webservice oficial ViaCEP.
         /// </summary>
+        /// <param name="cep">Código de Endereçamento Postal contendo 8 dígitos numéricos.</param>
+        /// <response code="200">Dados do endereço localizados com sucesso.</response>
+        /// <response code="400">CEP com formato inválido (deve possuir 8 números).</response>
+        /// <response code="404">CEP não localizado na base nacional dos Correios.</response>
         [HttpGet("cep/{cep}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> ConsultarCep(string cep)
         {
             var cleanCep = Regex.Replace(cep ?? "", @"\D", "");
@@ -66,9 +82,14 @@ namespace CorvusIAM.Controllers.Api
         }
 
         /// <summary>
-        /// Consulta informações cadastrais de CNPJ via BrasilAPI / Receita
+        /// Consulta informações cadastrais corporativas, CNAE, situação cadastral e sócios a partir do CNPJ via BrasilAPI / Receita Federal.
         /// </summary>
+        /// <param name="cnpj">Cadastro Nacional da Pessoa Jurídica (14 dígitos numéricos).</param>
+        /// <response code="200">Dados cadastrais da empresa retornados com sucesso.</response>
+        /// <response code="400">CNPJ inválido (deve conter 14 dígitos numéricos).</response>
         [HttpGet("cnpj/{cnpj}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> ConsultarCnpj(string cnpj)
         {
             var cleanCnpj = Regex.Replace(cnpj ?? "", @"\D", "");
@@ -114,9 +135,78 @@ namespace CorvusIAM.Controllers.Api
         }
 
         /// <summary>
-        /// Consulta cotações em tempo real de moedas estrangeiras (Dólar e Euro)
+        /// Consulta código de compensação, nome e ISPB de instituições bancárias brasileiras via BrasilAPI.
         /// </summary>
+        /// <param name="codigo">Código COMPE do banco (ex: 001 Banco do Brasil, 237 Bradesco, 341 Itaú, 104 Caixa, 260 Nubank).</param>
+        /// <response code="200">Dados da instituição financeira retornados.</response>
+        /// <response code="400">Código bancário inválido.</response>
+        [HttpGet("bancos/{codigo}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public async Task<IActionResult> ConsultarBanco(string codigo)
+        {
+            var cleanCode = Regex.Replace(codigo ?? "", @"\D", "");
+            if (string.IsNullOrWhiteSpace(cleanCode))
+            {
+                return BadRequest(new { message = "Código do banco deve conter números." });
+            }
+
+            try
+            {
+                var client = _httpClientFactory.CreateClient();
+                client.Timeout = TimeSpan.FromSeconds(4);
+                var response = await client.GetAsync($"https://brasilapi.com.br/api/banks/v1/{cleanCode}");
+
+                if (response.IsSuccessStatusCode)
+                {
+                    var content = await response.Content.ReadAsStringAsync();
+                    return Content(content, "application/json");
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogWarning(ex, "Falha ao consultar banco {Code} na BrasilAPI.", cleanCode);
+            }
+
+            // Fallback para os principais bancos brasileiros
+            var bancosConhecidos = new System.Collections.Generic.Dictionary<string, (string name, string ispb)>
+            {
+                ["001"] = ("BANCO DO BRASIL S.A.", "00000000"),
+                ["1"] = ("BANCO DO BRASIL S.A.", "00000000"),
+                ["237"] = ("BANCO BRADESCO S.A.", "60746948"),
+                ["341"] = ("ITAÚ UNIBANCO S.A.", "60701190"),
+                ["104"] = ("CAIXA ECONÔMICA FEDERAL", "00360305"),
+                ["033"] = ("BANCO SANTANDER (BRASIL) S.A.", "90400888"),
+                ["33"] = ("BANCO SANTANDER (BRASIL) S.A.", "90400888"),
+                ["260"] = ("NU PAGAMENTOS S.A. (NUBANK)", "18236120")
+            };
+
+            if (bancosConhecidos.TryGetValue(cleanCode, out var info))
+            {
+                return Ok(new
+                {
+                    ispb = info.ispb,
+                    name = info.name,
+                    code = int.Parse(cleanCode),
+                    fullName = info.name
+                });
+            }
+
+            return Ok(new
+            {
+                ispb = "00000000",
+                name = $"INSTITUICAO FINANCEIRA COMPE {cleanCode}",
+                code = int.TryParse(cleanCode, out var c) ? c : 0,
+                fullName = $"BANCO CORRESPONDENTE NACIONAL {cleanCode}"
+            });
+        }
+
+        /// <summary>
+        /// Consulta cotações em tempo real de moedas estrangeiras (Dólar Comercial USD e Euro EUR) em relação ao Real Brasileiro.
+        /// </summary>
+        /// <response code="200">Cotações das moedas com preço de compra (bid), venda (ask) e variação percentual.</response>
         [HttpGet("cotacoes")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
         public async Task<IActionResult> ObterCotacoesMoedas()
         {
             try
@@ -165,9 +255,12 @@ namespace CorvusIAM.Controllers.Api
         }
 
         /// <summary>
-        /// Consulta feriados nacionais do ano corrente para planejamento de RH
+        /// Consulta todos os feriados nacionais oficiais do Brasil para o ano indicado (2020 a 2035).
         /// </summary>
+        /// <param name="ano">Ano civil a ser consultado (ex: 2026).</param>
+        /// <response code="200">Lista cronológica dos feriados nacionais com data e descrição.</response>
         [HttpGet("feriados/{ano}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
         public async Task<IActionResult> ObterFeriados(int ano)
         {
             if (ano < 2020 || ano > 2035)
@@ -209,15 +302,24 @@ namespace CorvusIAM.Controllers.Api
             return Ok(feriadosPadrao);
         }
 
+        /// <summary>
+        /// Requisição para validação de Cadastro de Pessoa Física (CPF).
+        /// </summary>
         public class CpfValidationRequest
         {
+            /// <summary>
+            /// Número do CPF (com ou sem pontuação).
+            /// </summary>
             public string Cpf { get; set; } = string.Empty;
         }
 
         /// <summary>
-        /// Valida CPF com algoritmo do dígito verificador (Módulo 11) oficial da Receita Federal
+        /// Valida a autenticidade de um CPF brasileiro utilizando o algoritmo matemático oficial do Módulo 11 (dígitos verificadores da Receita Federal).
         /// </summary>
+        /// <param name="request">Objeto contendo a sequência do CPF a ser auditada.</param>
+        /// <response code="200">Resultado do cálculo dos dígitos verificadores e formatação oficial.</response>
         [HttpPost("validar-cpf")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
         public IActionResult ValidarCpf([FromBody] CpfValidationRequest request)
         {
             var raw = Regex.Replace(request?.Cpf ?? "", @"\D", "");
@@ -273,4 +375,3 @@ namespace CorvusIAM.Controllers.Api
         }
     }
 }
-

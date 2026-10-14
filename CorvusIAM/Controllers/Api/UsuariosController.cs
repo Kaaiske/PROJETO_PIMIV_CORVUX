@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
@@ -9,13 +10,18 @@ using CorvusIAM.Entities;
 using CorvusIAM.Models.DTOs;
 using System.Security.Claims;
 using CorvusIAM.Interfaces;
+using Microsoft.AspNetCore.Http;
 
 namespace CorvusIAM.Controllers.Api
 {
+    /// <summary>
+    /// Gerenciamento Centralizado de Usuários Corporativos (IAM Core): Criação, edição, perfis de acesso e anonimização em conformidade com a LGPD.
+    /// </summary>
     [ApiController]
     [IgnoreAntiforgeryToken]
     [Route("api/[controller]")]
     [Authorize]
+    [Tags("Gestão de Usuários (IAM Core)")]
     public class UsuariosController : ControllerBase
     {
         private readonly ApplicationDbContext _context;
@@ -27,8 +33,17 @@ namespace CorvusIAM.Controllers.Api
             _auditoria = auditoria;
         }
 
+        /// <summary>
+        /// Lista todos os colaboradores cadastrados na base corporativa.
+        /// </summary>
+        /// <response code="200">Lista consolidada de colaboradores retornada com sucesso.</response>
+        /// <response code="401">Usuário não autenticado.</response>
+        /// <response code="403">Permissão insuficiente (requer 'CanViewUsers').</response>
         [HttpGet]
         [Authorize(Policy = "CanViewUsers")]
+        [ProducesResponseType(typeof(List<UsuarioResponseDTO>), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status403Forbidden)]
         public async Task<IActionResult> Listar()
         {
             var usuarios = await _context.Usuarios
@@ -52,7 +67,16 @@ namespace CorvusIAM.Controllers.Api
             return Ok(usuarios);
         }
 
+        /// <summary>
+        /// Obtém o perfil e as informações cadastrais do usuário atualmente conectado na sessão.
+        /// </summary>
+        /// <response code="200">Dados do perfil do usuário autenticado.</response>
+        /// <response code="401">Usuário não autenticado.</response>
+        /// <response code="404">Registro do usuário não encontrado na base.</response>
         [HttpGet("me")]
+        [ProducesResponseType(typeof(UsuarioResponseDTO), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> MeuPerfil()
         {
             var usuarioId = UsuarioAtualId();
@@ -83,8 +107,20 @@ namespace CorvusIAM.Controllers.Api
             });
         }
 
+        /// <summary>
+        /// Consulta um colaborador específico através do seu ID identificador.
+        /// </summary>
+        /// <param name="id">ID numérico do usuário.</param>
+        /// <response code="200">Colaborador localizado com sucesso.</response>
+        /// <response code="401">Não autenticado.</response>
+        /// <response code="403">Permissão insuficiente (requer 'CanViewUsers').</response>
+        /// <response code="404">Colaborador não encontrado.</response>
         [HttpGet("{id}")]
         [Authorize(Policy = "CanViewUsers")]
+        [ProducesResponseType(typeof(UsuarioResponseDTO), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status403Forbidden)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> Consultar(int id)
         {
             var usuario = await _context.Usuarios.FindAsync(id);
@@ -108,8 +144,18 @@ namespace CorvusIAM.Controllers.Api
             return Ok(response);
         }
 
+        /// <summary>
+        /// Cadastra um novo colaborador no diretório corporativo com hashing seguro de senha (BCrypt) e atribuição de perfil RBAC.
+        /// </summary>
+        /// <param name="dto">Dados de cadastro do novo colaborador.</param>
+        /// <response code="201">Colaborador criado com sucesso.</response>
+        /// <response code="400">Dados inválidos ou requisitos de complexidade de senha não atendidos.</response>
+        /// <response code="409">Conflito: E-mail ou CPF já pertencem a outro colaborador cadastrado.</response>
         [HttpPost]
         [Authorize(Policy = "CanManageUsers")]
+        [ProducesResponseType(typeof(UsuarioResponseDTO), StatusCodes.Status201Created)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status409Conflict)]
         public async Task<IActionResult> Cadastrar([FromBody] UsuarioCreateDTO dto)
         {
             if (!ModelState.IsValid) return ValidationProblem(ModelState);
@@ -161,8 +207,21 @@ namespace CorvusIAM.Controllers.Api
             return CreatedAtAction(nameof(Consultar), new { id = usuario.Id }, response);
         }
 
+        /// <summary>
+        /// Atualiza os dados cadastrais, cargo, status (ativo/bloqueado) ou senha de um colaborador existente.
+        /// </summary>
+        /// <param name="id">ID do colaborador a atualizar.</param>
+        /// <param name="dto">Novos dados cadastrais.</param>
+        /// <response code="204">Colaborador atualizado com sucesso.</response>
+        /// <response code="400">ID da rota divergente do corpo ou payload inválido.</response>
+        /// <response code="404">Colaborador não encontrado.</response>
+        /// <response code="409">Conflito com e-mail ou CPF de outro colaborador.</response>
         [HttpPut("{id}")]
         [Authorize(Policy = "CanManageUsers")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status409Conflict)]
         public async Task<IActionResult> Editar(int id, [FromBody] UsuarioUpdateDTO dto)
         {
             if (id != dto.Id) return BadRequest();
@@ -204,8 +263,18 @@ namespace CorvusIAM.Controllers.Api
             return NoContent();
         }
 
+        /// <summary>
+        /// Realiza a exclusão e anonimização irreversível dos dados pessoais do colaborador em conformidade estrita com a LGPD.
+        /// </summary>
+        /// <param name="id">ID do colaborador a ser anonimizado.</param>
+        /// <response code="204">Usuário desativado e dados anonimizados com sucesso.</response>
+        /// <response code="400">Tentativa de autoexclusão da própria conta conectada.</response>
+        /// <response code="404">Colaborador não encontrado.</response>
         [HttpDelete("{id}")]
         [Authorize(Policy = "CanManageUsers")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> Excluir(int id)
         {
             var usuario = await _context.Usuarios.FindAsync(id);
@@ -231,4 +300,3 @@ namespace CorvusIAM.Controllers.Api
         private static bool SenhaValida(string senha) => senha.Length >= 8 && senha.Any(char.IsUpper) && senha.Any(char.IsLower) && senha.Any(char.IsDigit) && senha.Any(c => !char.IsLetterOrDigit(c));
     }
 }
-

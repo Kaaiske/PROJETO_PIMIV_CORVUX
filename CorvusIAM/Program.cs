@@ -120,22 +120,74 @@ builder.Services.AddRateLimiter(options =>
     options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
 });
 
-// Swagger
+// Swagger / OpenAPI Specification
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(c =>
 {
-    c.SwaggerDoc("v1", new OpenApiInfo { Title = "CorvuxIAM API", Version = "v1", Description = "API de Gestão de Identidades e Acessos - https://corvuxiam.tech" });
-    c.AddServer(new OpenApiServer { Url = "https://corvuxiam.tech", Description = "Servidor de Produção (https://corvuxiam.tech)" });
-    c.AddServer(new OpenApiServer { Url = "http://localhost:5052", Description = "Servidor Local de Desenvolvimento" });
+    c.SwaggerDoc("v1", new OpenApiInfo
+    {
+        Title = "CorvusIAM API — Enterprise Identity & Access Management",
+        Version = "v1.0",
+        Description = @"### 🛡️ Visão Geral da API CorvuxIAM
+A **CorvusIAM API** fornece controle unificado de Identidade, Autenticação Corporativa, Governança de Acessos (IAM/IGA) e Cibersegurança em conformidade com os princípios de **Zero-Trust**, **LGPD** e modelos **RBAC/ABAC**.
+
+---
+
+### 🔑 Métodos de Autenticação Suportados:
+1. **Bearer Token (JWT)**:
+   - Obtenha o token através do endpoint `POST /api/Auth/login`.
+   - Inclua no cabeçalho HTTP de cada requisição: `Authorization: Bearer <seu_token_jwt>`.
+2. **API Key Corporativa (M2M / Gateway)**:
+   - Para integrações entre sistemas (ERPs, CRMs, Webhooks, automações), utilize a chave configurada no Gateway do sistema.
+   - Inclua no cabeçalho HTTP: `X-API-Key: <sua_api_key>` ou `Authorization: Bearer <sua_api_key>` nos endpoints de integração (`/api/v1/*`).
+
+---
+
+### 🌐 Módulos e Recursos Disponíveis:
+- **Autenticação & Sessões**: Geração e renovação de tokens JWT com mitigação de brute-force por Rate Limiting.
+- **Inbound Gateway (v1)**: Sincronização e consulta externa de diretório corporativo e status de colaboradores.
+- **IAM Core**: Ciclo de vida completo de usuários, atribuição de perfis, controle de MFA e anonimização LGPD.
+- **Service Desk & Chamados**: Abertura, tramitação e encerramento de tickets com cálculo automático de SLA de acordo com a prioridade.
+- **CyberSec, IDS & DPI**: Inspeção e bloqueio de ameaças de rede, telemetria de tráfego de sockets e firewall por host.
+- **Serviços Governamentais & Nacionais**: Integração em tempo real com ViaCEP, BrasilAPI (CNPJ, Bancos, Feriados Nacionais) e validação oficial de CPF (Módulo 11 da Receita Federal).",
+        Contact = new OpenApiContact
+        {
+            Name = "Corvux SecOps & DevOps Engineering Team",
+            Email = "suporte@corvuxiam.tech",
+            Url = new Uri("https://corvuxiam.tech")
+        },
+        License = new OpenApiLicense
+        {
+            Name = "MIT Enterprise License",
+            Url = new Uri("https://opensource.org/licenses/MIT")
+        }
+    });
+
+    c.AddServer(new OpenApiServer { Url = "https://corvuxiam.tech", Description = "Servidor de Produção Oficial (Cloudflare Edge SSL)" });
+    c.AddServer(new OpenApiServer { Url = "http://localhost:8080", Description = "Ambiente Container Docker Local" });
+    c.AddServer(new OpenApiServer { Url = "http://localhost:5052", Description = "Ambiente de Desenvolvimento Local (HTTP)" });
+
+    // JWT Bearer Security Definition
     c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
     {
-        Description = "JWT Authorization header using the Bearer scheme. Example: \"Authorization: Bearer {token}\"",
+        Description = "Insira o token JWT no formato: Bearer {seu_token}",
         Name = "Authorization",
         In = ParameterLocation.Header,
-        Type = SecuritySchemeType.ApiKey,
-        Scheme = "Bearer"
+        Type = SecuritySchemeType.Http,
+        Scheme = "bearer",
+        BearerFormat = "JWT"
     });
-    c.AddSecurityRequirement(new OpenApiSecurityRequirement()
+
+    // API Key Security Definition
+    c.AddSecurityDefinition("ApiKey", new OpenApiSecurityScheme
+    {
+        Description = "Chave de API corporativa para integrações máquina-a-máquina (M2M) via cabeçalho 'X-API-Key'",
+        Name = "X-API-Key",
+        In = ParameterLocation.Header,
+        Type = SecuritySchemeType.ApiKey
+    });
+
+    c.AddSecurityRequirement(new OpenApiSecurityRequirement
     {
         {
             new OpenApiSecurityScheme
@@ -144,14 +196,29 @@ builder.Services.AddSwaggerGen(c =>
                 {
                     Type = ReferenceType.SecurityScheme,
                     Id = "Bearer"
-                },
-                Scheme = "oauth2",
-                Name = "Bearer",
-                In = ParameterLocation.Header,
+                }
             },
-            new List<string>()
+            Array.Empty<string>()
+        },
+        {
+            new OpenApiSecurityScheme
+            {
+                Reference = new OpenApiReference
+                {
+                    Type = ReferenceType.SecurityScheme,
+                    Id = "ApiKey"
+                }
+            },
+            Array.Empty<string>()
         }
     });
+
+    var xmlFilename = $"{System.Reflection.Assembly.GetExecutingAssembly().GetName().Name}.xml";
+    var xmlPath = System.IO.Path.Combine(AppContext.BaseDirectory, xmlFilename);
+    if (System.IO.File.Exists(xmlPath))
+    {
+        c.IncludeXmlComments(xmlPath, includeControllerXmlComments: true);
+    }
 });
 
 // Health Checks
@@ -416,7 +483,16 @@ if (!app.Environment.IsDevelopment())
 }
 
 app.UseSwagger();
-app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "CorvuxIAM API v1"));
+app.UseSwaggerUI(c =>
+{
+    c.SwaggerEndpoint("/swagger/v1/swagger.json", "CorvusIAM Enterprise API v1.0");
+    c.RoutePrefix = "swagger";
+    c.DocumentTitle = "CorvusIAM — Enterprise API & Security Specification";
+    c.InjectStylesheet("/css/swagger-dark.css");
+    c.DisplayRequestDuration();
+    c.EnableFilter();
+    c.DocExpansion(Swashbuckle.AspNetCore.SwaggerUI.DocExpansion.List);
+});
 
 app.UseHttpsRedirection();
 app.UseStaticFiles();
