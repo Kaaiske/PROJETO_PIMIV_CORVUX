@@ -18,6 +18,28 @@ namespace CorvusIAM.Models
         public List<int> AcessosPlataforma { get; set; } = new List<int> { 0,0,0 };
 
         public List<ModuloStatus> Modulos { get; set; } = new List<ModuloStatus>();
+
+        // Métricas Detalhadas de Uso por Usuário e Setor
+        public List<UsuarioUsoMetrica> RankingUsoUsuarios { get; set; } = new List<UsuarioUsoMetrica>();
+        public List<string> DepartamentosNomes { get; set; } = new List<string> { "Administração / Diretoria", "Segurança da Informação", "Recursos Humanos", "Contabilidade & Finanças", "Engenharia / DevOps", "HelpDesk / Operações" };
+        public List<int> DepartamentosUsoPercentual { get; set; } = new List<int> { 32, 26, 16, 12, 9, 5 };
+        public int TotalRequisicoesHoje { get; set; } = 4820;
+        public int ConexoesAtivasRede { get; set; } = 18;
+        public int IdsAmeacasBloqueadas { get; set; } = 14;
+    }
+
+    public class UsuarioUsoMetrica
+    {
+        public int UsuarioId { get; set; }
+        public string Nome { get; set; } = string.Empty;
+        public string Email { get; set; } = string.Empty;
+        public string Perfil { get; set; } = string.Empty;
+        public int TotalLogins { get; set; }
+        public int TotalRequisicoes { get; set; }
+        public DateTime UltimoAcesso { get; set; }
+        public string IpOrigem { get; set; } = string.Empty;
+        public string Dispositivo { get; set; } = string.Empty;
+        public string Status { get; set; } = "Ativo";
     }
 
 

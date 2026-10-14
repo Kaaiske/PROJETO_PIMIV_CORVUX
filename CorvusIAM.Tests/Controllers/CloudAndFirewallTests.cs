@@ -120,6 +120,63 @@ namespace CorvusIAM.Tests.Controllers
             Assert.Equal("Saudavel", dev.Status);
             Assert.Equal(0, dev.PatchesPendentes);
         }
+
+        [Fact]
+        public async System.Threading.Tasks.Task TestarAssinaturaIds_DetectaSQLInjectionEBloqueiaNoFirewall()
+        {
+            var context = GetDbContext();
+            var controller = CreateController(context);
+
+            var dto = new AdminController.IdsTestDTO
+            {
+                Ip = "198.51.100.88",
+                Payload = "' OR '1'='1' --"
+            };
+
+            var res = await controller.TestarAssinaturaIds(dto) as OkObjectResult;
+            Assert.NotNull(res);
+
+            // Verifica se o IP foi adicionado às regras ativas de Firewall
+            var regra = context.FirewallRegras.FirstOrDefault(f => f.Ip == "198.51.100.88" && f.Ativo);
+            Assert.NotNull(regra);
+            Assert.Contains("SQL Injection", regra.Motivo);
+
+            // Verifica se o log de auditoria crítico foi gerado
+            var log = context.LogsAuditoria.FirstOrDefault(l => l.Origem == "Corvus IDS Engine" && l.Tipo == "Critico");
+            Assert.NotNull(log);
+        }
+
+        [Fact]
+        public async System.Threading.Tasks.Task ReiniciarServicoApp_RegistraAuditoriaERetornaOnline()
+        {
+            var context = GetDbContext();
+            var controller = CreateController(context);
+
+            var res = await controller.ReiniciarServicoApp() as OkObjectResult;
+            Assert.NotNull(res);
+
+            var log = context.LogsAuditoria.FirstOrDefault(l => l.Acao.Contains("Reinício de Serviço Web"));
+            Assert.NotNull(log);
+        }
+
+        [Fact]
+        public void ObterConexoesEndpoint_RetornaConexoesEUsuario()
+        {
+            var context = GetDbContext();
+            context.DispositivosRede.Add(new DispositivoRede
+            {
+                Hostname = "SRV-TEST-01",
+                Ip = "10.0.1.5",
+                UsuarioResponsavel = "Admin TI",
+                Tipo = "servidores",
+                Status = "Saudavel"
+            });
+            context.SaveChanges();
+
+            var controller = CreateController(context);
+            var res = controller.ObterConexoesEndpoint("SRV-TEST-01") as OkObjectResult;
+            Assert.NotNull(res);
+        }
     }
 }
 

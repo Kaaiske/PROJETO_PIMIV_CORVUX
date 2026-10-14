@@ -23,14 +23,26 @@ namespace CorvusIAM.Models.DTOs
 
     public class ChamadoCreateDTO
     {
-        [Required, StringLength(100)]
+        [Required(ErrorMessage = "O assunto é obrigatório."), StringLength(100)]
         public string Assunto { get; set; } = string.Empty;
-        [Required, StringLength(1000)]
+
+        [Required(ErrorMessage = "A descrição é obrigatória."), StringLength(1000)]
         public string Descricao { get; set; } = string.Empty;
-        [Required, StringLength(50)]
-        public string Categoria { get; set; } = "Acesso";
-        [Required, RegularExpression("^(Baixa|Normal|Alta|Critica)$")]
-        public string Prioridade { get; set; } = "Normal";
+
+        private string _categoria = "Acesso";
+        [StringLength(50)]
+        public string Categoria 
+        { 
+            get => string.IsNullOrWhiteSpace(_categoria) ? "Acesso" : _categoria; 
+            set => _categoria = string.IsNullOrWhiteSpace(value) ? "Acesso" : value; 
+        }
+
+        private string _prioridade = "Normal";
+        public string Prioridade 
+        { 
+            get => string.IsNullOrWhiteSpace(_prioridade) ? "Normal" : _prioridade; 
+            set => _prioridade = string.IsNullOrWhiteSpace(value) ? "Normal" : value; 
+        }
     }
 
     public class ChamadoUpdateDTO

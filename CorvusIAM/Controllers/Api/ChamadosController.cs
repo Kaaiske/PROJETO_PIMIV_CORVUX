@@ -59,21 +59,29 @@ namespace CorvusIAM.Controllers.Api
         [HttpPost]
         public async Task<IActionResult> AbrirChamado([FromBody] ChamadoCreateDTO dto)
         {
+            if (dto == null)
+                return BadRequest(new { message = "Dados da solicitação não fornecidos." });
+
             var userIdStr = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             if (string.IsNullOrEmpty(userIdStr) || !int.TryParse(userIdStr, out int userId))
                 return Unauthorized();
+
+            var categoria = string.IsNullOrWhiteSpace(dto.Categoria) ? "Acesso" : dto.Categoria.Trim();
+            var prioridade = string.IsNullOrWhiteSpace(dto.Prioridade) ? "Normal" : dto.Prioridade.Trim();
+            if (prioridade != "Baixa" && prioridade != "Normal" && prioridade != "Alta" && prioridade != "Critica")
+                prioridade = "Normal";
 
             var chamado = new ChamadoSuporte
             {
                 UsuarioId = userId,
                 Assunto = dto.Assunto,
                 Descricao = dto.Descricao,
-                Categoria = dto.Categoria,
-                Prioridade = dto.Prioridade,
+                Categoria = categoria,
+                Prioridade = prioridade,
                 Status = "Aberto",
                 DataAbertura = DateTime.UtcNow,
                 DataAtualizacao = DateTime.UtcNow,
-                PrazoSla = DateTime.UtcNow.AddHours(dto.Prioridade == "Critica" ? 4 : dto.Prioridade == "Alta" ? 8 : 24)
+                PrazoSla = DateTime.UtcNow.AddHours(prioridade == "Critica" ? 4 : prioridade == "Alta" ? 8 : 24)
             };
 
             _context.ChamadosSuporte.Add(chamado);

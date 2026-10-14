@@ -14,17 +14,56 @@
 </head>
 <body>
     <main class="app" aria-labelledby="titulo">
-        <header><p class="marca">CORVUS IAM</p><h1 id="titulo">Olá, @User.Identity?.Name</h1><p>Central de suporte corporativo</p></header>
-        <section aria-labelledby="novo-chamado"><h2 id="novo-chamado">Abrir chamado</h2>
+        <header>
+            <p class="marca">CORVUS IAM</p>
+            <h1 id="titulo">Olá, @User.Identity?.Name</h1>
+            <p>Central de suporte corporativo mobile</p>
+        </header>
+
+        <!-- Banner de Instalação PWA -->
+        <div id="pwa-install-banner" class="install-banner" style="display:none;">
+            <div>
+                <strong>📱 Instalar Aplicativo</strong>
+                <p style="margin:4px 0 0 0; font-size:0.8rem; opacity:0.9;">Instale o CorvusIAM no seu dispositivo para acesso rápido e suporte offline.</p>
+            </div>
+            <button id="pwa-install-btn" class="install-btn">Instalar</button>
+        </div>
+
+        <section aria-labelledby="novo-chamado">
+            <h2 id="novo-chamado">Abrir chamado de suporte</h2>
             <form id="chamado-form">
-                <label>Assunto<input id="assunto" required maxlength="100" autocomplete="off" /></label>
-                <label>Descrição<textarea id="descricao" required maxlength="1000"></textarea></label>
+                <label>Assunto
+                    <input id="assunto" required maxlength="100" autocomplete="off" placeholder="Ex: Solicitação de acesso VPN" />
+                </label>
+                <label>Categoria
+                    <select id="categoria">
+                        <option value="Acesso" selected>Acesso e Permissões</option>
+                        <option value="Hardware">Hardware / Equipamento</option>
+                        <option value="Software">Software / Licença</option>
+                        <option value="Rede">Rede / Conectividade</option>
+                        <option value="Segurança">Segurança / Alerta</option>
+                    </select>
+                </label>
+                <label>Prioridade
+                    <select id="prioridade">
+                        <option value="Baixa">Baixa</option>
+                        <option value="Normal" selected>Normal</option>
+                        <option value="Alta">Alta</option>
+                        <option value="Critica">Crítica</option>
+                    </select>
+                </label>
+                <label>Descrição
+                    <textarea id="descricao" required maxlength="1000" placeholder="Descreva detalhadamente o problema ou solicitação..."></textarea>
+                </label>
                 <button type="submit">Enviar chamado</button>
             </form>
             <p id="mensagem" role="status"></p>
         </section>
-        <section aria-labelledby="meus-chamados"><h2 id="meus-chamados">Meus chamados</h2><div id="lista" aria-live="polite">Carregando…</div></section>
-        <a class="sair" href="/Auth/Logout">Sair</a>
+        <section aria-labelledby="meus-chamados">
+            <h2 id="meus-chamados">Meus chamados recentes</h2>
+            <div id="lista" aria-live="polite">Carregando…</div>
+        </section>
+        <a class="sair" href="/Auth/Logout">Sair da Sessão</a>
     </main>
     <script src="~/mobile/app.js"></script>
 </body>

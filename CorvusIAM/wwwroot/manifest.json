@@ -2,7 +2,7 @@
   "name": "Corvus Security IAM",
   "short_name": "CorvusIAM",
   "description": "Plataforma Corporativa de Gestão de Identidades, Acessos, Endpoints e SecOps.",
-  "start_url": "/Admin/Index",
+  "start_url": "/",
   "scope": "/",
   "display": "standalone",
   "background_color": "#0B0D10",

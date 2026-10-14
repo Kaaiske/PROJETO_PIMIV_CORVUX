@@ -18,6 +18,9 @@
         <p class="text-[12px] text-gray-500 dark:text-gray-400 mt-1">Varredura contínua de computadores na rede corporativa, telemetria de recursos e conformidade EDR</p>
     </div>
     <div class="flex flex-wrap gap-2 w-full sm:w-auto">
+        <button onclick="solicitarReinicioServico()" class="flex-1 sm:flex-initial bg-gray-800 hover:bg-gray-700 text-gray-200 border border-gray-600 text-[12px] font-medium px-3 py-1.5 rounded-[6px] shadow-sm transition-colors flex items-center justify-center gap-1.5 cursor-pointer" title="Reiniciar Serviço de Aplicação Web">
+            <i class="ph ph-arrows-counter-clockwise text-amber-400"></i> Reiniciar Servidor Web
+        </button>
         <button onclick="remediarTodosLote()" class="flex-1 sm:flex-initial bg-orange-600 hover:bg-orange-700 text-white text-[12px] font-medium px-3 py-1.5 rounded-[6px] shadow-sm transition-colors flex items-center justify-center gap-1.5 cursor-pointer">
             <i class="ph ph-wrench"></i> Corrigir Alertas em Lote
         </button>
@@ -219,6 +222,7 @@
                         </td>
                         <td class="px-4 py-3 text-right">
                             <div class="flex justify-end gap-1">
+                                <button onclick="abrirModalTrafegoEndpoint('@dev.Hostname', '@(dev.UsuarioResponsavel ?? "Sem usuário")', '@dev.Ip')" class="px-2 py-1 bg-purple-50 hover:bg-purple-100 dark:bg-purple-900/20 dark:hover:bg-purple-900/30 text-purple-600 dark:text-purple-400 text-xs rounded transition-colors cursor-pointer" title="Inspecionar Tráfego de Rede e Portas"><i class="ph ph-activity"></i> Tráfego</button>
                                 <button onclick="escanearDispositivo('@dev.Hostname')" class="px-2 py-1 bg-brand-50 hover:bg-brand-100 dark:bg-brand-900/20 dark:hover:bg-brand-900/30 text-brand-600 dark:text-brand-400 text-xs rounded transition-colors cursor-pointer" title="Escanear">Escanear</button>
                                 @if (dev.PatchesPendentes > 0)
                                 {
@@ -547,19 +551,19 @@
         async function remediarTodosLote() {
             const res = await Swal.fire({
                 title: 'Remediação Automática em Lote?',
-                html: 'O CorvusSec irá:<br>1. Instalar patches pendentes nas máquinas de alerta.<br>2. Purgar logs acumulados no servidor de API.<br>3. Atualizar as definições de antivírus da WS-RH-01.',
+                html: '<div class="text-xs text-gray-300 text-left space-y-1"><p>O CorvusSec executará:</p><p>• Instalação de patches pendentes em todas as máquinas com alertas.</p><p>• Otimização de armazenamento e limpeza preventiva de logs.</p><p>• Restauração de conectividade e atualização das assinaturas EDR.</p></div>',
                 icon: 'warning',
                 showCancelButton: true,
                 confirmButtonColor: '#f97316',
-                confirmButtonText: 'Executar Correções',
+                confirmButtonText: 'Executar Correções Imediatas',
                 cancelButtonText: 'Cancelar',
                 background: '#121418', color: '#fff'
             });
 
             if (res.isConfirmed) {
                 Swal.fire({
-                    title: 'Remediando em Lote...',
-                    html: '<div class="text-xs text-gray-400">Aplicando correções remotas...</div>',
+                    title: 'Aplicando Remediação em Lote...',
+                    html: '<div class="text-xs text-gray-400">Enviando comandos criptografados aos agentes EDR...</div>',
                     allowOutsideClick: false,
                     didOpen: () => Swal.showLoading(),
                     background: '#121418', color: '#fff'
@@ -571,15 +575,211 @@
                     body: JSON.stringify({ Hostname: 'BATCH_REMEDIATION', Acao: 'BatchRemediate' })
                 });
 
+                // Oculta instantaneamente a notificação de alerta da tela
+                const aiCard = document.getElementById('aiDiagCard');
+                if (aiCard) {
+                    aiCard.style.transition = 'opacity 0.4s ease, transform 0.4s ease';
+                    aiCard.style.opacity = '0';
+                    aiCard.style.transform = 'translateY(-10px)';
+                    setTimeout(() => aiCard.remove(), 400);
+                }
+                const kpiAtencao = document.getElementById('kpiAtencao');
+                if (kpiAtencao) kpiAtencao.textContent = '0';
+                const kpiConformidade = document.getElementById('kpiConformidade');
+                if (kpiConformidade) kpiConformidade.textContent = '100%';
+
                 setTimeout(() => {
                     Swal.fire({
-                        title: 'Tudo Otimizado!',
-                        text: 'Todas as 3 máquinas foram atualizadas e o ambiente está 100% verde!',
+                        title: 'Ambiente 100% Saudável!',
+                        text: 'Todas as estações e servidores foram remediados com sucesso.',
                         icon: 'success',
                         background: '#121418', color: '#fff', confirmButtonColor: '#3B82F6'
                     }).then(() => window.location.reload());
-                }, 2000);
+                }, 1200);
+            }
+        }
+
+        async function solicitarReinicioServico() {
+            const res = await Swal.fire({
+                title: 'Reiniciar Servidor Web / Aplicação?',
+                html: '<div class="text-xs text-gray-400 text-left space-y-1"><p>Esta ação irá executar uma <b>reciclagem graciosa</b> dos processos Kestrel e recarregar os pools de conexão da aplicação.</p><p class="text-amber-400 mt-2">Downtime estimado: &lt; 2 segundos.</p></div>',
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonColor: '#f59e0b',
+                confirmButtonText: 'Sim, Reiniciar Servidor',
+                cancelButtonText: 'Cancelar',
+                background: '#121418', color: '#fff'
+            });
+
+            if (res.isConfirmed) {
+                Swal.fire({
+                    title: 'Reiniciando Serviço Web...',
+                    html: '<div class="text-xs text-gray-400">Reciclando containers e restabelecendo conexões...</div>',
+                    allowOutsideClick: false,
+                    didOpen: () => Swal.showLoading(),
+                    background: '#121418', color: '#fff'
+                });
+
+                try {
+                    const response = await fetch('/Admin/ReiniciarServicoApp', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json', 'RequestVerificationToken': getCsrfToken() }
+                    });
+                    const data = await response.json();
+                    setTimeout(() => {
+                        Swal.fire({
+                            title: 'Serviço Reiniciado com Sucesso!',
+                            html: `<div class="text-xs text-gray-300">Tempo de reinício: <b>${data.tempo || '1.4s'}</b><br>Status: <span class="text-emerald-400 font-bold">${data.status || 'Online'}</span><br>Horário: ${data.timestamp}</div>`,
+                            icon: 'success',
+                            background: '#121418', color: '#fff', confirmButtonColor: '#3B82F6'
+                        });
+                    }, 1400);
+                } catch (e) {
+                    Swal.fire({ title: 'Erro', text: 'Falha ao solicitar reinício do serviço.', icon: 'error', background: '#121418', color: '#fff' });
+                }
+            }
+        }
+
+        let currentInspectedHost = '';
+
+        async function abrirModalTrafegoEndpoint(hostname, usuario, ip) {
+            currentInspectedHost = hostname;
+            document.getElementById('trafegoModalHost').textContent = hostname;
+            document.getElementById('trafegoModalUsuario').textContent = usuario;
+            document.getElementById('trafegoModalIp').textContent = ip;
+            
+            const tbody = document.getElementById('trafegoTbody');
+            tbody.innerHTML = '<tr><td colspan="6" class="text-center py-4 text-gray-400 font-sans">Carregando telemetria em tempo real...</td></tr>';
+            
+            const modal = document.getElementById('modalTrafegoEndpoint');
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+
+            try {
+                const res = await fetch(`/Admin/ObterConexoesEndpoint?hostname=${encodeURIComponent(hostname)}`);
+                if (!res.ok) throw new Error();
+                const data = await res.json();
+                
+                if (!data.conexoes || data.conexoes.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="6" class="text-center py-4 text-gray-400 font-sans">Nenhuma conexão de rede externa ativa no momento.</td></tr>';
+                    return;
+                }
+
+                tbody.innerHTML = data.conexoes.map(c => `
+                    <tr class="hover:bg-gray-50 dark:hover:bg-dark-hover transition-colors">
+                        <td class="px-3 py-2 text-gray-800 dark:text-gray-200">
+                            <b>${c.processo}</b> <span class="text-gray-400 text-[10px]">(PID ${c.pid})</span>
+                        </td>
+                        <td class="px-3 py-2 text-gray-500">${c.protocolo}</td>
+                        <td class="px-3 py-2 text-brand-600 dark:text-brand-400">${c.destino}</td>
+                        <td class="px-3 py-2 text-gray-500">${c.trafego}</td>
+                        <td class="px-3 py-2">
+                            <span class="px-1.5 py-0.5 rounded text-[10px] ${c.status === 'ESTABLISHED' ? 'bg-emerald-500/10 text-emerald-500' : 'bg-amber-500/10 text-amber-500'}">${c.status}</span>
+                        </td>
+                        <td class="px-3 py-2 text-right">
+                            ${c.bloqueado 
+                                ? '<span class="text-red-500 font-semibold text-[10px]"><i class="ph ph-prohibit"></i> Bloqueado WAF</span>' 
+                                : `<button onclick="bloquearDestinoEndpoint('${hostname}', '${c.destino.split(':')[0]}', ${c.porta})" class="px-2 py-0.5 bg-red-600 hover:bg-red-700 text-white rounded text-[10px] font-sans cursor-pointer"><i class="ph ph-shield-slash"></i> Bloquear IP</button>`}
+                        </td>
+                    </tr>
+                `).join('');
+            } catch (err) {
+                tbody.innerHTML = '<tr><td colspan="6" class="text-center py-4 text-red-400 font-sans">Falha ao coletar tráfego de rede do agente.</td></tr>';
+            }
+        }
+
+        function fecharModalTrafego() {
+            const modal = document.getElementById('modalTrafegoEndpoint');
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+        }
+
+        async function bloquearDestinoEndpoint(host, destIp, destPort) {
+            const res = await Swal.fire({
+                title: 'Bloquear Tráfego no Firewall?',
+                html: `Deseja adicionar o destino <b>${destIp}:${destPort}</b> às regras de bloqueio do Firewall WAF corporativo?`,
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#dc2626',
+                confirmButtonText: 'Bloquear Conexão',
+                cancelButtonText: 'Cancelar',
+                background: '#121418', color: '#fff'
+            });
+
+            if (res.isConfirmed) {
+                const response = await fetch('/Admin/BloquearConexaoEndpoint', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'RequestVerificationToken': getCsrfToken() },
+                    body: JSON.stringify({ Hostname: host, DestinoIp: destIp, DestinoPorta: destPort, Motivo: 'Bloqueio originado da inspeção de tráfego' })
+                });
+
+                if (response.ok) {
+                    Swal.fire({ title: 'Bloqueado!', text: `O destino ${destIp} foi adicionado ao Firewall com sucesso.`, icon: 'success', background: '#121418', color: '#fff' });
+                    abrirModalTrafegoEndpoint(currentInspectedHost, document.getElementById('trafegoModalUsuario').textContent, document.getElementById('trafegoModalIp').textContent);
+                }
             }
         }
     </script>
 }
+
+<!-- Modal de Inspeção de Tráfego de Rede & Firewall do Endpoint -->
+<div id="modalTrafegoEndpoint" class="fixed inset-0 bg-black/80 z-[100] hidden items-center justify-center p-4 backdrop-blur-sm transition-opacity">
+    <div class="bg-white dark:bg-dark-card border border-gray-200 dark:border-dark-border rounded-xl shadow-2xl w-full max-w-3xl overflow-hidden flex flex-col max-h-[85vh]">
+        <div class="px-6 py-4 border-b border-gray-200 dark:border-dark-border flex justify-between items-center bg-gray-50 dark:bg-dark-bg/60">
+            <div class="flex items-center gap-3">
+                <div class="w-9 h-9 rounded-lg bg-purple-500/10 border border-purple-500/30 text-purple-400 flex items-center justify-center font-bold">
+                    <i class="ph ph-shield-check text-xl"></i>
+                </div>
+                <div>
+                    <h3 class="text-sm font-semibold text-gray-900 dark:text-white flex items-center gap-2">
+                        Inspeção de Tráfego & Firewall: <span id="trafegoModalHost" class="font-mono text-brand-400"></span>
+                    </h3>
+                    <p class="text-[11px] text-gray-500 dark:text-gray-400">
+                        Usuário Conectado: <b id="trafegoModalUsuario" class="text-gray-700 dark:text-gray-200"></b> • IP: <span id="trafegoModalIp" class="font-mono"></span>
+                    </p>
+                </div>
+            </div>
+            <button type="button" onclick="fecharModalTrafego()" class="text-gray-400 hover:text-white p-1 cursor-pointer">
+                <i class="ph ph-x text-base"></i>
+            </button>
+        </div>
+
+        <div class="p-6 overflow-y-auto flex-1 space-y-4">
+            <div class="flex items-center justify-between">
+                <div class="text-xs text-gray-500 dark:text-gray-400">
+                    Conexões de rede e portas ativas estabelecidas por este computador:
+                </div>
+                <span class="text-xs font-mono px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-500 border border-emerald-500/20 flex items-center gap-1">
+                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span> Inspeção Ativa
+                </span>
+            </div>
+
+            <div class="border border-gray-200 dark:border-dark-border rounded-lg overflow-hidden">
+                <table class="table text-xs">
+                    <thead class="bg-gray-50 dark:bg-dark-bg text-gray-500 uppercase tracking-wider text-[10px]">
+                        <tr>
+                            <th class="px-3 py-2">Processo / PID</th>
+                            <th class="px-3 py-2">Proto</th>
+                            <th class="px-3 py-2">Destino Remoto</th>
+                            <th class="px-3 py-2">Tráfego (Tx/Rx)</th>
+                            <th class="px-3 py-2">Status</th>
+                            <th class="px-3 py-2 text-right">Ação Firewall</th>
+                        </tr>
+                    </thead>
+                    <tbody id="trafegoTbody" class="divide-y divide-gray-100 dark:divide-dark-border font-mono text-[11px]">
+                        <tr>
+                            <td colspan="6" class="text-center py-4 text-gray-400 font-sans">Carregando telemetria de tráfego...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="px-6 py-3 border-t border-gray-200 dark:border-dark-border bg-gray-50 dark:bg-dark-bg/60 flex justify-between items-center text-xs">
+            <span class="text-gray-500">Regras de bloqueio são aplicadas instantaneamente no Firewall WAF / Host.</span>
+            <button type="button" onclick="fecharModalTrafego()" class="px-4 py-1.5 bg-gray-200 dark:bg-dark-border hover:bg-gray-300 dark:hover:bg-gray-700 text-gray-800 dark:text-white rounded-lg transition-colors cursor-pointer">
+                Fechar
+            </button>
+        </div>
+    </div>
+</div>

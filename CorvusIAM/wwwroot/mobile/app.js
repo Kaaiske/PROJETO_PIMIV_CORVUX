@@ -62,13 +62,45 @@ function mostrarMensagem(texto, tipo) {
     mensagem.style.color = tipo === 'erro' ? 'red' : tipo === 'sucesso' ? 'green' : 'orange';
 }
 
+let deferredPrompt = null;
+const installBanner = document.getElementById('pwa-install-banner');
+const installBtn = document.getElementById('pwa-install-btn');
+
+window.addEventListener('beforeinstallprompt', (e) => {
+    e.preventDefault();
+    deferredPrompt = e;
+    if (installBanner) installBanner.style.display = 'flex';
+});
+
+if (installBtn) {
+    installBtn.addEventListener('click', async () => {
+        if (!deferredPrompt) return;
+        deferredPrompt.prompt();
+        const { outcome } = await deferredPrompt.userChoice;
+        if (outcome === 'accepted') {
+            if (installBanner) installBanner.style.display = 'none';
+        }
+        deferredPrompt = null;
+    });
+}
+
+window.addEventListener('appinstalled', () => {
+    if (installBanner) installBanner.style.display = 'none';
+    deferredPrompt = null;
+});
+
 document.getElementById('chamado-form').addEventListener('submit', async event => {
   event.preventDefault(); 
   mensagem.textContent = '';
   
+  const catEl = document.getElementById('categoria');
+  const prioEl = document.getElementById('prioridade');
+
   const payload = { 
     assunto: document.getElementById('assunto').value, 
     descricao: document.getElementById('descricao').value, 
+    categoria: catEl ? catEl.value : 'Acesso',
+    prioridade: prioEl ? prioEl.value : 'Normal',
     timestamp: new Date().toISOString() 
   };
   
@@ -96,7 +128,8 @@ document.getElementById('chamado-form').addEventListener('submit', async event =
           return;
       }
       if (!resposta.ok) {
-          mostrarMensagem('API indisponível. Salvando para envio posterior...', 'erro');
+          const errData = await resposta.json().catch(() => ({}));
+          mostrarMensagem(errData.message || 'Erro ao processar chamado. Salvando localmente...', 'erro');
           salvarNoIndexedDB(payload);
           return;
       }

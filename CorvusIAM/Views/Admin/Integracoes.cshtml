@@ -94,6 +94,102 @@
     }
 </div>
 
+<!-- Seção Explicativa e Interativa: Guia de Uso da API REST v1 -->
+<div class="mt-8 bento-card bg-white dark:bg-dark-card border border-gray-200 dark:border-dark-border rounded-[8px] p-6 shadow-sm">
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between pb-4 border-b border-gray-200 dark:border-dark-border gap-3">
+        <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-lg bg-brand-500/10 border border-brand-500/20 text-brand-500 flex items-center justify-center">
+                <i class="ph ph-terminal-window text-2xl"></i>
+            </div>
+            <div>
+                <h3 class="text-sm font-bold text-gray-900 dark:text-white">Instruções Práticas de Consumo da API RESTful v1</h3>
+                <p class="text-xs text-gray-500 dark:text-gray-400">Exemplos prontos para integração com sistemas externos, ERPs e scripts automatizados</p>
+            </div>
+        </div>
+        <div class="flex items-center gap-1.5 bg-gray-100 dark:bg-dark-bg p-1 rounded-lg">
+            <button type="button" onclick="trocarAbaApi('curl')" id="tabApi-curl" class="tab-api-btn px-3 py-1 text-xs font-semibold rounded bg-brand-600 text-white transition-colors cursor-pointer">cURL</button>
+            <button type="button" onclick="trocarAbaApi('python')" id="tabApi-python" class="tab-api-btn px-3 py-1 text-xs font-semibold rounded text-gray-600 dark:text-gray-400 hover:text-white transition-colors cursor-pointer">Python</button>
+            <button type="button" onclick="trocarAbaApi('js')" id="tabApi-js" class="tab-api-btn px-3 py-1 text-xs font-semibold rounded text-gray-600 dark:text-gray-400 hover:text-white transition-colors cursor-pointer">JavaScript</button>
+            <button type="button" onclick="trocarAbaApi('csharp')" id="tabApi-csharp" class="tab-api-btn px-3 py-1 text-xs font-semibold rounded text-gray-600 dark:text-gray-400 hover:text-white transition-colors cursor-pointer">C# .NET</button>
+        </div>
+    </div>
+
+    <!-- Bloco de Código Dinâmico -->
+    <div class="mt-4 relative">
+        <div class="flex items-center justify-between bg-gray-900 text-gray-400 px-4 py-2 rounded-t-lg text-xs font-mono border-b border-gray-800">
+            <span id="apiSnippetLangTitle">Snippet: Requisição HTTP cURL</span>
+            <button type="button" onclick="copiarCodigoApi()" class="flex items-center gap-1 text-gray-300 hover:text-white text-xs cursor-pointer">
+                <i class="ph ph-copy"></i> Copiar Código
+            </button>
+        </div>
+        <pre class="bg-[#090A0C] text-brand-300 p-4 rounded-b-lg font-mono text-xs overflow-x-auto leading-relaxed border border-gray-800 border-t-0"><code id="apiCodeDisplay"># 1. Buscar lista de colaboradores via REST
+curl -X GET "https://corvuxiam.tech/api/v1/users" \
+  -H "X-API-Key: corvus_sec_live_9f83a218d47b0192e" \
+  -H "Accept: application/json"
+
+# 2. Provisionar novo colaborador a partir de ERP
+curl -X POST "https://corvuxiam.tech/api/v1/users" \
+  -H "X-API-Key: corvus_sec_live_9f83a218d47b0192e" \
+  -H "Content-Type: application/json" \
+  -d '{"nome":"Alice Silva","email":"alice@empresa.com","cargo":"Engenheira DevOps","perfilId":3}'</code></pre>
+    </div>
+
+    <!-- Tabela Resumo de Endpoints Disponíveis -->
+    <div class="mt-6">
+        <h4 class="text-xs font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400 mb-3">Catálogo de Endpoints da API Gateway</h4>
+        <div class="border border-gray-200 dark:border-dark-border rounded-lg overflow-hidden">
+            <table class="table text-xs">
+                <thead class="bg-gray-50 dark:bg-dark-bg text-gray-500 uppercase tracking-wider text-[10px]">
+                    <tr>
+                        <th class="px-3 py-2">Método</th>
+                        <th class="px-3 py-2">Endpoint</th>
+                        <th class="px-3 py-2">Autenticação</th>
+                        <th class="px-3 py-2">Descrição / Ação</th>
+                        <th class="px-3 py-2 text-right">Status</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-100 dark:divide-dark-border font-mono text-[11px]">
+                    <tr>
+                        <td class="px-3 py-2.5 font-bold text-emerald-500">GET</td>
+                        <td class="px-3 py-2.5 text-gray-900 dark:text-white">/api/v1/users</td>
+                        <td class="px-3 py-2.5 text-brand-400">X-API-Key / Bearer</td>
+                        <td class="px-3 py-2.5 text-gray-600 dark:text-gray-300 font-sans">Retorna todos os usuários cadastrados e seus perfis RBAC.</td>
+                        <td class="px-3 py-2.5 text-right"><span class="px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-500 text-[10px]">200 OK</span></td>
+                    </tr>
+                    <tr>
+                        <td class="px-3 py-2.5 font-bold text-blue-500">POST</td>
+                        <td class="px-3 py-2.5 text-gray-900 dark:text-white">/api/v1/users</td>
+                        <td class="px-3 py-2.5 text-brand-400">X-API-Key / Bearer</td>
+                        <td class="px-3 py-2.5 text-gray-600 dark:text-gray-300 font-sans">Cria e provisiona automaticamente um novo colaborador na organização.</td>
+                        <td class="px-3 py-2.5 text-right"><span class="px-2 py-0.5 rounded bg-blue-500/10 text-blue-500 text-[10px]">201 Created</span></td>
+                    </tr>
+                    <tr>
+                        <td class="px-3 py-2.5 font-bold text-emerald-500">GET</td>
+                        <td class="px-3 py-2.5 text-gray-900 dark:text-white">/api/Chamados</td>
+                        <td class="px-3 py-2.5 text-brand-400">Cookie / Bearer</td>
+                        <td class="px-3 py-2.5 text-gray-600 dark:text-gray-300 font-sans">Consulta os chamados de suporte abertos para o usuário autenticado.</td>
+                        <td class="px-3 py-2.5 text-right"><span class="px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-500 text-[10px]">200 OK</span></td>
+                    </tr>
+                    <tr>
+                        <td class="px-3 py-2.5 font-bold text-blue-500">POST</td>
+                        <td class="px-3 py-2.5 text-gray-900 dark:text-white">/api/Chamados</td>
+                        <td class="px-3 py-2.5 text-brand-400">Cookie / Bearer</td>
+                        <td class="px-3 py-2.5 text-gray-600 dark:text-gray-300 font-sans">Abre novo chamado corporativo com cálculo de SLA e categoria.</td>
+                        <td class="px-3 py-2.5 text-right"><span class="px-2 py-0.5 rounded bg-blue-500/10 text-blue-500 text-[10px]">201 Created</span></td>
+                    </tr>
+                    <tr>
+                        <td class="px-3 py-2.5 font-bold text-emerald-500">GET</td>
+                        <td class="px-3 py-2.5 text-gray-900 dark:text-white">/health</td>
+                        <td class="px-3 py-2.5 text-gray-400">Público</td>
+                        <td class="px-3 py-2.5 text-gray-600 dark:text-gray-300 font-sans">Liveness & Readiness probe para balanceadores e Kubernetes.</td>
+                        <td class="px-3 py-2.5 text-right"><span class="px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-500 text-[10px]">Healthy</span></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
 <!-- Modal Adicionar Integração / Conectar API Externa -->
 <div id="addIntModal" class="fixed inset-0 bg-black/80 z-[100] hidden items-center justify-center p-4 backdrop-blur-sm transition-opacity">
     <div class="bg-white dark:bg-dark-card border border-gray-200 dark:border-dark-border w-full max-w-lg rounded-[8px] shadow-2xl flex flex-col overflow-hidden max-h-[90vh] mx-2 sm:mx-0">
@@ -320,6 +416,126 @@ https://corvuxiam.tech/api/v1/users</pre>
                     </div>
                 `,
                 background: '#121418', color: '#fff', confirmButtonColor: '#3B82F6'
+            });
+        }
+        const apiSnippets = {
+            curl: {
+                title: "Snippet: Requisição HTTP cURL",
+                code: `# 1. Buscar lista de colaboradores via REST
+curl -X GET "https://corvuxiam.tech/api/v1/users" \\
+  -H "X-API-Key: corvus_sec_live_9f83a218d47b0192e" \\
+  -H "Accept: application/json"
+
+# 2. Provisionar novo colaborador a partir de ERP
+curl -X POST "https://corvuxiam.tech/api/v1/users" \\
+  -H "X-API-Key: corvus_sec_live_9f83a218d47b0192e" \\
+  -H "Content-Type: application/json" \\
+  -d '{"nome":"Alice Silva","email":"alice@empresa.com","cargo":"Engenheira DevOps","perfilId":3}'`
+            },
+            python: {
+                title: "Snippet: Python 3 (requests)",
+                code: `import requests
+
+API_URL = "https://corvuxiam.tech/api/v1/users"
+HEADERS = {
+    "X-API-Key": "corvus_sec_live_9f83a218d47b0192e",
+    "Content-Type": "application/json"
+}
+
+# 1. Buscar colaboradores
+res = requests.get(API_URL, headers=HEADERS)
+print("Status:", res.status_code)
+print("Usuários:", res.json())
+
+# 2. Provisionar colaborador
+novo_usuario = {
+    "nome": "Carlos Mendes",
+    "email": "carlos.mendes@empresa.com",
+    "cargo": "Analista Financeiro",
+    "perfilId": 4
+}
+post_res = requests.post(API_URL, json=novo_usuario, headers=HEADERS)
+print("Criado:", post_res.json())`
+            },
+            js: {
+                title: "Snippet: JavaScript / Node.js (fetch)",
+                code: `// 1. Listar usuários cadastrados
+const res = await fetch('https://corvuxiam.tech/api/v1/users', {
+  method: 'GET',
+  headers: {
+    'X-API-Key': 'corvus_sec_live_9f83a218d47b0192e',
+    'Accept': 'application/json'
+  }
+});
+const usuarios = await res.json();
+console.log('Colaboradores:', usuarios);
+
+// 2. Cadastrar novo colaborador
+const novo = await fetch('https://corvuxiam.tech/api/v1/users', {
+  method: 'POST',
+  headers: {
+    'X-API-Key': 'corvus_sec_live_9f83a218d47b0192e',
+    'Content-Type': 'application/json'
+  },
+  body: JSON.stringify({
+    nome: 'Beatriz Ramos',
+    email: 'beatriz.ramos@empresa.com',
+    cargo: 'Especialista em RH',
+    perfilId: 2
+  })
+});
+const resultado = await novo.json();
+console.log('Resultado do provisionamento:', resultado);`
+            },
+            csharp: {
+                title: "Snippet: C# .NET 8 (HttpClient)",
+                code: `using System.Net.Http.Json;
+
+using var client = new HttpClient();
+client.BaseAddress = new Uri("https://corvuxiam.tech");
+client.DefaultRequestHeaders.Add("X-API-Key", "corvus_sec_live_9f83a218d47b0192e");
+
+// 1. Buscar colaboradores
+var usuarios = await client.GetFromJsonAsync<List<UsuarioDTO>>("/api/v1/users");
+
+// 2. Provisionar colaborador
+var payload = new {
+    nome = "Diego Faria",
+    email = "diego.faria@empresa.com",
+    cargo = "Auditor de Compliance",
+    perfilId = 5
+};
+var response = await client.PostAsJsonAsync("/api/v1/users", payload);
+response.EnsureSuccessStatusCode();`
+            }
+        };
+
+        function trocarAbaApi(lang) {
+            document.querySelectorAll('.tab-api-btn').forEach(b => {
+                b.classList.remove('bg-brand-600', 'text-white');
+                b.classList.add('text-gray-600', 'dark:text-gray-400');
+            });
+            const btn = document.getElementById(`tabApi-${lang}`);
+            if (btn) {
+                btn.classList.add('bg-brand-600', 'text-white');
+                btn.classList.remove('text-gray-600', 'dark:text-gray-400');
+            }
+            if (apiSnippets[lang]) {
+                document.getElementById('apiSnippetLangTitle').textContent = apiSnippets[lang].title;
+                document.getElementById('apiCodeDisplay').textContent = apiSnippets[lang].code;
+            }
+        }
+
+        function copiarCodigoApi() {
+            const code = document.getElementById('apiCodeDisplay').textContent;
+            navigator.clipboard.writeText(code);
+            Swal.fire({
+                title: 'Código Copiado!',
+                text: 'O exemplo de código foi copiado para a área de transferência.',
+                icon: 'success',
+                timer: 1500,
+                showConfirmButton: false,
+                background: '#121418', color: '#fff'
             });
         }
     </script>
