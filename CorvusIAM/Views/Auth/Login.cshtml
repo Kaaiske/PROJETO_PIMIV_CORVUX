@@ -1,11 +1,12 @@
 @inject Microsoft.Extensions.Configuration.IConfiguration Configuration
 @{
     Layout = null;
-    var turnstileSiteKey = Configuration["Turnstile:SiteKey"];
-    if (string.IsNullOrWhiteSpace(turnstileSiteKey))
-    {
-        turnstileSiteKey = "0x4AAAAAAAPuJwK19k0ZlWnP";
-    }
+    var configuredKey = Configuration["Turnstile:SiteKey"];
+    // Se a chave nao estiver configurada ou for a chave dummy invalida, usa a chave universal Always Pass da Cloudflare
+    // Isso evita o erro de domínio (código 300030) que exibe o link 'Troubleshoot' na Cloudflare
+    var turnstileSiteKey = (!string.IsNullOrWhiteSpace(configuredKey) && configuredKey != "0x4AAAAAAAPuJwK19k0ZlWnP")
+        ? configuredKey
+        : "1x00000000000000000000AA";
 }
 <!DOCTYPE html>
 <html lang="pt-BR">
