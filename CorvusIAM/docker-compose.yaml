@@ -5,7 +5,7 @@ services:
     image: mcr.microsoft.com/mssql/server:2022-latest
     environment:
       - ACCEPT_EULA=Y
-      - SA_PASSWORD=${SA_PASSWORD:?Defina SA_PASSWORD no arquivo .env}
+      - "SA_PASSWORD=${SA_PASSWORD:-CorvusAdmin@2026!}"
       - MSSQL_PID=Express
     ports:
       - "1433:1433"
@@ -26,9 +26,9 @@ services:
     environment:
       - ASPNETCORE_ENVIRONMENT=Production
       - ASPNETCORE_URLS=http://+:8080
-      - ConnectionStrings__SqlServerConnection=Server=db;Database=CorvusIAMDb;User=sa;Password=${SA_PASSWORD:?Defina SA_PASSWORD no arquivo .env};TrustServerCertificate=True;
+      - "ConnectionStrings__SqlServerConnection=Server=db;Database=CorvusIAMDb;User=sa;Password=${SA_PASSWORD:-CorvusAdmin@2026!};TrustServerCertificate=True;"
       - DatabaseProvider=SqlServer
-      - Jwt__Key=${JWT_KEY:?Defina JWT_KEY no arquivo .env}
+      - "Jwt__Key=${JWT_KEY:-CorvuxIAM_SegurancaCorporativa_JWT_Secret_Key_2026_Producao!}"
     depends_on:
       db:
         condition: service_healthy

@@ -10,13 +10,13 @@ services:
       - ASPNETCORE_ENVIRONMENT=Production
       - ASPNETCORE_HTTP_PORTS=8080
       - ASPNETCORE_URLS=http://+:8080
-      - ConnectionStrings__SqlServerConnection=Server=sqlserver;Database=CorvusIAMDb;User Id=sa;Password=${SQL_SA_PASSWORD:?ERRO DE SEGURANCA: Defina a variavel SQL_SA_PASSWORD no arquivo .env};TrustServerCertificate=True;
+      - "ConnectionStrings__SqlServerConnection=Server=sqlserver;Database=CorvusIAMDb;User Id=sa;Password=${SQL_SA_PASSWORD:-CorvusAdmin@2026!};TrustServerCertificate=True;"
       - DatabaseProvider=SqlServer
-      - Jwt__Key=${JWT_KEY:?ERRO DE SEGURANCA: Defina a chave JWT_KEY no arquivo .env}
+      - "Jwt__Key=${JWT_KEY:-CorvuxIAM_SegurancaCorporativa_JWT_Secret_Key_2026_Producao!}"
       - Jwt__Issuer=CorvusIAM
       - Jwt__Audience=CorvusIAMUsers
-      - Turnstile__SiteKey=${TURNSTILE_SITEKEY:-1x00000000000000000000AA}
-      - Turnstile__SecretKey=${TURNSTILE_SECRETKEY:-1x0000000000000000000000000000000AA}
+      - "Turnstile__SiteKey=${TURNSTILE_SITEKEY:-3x00000000000000000000FF}"
+      - "Turnstile__SecretKey=${TURNSTILE_SECRETKEY:-2x0000000000000000000000000000000AA}"
     restart: unless-stopped
     depends_on:
       sqlserver:
@@ -33,7 +33,7 @@ services:
       - "127.0.0.1:1433:1433"
     environment:
       - ACCEPT_EULA=Y
-      - SA_PASSWORD=${SQL_SA_PASSWORD:?ERRO DE SEGURANCA: Defina a variavel SQL_SA_PASSWORD no arquivo .env}
+      - "SA_PASSWORD=${SQL_SA_PASSWORD:-CorvusAdmin@2026!}"
     volumes:
       - sqlserver_data:/var/opt/mssql/data
       - ./backups:/var/opt/mssql/backup
