@@ -66,10 +66,18 @@ let deferredPrompt = null;
 const installBanner = document.getElementById('pwa-install-banner');
 const installBtn = document.getElementById('pwa-install-btn');
 
+function checkIsMobileDevice() {
+    const ua = navigator.userAgent || navigator.vendor || window.opera;
+    const isMobileUA = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini|Mobile/i.test(ua);
+    const isTouch = ('ontouchstart' in window) || (navigator.maxTouchPoints > 0);
+    const isNarrow = window.innerWidth <= 850;
+    return isMobileUA || (isTouch && isNarrow);
+}
+
 window.addEventListener('beforeinstallprompt', (e) => {
     e.preventDefault();
     deferredPrompt = e;
-    if (installBanner) installBanner.style.display = 'flex';
+    if (checkIsMobileDevice() && installBanner) installBanner.style.display = 'flex';
 });
 
 if (installBtn) {
@@ -189,4 +197,8 @@ function removerDoIndexedDB(id) {
     db.transaction('syncQueue', 'readwrite').objectStore('syncQueue').delete(id);
 }
 
-if ('serviceWorker' in navigator) navigator.serviceWorker.register('/mobile/service-worker.js');
+if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('/sw.js', { scope: '/' }).catch(() => {
+        navigator.serviceWorker.register('/mobile/service-worker.js');
+    });
+}

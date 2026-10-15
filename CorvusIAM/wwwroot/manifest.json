@@ -2,6 +2,7 @@
   "name": "Corvus Security IAM",
   "short_name": "CorvusIAM",
   "description": "Plataforma Corporativa de Gestão de Identidades, Acessos, Endpoints e SecOps.",
+  "id": "/?source=pwa",
   "start_url": "/",
   "scope": "/",
   "display": "standalone",
@@ -9,6 +10,7 @@
   "theme_color": "#2563EB",
   "orientation": "portrait-primary",
   "lang": "pt-BR",
+  "categories": ["business", "productivity", "utilities"],
   "icons": [
     {
       "src": "/icons/icon-192.png",
@@ -24,4 +26,3 @@
     }
   ]
 }
-

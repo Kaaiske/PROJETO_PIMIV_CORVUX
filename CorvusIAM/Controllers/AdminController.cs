@@ -344,6 +344,7 @@ namespace CorvusIAM.Controllers
         }
 
         [HttpPost]
+        [Authorize(Policy = "RequireAdmin")]
         public IActionResult AdicionarPolitica([FromBody] PoliticaAcesso p) {
             p.Ativa = true; _context.PoliticasAcesso.Add(p); _context.SaveChanges(); return Ok();
         }

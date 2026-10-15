@@ -514,9 +514,17 @@
             if (backdrop) backdrop.classList.add('hidden');
         }
 
-        // PWA Service Worker & Notificação de Instalação Mobile
+        // PWA Service Worker & Notificação de Instalação Exclusiva para Dispositivos Móveis
         if ('serviceWorker' in navigator) {
             navigator.serviceWorker.register('/sw.js').catch(err => console.warn('PWA SW Registro:', err));
+        }
+
+        function checkIsMobileDevice() {
+            const ua = navigator.userAgent || navigator.vendor || window.opera;
+            const isMobileUA = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini|Mobile/i.test(ua);
+            const isTouch = ('ontouchstart' in window) || (navigator.maxTouchPoints > 0);
+            const isNarrow = window.innerWidth <= 850;
+            return isMobileUA || (isTouch && isNarrow);
         }
 
         let deferredPrompt = null;
@@ -525,12 +533,14 @@
         window.addEventListener('beforeinstallprompt', (e) => {
             e.preventDefault();
             deferredPrompt = e;
-            if (!sessionStorage.getItem('pwaDismissed') && !isStandalone) {
+            // Exibe a notificação de instalação EXCLUSIVAMENTE em smartphones e dispositivos móveis
+            if (checkIsMobileDevice() && !sessionStorage.getItem('pwaDismissed') && !isStandalone) {
                 mostrarPwaBanner();
             }
         });
 
         function mostrarPwaBanner() {
+            if (!checkIsMobileDevice()) return; // Garantia adicional de não exibir em desktop
             const banner = document.getElementById('pwaInstallBanner');
             if (banner) {
                 banner.classList.remove('hidden');
@@ -571,15 +581,14 @@
             }
         }
 
-        // Se estiver em smartphone e não estiver instalado, exibe o aviso após 2.5s
-        const isMobileDevice = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
-        if (isMobileDevice && !isStandalone && !sessionStorage.getItem('pwaDismissed')) {
+        // Se for dispositivo móvel e ainda não estiver instalado, exibe o aviso após 3s
+        if (checkIsMobileDevice() && !isStandalone && !sessionStorage.getItem('pwaDismissed')) {
             setTimeout(() => {
                 const banner = document.getElementById('pwaInstallBanner');
                 if (banner && banner.classList.contains('hidden')) {
                     mostrarPwaBanner();
                 }
-            }, 2500);
+            }, 3000);
         }
     </script>
     <script>

@@ -14,6 +14,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login - CorvusIAM</title>
     <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="manifest" href="/manifest.json">
+    <meta name="theme-color" content="#2563EB">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="CorvusIAM">
+    <link rel="apple-touch-icon" href="/icons/icon-192.png">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
     <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
     <style>
@@ -289,6 +295,56 @@
             max-height: 65px !important;
             overflow: hidden !important;
         }
+
+        /* PWA MOBILE INSTALL BANNER (EXCLUSIVO PARA SMARTPHONES) */
+        .pwa-mobile-banner {
+            position: fixed;
+            bottom: 20px;
+            left: 16px;
+            right: 16px;
+            max-width: 400px;
+            margin: 0 auto;
+            background: rgba(18, 20, 24, 0.96);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(37, 99, 235, 0.4);
+            border-radius: 16px;
+            padding: 16px;
+            box-shadow: 0 16px 36px rgba(0, 0, 0, 0.7);
+            z-index: 9999;
+            display: none;
+            flex-direction: column;
+            gap: 12px;
+            animation: pwaSlideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        @@keyframes pwaSlideUp {
+            from { transform: translateY(100%); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+        .btn-install-pwa {
+            flex: 1;
+            background: linear-gradient(135deg, #2563EB, #1D4ED8);
+            color: #FFFFFF;
+            border: none;
+            border-radius: 8px;
+            padding: 10px 14px;
+            font-size: 13px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        .btn-install-pwa:hover {
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.4);
+        }
+        .btn-close-pwa {
+            background: rgba(255, 255, 255, 0.08);
+            color: #A0AEC0;
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            border-radius: 8px;
+            padding: 10px 14px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+        }
     </style>
 </head>
 <body>
@@ -372,5 +428,79 @@
         </div>
     </div>
 
+    <!-- BANNER PWA EXCLUSIVO MOBILE -->
+    <div id="pwaMobileInstallBanner" class="pwa-mobile-banner">
+        <div style="display: flex; align-items: center; gap: 12px;">
+            <img src="/icons/icon-192.png" alt="CorvusIAM" style="width: 44px; height: 44px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.15);">
+            <div style="flex: 1; text-align: left;">
+                <div style="font-weight: 700; font-size: 14px; color: #FFF;">Instalar CorvusIAM</div>
+                <div style="font-size: 11px; color: #888888;">Acesso corporativo instantâneo e suporte offline no celular.</div>
+            </div>
+        </div>
+        <div style="display: flex; gap: 8px;">
+            <button id="pwaMobileInstallBtn" class="btn-install-pwa" onclick="executarInstalacaoPwaMobile()">Instalar App</button>
+            <button onclick="fecharPwaMobileBanner()" class="btn-close-pwa">Agora Não</button>
+        </div>
+    </div>
+
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/sw.js').catch(err => console.warn('PWA SW Registro:', err));
+            });
+        }
+
+        function checkIsMobileDevice() {
+            const ua = navigator.userAgent || navigator.vendor || window.opera;
+            const isMobileUA = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini|Mobile/i.test(ua);
+            const isTouch = ('ontouchstart' in window) || (navigator.maxTouchPoints > 0);
+            const isNarrow = window.innerWidth <= 850;
+            return isMobileUA || (isTouch && isNarrow);
+        }
+
+        let deferredLoginPrompt = null;
+        const isStandaloneApp = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
+
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredLoginPrompt = e;
+            // Exibe a notificação de instalação EXCLUSIVAMENTE em smartphones e dispositivos móveis
+            if (checkIsMobileDevice() && !sessionStorage.getItem('pwaDismissed') && !isStandaloneApp) {
+                mostrarPwaMobileBanner();
+            }
+        });
+
+        function mostrarPwaMobileBanner() {
+            if (!checkIsMobileDevice()) return; // Nunca exibe em PCs e desktops
+            const banner = document.getElementById('pwaMobileInstallBanner');
+            if (banner) banner.style.display = 'flex';
+        }
+
+        function fecharPwaMobileBanner() {
+            const banner = document.getElementById('pwaMobileInstallBanner');
+            if (banner) banner.style.display = 'none';
+            sessionStorage.setItem('pwaDismissed', 'true');
+        }
+
+        async function executarInstalacaoPwaMobile() {
+            if (deferredLoginPrompt) {
+                deferredLoginPrompt.prompt();
+                const { outcome } = await deferredLoginPrompt.userChoice;
+                deferredLoginPrompt = null;
+                fecharPwaMobileBanner();
+            } else {
+                const isIos = /iPhone|iPad|iPod/.test(navigator.userAgent);
+                if (isIos) {
+                    alert('Para instalar no iOS: toque no ícone de Compartilhar do Safari e selecione "Adicionar à Tela de Início".');
+                }
+                fecharPwaMobileBanner();
+            }
+        }
+
+        // Para smartphones que já carregaram a página e não instalaram
+        if (checkIsMobileDevice() && !isStandaloneApp && !sessionStorage.getItem('pwaDismissed')) {
+            setTimeout(mostrarPwaMobileBanner, 2500);
+        }
+    </script>
 </body>
 </html>

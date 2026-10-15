@@ -1,18 +1,25 @@
-const CACHE_NAME = 'corvus-iam-cache-v3';
+const CACHE_NAME = 'corvus-iam-pwa-v5';
+const OFFLINE_URL = '/offline.html';
+
 const PRECACHE_ASSETS = [
-  '/',
+  OFFLINE_URL,
   '/manifest.json',
   '/icons/icon-192.png',
-  '/icons/icon-512.png',
-  'https://unpkg.com/@phosphor-icons/web@2.1.1/src/regular/style.css',
-  'https://cdn.jsdelivr.net/npm/sweetalert2@11'
+  '/icons/icon-512.png'
 ];
 
 self.addEventListener('install', event => {
   self.skipWaiting();
   event.waitUntil(
-    caches.open(CACHE_NAME).then(cache => {
-      return cache.addAll(PRECACHE_ASSETS).catch(err => console.warn('Cache warning:', err));
+    caches.open(CACHE_NAME).then(async cache => {
+      // Adiciona cada asset individualmente para evitar que uma falha isolada cancele todo o precache
+      await Promise.allSettled(
+        PRECACHE_ASSETS.map(url => 
+          cache.add(new Request(url, { cache: 'reload' })).catch(err => {
+            console.warn(`[PWA SW] Precache aviso para ${url}:`, err);
+          })
+        )
+      );
     })
   );
 });
@@ -29,26 +36,61 @@ self.addEventListener('activate', event => {
 
 self.addEventListener('fetch', event => {
   if (event.request.method !== 'GET') return;
-  
-  // Ignora rotas de autenticação, APIs e streaming de logs
-  const url = event.request.url;
-  if (url.includes('/api/') || url.includes('/Auth/') || url.includes('Download') || url.includes('Exportar')) {
+
+  const url = new URL(event.request.url);
+
+  // Ignora rotas de autenticação, APIs, downloads e métricas
+  if (
+    url.pathname.startsWith('/api/') || 
+    url.pathname.startsWith('/Auth/') || 
+    url.pathname.includes('Download') || 
+    url.pathname.includes('Exportar') ||
+    url.pathname.includes('/metrics')
+  ) {
     return;
   }
 
-  event.respondWith(
-    fetch(event.request)
-      .then(response => {
-        // Se a resposta for válida, armazena no cache se for asset estático
-        if (response && response.status === 200 && (url.includes('/icons/') || url.includes('.css') || url.includes('.js'))) {
-          const responseToCache = response.clone();
-          caches.open(CACHE_NAME).then(cache => cache.put(event.request, responseToCache));
-        }
-        return response;
+  // Requisição de Navegação de Página (HTML)
+  if (event.request.mode === 'navigate') {
+    event.respondWith(
+      fetch(event.request).catch(async () => {
+        const cache = await caches.open(CACHE_NAME);
+        const cachedOffline = await cache.match(OFFLINE_URL);
+        return cachedOffline || new Response('Offline', { status: 503, headers: { 'Content-Type': 'text/plain' } });
       })
-      .catch(() => {
-        return caches.match(event.request);
-      })
-  );
-});
+    );
+    return;
+  }
 
+  // Assets Estáticos (Ícones, CSS, JS, Fontes)
+  if (
+    url.pathname.startsWith('/icons/') || 
+    url.pathname.endsWith('.css') || 
+    url.pathname.endsWith('.js') ||
+    url.pathname.endsWith('.png') ||
+    url.pathname.endsWith('.svg') ||
+    url.pathname.endsWith('.woff2')
+  ) {
+    event.respondWith(
+      caches.match(event.request).then(cachedResponse => {
+        if (cachedResponse) {
+          // Busca atualização em segundo plano (Stale-While-Revalidate)
+          fetch(event.request).then(networkResponse => {
+            if (networkResponse && networkResponse.status === 200) {
+              caches.open(CACHE_NAME).then(cache => cache.put(event.request, networkResponse));
+            }
+          }).catch(() => {});
+          return cachedResponse;
+        }
+
+        return fetch(event.request).then(response => {
+          if (response && response.status === 200) {
+            const clone = response.clone();
+            caches.open(CACHE_NAME).then(cache => cache.put(event.request, clone));
+          }
+          return response;
+        });
+      })
+    );
+  }
+});

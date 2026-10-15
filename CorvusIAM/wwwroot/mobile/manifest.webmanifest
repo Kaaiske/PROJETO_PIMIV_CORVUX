@@ -1,13 +1,16 @@
 {
-  "name": "CorvusIAM Mobile",
+  "name": "Corvus Security IAM Mobile",
   "short_name": "CorvusIAM",
+  "description": "Aplicação móvel corporativa para abertura e acompanhamento de chamados e identidades.",
+  "id": "/Mobile?source=pwa",
   "start_url": "/Mobile",
   "scope": "/",
   "display": "standalone",
   "background_color": "#0B0D10",
   "theme_color": "#2563EB",
-  "description": "Aplicação móvel corporativa para abertura e acompanhamento de chamados e identidades.",
+  "orientation": "portrait-primary",
   "lang": "pt-BR",
+  "categories": ["business", "productivity", "utilities"],
   "icons": [
     {
       "src": "/icons/icon-192.png",
