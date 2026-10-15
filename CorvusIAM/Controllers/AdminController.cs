@@ -321,7 +321,43 @@ namespace CorvusIAM.Controllers
         [Authorize(Policy = "RequireAdmin")]
         public IActionResult Cloud() => View(_context.DispositivosRede.OrderBy(d => d.Hostname).ToList());
         [Authorize(Policy = "RequireAdmin")]
-        public IActionResult Configuracoes() => View(_context.ConfiguracoesSistema.ToList());
+        public IActionResult Configuracoes()
+        {
+            var defaultConfigs = new Dictionary<string, string>
+            {
+                { "API_GATEWAY_TOKEN", "corvus_sec_live_9f83a218d47b0192e" },
+                { "LOCKDOWN_MODE", "false" },
+                { "SESSION_TIMEOUT_MINUTES", "30" },
+                { "JWT_EXPIRATION_HOURS", "8" },
+                { "MFA_ENFORCEMENT_ADMINS", "true" },
+                { "MAX_LOGIN_ATTEMPTS", "5" },
+                { "ACCOUNT_LOCKOUT_MINUTES", "15" },
+                { "WAF_RATE_LIMIT_PER_MINUTE", "60" },
+                { "AUTO_ISOLATE_HIGH_RISK_ENDPOINTS", "true" },
+                { "ENABLE_DEEP_PACKET_INSPECTION", "true" },
+                { "LGPD_DATA_RETENTION_DAYS", "180" },
+                { "AUDIT_LOG_ANONYMIZATION", "true" },
+                { "COOKIE_CONSENT_STRICT_MODE", "true" },
+                { "SMTP_HOST", "smtp.gmail.com" },
+                { "SMTP_PORT", "587" },
+                { "SYSTEM_SENDER_EMAIL", "seguranca@corvuxiam.tech" },
+                { "TURNSTILE_SITEKEY", "3x00000000000000000000FF" },
+                { "TURNSTILE_MODE", "Interactive" }
+            };
+
+            bool changed = false;
+            foreach (var kvp in defaultConfigs)
+            {
+                if (!_context.ConfiguracoesSistema.Any(c => c.Chave == kvp.Key))
+                {
+                    _context.ConfiguracoesSistema.Add(new Entities.ConfiguracaoSistema { Chave = kvp.Key, Valor = kvp.Value });
+                    changed = true;
+                }
+            }
+            if (changed) _context.SaveChanges();
+
+            return View(_context.ConfiguracoesSistema.ToList());
+        }
         [Authorize(Policy = "RequireAdmin")]
         public IActionResult Logs() => View(_context.LogsAuditoria.OrderByDescending(l => l.DataHora).ToList());
         [Authorize(Policy = "RequireAdmin")]

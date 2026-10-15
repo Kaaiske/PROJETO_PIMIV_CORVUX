@@ -116,14 +116,32 @@ namespace CorvusIAM.Data
             }
 
             // 1. Configurações Globais essenciais
-            if (!context.ConfiguracoesSistema.Any(c => c.Chave == "API_GATEWAY_TOKEN"))
+            void EnsureConfig(string chave, string valor)
             {
-                context.ConfiguracoesSistema.Add(new ConfiguracaoSistema { Chave = "API_GATEWAY_TOKEN", Valor = "corvus_sec_live_9f83a218d47b0192e" });
+                if (!context.ConfiguracoesSistema.Any(c => c.Chave == chave))
+                {
+                    context.ConfiguracoesSistema.Add(new ConfiguracaoSistema { Chave = chave, Valor = valor });
+                }
             }
-            if (!context.ConfiguracoesSistema.Any(c => c.Chave == "LOCKDOWN_MODE"))
-            {
-                context.ConfiguracoesSistema.Add(new ConfiguracaoSistema { Chave = "LOCKDOWN_MODE", Valor = "false" });
-            }
+
+            EnsureConfig("API_GATEWAY_TOKEN", "corvus_sec_live_9f83a218d47b0192e");
+            EnsureConfig("LOCKDOWN_MODE", "false");
+            EnsureConfig("SESSION_TIMEOUT_MINUTES", "30");
+            EnsureConfig("JWT_EXPIRATION_HOURS", "8");
+            EnsureConfig("MFA_ENFORCEMENT_ADMINS", "true");
+            EnsureConfig("MAX_LOGIN_ATTEMPTS", "5");
+            EnsureConfig("ACCOUNT_LOCKOUT_MINUTES", "15");
+            EnsureConfig("WAF_RATE_LIMIT_PER_MINUTE", "60");
+            EnsureConfig("AUTO_ISOLATE_HIGH_RISK_ENDPOINTS", "true");
+            EnsureConfig("ENABLE_DEEP_PACKET_INSPECTION", "true");
+            EnsureConfig("LGPD_DATA_RETENTION_DAYS", "180");
+            EnsureConfig("AUDIT_LOG_ANONYMIZATION", "true");
+            EnsureConfig("COOKIE_CONSENT_STRICT_MODE", "true");
+            EnsureConfig("SMTP_HOST", "smtp.gmail.com");
+            EnsureConfig("SMTP_PORT", "587");
+            EnsureConfig("SYSTEM_SENDER_EMAIL", "seguranca@corvuxiam.tech");
+            EnsureConfig("TURNSTILE_SITEKEY", "3x00000000000000000000FF");
+            EnsureConfig("TURNSTILE_MODE", "Interactive");
 
             // 2. Firewall WAF (IPs Bloqueados Ativos)
             if (!context.FirewallRegras.Any())
