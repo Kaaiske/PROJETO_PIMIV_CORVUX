@@ -39,6 +39,14 @@ namespace CorvusIAM.Controllers
         [HttpGet]
         public IActionResult Login()
         {
+            if (User.Identity?.IsAuthenticated == true)
+            {
+                if (User.IsInRole("Admin")) return RedirectToAction("Index", "Admin");
+                if (User.IsInRole("Recursos Humanos")) return RedirectToAction("Usuarios", "Admin");
+                if (User.IsInRole("Contabilidade")) return RedirectToAction("Contabilidade", "Portal");
+                if (User.IsInRole("Help Desk")) return RedirectToAction("Chamados", "Admin");
+                return RedirectToAction("MinhaConta", "Portal");
+            }
             return View();
         }
 

@@ -1,6 +1,8 @@
-# CorvuxIAM — Plataforma Corporativa de Gestão de Identidades, Acessos e Cibersegurança (IAM & SecOps)
-
 <div align="center">
+
+<img src="CorvusIAM/wwwroot/icons/corvus-logo.png" alt="Corvus Logo" width="120" style="border-radius: 20px;" />
+
+# CorvuxIAM — Plataforma Corporativa de Gestão de Identidades, Acessos e Cibersegurança (IAM & SecOps)
 
 [![.NET 8](https://img.shields.io/badge/.NET-8.0%20LTS-512BD4?logo=dotnet&logoColor=white)](https://dotnet.microsoft.com/)
 [![C#](https://img.shields.io/badge/C%23-12.0-239120?logo=csharp&logoColor=white)](https://docs.microsoft.com/dotnet/csharp/)

@@ -10,23 +10,27 @@
     <meta name="theme-color" content="#2563EB" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-    <meta name="apple-mobile-web-app-title" content="CorvusIAM" />
+    <link rel="icon" type="image/png" href="/icons/corvus-logo.png" />
     <link rel="apple-touch-icon" href="/icons/icon-192.png" />
-    <link rel="manifest" href="~/mobile/manifest.webmanifest" />
+    <link rel="manifest" href="/manifest.json" />
     <link rel="stylesheet" href="~/mobile/app.css" />
     <title>CorvusIAM Mobile</title>
 </head>
 <body>
     <main class="app" aria-labelledby="titulo">
         <header>
-            <p class="marca">CORVUS IAM</p>
+            <div style="display:flex; align-items:center; gap:12px; margin-bottom:12px;">
+                <img src="/icons/corvus-logo.png" alt="Corvus Logo" style="width:40px; height:40px; border-radius:10px; box-shadow:0 4px 12px rgba(0,0,0,0.5); border:1px solid rgba(255,255,255,0.1);">
+                <p class="marca" style="margin:0; font-size:1.1rem; letter-spacing:0.05em;">CORVUS IAM</p>
+            </div>
             <h1 id="titulo">Olá, @User.Identity?.Name</h1>
             <p>Central de suporte corporativo mobile</p>
         </header>
 
         <!-- Banner de Instalação PWA -->
-        <div id="pwa-install-banner" class="install-banner" style="display:none;">
-            <div>
+        <div id="pwa-install-banner" class="install-banner" style="display:none; align-items:center; gap:12px;">
+            <img src="/icons/corvus-logo.png" alt="CorvusIAM" style="width:40px; height:40px; border-radius:10px; border:1px solid rgba(255,255,255,0.2);">
+            <div style="flex:1;">
                 <strong>📱 Instalar Aplicativo</strong>
                 <p style="margin:4px 0 0 0; font-size:0.8rem; opacity:0.9;">Instale o CorvusIAM no seu dispositivo para acesso rápido e suporte offline.</p>
             </div>

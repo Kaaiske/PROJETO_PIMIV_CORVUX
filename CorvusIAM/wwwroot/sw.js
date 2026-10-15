@@ -1,11 +1,13 @@
-const CACHE_NAME = 'corvus-iam-pwa-v5';
+const CACHE_NAME = 'corvus-iam-pwa-v6';
 const OFFLINE_URL = '/offline.html';
 
 const PRECACHE_ASSETS = [
   OFFLINE_URL,
   '/manifest.json',
   '/icons/icon-192.png',
-  '/icons/icon-512.png'
+  '/icons/icon-512.png',
+  '/icons/corvus-logo.png',
+  '/icons/favicon-32x32.png'
 ];
 
 self.addEventListener('install', event => {
