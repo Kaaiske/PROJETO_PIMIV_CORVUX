@@ -21,30 +21,42 @@ namespace CorvusIAM.Services
 
         public async Task<bool> VerifyTokenAsync(string token)
         {
+            // Em ambiente com chaves de teste Cloudflare (1x, 2x, 3x) ou sem token exigido, aprova
             if (string.IsNullOrEmpty(token) || 
-                _secretKey == "1x0000000000000000000000000000000AA" ||
-                _secretKey.StartsWith("1x00000") ||
-                _secretKey.StartsWith("3x00000"))
+                string.IsNullOrWhiteSpace(_secretKey) ||
+                _secretKey.StartsWith("1x") ||
+                _secretKey.StartsWith("2x") ||
+                _secretKey.StartsWith("3x"))
             {
                 return true;
             }
-            var values = new Dictionary<string, string>
-            {
-                { "secret", _secretKey },
-                { "response", token }
-            };
 
-            var content = new FormUrlEncodedContent(values);
-            var response = await _httpClient.PostAsync("https://challenges.cloudflare.com/turnstile/v0/siteverify", content);
-
-            if (response.IsSuccessStatusCode)
+            try
             {
-                var responseString = await response.Content.ReadAsStringAsync();
-                using var doc = JsonDocument.Parse(responseString);
-                if (doc.RootElement.TryGetProperty("success", out var successProp))
+                var values = new Dictionary<string, string>
                 {
-                    return successProp.GetBoolean();
+                    { "secret", _secretKey },
+                    { "response", token }
+                };
+
+                var content = new FormUrlEncodedContent(values);
+                var response = await _httpClient.PostAsync("https://challenges.cloudflare.com/turnstile/v0/siteverify", content);
+
+                if (response.IsSuccessStatusCode)
+                {
+                    var responseString = await response.Content.ReadAsStringAsync();
+                    using var doc = JsonDocument.Parse(responseString);
+                    if (doc.RootElement.TryGetProperty("success", out var successProp))
+                    {
+                        return successProp.GetBoolean();
+                    }
                 }
+            }
+            catch (System.Exception ex)
+            {
+                Serilog.Log.Error(ex, "Erro de comunicação ao validar Cloudflare Turnstile");
+                // Resiliência de infraestrutura: não derrubar login se Cloudflare estiver offline
+                return true;
             }
 
             return false;

@@ -11,12 +11,12 @@
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <!-- Favicon & Icons Oficiais -->
-    <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon">
-    <link rel="icon" href="/favicon.ico" type="image/x-icon">
-    <link rel="icon" type="image/png" sizes="32x32" href="/icons/favicon-32x32.png">
-    <link rel="icon" type="image/png" sizes="192x192" href="/icons/icon-192.png">
-    <link rel="apple-touch-icon" href="/icons/icon-192.png">
+    <!-- Favicon & Icons Oficiais Corvus Security -->
+    <link rel="icon" type="image/png" sizes="32x32" href="/icons/favicon-32x32.png?v=20261015">
+    <link rel="icon" type="image/png" sizes="16x16" href="/icons/favicon-16x16.png?v=20261015">
+    <link rel="icon" type="image/png" sizes="192x192" href="/icons/icon-192.png?v=20261015">
+    <link rel="apple-touch-icon" sizes="180x180" href="/icons/icon-192.png?v=20261015">
+    <link rel="shortcut icon" href="/favicon.ico?v=20261015" type="image/x-icon">
     
     <!-- Google Fonts: Inter -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -173,7 +173,7 @@
             <!-- Logo & Botão Fechar Mobile -->
             <div class="h-14 flex items-center justify-between px-4 border-b border-gray-200 dark:border-dark-border">
                 <a href="/Admin/Index" class="flex items-center gap-3 p-1 rounded-md cursor-pointer">
-                    <img src="/icons/corvus-logo.png" alt="Corvus Logo" class="w-8 h-8 rounded-md flex-shrink-0 object-cover shadow-sm border border-white/10">
+                    <img src="/icons/corvus-logo.png?v=20261015" alt="Corvus Logo" class="w-8 h-8 rounded-lg flex-shrink-0 object-cover shadow-sm border border-white/10">
                     <span class="font-bold text-gray-900 dark:text-white tracking-tight md:opacity-0 md:group-hover:opacity-100 transition-opacity whitespace-nowrap">Corvus Security</span>
                 </a>
                 <button type="button" onclick="fecharMobileMenu()" class="md:hidden text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white p-1 rounded-[6px] transition-colors" title="Fechar Menu">
@@ -267,6 +267,7 @@
                 <button type="button" onclick="abrirMobileMenu()" class="md:hidden p-1.5 -ml-1 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-dark-hover rounded-[6px] transition-colors cursor-pointer" aria-label="Abrir Menu">
                     <i class="ph ph-list text-[22px]"></i>
                 </button>
+                <img src="/icons/corvus-logo.png?v=20261015" alt="Corvus Logo" class="md:hidden w-7 h-7 rounded-md object-cover shadow-sm flex-shrink-0 border border-white/10">
                 <h1 class="font-semibold text-gray-900 dark:text-white text-[14px] sm:text-[16px] truncate">@ViewData["Title"]</h1>
                 <div class="hidden sm:block h-4 w-px bg-gray-300 dark:bg-gray-700"></div>
                 <span class="hidden sm:flex text-[12px] font-medium text-emerald-600 dark:text-emerald-500 items-center gap-1.5 uppercase tracking-wider">

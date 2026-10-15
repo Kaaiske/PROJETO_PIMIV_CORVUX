@@ -1,4 +1,4 @@
-const CACHE_NAME = 'corvus-iam-pwa-v6';
+const CACHE_NAME = 'corvus-iam-pwa-v7';
 const OFFLINE_URL = '/offline.html';
 
 const PRECACHE_ASSETS = [
