@@ -16,10 +16,10 @@ namespace CorvusIAM.Services
         {
             _httpClient = httpClient;
             _secretKey = configuration["Turnstile:SecretKey"] 
-                ?? "1x0000000000000000000000000000000AA";
+                ?? "0x4AAAAAAFXK5H5jTPKYIrdR2p0kwwYhL1Y";
         }
 
-        public async Task<bool> VerifyTokenAsync(string token)
+        public async Task<bool> VerifyTokenAsync(string token, string? remoteIp = null)
         {
             // Em ambiente com chaves de teste Cloudflare (1x, 2x, 3x) ou sem token exigido, aprova
             if (string.IsNullOrEmpty(token) || 
@@ -39,6 +39,11 @@ namespace CorvusIAM.Services
                     { "response", token }
                 };
 
+                if (!string.IsNullOrEmpty(remoteIp))
+                {
+                    values.Add("remoteip", remoteIp);
+                }
+
                 var content = new FormUrlEncodedContent(values);
                 var response = await _httpClient.PostAsync("https://challenges.cloudflare.com/turnstile/v0/siteverify", content);
 
@@ -55,7 +60,7 @@ namespace CorvusIAM.Services
             catch (System.Exception ex)
             {
                 Serilog.Log.Error(ex, "Erro de comunicação ao validar Cloudflare Turnstile");
-                // Resiliência de infraestrutura: não derrubar login se Cloudflare estiver offline
+                // Resiliência de infraestrutura: não derrubar login se Cloudflare estiver temporariamente inacessível
                 return true;
             }
 

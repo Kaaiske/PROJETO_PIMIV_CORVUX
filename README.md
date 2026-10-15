@@ -1,6 +1,6 @@
 <div align="center">
 
-<img src="CorvusIAM/wwwroot/icons/corvus-logo.png" alt="Corvus Logo" width="120" style="border-radius: 20px;" />
+<img src="CorvusIAM/wwwroot/icons/corvus-logo.png" alt="Corvux Logo" width="120" style="border-radius: 20px;" />
 
 # CorvuxIAM — Plataforma Corporativa de Gestão de Identidades, Acessos e Cibersegurança (IAM & SecOps)
 

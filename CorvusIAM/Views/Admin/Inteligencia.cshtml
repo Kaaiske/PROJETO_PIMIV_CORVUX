@@ -27,7 +27,7 @@
         <div class="bento-card bg-[#090A0C] border border-gray-200 dark:border-dark-border rounded-[6px] p-[20px] font-mono flex flex-col min-h-[380px] shadow-inner relative overflow-hidden">
             <div class="flex justify-between items-center border-b border-gray-800 pb-[12px] mb-[12px]">
                 <span class="text-[11px] font-[600] text-gray-400 uppercase tracking-[0.05em] flex items-center gap-2">
-                    <i class="ph ph-terminal text-brand-500 text-[14px]"></i> CorvusAI SecOps Interactive Terminal
+                    <i class="ph ph-terminal text-brand-500 text-[14px]"></i> CorvuxAI SecOps Interactive Terminal
                 </span>
                 <span class="text-[11px] font-[600] text-emerald-500 uppercase tracking-[0.05em] flex items-center gap-1.5">
                     <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span> Online (ML Engine)
@@ -291,13 +291,13 @@
 
         function executarPrompt(promptText) {
             logToConsole(`<span class="text-white font-bold">$ prompt: "${promptText}"</span>`);
-            logToConsole('Processando consulta via motor de inferência CorvusSec...', 'warning');
+            logToConsole('Processando consulta via motor de inferência CorvuxSec...', 'warning');
 
             setTimeout(() => {
                 if (promptText.includes('Senhas')) {
                     logToConsole('Auditoria de senhas concluída: 100% dos usuários possuem hash BCrypt e comprimento seguro. 0 senhas vazadas em bancos de dados públicos.', 'success');
                 } else if (promptText.includes('CVE')) {
-                    logToConsole('Sincronização com base do NVD/NIST realizada: Nenhuma vulnerabilidade aplicável ao CorvusIAM v2.0.', 'success');
+                    logToConsole('Sincronização com base do NVD/NIST realizada: Nenhuma vulnerabilidade aplicável ao CorvuxIAM v2.0.', 'success');
                 } else if (promptText.includes('Brute')) {
                     logToConsole('Simulação iniciada: 100 tentativas enviadas para o endpoint /Auth/Login. Mecanismo de Lockout acionado após 5 falhas com resposta HTTP 423.', 'success');
                 } else {

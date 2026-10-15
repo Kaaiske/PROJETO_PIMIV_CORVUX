@@ -1,6 +1,6 @@
 {
-  "name": "Corvus Security IAM",
-  "short_name": "CorvusIAM",
+  "name": "Corvux Security IAM",
+  "short_name": "CorvuxIAM",
   "description": "Plataforma Corporativa de Gestão de Identidades, Acessos, Endpoints e SecOps.",
   "id": "/Auth/Login",
   "start_url": "/Auth/Login",

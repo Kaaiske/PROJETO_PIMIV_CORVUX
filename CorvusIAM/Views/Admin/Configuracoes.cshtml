@@ -111,7 +111,7 @@
                         API Gateway Token (M2M Master Key)
                     </label>
                     <p class="text-[11px] text-gray-500 dark:text-gray-400 mb-2">Chave de autorização estrita para integrações externas via cabeçalho X-API-Key.</p>
-                    <input type="text" data-chave="API_GATEWAY_TOKEN" value="@GetVal("API_GATEWAY_TOKEN", "corvus_sec_live_9f83a218d47b0192e")" class="cfg-input w-full bg-gray-50 dark:bg-dark-bg border border-gray-200 dark:border-dark-border text-gray-900 dark:text-gray-100 text-[13px] rounded-[6px] px-3 py-2 outline-none focus:border-brand-500 transition-colors font-mono" />
+                    <input type="text" data-chave="API_GATEWAY_TOKEN" value="@GetVal("API_GATEWAY_TOKEN", "corvux_sec_live_9f83a218d47b0192e")" class="cfg-input w-full bg-gray-50 dark:bg-dark-bg border border-gray-200 dark:border-dark-border text-gray-900 dark:text-gray-100 text-[13px] rounded-[6px] px-3 py-2 outline-none focus:border-brand-500 transition-colors font-mono" />
                 </div>
 
                 <div>
@@ -261,7 +261,7 @@
             <div>
                 <label class="block text-[12px] font-[600] text-gray-700 dark:text-gray-300 mb-1">Turnstile SiteKey (Pública)</label>
                 <p class="text-[11px] text-gray-500 dark:text-gray-400 mb-2">Chave carregada no widget do formulário de login.</p>
-                <input type="text" data-chave="TURNSTILE_SITEKEY" value="@GetVal("TURNSTILE_SITEKEY", "3x00000000000000000000FF")" class="cfg-input w-full bg-gray-50 dark:bg-dark-bg border border-gray-200 dark:border-dark-border text-gray-900 dark:text-gray-100 text-[13px] rounded-[6px] px-3 py-2 outline-none focus:border-brand-500 transition-colors font-mono" />
+                <input type="text" data-chave="TURNSTILE_SITEKEY" value="@GetVal("TURNSTILE_SITEKEY", "0x4AAAAAAFXK5J9F5V8zblrT")" class="cfg-input w-full bg-gray-50 dark:bg-dark-bg border border-gray-200 dark:border-dark-border text-gray-900 dark:text-gray-100 text-[13px] rounded-[6px] px-3 py-2 outline-none focus:border-brand-500 transition-colors font-mono" />
             </div>
 
             <div>
@@ -336,7 +336,7 @@
         function restaurarPadroesSeguros() {
             Swal.fire({
                 title: 'Restaurar Baseline de Segurança?',
-                text: 'Deseja carregar os valores recomendados pelo guia NIST / CIS Controls para o CorvusIAM?',
+                text: 'Deseja carregar os valores recomendados pelo guia NIST / CIS Controls para o CorvuxIAM?',
                 icon: 'question',
                 showCancelButton: true,
                 confirmButtonText: 'Sim, Restaurar Baseline',
@@ -363,7 +363,7 @@
                         'SMTP_HOST': 'smtp.gmail.com',
                         'SMTP_PORT': '587',
                         'SYSTEM_SENDER_EMAIL': 'seguranca@corvuxiam.tech',
-                        'TURNSTILE_SITEKEY': '3x00000000000000000000FF',
+                        'TURNSTILE_SITEKEY': '0x4AAAAAAFXK5J9F5V8zblrT',
                         'TURNSTILE_MODE': 'Interactive'
                     };
 

@@ -73,7 +73,7 @@ namespace CorvusIAM.Controllers
 
             // Validação do Cloudflare Turnstile
             var turnstileToken = Request.Form["cf-turnstile-response"].ToString();
-            var isHuman = await _turnstileService.VerifyTokenAsync(turnstileToken);
+            var isHuman = await _turnstileService.VerifyTokenAsync(turnstileToken, ip);
             if (!isHuman)
             {
                 ViewBag.Erro = "Validação de segurança falhou (Anti-bot). Por favor, tente novamente.";

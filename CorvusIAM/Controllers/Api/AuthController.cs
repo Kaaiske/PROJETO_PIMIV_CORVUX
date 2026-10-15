@@ -56,6 +56,16 @@ namespace CorvusIAM.Controllers.Api
         }
 
         /// <summary>
+        /// Redireciona requisições GET feitas via navegador para a interface de Login Web amigável.
+        /// </summary>
+        [HttpGet("login")]
+        [ApiExplorerSettings(IgnoreApi = true)]
+        public IActionResult LoginGet()
+        {
+            return Redirect("/Auth/Login");
+        }
+
+        /// <summary>
         /// Autentica o colaborador corporativo e emite um novo par de tokens (JWT Bearer e Refresh Token).
         /// </summary>
         /// <remarks>

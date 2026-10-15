@@ -15,8 +15,8 @@ services:
       - "Jwt__Key=${JWT_KEY:-CorvuxIAM_SegurancaCorporativa_JWT_Secret_Key_2026_Producao!}"
       - Jwt__Issuer=CorvusIAM
       - Jwt__Audience=CorvusIAMUsers
-      - "Turnstile__SiteKey=${TURNSTILE_SITEKEY:-3x00000000000000000000FF}"
-      - "Turnstile__SecretKey=${TURNSTILE_SECRETKEY:-1x0000000000000000000000000000000AA}"
+      - "Turnstile__SiteKey=${TURNSTILE_SITEKEY:-0x4AAAAAAFXK5J9F5V8zblrT}"
+      - "Turnstile__SecretKey=${TURNSTILE_SECRETKEY:-0x4AAAAAAFXK5H5jTPKYIrdR2p0kwwYhL1Y}"
     restart: unless-stopped
     depends_on:
       sqlserver:

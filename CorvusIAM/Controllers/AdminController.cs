@@ -325,7 +325,7 @@ namespace CorvusIAM.Controllers
         {
             var defaultConfigs = new Dictionary<string, string>
             {
-                { "API_GATEWAY_TOKEN", "corvus_sec_live_9f83a218d47b0192e" },
+                { "API_GATEWAY_TOKEN", "corvux_sec_live_9f83a218d47b0192e" },
                 { "LOCKDOWN_MODE", "false" },
                 { "SESSION_TIMEOUT_MINUTES", "30" },
                 { "JWT_EXPIRATION_HOURS", "8" },
@@ -341,7 +341,7 @@ namespace CorvusIAM.Controllers
                 { "SMTP_HOST", "smtp.gmail.com" },
                 { "SMTP_PORT", "587" },
                 { "SYSTEM_SENDER_EMAIL", "seguranca@corvuxiam.tech" },
-                { "TURNSTILE_SITEKEY", "3x00000000000000000000FF" },
+                { "TURNSTILE_SITEKEY", "0x4AAAAAAFXK5J9F5V8zblrT" },
                 { "TURNSTILE_MODE", "Interactive" }
             };
 

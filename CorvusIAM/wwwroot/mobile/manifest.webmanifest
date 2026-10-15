@@ -1,6 +1,6 @@
 {
-  "name": "Corvus Security IAM Mobile",
-  "short_name": "CorvusIAM",
+  "name": "Corvux Security IAM Mobile",
+  "short_name": "CorvuxIAM",
   "description": "Aplicação móvel corporativa para abertura e acompanhamento de chamados e identidades.",
   "id": "/Auth/Login",
   "start_url": "/Auth/Login",
