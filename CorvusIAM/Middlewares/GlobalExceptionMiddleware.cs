@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using System;
@@ -28,16 +28,21 @@ namespace CorvusIAM.Middlewares
             {
                 _logger.LogError(ex, "Exceção não tratada capturada pelo middleware.");
 
-                if (context.Request.Path.StartsWithSegments("/api"))
+                bool isJsonRequest = context.Request.Path.StartsWithSegments("/api") ||
+                                     context.Request.Headers["Accept"].ToString().Contains("application/json") ||
+                                     context.Request.ContentType?.Contains("application/json") == true ||
+                                     context.Request.Headers["X-Requested-With"] == "XMLHttpRequest";
+
+                if (isJsonRequest)
                 {
-                    context.Response.ContentType = "application/problem+json";
+                    context.Response.ContentType = "application/json";
                     context.Response.StatusCode = StatusCodes.Status500InternalServerError;
 
                     var problemDetails = new ProblemDetails
                     {
                         Status = StatusCodes.Status500InternalServerError,
                         Title = "Erro interno no servidor",
-                        Detail = "Ocorreu um erro inesperado ao processar sua solicitação. Tente novamente mais tarde.",
+                        Detail = ex.Message,
                         Instance = context.Request.Path
                     };
 

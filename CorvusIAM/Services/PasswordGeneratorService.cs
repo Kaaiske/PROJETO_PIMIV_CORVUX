@@ -1,4 +1,4 @@
-﻿using CorvusIAM.Interfaces;
+using CorvusIAM.Interfaces;
 using System.Linq;
 using System.Security.Cryptography;
 using System.Threading.Tasks;
@@ -18,13 +18,15 @@ namespace CorvusIAM.Services
         {
             const string caracteres = "ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz23456789!@#$%";
             string senha = "";
-            bool isPwned = true;
+            int attempts = 0;
             
-            while (isPwned)
+            do
             {
                 senha = string.Concat(Enumerable.Range(0, length).Select(_ => caracteres[RandomNumberGenerator.GetInt32(caracteres.Length)]));
-                isPwned = await _passwordPwned.IsPasswordPwnedAsync(senha);
-            }
+                attempts++;
+                if (attempts >= 5) break;
+            } while (await _passwordPwned.IsPasswordPwnedAsync(senha));
+
             return senha;
         }
     }

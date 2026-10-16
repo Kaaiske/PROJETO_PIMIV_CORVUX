@@ -963,69 +963,86 @@ namespace CorvusIAM.Controllers
         [Authorize(Policy = "RequireHR")]
         public async System.Threading.Tasks.Task<IActionResult> AdicionarUsuario([FromBody] AdminUsuarioDTO novoUsuario)
         {
-            if (novoUsuario == null || string.IsNullOrEmpty(novoUsuario.Nome)) return BadRequest("Dados inválidos");
-            
-            if (!string.IsNullOrEmpty(novoUsuario.EmailPessoal))
+            if (novoUsuario == null || string.IsNullOrWhiteSpace(novoUsuario.Nome)) 
+                return BadRequest(new { message = "Dados inválidos: O nome do colaborador é obrigatório." });
+
+            try
             {
-                bool isDisposable = await _emailValidator.IsDisposableEmailAsync(novoUsuario.EmailPessoal);
-                if (isDisposable)
+                if (!string.IsNullOrWhiteSpace(novoUsuario.EmailPessoal))
                 {
-                    return BadRequest(new { message = "E-mail pessoal inválido. Não é permitido usar provedores de e-mail temporário." });
+                    try
+                    {
+                        bool isDisposable = await _emailValidator.IsDisposableEmailAsync(novoUsuario.EmailPessoal);
+                        if (isDisposable)
+                        {
+                            return BadRequest(new { message = "E-mail pessoal inválido. Não é permitido usar provedores de e-mail temporário." });
+                        }
+                    }
+                    catch (Exception exVal)
+                    {
+                        Serilog.Log.Warning("Aviso ao validar e-mail pessoal: {Msg}", exVal.Message);
+                    }
                 }
-            }
 
-            var nomes = novoUsuario.Nome.Trim().Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
-            var baseEmail = nomes.Length > 0 ? $"{nomes.First().ToLower()}.{(nomes.Length > 1 ? nomes.Last().ToLower() : "colaborador")}@corvus.com" : "novo.colaborador@corvus.com";
-            baseEmail = baseEmail.Replace("á","a").Replace("é","e").Replace("í","i").Replace("ó","o").Replace("ú","u").Replace("ã","a").Replace("ç","c");
-            
-            var email = baseEmail;
-            int counter = 1;
-            while (_context.Usuarios.Any(u => u.Email == email))
+                var nomes = novoUsuario.Nome.Trim().Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
+                var baseEmail = nomes.Length > 0 ? $"{nomes.First().ToLower()}.{(nomes.Length > 1 ? nomes.Last().ToLower() : "colaborador")}@corvux.com" : "novo.colaborador@corvux.com";
+                baseEmail = baseEmail.Replace("á","a").Replace("é","e").Replace("í","i").Replace("ó","o").Replace("ú","u").Replace("ã","a").Replace("ç","c");
+                
+                var email = baseEmail;
+                int counter = 1;
+                while (_context.Usuarios.Any(u => u.Email == email))
+                {
+                    email = baseEmail.Replace("@corvux.com", $"{counter}@corvux.com");
+                    counter++;
+                }
+                
+                // Gerar senha segura inicial
+                string senha = await _passwordGenerator.GenerateSecurePasswordAsync();
+                
+                var usuarioDb = new Usuario {
+                    Nome = novoUsuario.Nome,
+                    Email = email,
+                    SenhaHash = BCrypt.Net.BCrypt.HashPassword(senha),
+                    CPF = novoUsuario.CPF ?? "",
+                    RG = novoUsuario.RG ?? "",
+                    DataNascimento = novoUsuario.DataNascimento,
+                    Telefone = novoUsuario.Telefone ?? "",
+                    Endereco = novoUsuario.Endereco ?? "",
+                    Departamento = novoUsuario.Departamento ?? "",
+                    Cargo = novoUsuario.Cargo ?? "",
+                    DataContratacao = novoUsuario.DataContratacao,
+                    Ativo = true
+                };
+                _context.Usuarios.Add(usuarioDb);
+                _context.SaveChanges();
+                
+                var perfilDb = _context.Perfis.FirstOrDefault(p => p.Nome == novoUsuario.Perfil);
+                if (perfilDb == null) perfilDb = _context.Perfis.FirstOrDefault(p => p.Nome == "Colaborador");
+                
+                if (perfilDb != null) {
+                    _context.UsuarioPerfis.Add(new UsuarioPerfil { UsuarioId = usuarioDb.Id, PerfilId = perfilDb.Id });
+                }
+
+                int currentAdminId = int.TryParse(User.FindFirstValue(System.Security.Claims.ClaimTypes.NameIdentifier), out var parsedId) ? parsedId : 1;
+                _context.LogsAuditoria.Add(new LogAuditoria { DataHora = DateTime.Now, Acao = "Novo Colaborador", Detalhe = $"Usuário {email} adicionado", Tipo = "Info", Origem = "Admin Panel", UsuarioId = currentAdminId });
+                _context.SaveChanges();
+                
+                if (!string.IsNullOrEmpty(novoUsuario.EmailPessoal))
+                {
+                    string subject = "Bem-vindo ao CorvuxIAM - Suas Credenciais";
+                    string body = $"<h2>Olá {novoUsuario.Nome},</h2><p>Sua conta corporativa foi criada.</p><p><b>E-mail:</b> {email}<br><b>Senha Temporária:</b> {senha}</p><p>Acesse o painel para redefinir sua senha.</p>";
+                    try {
+                        await _emailSender.SendEmailAsync(novoUsuario.EmailPessoal, subject, body);
+                    } catch { }
+                }
+
+                return Ok(new { message = "OK", email = email, senha = senha });
+            }
+            catch (Exception ex)
             {
-                email = baseEmail.Replace("@corvus.com", $"{counter}@corvus.com");
-                counter++;
+                Serilog.Log.Error(ex, "Erro ao adicionar usuário: {Msg}", ex.Message);
+                return StatusCode(StatusCodes.Status500InternalServerError, new { message = $"Erro ao cadastrar colaborador: {ex.Message}" });
             }
-            
-            // 2. Usar gerador abstraído
-            string senha = await _passwordGenerator.GenerateSecurePasswordAsync();
-            
-            var usuarioDb = new Usuario {
-                Nome = novoUsuario.Nome,
-                Email = email,
-                SenhaHash = BCrypt.Net.BCrypt.HashPassword(senha),
-                CPF = novoUsuario.CPF ?? "",
-                RG = novoUsuario.RG ?? "",
-                DataNascimento = novoUsuario.DataNascimento,
-                Telefone = novoUsuario.Telefone ?? "",
-                Endereco = novoUsuario.Endereco ?? "",
-                Departamento = novoUsuario.Departamento ?? "",
-                Cargo = novoUsuario.Cargo ?? "",
-                DataContratacao = novoUsuario.DataContratacao,
-                Ativo = true
-            };
-            _context.Usuarios.Add(usuarioDb);
-            _context.SaveChanges();
-            
-            var perfilDb = _context.Perfis.FirstOrDefault(p => p.Nome == novoUsuario.Perfil);
-            if (perfilDb == null) perfilDb = _context.Perfis.FirstOrDefault(p => p.Nome == "Colaborador");
-            
-            if (perfilDb != null) {
-                _context.UsuarioPerfis.Add(new UsuarioPerfil { UsuarioId = usuarioDb.Id, PerfilId = perfilDb.Id });
-            }
-
-            _context.LogsAuditoria.Add(new LogAuditoria { DataHora = DateTime.Now, Acao = "Novo Colaborador", Detalhe = $"Usuário {email} adicionado", Tipo = "Info", Origem = "Admin Panel", UsuarioId = int.Parse(User.FindFirstValue(System.Security.Claims.ClaimTypes.NameIdentifier) ?? "1") });
-            _context.SaveChanges();
-            
-            if (!string.IsNullOrEmpty(novoUsuario.EmailPessoal))
-            {
-                string subject = "Bem-vindo ao CorvusIAM - Suas Credenciais";
-                string body = $"<h2>Olá {novoUsuario.Nome},</h2><p>Sua conta corporativa foi criada.</p><p><b>E-mail:</b> {email}<br><b>Senha Temporária:</b> {senha}</p><p>Acesse o painel para redefinir sua senha.</p>";
-                try {
-                    await _emailSender.SendEmailAsync(novoUsuario.EmailPessoal, subject, body);
-                } catch { }
-            }
-
-            return Ok(new { message = "OK", email = email });
         }
 
         [HttpPost]

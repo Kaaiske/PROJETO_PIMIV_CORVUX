@@ -102,6 +102,12 @@ builder.Services.AddCors(options =>
 // Memory Cache
 builder.Services.AddMemoryCache();
 
+// Antiforgery Header Support for AJAX/Fetch
+builder.Services.AddAntiforgery(options =>
+{
+    options.HeaderName = "RequestVerificationToken";
+});
+
 // Add services to the container.
 builder.Services.AddControllersWithViews(options =>
 {

@@ -22,23 +22,31 @@ namespace CorvusIAM.Services
         {
             if (string.IsNullOrEmpty(password)) return false;
 
-            // Generate SHA1 hash
-            using var sha1 = SHA1.Create();
-            var hashBytes = sha1.ComputeHash(Encoding.UTF8.GetBytes(password));
-            var hashString = BitConverter.ToString(hashBytes).Replace("-", "").ToUpperInvariant();
-
-            var prefix = hashString.Substring(0, 5);
-            var suffix = hashString.Substring(5);
-
-            var response = await _httpClient.GetAsync($"range/{prefix}");
-            if (!response.IsSuccessStatusCode)
+            try
             {
-                // Fallback to false if API fails
+                // Generate SHA1 hash
+                using var sha1 = SHA1.Create();
+                var hashBytes = sha1.ComputeHash(Encoding.UTF8.GetBytes(password));
+                var hashString = BitConverter.ToString(hashBytes).Replace("-", "").ToUpperInvariant();
+
+                var prefix = hashString.Substring(0, 5);
+                var suffix = hashString.Substring(5);
+
+                var response = await _httpClient.GetAsync($"range/{prefix}");
+                if (!response.IsSuccessStatusCode)
+                {
+                    // Fallback to false if API fails
+                    return false;
+                }
+
+                var content = await response.Content.ReadAsStringAsync();
+                return content.Contains(suffix);
+            }
+            catch
+            {
+                // Fallback seguro se serviço externo estiver indisponível
                 return false;
             }
-
-            var content = await response.Content.ReadAsStringAsync();
-            return content.Contains(suffix);
         }
     }
 }

@@ -16,6 +16,14 @@
             <i class="ph ph-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"></i>
             <input type="text" id="searchInput" placeholder="Buscar colaborador..." class="bg-white dark:bg-dark-card border border-gray-200 dark:border-dark-border text-gray-900 dark:text-gray-100 text-[12px] rounded-[6px] pl-9 pr-3 py-1.5 outline-none focus:border-brand-500 transition-colors w-full shadow-sm" />
         </div>
+        <div class="flex items-center bg-gray-100 dark:bg-dark-card border border-gray-300 dark:border-dark-border rounded-[6px] p-0.5">
+            <button type="button" id="btnViewGrid" onclick="alternarVisualizacao('grid')" class="p-1.5 rounded-[4px] text-brand-600 dark:text-brand-400 bg-white dark:bg-dark-bg shadow-xs transition-all cursor-pointer" title="Visualização em Grade">
+                <i class="ph ph-squares-four text-[15px]"></i>
+            </button>
+            <button type="button" id="btnViewTable" onclick="alternarVisualizacao('table')" class="p-1.5 rounded-[4px] text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white transition-all cursor-pointer" title="Visualização em Tabela Compacta">
+                <i class="ph ph-list-dashes text-[15px]"></i>
+            </button>
+        </div>
         <a href="/Admin/ExportarUsuariosCsv" class="bg-gray-100 hover:bg-gray-200 dark:bg-dark-card dark:hover:bg-dark-hover border border-gray-300 dark:border-dark-border text-gray-800 dark:text-gray-200 text-[12px] font-medium px-3 py-1.5 rounded-[6px] shadow-sm transition-colors flex items-center justify-center gap-1.5 flex-1 sm:flex-initial">
             <i class="ph ph-file-csv text-[16px] text-emerald-500"></i> <span class="hidden xs:inline sm:inline">Exportar</span> CSV
         </a>
@@ -72,6 +80,78 @@
             </div>
         </div>
     }
+</div>
+
+<!-- Visualização em Tabela Compacta (Lista) -->
+<div id="userTableWrapper" class="hidden bento-card bg-white dark:bg-dark-card border border-gray-200 dark:border-dark-border rounded-[6px] overflow-hidden shadow-sm">
+    <div class="overflow-x-auto">
+        <table class="w-full text-left border-collapse text-[12px]">
+            <thead class="bg-gray-50 dark:bg-dark-bg/60 border-b border-gray-200 dark:border-dark-border text-gray-500 uppercase tracking-wider text-[10px]">
+                <tr>
+                    <th class="px-4 py-3">Colaborador</th>
+                    <th class="px-4 py-3">Cargo & Setor</th>
+                    <th class="px-4 py-3">Perfil RBAC</th>
+                    <th class="px-4 py-3">Admissão</th>
+                    <th class="px-4 py-3">Status</th>
+                    <th class="px-4 py-3 text-right">Ações</th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-gray-100 dark:divide-dark-border" id="userTableBody">
+                @foreach(var u in Model) {
+                    var initials = string.Join("", (u.Nome ?? "U").Split(' ', StringSplitOptions.RemoveEmptyEntries).Take(2).Select(n => n.Substring(0,1))).ToUpper();
+                    <tr class="user-row hover:bg-gray-50/60 dark:hover:bg-[#1B1F24] transition-colors">
+                        <td class="px-4 py-3">
+                            <div class="flex items-center gap-3">
+                                <div class="w-8 h-8 rounded-full flex items-center justify-center text-white font-bold text-[11px] shrink-0" style="background: linear-gradient(135deg, #3b82f6, #8b5cf6)">
+                                    @initials
+                                </div>
+                                <div class="overflow-hidden">
+                                    <div class="font-[600] text-gray-900 dark:text-white truncate">@u.Nome</div>
+                                    <div class="text-[11px] text-brand-600 dark:text-brand-400 font-mono truncate">@u.Email</div>
+                                </div>
+                            </div>
+                        </td>
+                        <td class="px-4 py-3 text-gray-700 dark:text-gray-300">
+                            <div class="font-medium">@(u.Cargo ?? "Colaborador")</div>
+                            <div class="text-[10px] text-gray-400">@(u.Departamento ?? "Geral")</div>
+                        </td>
+                        <td class="px-4 py-3">
+                            <span class="bg-gray-100 dark:bg-dark-bg px-2 py-0.5 rounded-[4px] text-[10px] font-[600] uppercase tracking-wider text-gray-700 dark:text-gray-300 border border-gray-200 dark:border-dark-border">
+                                @(u.UsuarioPerfis?.FirstOrDefault()?.Perfil?.Nome ?? "Colaborador")
+                            </span>
+                        </td>
+                        <td class="px-4 py-3 text-gray-500 font-mono text-[11px]">
+                            @(u.DataContratacao?.ToString("dd/MM/yyyy") ?? "-")
+                        </td>
+                        <td class="px-4 py-3">
+                            @if(u.Ativo) {
+                                <span class="inline-flex items-center gap-1 text-[11px] font-medium text-emerald-500 bg-emerald-500/10 px-2 py-0.5 rounded">
+                                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> Ativo
+                                </span>
+                            } else {
+                                <span class="inline-flex items-center gap-1 text-[11px] font-medium text-red-500 bg-red-500/10 px-2 py-0.5 rounded">
+                                    <span class="w-1.5 h-1.5 rounded-full bg-red-500"></span> Bloqueado
+                                </span>
+                            }
+                        </td>
+                        <td class="px-4 py-3 text-right">
+                            <div class="flex items-center justify-end gap-2">
+                                <button onclick="abrirEdit(@u.Id, '@Html.Raw(System.Web.HttpUtility.JavaScriptStringEncode(u.Nome))', '@Html.Raw(System.Web.HttpUtility.JavaScriptStringEncode(u.CPF ?? ""))', '@Html.Raw(System.Web.HttpUtility.JavaScriptStringEncode(u.Cargo ?? ""))', '@Html.Raw(System.Web.HttpUtility.JavaScriptStringEncode(u.UsuarioPerfis?.FirstOrDefault()?.Perfil?.Nome ?? "Colaborador"))', '@Html.Raw(System.Web.HttpUtility.JavaScriptStringEncode(u.Departamento ?? ""))', '@Html.Raw(System.Web.HttpUtility.JavaScriptStringEncode(u.Telefone ?? ""))')" class="p-1 text-gray-400 hover:text-brand-500 transition-colors" title="Editar">
+                                    <i class="ph ph-pencil-simple text-[16px]"></i>
+                                </button>
+                                <button onclick="inativarUsuario(@u.Id)" class="p-1 text-gray-400 hover:text-orange-500 transition-colors" title="@(u.Ativo ? "Bloquear" : "Desbloquear")">
+                                    <i class="ph @(u.Ativo ? "ph-lock-key" : "ph-lock-key-open") text-[16px]"></i>
+                                </button>
+                                <button onclick="excluirUsuario(@u.Id, '@Html.Raw(System.Web.HttpUtility.JavaScriptStringEncode(u.Nome))', '@Html.Raw(System.Web.HttpUtility.JavaScriptStringEncode(u.Email))')" class="p-1 text-gray-400 hover:text-red-500 transition-colors" title="Excluir">
+                                    <i class="ph ph-trash text-[16px]"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
 </div>
 
 <!-- Modal Overlay -->
@@ -322,34 +402,52 @@
                 const res = await fetch('/Admin/AdicionarUsuario', { 
                     method: 'POST', 
                     headers: { 
-                        'Content-Type': 'application/json', 
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json',
                         'RequestVerificationToken': getCsrfToken() 
                     }, 
                     body: JSON.stringify(payload) 
                 });
                 
+                const contentType = res.headers.get("content-type") || "";
+
                 if(res.ok) {
-                    const data = await res.json();
+                    let data = {};
+                    if (contentType.includes("application/json")) {
+                        data = await res.json();
+                    }
                     closeModal();
                     Swal.fire({
                         title: 'Colaborador Cadastrado!',
-                        html: `E-mail corporativo gerado: <b>${data.email}</b><br>Senha Inicial: <b class="font-mono text-brand-500">${data.senha}</b><br><br><span class="text-xs text-gray-400">Guarde a senha temporária para entrega ao colaborador.</span>`,
+                        html: `E-mail corporativo gerado: <b>${data.email || 'Concluído'}</b><br>Senha Inicial: <b class="font-mono text-brand-500">${data.senha || 'Verifique com o administrador'}</b><br><br><span class="text-xs text-gray-400">Guarde a senha temporária para entrega ao colaborador.</span>`,
                         icon: 'success',
                         background: '#121418', color: '#fff', confirmButtonColor: '#3B82F6'
                     }).then(() => window.location.reload());
                 } else {
                     let errorMsg = 'Não foi possível cadastrar o colaborador.';
-                    try {
-                        const errData = await res.json();
-                        if(errData.message) errorMsg = errData.message;
-                    } catch (e) {}
+                    if (contentType.includes("application/json")) {
+                        try {
+                            const errData = await res.json();
+                            if(errData.message) errorMsg = errData.message;
+                            else if(errData.detail) errorMsg = errData.detail;
+                        } catch (e) {}
+                    } else if (res.status === 401 || res.status === 403) {
+                        errorMsg = 'Sua sessão expirou ou seu usuário não possui permissão de RH/Admin. Faça login novamente.';
+                    }
 
-                    Swal.fire({ title: 'Aviso', text: errorMsg, icon: 'error', background: '#121418', color: '#fff', confirmButtonColor: '#3B82F6' });
+                    Swal.fire({ title: 'Aviso', text: errorMsg, icon: 'warning', background: '#121418', color: '#fff', confirmButtonColor: '#3B82F6' });
                     btn.disabled = false;
                     btn.innerText = 'Salvar Colaborador';
                 }
             } catch(err) {
-                Swal.fire({ title: 'Erro de Conexão', text: 'Não foi possível comunicar com o servidor.', icon: 'error', background: '#121418', color: '#fff' });
+                Swal.fire({ 
+                    title: 'Falha no Cadastro', 
+                    text: err.message || 'Não foi possível comunicar com o servidor. Verifique sua conexão e tente novamente.', 
+                    icon: 'error', 
+                    background: '#121418', 
+                    color: '#fff',
+                    confirmButtonColor: '#3B82F6'
+                });
                 btn.disabled = false;
                 btn.innerText = 'Salvar Colaborador';
             }
@@ -527,12 +625,48 @@
             }
         }
     
+        // Alternância de Visualização (Grade vs Tabela Compacta)
+        function alternarVisualizacao(modo) {
+            const grid = document.getElementById('userGrid');
+            const table = document.getElementById('userTableWrapper');
+            const btnGrid = document.getElementById('btnViewGrid');
+            const btnTable = document.getElementById('btnViewTable');
+
+            if (modo === 'table') {
+                grid.classList.add('hidden');
+                table.classList.remove('hidden');
+                btnTable.classList.add('text-brand-600', 'dark:text-brand-400', 'bg-white', 'dark:bg-dark-bg', 'shadow-xs');
+                btnTable.classList.remove('text-gray-500');
+                btnGrid.classList.remove('text-brand-600', 'dark:text-brand-400', 'bg-white', 'dark:bg-dark-bg', 'shadow-xs');
+                btnGrid.classList.add('text-gray-500');
+                localStorage.setItem('corvux_usuarios_view', 'table');
+            } else {
+                table.classList.add('hidden');
+                grid.classList.remove('hidden');
+                btnGrid.classList.add('text-brand-600', 'dark:text-brand-400', 'bg-white', 'dark:bg-dark-bg', 'shadow-xs');
+                btnGrid.classList.remove('text-gray-500');
+                btnTable.classList.remove('text-brand-600', 'dark:text-brand-400', 'bg-white', 'dark:bg-dark-bg', 'shadow-xs');
+                btnTable.classList.add('text-gray-500');
+                localStorage.setItem('corvux_usuarios_view', 'grid');
+            }
+        }
+
+        // Restaura a preferência salva
+        if (localStorage.getItem('corvux_usuarios_view') === 'table') {
+            alternarVisualizacao('table');
+        }
+
         document.getElementById('searchInput').addEventListener('input', function(e) {
             const term = e.target.value.toLowerCase();
             document.querySelectorAll('.user-card').forEach(card => {
                 const text = card.innerText.toLowerCase();
                 if(text.includes(term)) card.style.display = 'flex';
                 else card.style.display = 'none';
+            });
+            document.querySelectorAll('.user-row').forEach(row => {
+                const text = row.innerText.toLowerCase();
+                if(text.includes(term)) row.style.display = '';
+                else row.style.display = 'none';
             });
         });
     </script>

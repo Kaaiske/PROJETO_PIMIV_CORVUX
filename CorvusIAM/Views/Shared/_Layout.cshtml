@@ -185,30 +185,30 @@
             <nav class="flex-1 py-4 px-3 space-y-1.5 overflow-y-auto">
                 <div class="text-[11px] font-semibold text-gray-400 uppercase tracking-[0.05em] px-2 mb-1.5 md:opacity-0 md:group-hover:opacity-100 transition-opacity">Dashboard</div>
                 @if(User.IsInRole("Admin")) { 
-                <a href="/Admin/Index" onclick="if(window.innerWidth < 768) fecharMobileMenu()" class="flex items-center gap-3 px-2 py-2 rounded-md transition-colors group/item @(ViewContext.RouteData.Values["Action"]?.ToString() == "Index" ? "bg-gray-100 dark:bg-dark-hover text-gray-900 dark:text-white font-medium" : "text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-dark-hover hover:text-gray-900 dark:hover:text-white")">
+                <a id="nav-visao-geral" href="/Admin/Index" onclick="if(window.innerWidth < 768) fecharMobileMenu()" class="flex items-center gap-3 px-2 py-2 rounded-md transition-colors group/item @(ViewContext.RouteData.Values["Action"]?.ToString() == "Index" ? "bg-gray-100 dark:bg-dark-hover text-gray-900 dark:text-white font-medium" : "text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-dark-hover hover:text-gray-900 dark:hover:text-white")">
                     <i class="ph ph-squares-four text-[18px] flex-shrink-0 @(ViewContext.RouteData.Values["Action"]?.ToString() == "Index" ? "text-brand-600 dark:text-brand-500" : "")"></i>
                     <span class="md:opacity-0 md:group-hover:opacity-100 transition-opacity whitespace-nowrap">Visão Geral</span>
                 </a> }
                 
                 <div class="text-[11px] font-semibold text-gray-400 uppercase tracking-[0.05em] px-2 mb-1.5 mt-3 md:opacity-0 md:group-hover:opacity-100 transition-opacity">Gerenciamento</div>
                 @if(User.IsInRole("Admin") || User.IsInRole("Recursos Humanos")) { 
-                <a href="/Admin/Usuarios" onclick="if(window.innerWidth < 768) fecharMobileMenu()" class="flex items-center gap-3 px-2 py-2 rounded-md transition-colors group/item @(ViewContext.RouteData.Values["Action"]?.ToString() == "Usuarios" ? "bg-gray-100 dark:bg-dark-hover text-gray-900 dark:text-white font-medium" : "text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-dark-hover hover:text-gray-900 dark:hover:text-white")">
+                <a id="nav-usuarios" href="/Admin/Usuarios" onclick="if(window.innerWidth < 768) fecharMobileMenu()" class="flex items-center gap-3 px-2 py-2 rounded-md transition-colors group/item @(ViewContext.RouteData.Values["Action"]?.ToString() == "Usuarios" ? "bg-gray-100 dark:bg-dark-hover text-gray-900 dark:text-white font-medium" : "text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-dark-hover hover:text-gray-900 dark:hover:text-white")">
                     <i class="ph ph-users text-[18px] flex-shrink-0 @(ViewContext.RouteData.Values["Action"]?.ToString() == "Usuarios" ? "text-brand-600 dark:text-brand-500" : "")"></i>
                     <span class="md:opacity-0 md:group-hover:opacity-100 transition-opacity whitespace-nowrap">Diretório de Usuários</span>
                 </a> }
                 @if(User.IsInRole("Admin")) { 
-                <a href="/Admin/Politicas" onclick="if(window.innerWidth < 768) fecharMobileMenu()" class="flex items-center gap-3 px-2 py-2 rounded-md transition-colors group/item @(ViewContext.RouteData.Values["Action"]?.ToString() == "Politicas" ? "bg-gray-100 dark:bg-dark-hover text-gray-900 dark:text-white font-medium" : "text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-dark-hover hover:text-gray-900 dark:hover:text-white")">
+                <a id="nav-politicas" href="/Admin/Politicas" onclick="if(window.innerWidth < 768) fecharMobileMenu()" class="flex items-center gap-3 px-2 py-2 rounded-md transition-colors group/item @(ViewContext.RouteData.Values["Action"]?.ToString() == "Politicas" ? "bg-gray-100 dark:bg-dark-hover text-gray-900 dark:text-white font-medium" : "text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-dark-hover hover:text-gray-900 dark:hover:text-white")">
                     <i class="ph ph-shield-check text-[18px] flex-shrink-0 @(ViewContext.RouteData.Values["Action"]?.ToString() == "Politicas" ? "text-brand-600 dark:text-brand-500" : "")"></i>
                     <span class="md:opacity-0 md:group-hover:opacity-100 transition-opacity whitespace-nowrap">Políticas de Acesso</span>
                 </a> 
-                <a href="/Admin/Perfis" onclick="if(window.innerWidth < 768) fecharMobileMenu()" class="flex items-center gap-3 px-2 py-2 rounded-md transition-colors group/item @(ViewContext.RouteData.Values["Action"]?.ToString() == "Perfis" ? "bg-gray-100 dark:bg-dark-hover text-gray-900 dark:text-white font-medium" : "text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-dark-hover hover:text-gray-900 dark:hover:text-white")">
+                <a id="nav-perfis" href="/Admin/Perfis" onclick="if(window.innerWidth < 768) fecharMobileMenu()" class="flex items-center gap-3 px-2 py-2 rounded-md transition-colors group/item @(ViewContext.RouteData.Values["Action"]?.ToString() == "Perfis" ? "bg-gray-100 dark:bg-dark-hover text-gray-900 dark:text-white font-medium" : "text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-dark-hover hover:text-gray-900 dark:hover:text-white")">
                     <i class="ph ph-identification-card text-[18px] flex-shrink-0 @(ViewContext.RouteData.Values["Action"]?.ToString() == "Perfis" ? "text-brand-600 dark:text-brand-500" : "")"></i>
                     <span class="md:opacity-0 md:group-hover:opacity-100 transition-opacity whitespace-nowrap">Perfis & Permissões</span>
                 </a> }
                 
                 <div class="text-[11px] font-semibold text-gray-400 uppercase tracking-[0.05em] px-2 mb-1.5 mt-3 md:opacity-0 md:group-hover:opacity-100 transition-opacity">Operações</div>
                 @if(User.IsInRole("Admin") || User.IsInRole("Help Desk")) { 
-                <a href="/Admin/Chamados" onclick="if(window.innerWidth < 768) fecharMobileMenu()" class="flex items-center gap-3 px-2 py-2 rounded-md transition-colors group/item @(ViewContext.RouteData.Values["Action"]?.ToString() == "Chamados" ? "bg-gray-100 dark:bg-dark-hover text-gray-900 dark:text-white font-medium" : "text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-dark-hover hover:text-gray-900 dark:hover:text-white")">
+                <a id="nav-chamados" href="/Admin/Chamados" onclick="if(window.innerWidth < 768) fecharMobileMenu()" class="flex items-center gap-3 px-2 py-2 rounded-md transition-colors group/item @(ViewContext.RouteData.Values["Action"]?.ToString() == "Chamados" ? "bg-gray-100 dark:bg-dark-hover text-gray-900 dark:text-white font-medium" : "text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-dark-hover hover:text-gray-900 dark:hover:text-white")">
                     <div class="relative flex-shrink-0">
                         <i class="ph ph-headset text-[18px] @(ViewContext.RouteData.Values["Action"]?.ToString() == "Chamados" ? "text-brand-600 dark:text-brand-500" : "")"></i>
                         <div class="absolute -top-1 -right-1 w-2 h-2 bg-brand-500 rounded-full border border-white dark:border-dark-card"></div>
@@ -216,26 +216,26 @@
                     <span class="md:opacity-0 md:group-hover:opacity-100 transition-opacity whitespace-nowrap">Fila de Chamados</span>
                 </a> }
                 @if(User.IsInRole("Admin")) { 
-                <a href="/Admin/Cloud" onclick="if(window.innerWidth < 768) fecharMobileMenu()" class="flex items-center gap-3 px-2 py-2 rounded-md transition-colors group/item @(ViewContext.RouteData.Values["Action"]?.ToString() == "Cloud" ? "bg-gray-100 dark:bg-dark-hover text-gray-900 dark:text-white font-medium" : "text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-dark-hover hover:text-gray-900 dark:hover:text-white")">
+                <a id="nav-cloud" href="/Admin/Cloud" onclick="if(window.innerWidth < 768) fecharMobileMenu()" class="flex items-center gap-3 px-2 py-2 rounded-md transition-colors group/item @(ViewContext.RouteData.Values["Action"]?.ToString() == "Cloud" ? "bg-gray-100 dark:bg-dark-hover text-gray-900 dark:text-white font-medium" : "text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-dark-hover hover:text-gray-900 dark:hover:text-white")">
                     <i class="ph ph-desktop text-[18px] flex-shrink-0 @(ViewContext.RouteData.Values["Action"]?.ToString() == "Cloud" ? "text-brand-600 dark:text-brand-500" : "")"></i>
                     <span class="md:opacity-0 md:group-hover:opacity-100 transition-opacity whitespace-nowrap">Infraestrutura & Endpoints</span>
                 </a> 
-                <a href="/Admin/Integracoes" onclick="if(window.innerWidth < 768) fecharMobileMenu()" class="flex items-center gap-3 px-2 py-2 rounded-md transition-colors group/item @(ViewContext.RouteData.Values["Action"]?.ToString() == "Integracoes" ? "bg-gray-100 dark:bg-dark-hover text-gray-900 dark:text-white font-medium" : "text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-dark-hover hover:text-gray-900 dark:hover:text-white")">
+                <a id="nav-integracoes" href="/Admin/Integracoes" onclick="if(window.innerWidth < 768) fecharMobileMenu()" class="flex items-center gap-3 px-2 py-2 rounded-md transition-colors group/item @(ViewContext.RouteData.Values["Action"]?.ToString() == "Integracoes" ? "bg-gray-100 dark:bg-dark-hover text-gray-900 dark:text-white font-medium" : "text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-dark-hover hover:text-gray-900 dark:hover:text-white")">
                     <i class="ph ph-plugs-connected text-[18px] flex-shrink-0 @(ViewContext.RouteData.Values["Action"]?.ToString() == "Integracoes" ? "text-brand-600 dark:text-brand-500" : "")"></i>
                     <span class="md:opacity-0 md:group-hover:opacity-100 transition-opacity whitespace-nowrap">Módulos & APIs</span>
                 </a> }
                 
                 <div class="text-[11px] font-semibold text-gray-400 uppercase tracking-[0.05em] px-2 mb-1.5 mt-3 md:opacity-0 md:group-hover:opacity-100 transition-opacity">Sistema</div>
                 @if(User.IsInRole("Admin")) { 
-                <a href="/Admin/Logs" onclick="if(window.innerWidth < 768) fecharMobileMenu()" class="flex items-center gap-3 px-2 py-2 rounded-md transition-colors group/item @(ViewContext.RouteData.Values["Action"]?.ToString() == "Logs" ? "bg-gray-100 dark:bg-dark-hover text-gray-900 dark:text-white font-medium" : "text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-dark-hover hover:text-gray-900 dark:hover:text-white")">
+                <a id="nav-logs" href="/Admin/Logs" onclick="if(window.innerWidth < 768) fecharMobileMenu()" class="flex items-center gap-3 px-2 py-2 rounded-md transition-colors group/item @(ViewContext.RouteData.Values["Action"]?.ToString() == "Logs" ? "bg-gray-100 dark:bg-dark-hover text-gray-900 dark:text-white font-medium" : "text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-dark-hover hover:text-gray-900 dark:hover:text-white")">
                     <i class="ph ph-list-magnifying-glass text-[18px] flex-shrink-0 @(ViewContext.RouteData.Values["Action"]?.ToString() == "Logs" ? "text-brand-600 dark:text-brand-500" : "")"></i>
                     <span class="md:opacity-0 md:group-hover:opacity-100 transition-opacity whitespace-nowrap">Audit Logs</span>
                 </a> 
-                <a href="/Admin/Inteligencia" onclick="if(window.innerWidth < 768) fecharMobileMenu()" class="flex items-center gap-3 px-2 py-2 rounded-md transition-colors group/item @(ViewContext.RouteData.Values["Action"]?.ToString() == "Inteligencia" ? "bg-gray-100 dark:bg-dark-hover text-gray-900 dark:text-white font-medium" : "text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-dark-hover hover:text-gray-900 dark:hover:text-white")">
+                <a id="nav-secops" href="/Admin/Inteligencia" onclick="if(window.innerWidth < 768) fecharMobileMenu()" class="flex items-center gap-3 px-2 py-2 rounded-md transition-colors group/item @(ViewContext.RouteData.Values["Action"]?.ToString() == "Inteligencia" ? "bg-gray-100 dark:bg-dark-hover text-gray-900 dark:text-white font-medium" : "text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-dark-hover hover:text-gray-900 dark:hover:text-white")">
                     <i class="ph ph-shield-warning text-[18px] flex-shrink-0 text-brand-500"></i>
                     <span class="md:opacity-0 md:group-hover:opacity-100 transition-opacity whitespace-nowrap text-brand-500 font-medium">SecOps AI & Defesa</span>
                 </a> 
-                <a href="/Admin/Configuracoes" onclick="if(window.innerWidth < 768) fecharMobileMenu()" class="flex items-center gap-3 px-2 py-2 rounded-md transition-colors group/item @(ViewContext.RouteData.Values["Action"]?.ToString() == "Configuracoes" ? "bg-gray-100 dark:bg-dark-hover text-gray-900 dark:text-white font-medium" : "text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-dark-hover hover:text-gray-900 dark:hover:text-white")">
+                <a id="nav-configuracoes" href="/Admin/Configuracoes" onclick="if(window.innerWidth < 768) fecharMobileMenu()" class="flex items-center gap-3 px-2 py-2 rounded-md transition-colors group/item @(ViewContext.RouteData.Values["Action"]?.ToString() == "Configuracoes" ? "bg-gray-100 dark:bg-dark-hover text-gray-900 dark:text-white font-medium" : "text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-dark-hover hover:text-gray-900 dark:hover:text-white")">
                     <i class="ph ph-gear text-[18px] flex-shrink-0 @(ViewContext.RouteData.Values["Action"]?.ToString() == "Configuracoes" ? "text-brand-600 dark:text-brand-500" : "")"></i>
                     <span class="md:opacity-0 md:group-hover:opacity-100 transition-opacity whitespace-nowrap">Configurações</span>
                 </a> }
@@ -558,25 +558,21 @@
         }
 
         function checkIsMobileDevice() {
-            // Se for desktop oficial do navegador (Client Hints)
+            // 1. Client Hints se suportado pelo navegador
             if (navigator.userAgentData && typeof navigator.userAgentData.mobile === 'boolean') {
-                if (!navigator.userAgentData.mobile) return false;
-            }
-            // Se a tela física for de monitor ou notebook (> 900px)
-            if (window.screen && (window.screen.width >= 900 || window.screen.height >= 1200)) {
-                return false;
-            }
-            // Se a largura da viewport for de desktop
-            if (window.innerWidth >= 900) {
-                return false;
-            }
-            // Se o ponteiro for de mouse fino (desktop)
-            if (window.matchMedia && window.matchMedia('(pointer: fine)').matches && window.innerWidth >= 850) {
-                return false;
+                return navigator.userAgentData.mobile;
             }
             const ua = navigator.userAgent || '';
-            const isMobileUA = /Android.*Mobile|iPhone|iPod|BlackBerry|IEMobile|Opera Mini/i.test(ua);
-            return isMobileUA && window.innerWidth < 850;
+            const isMobileUA = /Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(ua);
+            const hasTouch = ('ontouchstart' in window) || (navigator.maxTouchPoints > 0);
+
+            // Se for sistema operacional desktop típico sem toque, não é mobile
+            if (/Windows NT|Macintosh|Linux x86_64/i.test(ua) && !isMobileUA) {
+                return false;
+            }
+
+            // Em smartphones, a largura de viewport CSS em modo retrato é <= 768px
+            return isMobileUA || (hasTouch && window.innerWidth <= 768);
         }
 
         let deferredPrompt = null;
@@ -592,7 +588,7 @@
         });
 
         function mostrarPwaBanner() {
-            if (!checkIsMobileDevice()) return; // Garantia adicional de não exibir em desktop
+            if (!checkIsMobileDevice()) return; // Bloqueio estrito em desktop
             const banner = document.getElementById('pwaInstallBanner');
             if (banner) {
                 banner.classList.remove('hidden');
@@ -643,163 +639,138 @@
             }, 3000);
         }
     </script>
-    <script>
-        // Tour Interativo Passo a Passo do Sistema
-        const tourSteps = [
-            {
-                title: "1. Painel de Controle (Dashboard Executivo)",
-                desc: "O Dashboard centraliza a governança e integridade corporativa, exibindo métricas de conformidade LGPD/NIST, índice de segurança da infraestrutura, acessos simultâneos e estatísticas de uso em tempo real por usuário e setor.",
-                url: "/Admin/Index",
-                icon: "ph ph-chart-polar",
-                features: ["Índice de Segurança e Conformidade em Tempo Real", "Monitoramento de Sessões e Latência de Rede", "Uso e requisições segmentados por colaborador"]
-            },
-            {
-                title: "2. Diretório de Usuários & RBAC Corporativo",
-                desc: "Gestão completa do ciclo de vida dos colaboradores. Permite cadastrar novos funcionários, alterar perfis (Admin, RH, Contabilidade, Auditor, Dev), trancar acessos temporariamente, forçar redefinição de senhas e monitorar uso individual.",
-                url: "/Admin/Usuarios",
-                icon: "ph ph-users",
-                features: ["Matriz de permissões baseada em funções (RBAC)", "Ativação e auditoria de MFA/TOTP", "Quarentena imediata de contas suspeitas"]
-            },
-            {
-                title: "3. Governança & Políticas de Acesso",
-                desc: "Defina parâmetros rígidos de segurança para proteger a corporação: complexidade de senhas, bloqueio automático após falhas repetidas (anti-brute force), expiração de sessões e conformidade com a LGPD.",
-                url: "/Admin/Politicas",
-                icon: "ph ph-shield-check",
-                features: ["Proteção contra ataques de dicionário e força bruta", "Configuração de janelas de inatividade", "Auditoria completa de conformidade LGPD"]
-            },
-            {
-                title: "4. Infraestrutura Cloud, Telemetria & Firewall de Endpoints",
-                desc: "Monitore os servidores e cada computador conectado na rede interna. Inspecione em tempo real as portas, protocolos e conexões ativas que cada usuário está acessando em sua máquina, bloqueie destinos perigosos e reinicie serviços com 1 clique.",
-                url: "/Admin/Cloud",
-                icon: "ph ph-cloud",
-                features: ["Telemetria e conexões de rede ativas por máquina/usuário", "Firewall de endpoints com bloqueio granular de IPs/portas", "Remediação automática de vulnerabilidades e reinício de serviços"]
-            },
-            {
-                title: "5. CyberSec Copilot & IDS Real (Intrusion Detection)",
-                desc: "Motor ativo de Detecção de Intrusões (IDS) que analisa em tempo real os pacotes e requisições contra assinaturas conhecidas (SQL Injection, Cross-Site Scripting XSS, Path Traversal e Anomalias), acionando quarentena e firewall automaticamente.",
-                url: "/Admin/Inteligencia",
-                icon: "ph ph-brain",
-                features: ["Detecção em tempo real de tentativas de invasão", "Geração de incidentes e bloqueio imediato do atacante", "Diagnósticos preventivos com inteligência artificial"]
-            },
-            {
-                title: "6. Integrações, APIs RESTful & Webhooks",
-                desc: "Conecte sistemas legados, ERPs de folha de pagamento ou esteiras de CI/CD via API RESTful v1 padronizada com autenticação por chave de API ou Bearer Token, com guias práticos em cURL, Python e JavaScript.",
-                url: "/Admin/Integracoes",
-                icon: "ph ph-plugs-connected",
-                features: ["Endpoints de Usuários, Chamados e Telemetria", "Exemplos completos de código e documentação interativa", "Webhooks assinados via HMAC SHA-256"]
-            },
-            {
-                title: "7. HelpDesk Corporativo & Suporte Mobile PWA",
-                desc: "Sistema ágil de chamados de TI com controle de SLA (Acordo de Nível de Serviço). Os usuários podem utilizar o aplicativo corporativo instalável no smartphone que opera mesmo sem conexão de internet (offline com IndexedDB).",
-                url: "/Admin/Chamados",
-                icon: "ph ph-device-mobile",
-                features: ["Filas com controle de SLA por criticidade", "PWA mobile offline com sincronização automática", "Histórico de atendimento e soluções documentadas"]
-            }
-        ];
 
-        let currentTourStep = 0;
+    <!-- ========================================== -->
+    <!-- USER ONBOARDING: SPOTLIGHT CALLOUT TOUR    -->
+    <!-- ========================================== -->
+    <div id="corvuxSpotlightOverlay" class="fixed inset-0 z-[130] pointer-events-none hidden transition-opacity duration-300">
+        <div id="corvuxSpotlightHole" class="absolute pointer-events-auto transition-all duration-300 rounded-lg ring-4 ring-brand-500 ring-offset-4 ring-offset-black/50 shadow-[0_0_0_9999px_rgba(0,0,0,0.75)]"></div>
+    </div>
 
-        function iniciarTourInterativo() {
-            currentTourStep = 0;
-            renderizarPassoTour();
-            const modal = document.getElementById('modalGuiaSistema');
-            if (modal) {
-                modal.classList.remove('hidden');
-                modal.classList.add('flex');
-            }
-        }
+    <div id="corvuxSpotlightPopover" class="fixed z-[140] hidden bg-white dark:bg-dark-card border border-brand-500/40 rounded-xl shadow-2xl p-4 w-[320px] transition-all duration-300 pointer-events-auto">
+        <div class="flex items-center justify-between pb-2 border-b border-gray-100 dark:border-dark-border mb-2.5">
+            <span id="spotlightStepBadge" class="text-[10px] font-mono px-2 py-0.5 rounded bg-brand-500/10 text-brand-500 font-bold uppercase tracking-wider">Passo 1 de 6</span>
+            <button type="button" onclick="encerrarSpotlightTour()" class="text-gray-400 hover:text-white p-0.5 cursor-pointer" title="Encerrar Tour">
+                <i class="ph ph-x text-sm"></i>
+            </button>
+        </div>
+        <h4 id="spotlightTitle" class="text-sm font-bold text-gray-900 dark:text-white mb-1">Visão Geral & Dashboard</h4>
+        <p id="spotlightDesc" class="text-xs text-gray-500 dark:text-gray-300 leading-relaxed mb-3">
+            Acompanhe autenticações em tempo real, conformidade LGPD e saúde dos serviços.
+        </p>
+        <div class="flex items-center justify-between pt-2 border-t border-gray-100 dark:border-dark-border">
+            <button type="button" id="spotlightBtnPrev" onclick="mudarPassoSpotlight(-1)" class="px-2.5 py-1 text-xs text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors cursor-pointer">
+                Anterior
+            </button>
+            <div class="flex items-center gap-1.5">
+                <button type="button" onclick="encerrarSpotlightTour()" class="px-2 py-1 text-xs text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 transition-colors cursor-pointer">
+                    Pular
+                </button>
+                <button type="button" id="spotlightBtnNext" onclick="mudarPassoSpotlight(1)" class="px-3 py-1 bg-brand-600 hover:bg-brand-500 text-white rounded text-xs font-semibold transition-colors flex items-center gap-1 cursor-pointer">
+                    Próximo <i class="ph ph-arrow-right text-[10px]"></i>
+                </button>
+            </div>
+        </div>
+    </div>
 
-        function fecharTourInterativo() {
-            const modal = document.getElementById('modalGuiaSistema');
-            if (modal) {
-                modal.classList.add('hidden');
-                modal.classList.remove('flex');
-            }
-        }
-
-        function renderizarPassoTour() {
-            const step = tourSteps[currentTourStep];
-            document.getElementById('tourStepIndicator').textContent = `${currentTourStep + 1} / ${tourSteps.length}`;
+    <!-- ========================================== -->
+    <!-- USER ONBOARDING: WELCOME MODAL             -->
+    <!-- ========================================== -->
+    <div id="corvuxWelcomeModal" class="fixed inset-0 bg-black/80 z-[120] hidden items-center justify-center p-4 backdrop-blur-md transition-all">
+        <div class="bg-white dark:bg-dark-card border border-gray-200 dark:border-dark-border rounded-2xl shadow-2xl w-full max-w-lg overflow-hidden flex flex-col p-6 text-center animate-in fade-in zoom-in-95 duration-200">
+            <div class="mx-auto w-16 h-16 rounded-2xl bg-brand-500/10 border border-brand-500/30 flex items-center justify-center mb-4 shadow-inner">
+                <img src="/icons/corvus-logo.png?v=20261015" alt="CorvuxIAM" class="w-12 h-12 rounded-xl object-cover">
+            </div>
+            <span class="inline-block mx-auto px-3 py-1 rounded-full text-[11px] font-semibold bg-brand-500/10 text-brand-600 dark:text-brand-400 border border-brand-500/20 mb-3 uppercase tracking-wider">
+                Primeiros Passos
+            </span>
+            <h3 class="text-xl font-bold text-gray-900 dark:text-white">Bem-vindo ao CorvuxIAM</h3>
+            <p class="text-xs text-gray-500 dark:text-gray-400 mt-2 leading-relaxed max-w-md mx-auto">
+                Plataforma unificada de Governança Zero Trust, Gestão de Identidades (IAM), Telemetria de Rede e Defesa Cibernética. Preparamos uma jornada prática para guiar você pelas principais funcionalidades.
+            </p>
             
-            const content = `
-                <div class="space-y-4">
-                    <div class="flex items-center gap-3">
-                        <div class="w-12 h-12 rounded-xl bg-brand-500/10 border border-brand-500/30 text-brand-400 flex items-center justify-center text-2xl flex-shrink-0">
-                            <i class="${step.icon}"></i>
-                        </div>
-                        <div>
-                            <h4 class="text-base font-bold text-gray-900 dark:text-white">${step.title}</h4>
-                            <p class="text-xs text-gray-500 dark:text-gray-400 mt-0.5">${step.desc}</p>
-                        </div>
-                    </div>
-                    <div class="bg-gray-50 dark:bg-dark-bg/80 border border-gray-200 dark:border-dark-border rounded-lg p-3.5 space-y-2">
-                        <p class="text-[11px] font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400">Recursos em Destaque:</p>
-                        <ul class="text-xs space-y-1.5 text-gray-700 dark:text-gray-300">
-                            ${step.features.map(f => `<li class="flex items-center gap-2"><i class="ph ph-check-circle text-emerald-500 text-sm"></i> <span>${f}</span></li>`).join('')}
-                        </ul>
-                    </div>
-                </div>
-            `;
-            document.getElementById('tourContent').innerHTML = content;
-            document.getElementById('tourBtnGoModule').href = step.url;
-            
-            const dots = tourSteps.map((_, i) => `<span class="h-2 rounded-full transition-all ${i === currentTourStep ? 'bg-brand-500 w-6' : 'bg-gray-300 dark:bg-gray-600 w-2'}"></span>`).join('');
-            document.getElementById('tourDots').innerHTML = dots;
-
-            document.getElementById('tourBtnPrev').style.visibility = currentTourStep === 0 ? 'hidden' : 'visible';
-            document.getElementById('tourBtnNext').innerHTML = currentTourStep === tourSteps.length - 1 ? 'Concluir Tour <i class="ph ph-check font-bold"></i>' : 'Próximo Passo <i class="ph ph-arrow-right"></i>';
-        }
-
-        function mudarPassoTour(delta) {
-            currentTourStep += delta;
-            if (currentTourStep >= tourSteps.length) {
-                fecharTourInterativo();
-                return;
-            }
-            if (currentTourStep < 0) currentTourStep = 0;
-            renderizarPassoTour();
-        }
-    </script>
-
-    <!-- Modal Guia Passo a Passo do Sistema (Walkthrough Interativo) -->
-    <div id="modalGuiaSistema" class="fixed inset-0 bg-black/80 z-[110] hidden items-center justify-center p-4 backdrop-blur-sm transition-opacity">
-        <div class="bg-white dark:bg-dark-card border border-gray-200 dark:border-dark-border rounded-xl shadow-2xl w-full max-w-2xl overflow-hidden flex flex-col">
-            <div class="px-6 py-4 border-b border-gray-200 dark:border-dark-border flex justify-between items-center bg-gray-50 dark:bg-dark-bg/60">
-                <div class="flex items-center gap-2.5">
-                    <div class="w-8 h-8 rounded-lg bg-brand-600/20 border border-brand-500/30 text-brand-400 flex items-center justify-center font-bold">
-                        <i class="ph ph-compass text-lg"></i>
-                    </div>
+            <div class="grid grid-cols-2 gap-3 mt-6 text-left">
+                <div class="p-3 rounded-lg bg-gray-50 dark:bg-dark-bg/60 border border-gray-100 dark:border-dark-border flex items-start gap-2.5">
+                    <i class="ph ph-shield-check text-emerald-500 text-lg flex-shrink-0 mt-0.5"></i>
                     <div>
-                        <h3 class="text-sm font-semibold text-gray-900 dark:text-white">Guia Interativo do CorvuxIAM</h3>
-                        <p class="text-[11px] text-gray-500 dark:text-gray-400">Visão geral passo a passo de arquitetura e funcionalidades</p>
+                        <div class="text-xs font-semibold text-gray-900 dark:text-white">Zero Trust IAM</div>
+                        <div class="text-[10px] text-gray-500">RBAC, MFA e auditoria contínua</div>
                     </div>
                 </div>
+                <div class="p-3 rounded-lg bg-gray-50 dark:bg-dark-bg/60 border border-gray-100 dark:border-dark-border flex items-start gap-2.5">
+                    <i class="ph ph-cpu text-purple-500 text-lg flex-shrink-0 mt-0.5"></i>
+                    <div>
+                        <div class="text-xs font-semibold text-gray-900 dark:text-white">CyberSec Copilot</div>
+                        <div class="text-[10px] text-gray-500">IDS e mitigação de ameaças</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="flex items-center gap-3 mt-6 pt-4 border-t border-gray-100 dark:border-dark-border">
+                <button type="button" onclick="fecharWelcomeModal(true)" class="flex-1 py-2.5 px-4 text-xs font-medium text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-dark-border rounded-lg transition-colors cursor-pointer">
+                    Explorar por Conta Própria
+                </button>
+                <button type="button" onclick="iniciarTourPeloWelcome()" class="flex-1 py-2.5 px-4 text-xs font-semibold text-white bg-brand-600 hover:bg-brand-500 rounded-lg shadow-md transition-all flex items-center justify-center gap-2 cursor-pointer">
+                    Iniciar Tour Guiado <i class="ph ph-arrow-right"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========================================== -->
+    <!-- USER ONBOARDING: GET STARTED CHECKLIST     -->
+    <!-- ========================================== -->
+    <div id="corvuxGetStartedWidget" class="fixed bottom-4 right-4 z-[90] transition-all duration-300 max-w-[340px] w-full">
+        <!-- Botão Minimizado (Pill Flutuante) -->
+        <button id="corvuxChecklistPill" onclick="toggleChecklistWidget(true)" class="hidden ml-auto shadow-xl bg-gray-900/95 dark:bg-[#121418]/95 border border-brand-500/40 text-white rounded-full px-4 py-2.5 text-xs font-medium flex items-center gap-2 hover:border-brand-500 transition-all cursor-pointer backdrop-blur-md">
+            <i class="ph ph-check-square-offset text-brand-400 text-base"></i>
+            <span>Primeiros Passos (<b id="pillTasksCompleted">0/5</b>)</span>
+            <div class="w-12 h-1.5 bg-gray-700 rounded-full overflow-hidden ml-1">
+                <div id="pillProgressBar" class="h-full bg-emerald-500 transition-all" style="width: 0%"></div>
+            </div>
+        </button>
+
+        <!-- Card Expandido do Checklist -->
+        <div id="corvuxChecklistCard" class="bg-white dark:bg-dark-card border border-gray-200 dark:border-dark-border rounded-xl shadow-2xl p-4 flex flex-col text-left">
+            <div class="flex items-center justify-between pb-3 border-b border-gray-100 dark:border-dark-border">
                 <div class="flex items-center gap-2">
-                    <span id="tourStepIndicator" class="text-xs font-mono px-2 py-0.5 rounded bg-gray-200 dark:bg-dark-border text-gray-600 dark:text-gray-300">1 / 7</span>
-                    <button type="button" onclick="fecharTourInterativo()" class="text-gray-400 hover:text-white p-1 cursor-pointer">
-                        <i class="ph ph-x text-base"></i>
+                    <div class="w-6 h-6 rounded-md bg-brand-500/10 text-brand-500 flex items-center justify-center font-bold text-xs">
+                        <i class="ph ph-list-checks"></i>
+                    </div>
+                    <h4 class="text-xs font-bold text-gray-900 dark:text-white uppercase tracking-wider">Primeiros Passos</h4>
+                </div>
+                <div class="flex items-center gap-1 text-gray-400">
+                    <button type="button" onclick="toggleChecklistWidget(false)" class="hover:text-gray-900 dark:hover:text-white p-1 rounded transition-colors cursor-pointer" title="Minimizar">
+                        <i class="ph ph-minus text-xs"></i>
+                    </button>
+                    <button type="button" onclick="fecharChecklistWidget()" class="hover:text-gray-900 dark:hover:text-white p-1 rounded transition-colors cursor-pointer" title="Fechar">
+                        <i class="ph ph-x text-xs"></i>
                     </button>
                 </div>
             </div>
 
-            <div class="p-6">
-                <div id="tourContent"></div>
-
-                <div class="flex items-center justify-center gap-1.5 my-5" id="tourDots"></div>
-
-                <div class="flex items-center justify-between pt-4 border-t border-gray-200 dark:border-dark-border">
-                    <button type="button" id="tourBtnPrev" onclick="mudarPassoTour(-1)" class="px-3.5 py-1.5 text-xs text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-dark-border rounded-lg transition-colors flex items-center gap-1.5 cursor-pointer">
-                        <i class="ph ph-arrow-left"></i> Anterior
-                    </button>
-                    <div class="flex items-center gap-2">
-                        <a id="tourBtnGoModule" href="#" class="px-3.5 py-1.5 text-xs text-brand-400 hover:bg-brand-500/10 border border-brand-500/30 rounded-lg transition-colors flex items-center gap-1.5">
-                            <i class="ph ph-arrow-square-out"></i> Acessar Módulo
-                        </a>
-                        <button type="button" id="tourBtnNext" onclick="mudarPassoTour(1)" class="px-4 py-1.5 text-xs font-semibold text-white bg-brand-600 hover:bg-brand-500 rounded-lg transition-colors flex items-center gap-1.5 shadow-sm cursor-pointer">
-                            Próximo Passo <i class="ph ph-arrow-right"></i>
-                        </button>
-                    </div>
+            <!-- Barra de Progresso Geral -->
+            <div class="py-3">
+                <div class="flex justify-between items-center text-[11px] mb-1.5">
+                    <span class="text-gray-500 dark:text-gray-400 font-medium">Progresso de ativação</span>
+                    <span id="checklistProgressText" class="font-mono font-bold text-brand-600 dark:text-brand-400">0 de 5 concluídos (0%)</span>
                 </div>
+                <div class="w-full h-2 bg-gray-100 dark:bg-dark-bg rounded-full overflow-hidden border border-gray-200 dark:border-dark-border">
+                    <div id="checklistProgressBar" class="h-full bg-emerald-500 rounded-full transition-all duration-300" style="width: 0%"></div>
+                </div>
+            </div>
+
+            <!-- Lista de Tarefas Interativas -->
+            <div class="space-y-2 mt-1" id="checklistTasksList">
+                <!-- Gerado dinamicamente via JavaScript -->
+            </div>
+
+            <!-- Rodapé do Checklist -->
+            <div class="mt-3 pt-2.5 border-t border-gray-100 dark:border-dark-border flex items-center justify-between text-[11px]">
+                <button type="button" onclick="iniciarSpotlightTour()" class="text-brand-500 hover:underline flex items-center gap-1 cursor-pointer font-medium">
+                    <i class="ph ph-compass"></i> Iniciar Tour Guiado
+                </button>
+                <span class="text-gray-400 text-[10px]">Corvux IAM</span>
             </div>
         </div>
     </div>
@@ -875,42 +846,299 @@
         }
         verificarCookiesLGPD();
 
-        // User Onboarding: Prompt de boas-vindas na primeira visita ao Dashboard
-        function verificarOnboardingBoasVindas() {
-            if (!localStorage.getItem('corvux_onboarding_completed') && window.location.pathname.includes('/Admin/Index')) {
-                setTimeout(() => {
-                    Swal.fire({
-                        title: 'Bem-vindo ao CorvuxIAM',
-                        html: `
-                            <div class="flex flex-col items-center py-2 text-center">
-                                <img src="/icons/corvus-logo.png?v=20261015" alt="Corvux Logo" class="w-16 h-16 rounded-2xl shadow-xl border border-white/10 mb-4 object-cover">
-                                <p class="text-sm text-gray-300 leading-relaxed max-w-sm">
-                                    Deseja realizar um tour guiado de 1 minuto para conhecer os módulos de governança, IAM e cibersegurança do sistema?
-                                </p>
-                            </div>
-                        `,
-                        showCancelButton: true,
-                        confirmButtonText: 'Iniciar Tour Guiado',
-                        cancelButtonText: 'Explorar Sozinho',
-                        confirmButtonColor: '#2563EB',
-                        cancelButtonColor: '#272B33',
-                        background: '#121418',
-                        color: '#FFFFFF',
-                        customClass: {
-                            popup: 'rounded-2xl border border-white/10 shadow-2xl backdrop-blur-md',
-                            confirmButton: 'px-5 py-2.5 rounded-lg text-sm font-semibold shadow-md',
-                            cancelButton: 'px-5 py-2.5 rounded-lg text-sm font-semibold'
-                        }
-                    }).then((result) => {
-                        localStorage.setItem('corvux_onboarding_completed', 'true');
-                        if (result.isConfirmed) {
-                            iniciarTourInterativo();
-                        }
-                    });
-                }, 1800);
+        // ==========================================
+        // USER ONBOARDING JAVASCRIPT ENGINE
+        // ==========================================
+        const ONBOARDING_TASKS = [
+            { id: 'dashboard', label: 'Explorar Métricas no Dashboard', desc: 'Visualizar telemetria e integridade Zero Trust', url: '/Admin/Index', pageMatch: '/Admin/Index' },
+            { id: 'usuarios', label: 'Cadastrar Colaborador & RBAC', desc: 'Gerenciar usuários e permissões de acesso', url: '/Admin/Usuarios', pageMatch: '/Admin/Usuarios' },
+            { id: 'politicas', label: 'Configurar Políticas de Acesso', desc: 'Definir regras de senha e bloqueio anti-brute force', url: '/Admin/Politicas', pageMatch: '/Admin/Politicas' },
+            { id: 'cloud', label: 'Inspecionar Endpoints de Rede', desc: 'Monitorar conexões ativas e portas abertas', url: '/Admin/Cloud', pageMatch: '/Admin/Cloud' },
+            { id: 'secops', label: 'Validar Inteligência SecOps & IDS', desc: 'Testar detecção e mitigação de intrusões', url: '/Admin/Inteligencia', pageMatch: '/Admin/Inteligencia' }
+        ];
+
+        function carregarChecklistTasks() {
+            let saved = {};
+            try {
+                saved = JSON.parse(localStorage.getItem('corvux_checklist_v2') || '{}');
+            } catch(e) { saved = {}; }
+
+            // Auto-marca a tarefa se o usuário já estiver na página correspondente
+            const currentPath = window.location.pathname;
+            ONBOARDING_TASKS.forEach(t => {
+                if (currentPath.includes(t.pageMatch)) {
+                    saved[t.id] = true;
+                }
+            });
+            localStorage.setItem('corvux_checklist_v2', JSON.stringify(saved));
+
+            const container = document.getElementById('checklistTasksList');
+            if (!container) return;
+
+            let completedCount = 0;
+            container.innerHTML = '';
+
+            ONBOARDING_TASKS.forEach(t => {
+                const isDone = !!saved[t.id];
+                if (isDone) completedCount++;
+
+                const item = document.createElement('div');
+                item.className = 'flex items-center justify-between p-2 rounded-lg transition-colors border ' + 
+                    (isDone ? 'bg-gray-50/60 dark:bg-dark-bg/40 border-gray-100 dark:border-dark-border opacity-70' : 'bg-gray-50 dark:bg-dark-bg border-gray-200 dark:border-dark-border');
+
+                item.innerHTML = `
+                    <div class="flex items-center gap-2.5 min-w-0">
+                        <input type="checkbox" ${isDone ? 'checked' : ''} onchange="toggleTaskCheck('${t.id}', this.checked)" class="w-4 h-4 rounded text-brand-600 focus:ring-brand-500 cursor-pointer">
+                        <div class="min-w-0">
+                            <div class="text-[11px] font-semibold ${isDone ? 'line-through text-gray-400' : 'text-gray-900 dark:text-white'} truncate">${t.label}</div>
+                            <div class="text-[9px] text-gray-500 dark:text-gray-400 truncate">${t.desc}</div>
+                        </div>
+                    </div>
+                    <a href="${t.url}" class="text-[10px] font-medium px-2 py-0.5 rounded text-brand-600 dark:text-brand-400 hover:bg-brand-500/10 transition-colors whitespace-nowrap border border-brand-500/20">
+                        ${isDone ? 'Rever' : 'Acessar'}
+                    </a>
+                `;
+                container.appendChild(item);
+            });
+
+            const percent = Math.round((completedCount / ONBOARDING_TASKS.length) * 100);
+            const progressText = `${completedCount} de ${ONBOARDING_TASKS.length} concluídos (${percent}%)`;
+            
+            const txtEl = document.getElementById('checklistProgressText');
+            if (txtEl) txtEl.textContent = progressText;
+
+            const barEl = document.getElementById('checklistProgressBar');
+            if (barEl) barEl.style.width = percent + '%';
+
+            const pillBarEl = document.getElementById('pillProgressBar');
+            if (pillBarEl) pillBarEl.style.width = percent + '%';
+
+            const pillCountEl = document.getElementById('pillTasksCompleted');
+            if (pillCountEl) pillCountEl.textContent = `${completedCount}/${ONBOARDING_TASKS.length}`;
+        }
+
+        function toggleTaskCheck(taskId, isChecked) {
+            let saved = {};
+            try {
+                saved = JSON.parse(localStorage.getItem('corvux_checklist_v2') || '{}');
+            } catch(e) { saved = {}; }
+            saved[taskId] = isChecked;
+            localStorage.setItem('corvux_checklist_v2', JSON.stringify(saved));
+            carregarChecklistTasks();
+        }
+
+        function toggleChecklistWidget(expand) {
+            const card = document.getElementById('corvuxChecklistCard');
+            const pill = document.getElementById('corvuxChecklistPill');
+            if (!card || !pill) return;
+
+            if (expand) {
+                card.classList.remove('hidden');
+                pill.classList.add('hidden');
+                localStorage.setItem('corvux_checklist_minimized', 'false');
+            } else {
+                card.classList.add('hidden');
+                pill.classList.remove('hidden');
+                localStorage.setItem('corvux_checklist_minimized', 'true');
             }
         }
-        verificarOnboardingBoasVindas();
+
+        function fecharChecklistWidget() {
+            const widget = document.getElementById('corvuxGetStartedWidget');
+            if (widget) widget.classList.add('hidden');
+            localStorage.setItem('corvux_checklist_closed', 'true');
+        }
+
+        // Welcome Modal
+        function fecharWelcomeModal(marcarVisto) {
+            const m = document.getElementById('corvuxWelcomeModal');
+            if (m) {
+                m.classList.add('hidden');
+                m.classList.remove('flex');
+            }
+            if (marcarVisto) {
+                localStorage.setItem('corvux_welcome_v2_dismissed', 'true');
+            }
+        }
+
+        function iniciarTourPeloWelcome() {
+            fecharWelcomeModal(true);
+            iniciarSpotlightTour();
+        }
+
+        // ==========================================
+        // SPOTLIGHT CALLOUT TOUR IMPLEMENTATION
+        // ==========================================
+        const SPOTLIGHT_STEPS = [
+            {
+                targetId: 'nav-visao-geral',
+                title: 'Visão Geral & Dashboard',
+                desc: 'Acompanhe métricas de autenticação, conformidade Zero Trust e telemetria de tráfego em tempo real.'
+            },
+            {
+                targetId: 'nav-usuarios',
+                title: 'Diretório de Usuários & RBAC',
+                desc: 'Gestão de colaboradores: cadastre usuários, defina papéis, ative MFA e bloqueie acessos suspeitos.'
+            },
+            {
+                targetId: 'nav-politicas',
+                title: 'Políticas de Acesso & LGPD',
+                desc: 'Configure exigências de senha, bloqueios contra força bruta e parâmetros de conformidade com a LGPD.'
+            },
+            {
+                targetId: 'nav-cloud',
+                title: 'Infraestrutura Cloud & Endpoints',
+                desc: 'Inspecione computadores e conexões ativas na rede interna com acionamento do firewall em 1 clique.'
+            },
+            {
+                targetId: 'nav-secops',
+                title: 'CyberSec Copilot & IDS',
+                desc: 'Detecção contínua de invasões (SQL Injection, XSS, Path Traversal) e bloqueio edge em tempo real.'
+            },
+            {
+                targetId: 'nav-configuracoes',
+                title: 'Configurações Globais & Cloudflare',
+                desc: 'Personalize a segurança corporativa, chaves de API, webhooks e o widget Cloudflare Turnstile anti-robô.'
+            }
+        ];
+
+        let currentSpotlightIndex = 0;
+
+        function iniciarSpotlightTour() {
+            currentSpotlightIndex = 0;
+            const sidebar = document.getElementById('appSidebar');
+            if (sidebar && window.innerWidth >= 768) {
+                sidebar.classList.add('md:!w-64');
+            } else if (window.innerWidth < 768) {
+                abrirMobileMenu();
+            }
+
+            const overlay = document.getElementById('corvuxSpotlightOverlay');
+            const popover = document.getElementById('corvuxSpotlightPopover');
+            if (overlay) overlay.classList.remove('hidden');
+            if (popover) popover.classList.remove('hidden');
+
+            renderizarPassoSpotlight();
+        }
+
+        function encerrarSpotlightTour() {
+            const overlay = document.getElementById('corvuxSpotlightOverlay');
+            const popover = document.getElementById('corvuxSpotlightPopover');
+            if (overlay) overlay.classList.add('hidden');
+            if (popover) popover.classList.add('hidden');
+
+            const sidebar = document.getElementById('appSidebar');
+            if (sidebar) sidebar.classList.remove('md:!w-64');
+            if (window.innerWidth < 768) fecharMobileMenu();
+
+            localStorage.setItem('corvux_tour_v2_completed', 'true');
+        }
+
+        function renderizarPassoSpotlight() {
+            const step = SPOTLIGHT_STEPS[currentSpotlightIndex];
+            const targetEl = document.getElementById(step.targetId);
+
+            document.getElementById('spotlightStepBadge').textContent = `Passo ${currentSpotlightIndex + 1} de ${SPOTLIGHT_STEPS.length}`;
+            document.getElementById('spotlightTitle').textContent = step.title;
+            document.getElementById('spotlightDesc').textContent = step.desc;
+
+            const btnPrev = document.getElementById('spotlightBtnPrev');
+            if (btnPrev) btnPrev.style.visibility = currentSpotlightIndex === 0 ? 'hidden' : 'visible';
+
+            const btnNext = document.getElementById('spotlightBtnNext');
+            if (btnNext) {
+                btnNext.innerHTML = currentSpotlightIndex === SPOTLIGHT_STEPS.length - 1 ? 
+                    'Concluir <i class="ph ph-check font-bold"></i>' : 
+                    'Próximo <i class="ph ph-arrow-right text-[10px]"></i>';
+            }
+
+            if (targetEl) {
+                targetEl.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                posicionarSpotlight(targetEl);
+            }
+        }
+
+        function posicionarSpotlight(el) {
+            const rect = el.getBoundingClientRect();
+            const hole = document.getElementById('corvuxSpotlightHole');
+            const popover = document.getElementById('corvuxSpotlightPopover');
+            if (!hole || !popover) return;
+
+            const pad = 6;
+            hole.style.top = (rect.top - pad) + 'px';
+            hole.style.left = (rect.left - pad) + 'px';
+            hole.style.width = (rect.width + (pad * 2)) + 'px';
+            hole.style.height = (rect.height + (pad * 2)) + 'px';
+
+            const popWidth = 320;
+            const popHeight = 160;
+            let top = rect.top;
+            let left = rect.right + 14;
+
+            if (window.innerWidth < 768) {
+                // Em telas mobile posiciona no centro inferior
+                left = Math.max(12, (window.innerWidth - popWidth) / 2);
+                top = Math.min(window.innerHeight - popHeight - 20, rect.bottom + 12);
+            } else {
+                if (left + popWidth > window.innerWidth) {
+                    left = Math.max(16, rect.left - popWidth - 14);
+                }
+                if (top + popHeight > window.innerHeight) {
+                    top = Math.max(16, window.innerHeight - popHeight - 20);
+                }
+            }
+
+            popover.style.top = top + 'px';
+            popover.style.left = left + 'px';
+        }
+
+        function mudarPassoSpotlight(delta) {
+            currentSpotlightIndex += delta;
+            if (currentSpotlightIndex >= SPOTLIGHT_STEPS.length) {
+                encerrarSpotlightTour();
+                return;
+            }
+            if (currentSpotlightIndex < 0) currentSpotlightIndex = 0;
+            renderizarPassoSpotlight();
+        }
+
+        window.addEventListener('resize', () => {
+            const overlay = document.getElementById('corvuxSpotlightOverlay');
+            if (overlay && !overlay.classList.contains('hidden')) {
+                const step = SPOTLIGHT_STEPS[currentSpotlightIndex];
+                const targetEl = document.getElementById(step.targetId);
+                if (targetEl) posicionarSpotlight(targetEl);
+            }
+        });
+
+        // Chamado pelo botão "Guia do Sistema" no topo
+        function iniciarTourInterativo() {
+            iniciarSpotlightTour();
+        }
+
+        // Inicialização do User Onboarding na carga da página
+        window.addEventListener('DOMContentLoaded', () => {
+            carregarChecklistTasks();
+
+            // Gerencia visibilidade do widget Checklist
+            if (localStorage.getItem('corvux_checklist_closed') === 'true') {
+                const widget = document.getElementById('corvuxGetStartedWidget');
+                if (widget) widget.classList.add('hidden');
+            } else if (localStorage.getItem('corvux_checklist_minimized') === 'true') {
+                toggleChecklistWidget(false);
+            }
+
+            // Exibe Welcome Modal se for primeira visita no Dashboard
+            if (!localStorage.getItem('corvux_welcome_v2_dismissed') && window.location.pathname.includes('/Admin/Index')) {
+                setTimeout(() => {
+                    const m = document.getElementById('corvuxWelcomeModal');
+                    if (m) {
+                        m.classList.remove('hidden');
+                        m.classList.add('flex');
+                    }
+                }, 1200);
+            }
+        });
     </script>
 
     @RenderSection("Scripts", required: false)
