@@ -401,6 +401,42 @@ using (var scope = app.Services.CreateScope())
                             END;
                         ");
 
+                        context.Database.ExecuteSqlRaw(@"
+                            CREATE OR ALTER PROCEDURE sp_ManutencaoSegurancaIAM
+                            AS
+                            BEGIN
+                                SET NOCOUNT ON;
+                                -- Limpa tokens expirados e desbloqueia contas cujo tempo de lockout expirou
+                                UPDATE Usuarios
+                                SET ResetSenhaToken = '',
+                                    ResetSenhaExpiracao = NULL
+                                WHERE ResetSenhaExpiracao IS NOT NULL AND ResetSenhaExpiracao < GETUTCDATE();
+
+                                UPDATE Usuarios
+                                SET RefreshToken = '',
+                                    RefreshTokenExpiracao = NULL
+                                WHERE RefreshTokenExpiracao IS NOT NULL AND RefreshTokenExpiracao < GETUTCDATE();
+
+                                UPDATE Usuarios
+                                SET TentativasLogin = 0,
+                                    DataDesbloqueio = NULL
+                                WHERE DataDesbloqueio IS NOT NULL AND DataDesbloqueio < GETUTCDATE();
+                            END;
+                        ");
+
+                        context.Database.ExecuteSqlRaw(@"
+                            CREATE OR ALTER VIEW vw_ResumoSegurancaDepartamental AS
+                            SELECT 
+                                ISNULL(NULLIF(u.Departamento, ''), 'Não Informado') AS Departamento,
+                                COUNT(u.Id) AS TotalColaboradores,
+                                SUM(CASE WHEN u.Ativo = 1 THEN 1 ELSE 0 END) AS ColaboradoresAtivos,
+                                SUM(CASE WHEN u.MfaHabilitado = 1 THEN 1 ELSE 0 END) AS ComMfaAtivo
+                            FROM Usuarios u
+                            GROUP BY ISNULL(NULLIF(u.Departamento, ''), 'Não Informado');
+                        ");
+
+                        context.Database.ExecuteSqlRaw("EXEC sp_ManutencaoSegurancaIAM;");
+
                         // Assegura criação/atualização dos Triggers (PIM IV)
                         context.Database.ExecuteSqlRaw(@"
                             CREATE OR ALTER TRIGGER trg_AuditoriaUsuarios

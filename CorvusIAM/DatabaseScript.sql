@@ -589,5 +589,60 @@ BEGIN
 END;
 GO
 
-PRINT 'Banco de Dados CorvuxIAM e Stored Procedures configurados com sucesso!';
+-- =============================================================================
+-- 9. ÍNDICES NÃO-CLUSTERIZADOS DE PERFORMANCE, VIEWS E MANUTENÇÃO AUTOMÁTICA
+-- =============================================================================
+IF NOT EXISTS (SELECT 1 FROM sys.indexes WHERE name = 'IX_Usuarios_Email' AND object_id = OBJECT_ID('Usuarios'))
+    CREATE NONCLUSTERED INDEX [IX_Usuarios_Email] ON [Usuarios]([Email]) INCLUDE ([Nome], [Ativo], [MfaHabilitado]);
+GO
+
+IF NOT EXISTS (SELECT 1 FROM sys.indexes WHERE name = 'IX_LogsAuditoria_DataHora_Tipo' AND object_id = OBJECT_ID('LogsAuditoria'))
+    CREATE NONCLUSTERED INDEX [IX_LogsAuditoria_DataHora_Tipo] ON [LogsAuditoria]([DataHora] DESC, [Tipo]) INCLUDE ([Acao], [Origem], [UsuarioId]);
+GO
+
+IF NOT EXISTS (SELECT 1 FROM sys.indexes WHERE name = 'IX_ChamadosSuporte_Status_Prioridade' AND object_id = OBJECT_ID('ChamadosSuporte'))
+    CREATE NONCLUSTERED INDEX [IX_ChamadosSuporte_Status_Prioridade] ON [ChamadosSuporte]([Status], [Prioridade]) INCLUDE ([UsuarioId], [DataAbertura], [PrazoSla]);
+GO
+
+IF NOT EXISTS (SELECT 1 FROM sys.indexes WHERE name = 'IX_FirewallRegras_Ip_Ativo' AND object_id = OBJECT_ID('FirewallRegras'))
+    CREATE NONCLUSTERED INDEX [IX_FirewallRegras_Ip_Ativo] ON [FirewallRegras]([Ip], [Ativo]);
+GO
+
+IF NOT EXISTS (SELECT 1 FROM sys.indexes WHERE name = 'IX_DispositivosRede_Status_Tipo' AND object_id = OBJECT_ID('DispositivosRede'))
+    CREATE NONCLUSTERED INDEX [IX_DispositivosRede_Status_Tipo] ON [DispositivosRede]([Status], [Tipo]);
+GO
+
+IF NOT EXISTS (SELECT 1 FROM sys.indexes WHERE name = 'IX_ConfiguracoesSistema_Chave' AND object_id = OBJECT_ID('ConfiguracoesSistema'))
+    CREATE NONCLUSTERED INDEX [IX_ConfiguracoesSistema_Chave] ON [ConfiguracoesSistema]([Chave]);
+GO
+
+CREATE OR ALTER PROCEDURE sp_ManutencaoSegurancaIAM
+AS
+BEGIN
+    SET NOCOUNT ON;
+    UPDATE Usuarios
+    SET ResetSenhaToken = '', ResetSenhaExpiracao = NULL
+    WHERE ResetSenhaExpiracao IS NOT NULL AND ResetSenhaExpiracao < GETUTCDATE();
+
+    UPDATE Usuarios
+    SET RefreshToken = '', RefreshTokenExpiracao = NULL
+    WHERE RefreshTokenExpiracao IS NOT NULL AND RefreshTokenExpiracao < GETUTCDATE();
+
+    UPDATE Usuarios
+    SET TentativasLogin = 0, DataDesbloqueio = NULL
+    WHERE DataDesbloqueio IS NOT NULL AND DataDesbloqueio < GETUTCDATE();
+END;
+GO
+
+CREATE OR ALTER VIEW vw_ResumoSegurancaDepartamental AS
+SELECT 
+    ISNULL(NULLIF(u.Departamento, ''), 'Não Informado') AS Departamento,
+    COUNT(u.Id) AS TotalColaboradores,
+    SUM(CASE WHEN u.Ativo = 1 THEN 1 ELSE 0 END) AS ColaboradoresAtivos,
+    SUM(CASE WHEN u.MfaHabilitado = 1 THEN 1 ELSE 0 END) AS ComMfaAtivo
+FROM Usuarios u
+GROUP BY ISNULL(NULLIF(u.Departamento, ''), 'Não Informado');
+GO
+
+PRINT 'Banco de Dados CorvuxIAM, Índices, Views e Stored Procedures configurados com sucesso!';
 GO

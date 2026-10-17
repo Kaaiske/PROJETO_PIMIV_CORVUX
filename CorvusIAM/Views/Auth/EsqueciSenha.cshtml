@@ -1,23 +1,133 @@
-﻿@{
-    ViewData["Title"] = "Esqueci Minha Senha";
+@{
+    ViewData["Title"] = "Recuperação de Senha";
     Layout = null;
 }
 <!DOCTYPE html>
-<html lang='pt-BR'>
+<html lang="pt-BR">
 <head>
-    <title>Recuperação de Senha - CorvuxIAM</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Recuperação de Senha — CorvuxIAM</title>
+    <link rel="icon" type="image/png" sizes="32x32" href="/icons/favicon-32x32.png?v=20261017">
+    <link rel="shortcut icon" href="/favicon.ico?v=20261017" type="image/x-icon">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+    <script>
+        if (localStorage.getItem('corvux-theme') === 'dark') {
+            document.documentElement.classList.add('dark');
+        }
+    </script>
+    <style>
+        :root {
+            --bg-body: #F8FAFC;
+            --bg-card: #FFFFFF;
+            --text-main: #0F172A;
+            --text-muted: #64748B;
+            --accent: #2563EB;
+            --border-color: #E2E8F0;
+            --input-bg: #FFFFFF;
+        }
+        html.dark {
+            --bg-body: #0B0E14;
+            --bg-card: #111621;
+            --text-main: #F8FAFC;
+            --text-muted: #94A3B8;
+            --accent: #3B82F6;
+            --border-color: #1E2636;
+            --input-bg: #0B0E14;
+        }
+        body {
+            margin: 0;
+            padding: 20px;
+            background: var(--bg-body);
+            color: var(--text-main);
+            font-family: 'Inter', sans-serif;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-sizing: border-box;
+        }
+        .card {
+            width: 100%;
+            max-width: 420px;
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 14px;
+            padding: 32px;
+            box-shadow: 0 2px 12px rgba(15, 23, 42, 0.04);
+        }
+        .logo-dark { display: none; }
+        .logo-light { display: block; }
+        html.dark .logo-dark { display: block; }
+        html.dark .logo-light { display: none; }
+        h2 { font-size: 18px; font-weight: 600; margin: 14px 0 6px; letter-spacing: -0.02em; }
+        p { font-size: 13px; color: var(--text-muted); margin: 0 0 20px; line-height: 1.5; }
+        label { display: block; font-size: 11px; font-weight: 500; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-muted); margin-bottom: 6px; }
+        input {
+            width: 100%;
+            box-sizing: border-box;
+            padding: 10px 12px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            background: var(--input-bg);
+            color: var(--text-main);
+            font-size: 13px;
+            margin-bottom: 16px;
+        }
+        input:focus { outline: none; border-color: var(--accent); }
+        button {
+            width: 100%;
+            padding: 11px;
+            background: var(--accent);
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 500;
+            cursor: pointer;
+        }
+        .msg-box {
+            background: rgba(16, 185, 129, 0.08);
+            border: 1px solid rgba(16, 185, 129, 0.25);
+            color: #10B981;
+            padding: 12px;
+            border-radius: 8px;
+            font-size: 12px;
+            margin-bottom: 16px;
+            line-height: 1.5;
+        }
+        .back { display: inline-block; margin-top: 16px; font-size: 12px; color: var(--text-muted); text-decoration: none; }
+        .back:hover { color: var(--accent); }
+    </style>
 </head>
 <body>
-    <h2>Esqueci Minha Senha</h2>
-    @if (ViewBag.Mensagem != null)
-    {
-        <p style='color:green;'>@ViewBag.Mensagem</p>
-    }
-    <form asp-action='EsqueciSenha' method='post'>
-        <label>Seu E-mail:</label>
-        <input type='email' name='email' required />
-        <button type='submit'>Enviar Link</button>
-    </form>
-    <a href='/Auth/Login'>Voltar ao Login</a>
+    <div class="card">
+        <img src="/icons/corvus-logo-light.png?v=20261017" alt="CorvuxIAM" class="logo-light" style="width: 42px; height: 42px; border-radius: 10px; border: 1px solid var(--border-color);">
+        <img src="/icons/corvus-logo-dark.png?v=20261017" alt="CorvuxIAM" class="logo-dark" style="width: 42px; height: 42px; border-radius: 10px; border: 1px solid var(--border-color);">
+        <h2>Recuperação de Credencial</h2>
+        <p>Informe seu e-mail corporativo para receber o token de redefinição de senha.</p>
+
+        @if (ViewBag.Mensagem != null)
+        {
+            <div class="msg-box">
+                <i class="bi bi-check-circle-fill"></i> @ViewBag.Mensagem
+                @if (ViewBag.ResetLink != null)
+                {
+                    <div style="margin-top: 8px; padding-top: 8px; border-top: 1px solid rgba(16,185,129,0.2);">
+                        <a href="@ViewBag.ResetLink" style="color: var(--accent); font-weight: 600; text-decoration: underline;">Clique aqui para redefinir a senha agora</a>
+                    </div>
+                }
+            </div>
+        }
+
+        <form action="/Auth/EsqueciSenha" method="post">
+            @Html.AntiForgeryToken()
+            <label>E-mail Corporativo</label>
+            <input type="email" name="email" placeholder="usuario@corvus.com" required />
+            <button type="submit">Gerar Link de Recuperação</button>
+        </form>
+        <a href="/Auth/Login" class="back"><i class="bi bi-arrow-left"></i> Voltar ao Login</a>
+    </div>
 </body>
 </html>

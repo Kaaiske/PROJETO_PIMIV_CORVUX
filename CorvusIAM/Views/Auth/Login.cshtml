@@ -11,32 +11,60 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login - CorvuxIAM</title>
+    <title>Login — CorvuxIAM</title>
     
-    <!-- Favicon & Brand Icons Corvus Security -->
-    <link rel="icon" type="image/png" sizes="32x32" href="/icons/favicon-32x32.png?v=20261015">
-    <link rel="icon" type="image/png" sizes="16x16" href="/icons/favicon-16x16.png?v=20261015">
-    <link rel="icon" type="image/png" sizes="192x192" href="/icons/icon-192.png?v=20261015">
-    <link rel="apple-touch-icon" sizes="180x180" href="/icons/icon-192.png?v=20261015">
-    <link rel="shortcut icon" href="/favicon.ico?v=20261015" type="image/x-icon">
+    <!-- Favicon & Brand Icons Corvux Security -->
+    <link rel="icon" type="image/png" sizes="32x32" href="/icons/favicon-32x32.png?v=20261017">
+    <link rel="icon" type="image/png" sizes="16x16" href="/icons/favicon-16x16.png?v=20261017">
+    <link rel="icon" type="image/png" sizes="192x192" href="/icons/icon-192.png?v=20261017">
+    <link rel="apple-touch-icon" sizes="180x180" href="/icons/icon-192.png?v=20261017">
+    <link rel="shortcut icon" href="/favicon.ico?v=20261017" type="image/x-icon">
 
-    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
     <link rel="manifest" href="/manifest.json">
-    <meta name="theme-color" content="#0A66C2">
+    <meta name="theme-color" content="#FFFFFF">
     <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
     <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
+    <script>
+        if (localStorage.getItem('corvux-theme') === 'dark') {
+            document.documentElement.classList.add('dark');
+        } else {
+            document.documentElement.classList.remove('dark');
+        }
+    </script>
     <style>
         :root {
-            --bg-body: #000000;
-            --bg-card: #111111;
-            --text-main: #FFFFFF;
-            --text-muted: #888888;
-            --accent-color: #0A66C2;
-            --accent-color-hover: #004182;
-            --border-color: #222222;
-            --input-bg: #0A0A0A;
+            --bg-body: #F8FAFC;
+            --bg-card: #FFFFFF;
+            --bg-card-subtle: #F1F5F9;
+            --text-main: #0F172A;
+            --text-secondary: #475569;
+            --text-muted: #64748B;
+            --accent-color: #2563EB;
+            --accent-color-hover: #1D4ED8;
+            --border-color: #E2E8F0;
+            --border-hover: #CBD5E1;
+            --input-bg: #FFFFFF;
+            --card-shadow: 0 1px 3px rgba(15, 23, 42, 0.03), 0 1px 2px rgba(15, 23, 42, 0.02);
+            --card-shadow-hover: 0 8px 24px rgba(15, 23, 42, 0.06);
+        }
+
+        html.dark {
+            --bg-body: #0B0E14;
+            --bg-card: #111621;
+            --bg-card-subtle: #161C2A;
+            --text-main: #F8FAFC;
+            --text-secondary: #CBD5E1;
+            --text-muted: #94A3B8;
+            --accent-color: #3B82F6;
+            --accent-color-hover: #2563EB;
+            --border-color: #1E2636;
+            --border-hover: #2E3A52;
+            --input-bg: #0B0E14;
+            --card-shadow: 0 4px 20px rgba(0, 0, 0, 0.35);
+            --card-shadow-hover: 0 12px 32px rgba(0, 0, 0, 0.5);
         }
 
         body {
@@ -44,36 +72,38 @@
             padding: 0;
             background-color: var(--bg-body);
             color: var(--text-main);
-            font-family: 'Space Grotesk', sans-serif;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
             min-height: 100vh;
             display: flex;
             align-items: center;
             justify-content: center;
+            -webkit-font-smoothing: antialiased;
+            transition: background-color 0.2s ease, color 0.2s ease;
         }
 
         .login-container {
             width: 100%;
-            max-width: 750px;
-            padding: 20px;
+            max-width: 760px;
+            padding: 24px 18px;
         }
 
-        /* BENTO GRID */
+        /* BENTO GRID - TRAÇOS FINOS (HAIRLINE) */
         .bento-grid {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
-            grid-auto-rows: minmax(120px, auto);
-            gap: 16px;
+            grid-auto-rows: minmax(110px, auto);
+            gap: 14px;
             opacity: 0;
-            animation: fadeIn 0.8s ease-out forwards;
+            animation: fadeIn 0.5s ease-out forwards;
         }
 
         .bento-item {
             background-color: var(--bg-card);
-            border-radius: 20px;
+            border-radius: 14px;
             border: 1px solid var(--border-color);
             padding: 24px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-            transition: all 0.3s ease;
+            box-shadow: var(--card-shadow);
+            transition: all 0.2s ease;
             position: relative;
             overflow: hidden;
             display: flex;
@@ -82,37 +112,20 @@
         }
 
         .bento-item:hover {
-            border-color: rgba(10, 102, 194, 0.3);
-            transform: translateY(-2px);
-            box-shadow: 0 15px 40px rgba(10, 102, 194, 0.05);
+            border-color: var(--border-hover);
+            box-shadow: var(--card-shadow-hover);
         }
 
         .bento-span-2 { grid-column: span 2; }
         .bento-row-2 { grid-row: span 2; }
 
-        /* DECORATIONS */
-        .bento-item::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 4px;
-            background: linear-gradient(90deg, transparent, var(--accent-color), transparent);
-            opacity: 0;
-            transition: opacity 0.3s ease;
-        }
-        .bento-item:hover::before {
-            opacity: 1;
-        }
-
         .glow-circle {
             position: absolute;
-            width: 150px;
-            height: 150px;
+            width: 160px;
+            height: 160px;
             background-color: var(--accent-color);
-            filter: blur(80px);
-            opacity: 0.1;
+            filter: blur(90px);
+            opacity: 0.06;
             border-radius: 50%;
             z-index: 0;
             pointer-events: none;
@@ -121,21 +134,29 @@
         .glow-bottom-left { bottom: -50px; left: -50px; }
 
         /* TYPOGRAPHY */
-        h1, h2, h3 { margin: 0 0 8px 0; font-weight: 700; z-index: 1; position: relative; }
-        h2 { font-size: 20px; }
-        p { margin: 0; color: var(--text-muted); z-index: 1; position: relative; font-size: 13px; line-height: 1.4; }
+        h1, h2, h3 { margin: 0 0 6px 0; font-weight: 600; letter-spacing: -0.025em; z-index: 1; position: relative; }
+        h2 { font-size: 18px; }
+        p { margin: 0; color: var(--text-muted); z-index: 1; position: relative; font-size: 13px; line-height: 1.5; font-weight: 400; }
 
         .brand-title {
-            font-size: 26px;
-            letter-spacing: -1px;
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 24px;
+            font-weight: 700;
+            letter-spacing: -0.03em;
         }
         .brand-title span {
             color: var(--accent-color);
         }
 
+        /* LOGO LIGHT / DARK SWITCHING */
+        .logo-dark { display: none; }
+        .logo-light { display: block; }
+        html.dark .logo-dark { display: block; }
+        html.dark .logo-light { display: none; }
+
         /* FORM ELEMENTS */
         .form-group {
-            margin-bottom: 16px;
+            margin-bottom: 14px;
             z-index: 1;
             position: relative;
             width: 100%;
@@ -145,9 +166,9 @@
             display: block;
             margin-bottom: 6px;
             font-size: 11px;
-            font-weight: 700;
+            font-weight: 500;
             text-transform: uppercase;
-            letter-spacing: 1px;
+            letter-spacing: 0.06em;
             color: var(--text-muted);
         }
 
@@ -155,52 +176,79 @@
             width: 100%;
             background-color: var(--input-bg);
             border: 1px solid var(--border-color);
-            border-radius: 10px;
-            padding: 12px 14px;
+            border-radius: 8px;
+            padding: 10px 13px;
             color: var(--text-main);
             font-family: inherit;
-            font-size: 14px;
-            transition: all 0.3s ease;
+            font-size: 13px;
+            transition: border-color 0.2s ease, box-shadow 0.2s ease;
             box-sizing: border-box;
         }
         
         .form-control:focus {
             outline: none;
             border-color: var(--accent-color);
-            box-shadow: 0 0 0 3px rgba(10, 102, 194, 0.1);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
         }
 
         .btn-submit {
             width: 100%;
             background-color: var(--accent-color);
             color: #FFFFFF;
-            border: none;
-            border-radius: 10px;
-            padding: 14px;
+            border: 1px solid transparent;
+            border-radius: 8px;
+            padding: 11px 16px;
             font-family: inherit;
-            font-size: 15px;
-            font-weight: 700;
+            font-size: 13px;
+            font-weight: 500;
             cursor: pointer;
-            transition: all 0.3s ease;
-            margin-top: 10px;
+            transition: all 0.2s ease;
+            margin-top: 6px;
             z-index: 1;
             position: relative;
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 10px;
+            gap: 8px;
         }
 
         .btn-submit:hover {
             background-color: var(--accent-color-hover);
-            transform: translateY(-2px);
-            box-shadow: 0 10px 20px rgba(10, 102, 194, 0.2);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);
+        }
+
+        /* DEMO ROLE QUICK FILL PILLS */
+        .role-pills {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin-top: 14px;
+            padding-top: 12px;
+            border-top: 1px solid var(--border-color);
+            z-index: 1;
+            position: relative;
+        }
+        .role-pill {
+            background: var(--bg-card-subtle);
+            border: 1px solid var(--border-color);
+            color: var(--text-secondary);
+            font-size: 11px;
+            font-weight: 500;
+            padding: 4px 9px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.15s ease;
+        }
+        .role-pill:hover {
+            border-color: var(--accent-color);
+            color: var(--accent-color);
         }
 
         /* SOCIAL & EXTRAS */
         .social-login {
             display: flex;
-            gap: 10px;
+            gap: 8px;
             z-index: 1;
             position: relative;
         }
@@ -208,194 +256,211 @@
             flex: 1;
             background-color: var(--input-bg);
             border: 1px solid var(--border-color);
-            color: var(--text-main);
-            padding: 10px;
-            border-radius: 10px;
+            color: var(--text-secondary);
+            padding: 9px;
+            border-radius: 8px;
             cursor: pointer;
-            transition: all 0.3s ease;
-            font-size: 16px;
+            transition: all 0.2s ease;
+            font-size: 15px;
             display: flex;
             align-items: center;
             justify-content: center;
         }
         .btn-social:hover {
-            background-color: #222;
-            border-color: #444;
+            border-color: var(--accent-color);
+            color: var(--accent-color);
         }
 
         .link {
             color: var(--accent-color);
             text-decoration: none;
-            font-weight: 600;
-            transition: color 0.3s;
+            font-weight: 500;
+            transition: opacity 0.2s;
         }
         .link:hover {
-            color: var(--text-main);
             text-decoration: underline;
         }
 
         .stat-number {
-            font-size: 36px;
-            font-weight: 700;
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 32px;
+            font-weight: 600;
             color: var(--accent-color);
             line-height: 1;
-            margin-bottom: 5px;
+            margin-bottom: 4px;
+            letter-spacing: -0.03em;
         }
 
-        /* ANIMATIONS */
+        .theme-switch-btn {
+            position: fixed;
+            top: 18px;
+            right: 18px;
+            width: 36px;
+            height: 36px;
+            border-radius: 8px;
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            color: var(--text-secondary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: var(--card-shadow);
+            transition: all 0.2s ease;
+            z-index: 50;
+        }
+        .theme-switch-btn:hover {
+            border-color: var(--accent-color);
+            color: var(--accent-color);
+        }
+
         @@keyframes fadeIn {
-            from { opacity: 0; transform: translateY(20px); }
+            from { opacity: 0; transform: translateY(10px); }
             to { opacity: 1; transform: translateY(0); }
         }
 
         @@media (max-width: 900px) {
-            .bento-grid {
-                grid-template-columns: repeat(2, 1fr);
-            }
+            .bento-grid { grid-template-columns: repeat(2, 1fr); }
             .bento-span-2 { grid-column: span 2; }
             .hide-mobile { display: none; }
+            #pwaMobileInstallBanner { display: none !important; }
+        }
+
+        @@media (min-width: 900px) {
+            #pwaMobileInstallBanner {
+                display: none !important;
+                visibility: hidden !important;
+                pointer-events: none !important;
+            }
         }
 
         @@media (max-width: 600px) {
-            .bento-grid {
-                grid-template-columns: 1fr;
-            }
+            .bento-grid { grid-template-columns: 1fr; }
             .bento-span-2 { grid-column: span 1; }
-            .login-container { padding: 10px; }
-            .bento-item { padding: 20px; }
-            .stat-number { font-size: 28px; }
-            .brand-title { font-size: 22px; }
+            .login-container { padding: 12px; }
+            .bento-item { padding: 18px; }
+            .stat-number { font-size: 26px; }
+            .brand-title { font-size: 20px; }
         }
 
         .error-msg {
-            background-color: rgba(225, 29, 72, 0.1);
-            color: #FF4444;
-            padding: 12px;
+            background-color: rgba(239, 68, 68, 0.08);
+            color: #EF4444;
+            padding: 10px 12px;
             border-radius: 8px;
-            border: 1px solid rgba(225, 29, 72, 0.3);
-            margin-bottom: 20px;
-            font-size: 14px;
-            text-align: center;
+            border: 1px solid rgba(239, 68, 68, 0.25);
+            margin-bottom: 16px;
+            font-size: 12px;
             z-index: 1;
             position: relative;
         }
 
-        /* SCROLLBAR DARK (Evita barra branca no Edge/Windows) */
-        ::-webkit-scrollbar {
-            width: 6px;
-            height: 6px;
-        }
-        ::-webkit-scrollbar-track {
-            background: #000000;
-        }
-        ::-webkit-scrollbar-thumb {
-            background: #222222;
-            border-radius: 4px;
-        }
-        * {
-            scrollbar-width: thin;
-            scrollbar-color: #222222 #000000;
+        .success-msg {
+            background-color: rgba(16, 185, 129, 0.08);
+            color: #10B981;
+            padding: 10px 12px;
+            border-radius: 8px;
+            border: 1px solid rgba(16, 185, 129, 0.25);
+            margin-bottom: 16px;
+            font-size: 12px;
+            z-index: 1;
+            position: relative;
         }
 
         .turnstile-wrapper {
             width: 100%;
             min-height: 65px;
             border-radius: 8px;
-            margin-bottom: 16px;
+            margin-bottom: 12px;
             display: flex;
             align-items: center;
             justify-content: center;
-            background: rgba(255, 255, 255, 0.02);
             position: relative;
             z-index: 1;
             overflow: hidden;
         }
 
-        .turnstile-wrapper iframe,
-        .turnstile-wrapper .cf-turnstile {
-            border-radius: 8px !important;
-        }
-
-        /* PWA MOBILE INSTALL BANNER (EXCLUSIVO PARA SMARTPHONES) */
+        /* PWA MOBILE INSTALL BANNER */
         .pwa-mobile-banner {
             position: fixed;
-            bottom: 20px;
-            left: 16px;
-            right: 16px;
-            max-width: 400px;
+            bottom: 16px;
+            left: 14px;
+            right: 14px;
+            max-width: 390px;
             margin: 0 auto;
-            background: rgba(18, 20, 24, 0.96);
-            backdrop-filter: blur(12px);
-            border: 1px solid rgba(37, 99, 235, 0.4);
-            border-radius: 16px;
-            padding: 16px;
-            box-shadow: 0 16px 36px rgba(0, 0, 0, 0.7);
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 14px;
+            box-shadow: 0 12px 32px rgba(0, 0, 0, 0.25);
             z-index: 9999;
             display: none;
             flex-direction: column;
-            gap: 12px;
-            animation: pwaSlideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-        }
-        @@keyframes pwaSlideUp {
-            from { transform: translateY(100%); opacity: 0; }
-            to { transform: translateY(0); opacity: 1; }
+            gap: 10px;
         }
         .btn-install-pwa {
             flex: 1;
-            background: linear-gradient(135deg, #2563EB, #1D4ED8);
+            background: var(--accent-color);
             color: #FFFFFF;
             border: none;
-            border-radius: 8px;
-            padding: 10px 14px;
-            font-size: 13px;
-            font-weight: 700;
+            border-radius: 7px;
+            padding: 9px 12px;
+            font-size: 12px;
+            font-weight: 500;
             cursor: pointer;
-            transition: all 0.2s ease;
-        }
-        .btn-install-pwa:hover {
-            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.4);
         }
         .btn-close-pwa {
-            background: rgba(255, 255, 255, 0.08);
-            color: #A0AEC0;
-            border: 1px solid rgba(255, 255, 255, 0.12);
-            border-radius: 8px;
-            padding: 10px 14px;
-            font-size: 13px;
-            font-weight: 600;
+            background: transparent;
+            color: var(--text-muted);
+            border: 1px solid var(--border-color);
+            border-radius: 7px;
+            padding: 9px 12px;
+            font-size: 12px;
+            font-weight: 500;
             cursor: pointer;
         }
     </style>
 </head>
 <body>
 
+    <button type="button" class="theme-switch-btn" onclick="alternarTemaLogin()" title="Alternar Tema Claro / Escuro">
+        <i id="loginThemeIcon" class="bi bi-moon"></i>
+    </button>
+
     <div class="login-container">
         <div class="bento-grid">
             
             <!-- BRANDING CARD -->
-            <div class="bento-item bento-span-2" style="background: linear-gradient(135deg, #111111 0%, #050505 100%);">
+            <div class="bento-item bento-span-2">
                 <div class="glow-circle glow-bottom-left"></div>
                 <div style="z-index: 1; position: relative;">
-                    <div style="display: flex; align-items: center; gap: 14px; margin-bottom: 6px;">
-                        <img src="/icons/corvus-logo.png?v=20261015" alt="Corvux Logo" style="width: 44px; height: 44px; border-radius: 12px; box-shadow: 0 4px 16px rgba(0,0,0,0.6); border: 1px solid rgba(255,255,255,0.1);">
-                        <h1 class="brand-title" style="margin: 0;">Corvux<span>.</span></h1>
+                    <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 6px;">
+                        <img src="/icons/corvus-logo-light.png?v=20261017" alt="Corvux Logo" class="logo-light" style="width: 42px; height: 42px; border-radius: 10px; border: 1px solid var(--border-color); object-fit: cover;">
+                        <img src="/icons/corvus-logo-dark.png?v=20261017" alt="Corvux Logo" class="logo-dark" style="width: 42px; height: 42px; border-radius: 10px; border: 1px solid var(--border-color); object-fit: cover;">
+                        <div>
+                            <h1 class="brand-title" style="margin: 0; line-height: 1.1;">Corvux<span>IAM</span></h1>
+                            <span style="font-size: 10px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-muted); font-weight: 500;">Zero Trust Identity & SecOps</span>
+                        </div>
                     </div>
-                    <p style="font-size: 15px; max-width: 400px; margin-top: 10px;">
-                        Autenticação centralizada e segurança criptografada de ponta a ponta.
+                    <p style="font-size: 13px; max-width: 420px; margin-top: 8px;">
+                        Governança centralizada de identidades, controle de acesso baseado em papéis (RBAC) e defesa cibernética em tempo real.
                     </p>
                 </div>
             </div>
 
             <!-- QUICK STAT CARD -->
-            <div class="bento-item hide-mobile text-center" style="align-items: center;">
+            <div class="bento-item hide-mobile" style="align-items: center; text-align: center;">
                 <div class="glow-circle glow-top-right"></div>
-                <div class="stat-number">99.9%</div>
-                <p>Uptime do Sistema</p>
+                <div class="stat-number">99.98%</div>
+                <p style="font-size: 12px;">Disponibilidade SLA</p>
             </div>
 
             <!-- LOGIN FORM CARD -->
             <div class="bento-item bento-span-2 bento-row-2">
-                <h2 style="margin-bottom: 24px;">Iniciar Sessão</h2>
+                <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 18px;">
+                    <h2 style="margin: 0;">Autenticação Corporativa</h2>
+                    <span style="font-size: 11px; color: var(--text-muted); border: 1px solid var(--border-color); padding: 2px 8px; border-radius: 999px;">TLS 1.3</span>
+                </div>
                 
                 @if (ViewBag.Erro != null)
                 {
@@ -403,48 +468,64 @@
                         <i class="bi bi-exclamation-triangle"></i> @ViewBag.Erro
                     </div>
                 }
+                @if (Context.Request.Query["mensagem"].Count > 0)
+                {
+                    <div class="success-msg">
+                        <i class="bi bi-check-circle"></i> @Context.Request.Query["mensagem"]
+                    </div>
+                }
 
-                <form action="/Auth/Login" method="POST">
+                <form action="/Auth/Login" method="POST" id="loginForm">
                     @Html.AntiForgeryToken()
                     <div class="form-group">
-                        <label class="form-label">Email Corporativo</label>
-                        <input type="email" name="email" class="form-control" placeholder="admin@empresa.com" required>
+                        <label class="form-label">E-mail Corporativo</label>
+                        <input type="email" id="loginEmail" name="email" class="form-control" placeholder="nome@corvus.com" required>
                     </div>
                     
                     <div class="form-group">
-                        <div style="display: flex; justify-content: space-between; align-items: center; width: 100%; margin-bottom: 8px;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; width: 100%; margin-bottom: 6px;">
                             <label class="form-label" style="margin-bottom: 0;">Senha de Acesso</label>
-                            <a href="#" class="link" style="font-size: 12px;">Esqueceu a senha?</a>
+                            <a href="/Auth/EsqueciSenha" class="link" style="font-size: 11px;">Esqueceu a senha?</a>
                         </div>
-                        <input type="password" name="senha" class="form-control" placeholder="••••••••" required>
+                        <input type="password" id="loginSenha" name="senha" class="form-control" placeholder="••••••••" required>
                     </div>
 
                     <div class="turnstile-wrapper">
-                        <div class="cf-turnstile" data-sitekey="@turnstileSiteKey" data-theme="dark" data-action="login"></div>
+                        <div class="cf-turnstile" data-sitekey="@turnstileSiteKey" data-action="login"></div>
                     </div>
 
                     <button type="submit" class="btn-submit">
-                        Entrar no Painel <i class="bi bi-arrow-right"></i>
+                        Acessar Plataforma <i class="bi bi-arrow-right"></i>
                     </button>
                 </form>
+
+                <!-- Preenchimento Rápido de Fluxo por Perfil -->
+                <div class="role-pills">
+                    <span style="width: 100%; font-size: 10px; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-muted);">Acesso Rápido por Perfil:</span>
+                    <button type="button" class="role-pill" onclick="preencherCredencial('admin@corvus.com', 'Cv1670!')">Admin CTO</button>
+                    <button type="button" class="role-pill" onclick="preencherCredencial('rh@corvus.com', 'Cv1670!')">Recursos Humanos</button>
+                    <button type="button" class="role-pill" onclick="preencherCredencial('contabil@corvus.com', 'Cv1670!')">Contabilidade</button>
+                    <button type="button" class="role-pill" onclick="preencherCredencial('suporte@corvus.com', 'Cv1670!')">Help Desk</button>
+                    <button type="button" class="role-pill" onclick="preencherCredencial('colaborador@corvus.com', 'Cv1670!')">Colaborador</button>
+                </div>
             </div>
 
             <!-- SOCIAL / SSO CARD -->
             <div class="bento-item">
-                <h3 style="font-size: 16px; text-align: center; margin-bottom: 20px;">Ou entre com</h3>
+                <h3 style="font-size: 13px; font-weight: 500; text-align: center; margin-bottom: 14px; color: var(--text-secondary);">Single Sign-On (SSO)</h3>
                 <div class="social-login">
-                    <button class="btn-social" title="Google"><i class="bi bi-google"></i></button>
-                    <button class="btn-social" title="Microsoft"><i class="bi bi-microsoft"></i></button>
-                    <button class="btn-social" title="Github"><i class="bi bi-github"></i></button>
+                    <button type="button" class="btn-social" title="Google Workspace" onclick="preencherCredencial('admin@corvus.com', 'Cv1670!')"><i class="bi bi-google"></i></button>
+                    <button type="button" class="btn-social" title="Microsoft Entra ID" onclick="preencherCredencial('admin@corvus.com', 'Cv1670!')"><i class="bi bi-microsoft"></i></button>
+                    <button type="button" class="btn-social" title="GitHub Enterprise" onclick="preencherCredencial('admin@corvus.com', 'Cv1670!')"><i class="bi bi-github"></i></button>
                 </div>
             </div>
 
             <!-- SECURE BADGE CARD -->
-            <div class="bento-item" style="text-align: center; display: flex; align-items: center; justify-content: center; gap: 15px;">
-                <i class="bi bi-shield-check" style="font-size: 32px; color: var(--accent-color);"></i>
+            <div class="bento-item" style="display: flex; flex-direction: row; align-items: center; justify-content: center; gap: 12px;">
+                <i class="bi bi-shield-check" style="font-size: 26px; color: var(--accent-color);"></i>
                 <div style="text-align: left;">
-                    <div style="font-weight: 700; font-size: 14px;">Conexão Segura</div>
-                    <div style="font-size: 12px; color: var(--text-muted);">AES-256 Bit</div>
+                    <div style="font-weight: 600; font-size: 13px;">Zero Trust Ativo</div>
+                    <div style="font-size: 11px; color: var(--text-muted);">Criptografia AES-256</div>
                 </div>
             </div>
 
@@ -454,10 +535,10 @@
     <!-- BANNER PWA EXCLUSIVO MOBILE -->
     <div id="pwaMobileInstallBanner" class="pwa-mobile-banner">
         <div style="display: flex; align-items: center; gap: 12px;">
-            <img src="/icons/icon-192.png" alt="CorvuxIAM" style="width: 44px; height: 44px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.15);">
+            <img src="/icons/icon-192.png?v=20261017" alt="CorvuxIAM" style="width: 40px; height: 40px; border-radius: 9px; border: 1px solid var(--border-color);">
             <div style="flex: 1; text-align: left;">
-                <div style="font-weight: 700; font-size: 14px; color: #FFF;">Instalar CorvuxIAM</div>
-                <div style="font-size: 11px; color: #888888;">Acesso corporativo instantâneo e suporte offline no celular.</div>
+                <div style="font-weight: 600; font-size: 13px; color: var(--text-main);">Instalar App CorvuxIAM</div>
+                <div style="font-size: 11px; color: var(--text-muted);">Acesso corporativo rápido e suporte offline no celular.</div>
             </div>
         </div>
         <div style="display: flex; gap: 8px;">
@@ -467,6 +548,35 @@
     </div>
 
     <script>
+        function atualizarIconeTemaLogin() {
+            const icon = document.getElementById('loginThemeIcon');
+            if (!icon) return;
+            if (document.documentElement.classList.contains('dark')) {
+                icon.className = 'bi bi-sun';
+            } else {
+                icon.className = 'bi bi-moon';
+            }
+        }
+        atualizarIconeTemaLogin();
+
+        function alternarTemaLogin() {
+            document.documentElement.classList.toggle('dark');
+            const isDark = document.documentElement.classList.contains('dark');
+            localStorage.setItem('corvux-theme', isDark ? 'dark' : 'light');
+            localStorage.setItem('color-theme', isDark ? 'dark' : 'light');
+            atualizarIconeTemaLogin();
+        }
+
+        function preencherCredencial(email, senha) {
+            const emailInput = document.getElementById('loginEmail');
+            const senhaInput = document.getElementById('loginSenha');
+            if (emailInput && senhaInput) {
+                emailInput.value = email;
+                senhaInput.value = senha;
+                emailInput.focus();
+            }
+        }
+
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
                 navigator.serviceWorker.register('/sw.js').catch(err => console.warn('PWA SW Registro:', err));
@@ -474,11 +584,14 @@
         }
 
         function checkIsMobileDevice() {
-            const ua = navigator.userAgent || navigator.vendor || window.opera;
-            const isMobileUA = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini|Mobile/i.test(ua);
-            const isTouch = ('ontouchstart' in window) || (navigator.maxTouchPoints > 0);
-            const isNarrow = window.innerWidth <= 850;
-            return isMobileUA || (isTouch && isNarrow);
+            if (navigator.userAgentData && typeof navigator.userAgentData.mobile === 'boolean') {
+                return navigator.userAgentData.mobile;
+            }
+            const ua = navigator.userAgent || '';
+            const isMobileUA = /Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(ua);
+            const hasTouch = ('ontouchstart' in window) || (navigator.maxTouchPoints > 0);
+            if (/Windows NT|Macintosh|Linux x86_64/i.test(ua) && !isMobileUA) return false;
+            return isMobileUA || (hasTouch && window.innerWidth <= 768);
         }
 
         let deferredLoginPrompt = null;
@@ -487,14 +600,13 @@
         window.addEventListener('beforeinstallprompt', (e) => {
             e.preventDefault();
             deferredLoginPrompt = e;
-            // Exibe a notificação de instalação EXCLUSIVAMENTE em smartphones e dispositivos móveis
             if (checkIsMobileDevice() && !sessionStorage.getItem('pwaDismissed') && !isStandaloneApp) {
                 mostrarPwaMobileBanner();
             }
         });
 
         function mostrarPwaMobileBanner() {
-            if (!checkIsMobileDevice()) return; // Nunca exibe em PCs e desktops
+            if (!checkIsMobileDevice()) return;
             const banner = document.getElementById('pwaMobileInstallBanner');
             if (banner) banner.style.display = 'flex';
         }
@@ -520,7 +632,6 @@
             }
         }
 
-        // Para smartphones que já carregaram a página e não instalaram
         if (checkIsMobileDevice() && !isStandaloneApp && !sessionStorage.getItem('pwaDismissed')) {
             setTimeout(mostrarPwaMobileBanner, 2500);
         }

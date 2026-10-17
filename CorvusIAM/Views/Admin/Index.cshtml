@@ -4,99 +4,105 @@
     ViewData["Title"] = "Dashboard";
 }
 
-<div class="mb-[24px] flex flex-col sm:flex-row sm:justify-between sm:items-end gap-3">
+<div class="mb-[20px] flex flex-col sm:flex-row sm:justify-between sm:items-end gap-3">
     <div>
-        <h1 class="text-[16px] font-[600] text-gray-900 dark:text-white flex items-center gap-2">
+        <h1 class="text-[16px] font-[600] text-slate-900 dark:text-white flex items-center gap-2 tracking-tight">
             <i class="ph ph-squares-four text-brand-500"></i> Dashboard Security Operations (SecOps)
         </h1>
-        <p class="text-[12px] text-gray-500 dark:text-gray-400 mt-1">Visão geral executiva, telemetria de identidades e infraestrutura</p>
+        <p class="text-[12px] text-slate-500 dark:text-slate-400 mt-0.5">Visão executiva unificada, fluxo de identidades Zero Trust e telemetria em tempo real</p>
     </div>
     <div class="flex flex-wrap gap-2 w-full sm:w-auto">
-        <a href="/Admin/Cloud" class="flex-1 sm:flex-initial bg-gray-100 hover:bg-gray-200 dark:bg-dark-card dark:hover:bg-dark-hover border border-gray-300 dark:border-dark-border text-gray-800 dark:text-gray-200 text-[12px] font-medium px-3 py-1.5 rounded-[6px] shadow-sm transition-colors flex items-center justify-center gap-1.5">
-            <i class="ph ph-desktop text-emerald-500"></i> Saúde da Rede (18 Hosts)
+        <a href="/Portal/RH" class="bg-white hover:bg-slate-50 dark:bg-dark-card dark:hover:bg-dark-hover border border-slate-200 dark:border-dark-border text-slate-700 dark:text-slate-200 text-[12px] font-medium px-3 py-1.5 rounded-[6px] transition-colors flex items-center justify-center gap-1.5">
+            <i class="ph ph-briefcase text-brand-500"></i> Portal RH
         </a>
-        <a href="/Admin/DownloadRelatorio" class="flex-1 sm:flex-initial bg-brand-600 hover:bg-[#1D4ED8] text-white text-[12px] font-medium px-3 py-1.5 rounded-[6px] shadow-sm transition-colors flex items-center justify-center gap-1.5">
+        <a href="/Portal/Contabilidade" class="bg-white hover:bg-slate-50 dark:bg-dark-card dark:hover:bg-dark-hover border border-slate-200 dark:border-dark-border text-slate-700 dark:text-slate-200 text-[12px] font-medium px-3 py-1.5 rounded-[6px] transition-colors flex items-center justify-center gap-1.5">
+            <i class="ph ph-chart-line-up text-emerald-500"></i> Portal Contábil
+        </a>
+        <a href="/Admin/Cloud" class="bg-white hover:bg-slate-50 dark:bg-dark-card dark:hover:bg-dark-hover border border-slate-200 dark:border-dark-border text-slate-700 dark:text-slate-200 text-[12px] font-medium px-3 py-1.5 rounded-[6px] transition-colors flex items-center justify-center gap-1.5">
+            <i class="ph ph-desktop text-blue-500"></i> Rede (18 Hosts)
+        </a>
+        <a href="/Admin/DownloadRelatorio" class="bg-brand-600 hover:bg-brand-500 text-white text-[12px] font-medium px-3 py-1.5 rounded-[6px] shadow-xs transition-colors flex items-center justify-center gap-1.5">
             <i class="ph ph-download-simple"></i> Exportar Auditoria
         </a>
     </div>
 </div>
 
-<!-- TOP KPIs -->
-<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 md:gap-[24px] mb-[24px]">
+<!-- TOP KPIs (Cards Clicáveis com Fluxo Direto) -->
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3.5 md:gap-5 mb-[22px]">
     <!-- Nível de Segurança -->
-    <div class="bento-card bg-white dark:bg-dark-card border border-gray-200 dark:border-dark-border rounded-[6px] p-[20px] flex flex-col justify-between relative overflow-hidden">
-        <div class="absolute -top-[24px] -right-[24px] w-[96px] h-[96px] bg-emerald-500/10 blur-[32px] rounded-full pointer-events-none"></div>
-        <div class="text-[11px] font-[600] text-gray-500 dark:text-gray-400 uppercase tracking-[0.05em] flex justify-between items-center mb-4">
-            Nível de Segurança
-            <i class="ph ph-shield-check text-emerald-500 text-[18px]"></i>
+    <a href="/Admin/Politicas" class="bento-card bg-white dark:bg-dark-card border border-slate-200 dark:border-dark-border rounded-[8px] p-[18px] flex flex-col justify-between relative overflow-hidden group cursor-pointer">
+        <div class="text-[11px] font-[600] text-slate-500 dark:text-slate-400 uppercase tracking-[0.05em] flex justify-between items-center mb-3">
+            <span>Nível de Segurança</span>
+            <i class="ph ph-shield-check text-emerald-500 text-[18px] group-hover:scale-110 transition-transform"></i>
         </div>
         <div>
-            <div class="text-[32px] font-[700] text-gray-900 dark:text-white leading-[1]">A+</div>
-            <div class="text-[11px] text-emerald-600 dark:text-emerald-500 mt-1 font-[500] flex items-center gap-1">
-                <i class="ph ph-check-circle"></i> Zero Trust Ativo
+            <div class="text-[28px] font-[700] text-slate-900 dark:text-white leading-[1] tracking-tight">A+</div>
+            <div class="text-[11px] text-emerald-600 dark:text-emerald-400 mt-1.5 font-[500] flex items-center justify-between">
+                <span class="flex items-center gap-1"><i class="ph ph-check-circle"></i> Zero Trust Ativo</span>
+                <i class="ph ph-arrow-right text-slate-400 group-hover:translate-x-0.5 transition-transform"></i>
             </div>
         </div>
-    </div>
+    </a>
 
     <!-- Active Users -->
-    <div class="bento-card bg-white dark:bg-dark-card border border-gray-200 dark:border-dark-border rounded-[6px] p-[20px] flex flex-col justify-between relative overflow-hidden">
-        <div class="absolute -top-[24px] -right-[24px] w-[96px] h-[96px] bg-brand-500/10 blur-[32px] rounded-full pointer-events-none"></div>
-        <div class="text-[11px] font-[600] text-gray-500 dark:text-gray-400 uppercase tracking-[0.05em] flex justify-between items-center mb-4">
-            Usuários Ativos
-            <i class="ph ph-users text-brand-500 text-[18px]"></i>
+    <a href="/Admin/Usuarios" class="bento-card bg-white dark:bg-dark-card border border-slate-200 dark:border-dark-border rounded-[8px] p-[18px] flex flex-col justify-between relative overflow-hidden group cursor-pointer">
+        <div class="text-[11px] font-[600] text-slate-500 dark:text-slate-400 uppercase tracking-[0.05em] flex justify-between items-center mb-3">
+            <span>Usuários Ativos</span>
+            <i class="ph ph-users text-brand-500 text-[18px] group-hover:scale-110 transition-transform"></i>
         </div>
         <div>
-            <div class="text-[32px] font-[700] text-gray-900 dark:text-white leading-[1]">@Model.TotalUsuarios</div>
-            <div class="text-[11px] text-emerald-600 dark:text-emerald-500 mt-1 font-[500] flex items-center gap-1">
-                Colaboradores na base
+            <div class="text-[28px] font-[700] text-slate-900 dark:text-white leading-[1] tracking-tight">@Model.TotalUsuarios</div>
+            <div class="text-[11px] text-brand-600 dark:text-brand-400 mt-1.5 font-[500] flex items-center justify-between">
+                <span>Gerenciar Diretório</span>
+                <i class="ph ph-arrow-right text-slate-400 group-hover:translate-x-0.5 transition-transform"></i>
             </div>
         </div>
-    </div>
+    </a>
 
     <!-- Security Incidents -->
-    <div class="bento-card bg-white dark:bg-dark-card border border-gray-200 dark:border-dark-border rounded-[6px] p-[20px] flex flex-col justify-between relative overflow-hidden">
-        <div class="absolute -top-[24px] -right-[24px] w-[96px] h-[96px] bg-orange-500/10 blur-[32px] rounded-full pointer-events-none"></div>
-        <div class="text-[11px] font-[600] text-gray-500 dark:text-gray-400 uppercase tracking-[0.05em] flex justify-between items-center mb-4">
-            Acessos Bloqueados
-            <i class="ph ph-warning-circle text-orange-500 text-[18px]"></i>
+    <a href="/Admin/Inteligencia" class="bento-card bg-white dark:bg-dark-card border border-slate-200 dark:border-dark-border rounded-[8px] p-[18px] flex flex-col justify-between relative overflow-hidden group cursor-pointer">
+        <div class="text-[11px] font-[600] text-slate-500 dark:text-slate-400 uppercase tracking-[0.05em] flex justify-between items-center mb-3">
+            <span>Acessos Bloqueados</span>
+            <i class="ph ph-warning-circle text-orange-500 text-[18px] group-hover:scale-110 transition-transform"></i>
         </div>
         <div>
-            <div class="text-[32px] font-[700] text-gray-900 dark:text-white leading-[1]">@Model.AcessosBloqueados</div>
-            <div class="text-[11px] text-orange-600 dark:text-orange-500 mt-1 font-[500] flex items-center gap-1">
-                Bloqueados por WAF/MFA
+            <div class="text-[28px] font-[700] text-slate-900 dark:text-white leading-[1] tracking-tight">@Model.AcessosBloqueados</div>
+            <div class="text-[11px] text-orange-600 dark:text-orange-400 mt-1.5 font-[500] flex items-center justify-between">
+                <span>Inspecionar IDS/WAF</span>
+                <i class="ph ph-arrow-right text-slate-400 group-hover:translate-x-0.5 transition-transform"></i>
             </div>
         </div>
-    </div>
+    </a>
 
     <!-- Dispositivos na Rede -->
-    <div class="bento-card bg-white dark:bg-dark-card border border-gray-200 dark:border-dark-border rounded-[6px] p-[20px] flex flex-col justify-between relative overflow-hidden">
-        <div class="absolute -top-[24px] -right-[24px] w-[96px] h-[96px] bg-blue-500/10 blur-[32px] rounded-full pointer-events-none"></div>
-        <div class="text-[11px] font-[600] text-gray-500 dark:text-gray-400 uppercase tracking-[0.05em] flex justify-between items-center mb-4">
-            Endpoints da Rede
-            <i class="ph ph-desktop text-blue-500 text-[18px]"></i>
+    <a href="/Admin/Cloud" class="bento-card bg-white dark:bg-dark-card border border-slate-200 dark:border-dark-border rounded-[8px] p-[18px] flex flex-col justify-between relative overflow-hidden group cursor-pointer">
+        <div class="text-[11px] font-[600] text-slate-500 dark:text-slate-400 uppercase tracking-[0.05em] flex justify-between items-center mb-3">
+            <span>Endpoints da Rede</span>
+            <i class="ph ph-desktop text-blue-500 text-[18px] group-hover:scale-110 transition-transform"></i>
         </div>
         <div>
-            <div class="text-[32px] font-[700] text-gray-900 dark:text-white leading-[1]">18</div>
-            <div class="text-[11px] text-blue-600 dark:text-blue-400 mt-1 font-[500] flex items-center gap-1">
-                15 Saudáveis • 3 Alertas
+            <div class="text-[28px] font-[700] text-slate-900 dark:text-white leading-[1] tracking-tight">18</div>
+            <div class="text-[11px] text-blue-600 dark:text-blue-400 mt-1.5 font-[500] flex items-center justify-between">
+                <span>15 Saudáveis • 3 Alertas</span>
+                <i class="ph ph-arrow-right text-slate-400 group-hover:translate-x-0.5 transition-transform"></i>
             </div>
         </div>
-    </div>
+    </a>
 
     <!-- System Health -->
-    <div class="bento-card bg-brand-600 border border-brand-500 rounded-[6px] p-[20px] flex flex-col justify-between relative overflow-hidden">
-        <div class="absolute -top-[24px] -right-[24px] w-[96px] h-[96px] bg-white/10 blur-[32px] rounded-full pointer-events-none"></div>
-        <div class="text-[11px] font-[600] text-white/80 uppercase tracking-[0.05em] flex justify-between items-center mb-4">
-            Saúde Operacional
-            <i class="ph ph-heartbeat text-white text-[18px]"></i>
+    <a href="/Admin/Configuracoes" class="bento-card bg-brand-600 border border-brand-500 rounded-[8px] p-[18px] flex flex-col justify-between relative overflow-hidden group cursor-pointer">
+        <div class="text-[11px] font-[600] text-white/85 uppercase tracking-[0.05em] flex justify-between items-center mb-3">
+            <span>Saúde Operacional</span>
+            <i class="ph ph-heartbeat text-white text-[18px] group-hover:scale-110 transition-transform"></i>
         </div>
         <div>
-            <div class="text-[32px] font-[700] text-white leading-[1]">99.98%</div>
-            <div class="text-[11px] text-white/80 mt-1 font-[500] flex items-center gap-1">
-                Uptime do Sistema
+            <div class="text-[28px] font-[700] text-white leading-[1] tracking-tight">99.98%</div>
+            <div class="text-[11px] text-white/85 mt-1.5 font-[500] flex items-center justify-between">
+                <span>Uptime & Parâmetros</span>
+                <i class="ph ph-arrow-right text-white/70 group-hover:translate-x-0.5 transition-transform"></i>
             </div>
         </div>
-    </div>
+    </a>
 </div>
 
 <!-- Seletor de Visão Executiva Compacta (Redução de Poluição Visual) -->
@@ -396,8 +402,8 @@
 
         function initCharts() {
             const isDark = document.documentElement.classList.contains('dark');
-            const gridColor = isDark ? '#272B33' : '#e5e7eb';
-            const textColor = isDark ? '#9ca3af' : '#6b7280';
+            const gridColor = isDark ? '#1E2636' : '#F1F5F9';
+            const textColor = isDark ? '#94A3B8' : '#64748B';
 
             // Chart: Tendência de Eventos (Bar)
             const cvsTrend = document.getElementById('trendChart');
@@ -413,14 +419,14 @@
                             {
                                 label: 'Logins Normais',
                                 data: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.LoginsNormaisPorDia)),
-                                backgroundColor: '#3b82f6',
+                                backgroundColor: '#2563EB',
                                 borderRadius: 4,
                                 barThickness: 12
                             },
                             {
                                 label: 'Bloqueios (Ameaças)',
                                 data: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.BloqueiosPorDia)),
-                                backgroundColor: '#f97316',
+                                backgroundColor: '#F97316',
                                 borderRadius: 4,
                                 barThickness: 12
                             }
@@ -455,7 +461,7 @@
                         labels: ['Portal Web', 'Mobile App', 'Integrações (API)'],
                         datasets: [{
                             data: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.AcessosPlataforma)),
-                            backgroundColor: ['#3b82f6', '#10b981', '#f97316'],
+                            backgroundColor: ['#2563EB', '#10B981', '#F97316'],
                             borderWidth: 0,
                             hoverOffset: 4
                         }]
@@ -463,7 +469,7 @@
                     options: {
                         responsive: true,
                         maintainAspectRatio: false,
-                        cutout: '68%',
+                        cutout: '70%',
                         plugins: {
                             legend: {
                                 position: 'right',
@@ -481,14 +487,14 @@
                 html: '<div class="text-xs text-gray-400">Verificando latência e certificados de Microsoft 365, Google Workspace, Slack, AWS, GitHub e Cloudflare...</div>',
                 allowOutsideClick: false,
                 didOpen: () => Swal.showLoading(),
-                background: '#121418', color: '#fff'
+                background: '#111621', color: '#fff'
             });
             setTimeout(() => {
                 Swal.fire({
                     title: 'Todas as Integrações Operacionais!',
                     html: '<div class="text-xs text-left text-gray-300 space-y-1.5"><p>✓ <b>Microsoft 365 / Azure AD:</b> 24ms (OK)</p><p>✓ <b>Google Workspace:</b> 18ms (OK)</p><p>✓ <b>Slack SecOps Bot:</b> 12ms (OK)</p><p>✓ <b>AWS IAM Identity:</b> 31ms (OK)</p><p>✓ <b>GitHub Enterprise:</b> 42ms (OK)</p><p>✓ <b>Cloudflare Zero Trust / WAF:</b> 8ms (OK)</p></div>',
                     icon: 'success',
-                    background: '#121418', color: '#fff', confirmButtonColor: '#3B82F6'
+                    background: '#111621', color: '#fff', confirmButtonColor: '#3B82F6'
                 });
             }, 900);
         }
@@ -538,6 +544,10 @@
                 if (platformChart) platformChart.resize();
             }, 50);
         }
+
+        window.addEventListener('corvux-theme-changed', () => {
+            initCharts();
+        });
 
         window.addEventListener('load', () => {
             initCharts();

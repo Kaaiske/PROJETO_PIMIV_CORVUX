@@ -1,27 +1,28 @@
 <!DOCTYPE html>
-<html lang="pt-BR" class="dark">
+<html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>@ViewData["Title"] - Corvux Security</title>
     
     <!-- PWA & Mobile Web App Meta -->
-    <link rel="manifest" href="/manifest.json">
-    <meta name="theme-color" content="#2563EB">
+    <link rel="manifest" href="/manifest.json?v=20261017">
+    <meta name="theme-color" content="#FFFFFF">
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
     <!-- Favicon & Icons Oficiais Corvux Security -->
-    <link rel="icon" type="image/png" sizes="32x32" href="/icons/favicon-32x32.png?v=20261015">
-    <link rel="icon" type="image/png" sizes="16x16" href="/icons/favicon-16x16.png?v=20261015">
-    <link rel="icon" type="image/png" sizes="192x192" href="/icons/icon-192.png?v=20261015">
-    <link rel="apple-touch-icon" sizes="180x180" href="/icons/icon-192.png?v=20261015">
-    <link rel="shortcut icon" href="/favicon.ico?v=20261015" type="image/x-icon">
+    <link rel="icon" type="image/png" sizes="64x64" href="/favicon.png?v=20261017">
+    <link rel="icon" type="image/png" sizes="32x32" href="/icons/favicon-32x32.png?v=20261017">
+    <link rel="icon" type="image/png" sizes="16x16" href="/icons/favicon-16x16.png?v=20261017">
+    <link rel="icon" type="image/png" sizes="192x192" href="/icons/icon-192.png?v=20261017">
+    <link rel="apple-touch-icon" sizes="180x180" href="/icons/icon-192.png?v=20261017">
+    <link rel="shortcut icon" href="/favicon.ico?v=20261017" type="image/x-icon">
     
     <!-- Google Fonts: Inter -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -38,7 +39,7 @@
                             50: '#eff6ff', 100: '#dbeafe', 400: '#60a5fa', 500: '#3b82f6', 600: '#2563eb', 900: '#1e3a8a',
                         },
                         dark: {
-                            bg: '#090A0C', card: '#121418', border: '#272B33', hover: '#1B1F24'
+                            bg: '#0B0E14', card: '#111621', border: '#1E2636', hover: '#171E2E'
                         }
                     }
                 }
@@ -54,7 +55,8 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
     <script>
-        if (localStorage.getItem('color-theme') === 'dark' || (!('color-theme' in localStorage))) {
+        // Tema Principal Branco (Light Mode por padrão); ativa Dark Mode apenas quando escolhido pelo usuário
+        if (localStorage.getItem('corvux-theme') === 'dark') {
             document.documentElement.classList.add('dark');
         } else {
             document.documentElement.classList.remove('dark');
@@ -62,22 +64,40 @@
     </script>
 
     <style>
-        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar { width: 5px; height: 5px; }
         ::-webkit-scrollbar-track { background: transparent; }
         ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 3px; }
-        .dark ::-webkit-scrollbar-thumb { background: #333945; }
+        .dark ::-webkit-scrollbar-thumb { background: #1E2636; }
         
         body { transition: background-color 0.2s ease, color 0.2s ease; }
         
-        .bento-card { transition: border-color 200ms, box-shadow 200ms; }
-        .bento-card:hover { border-color: #d1d5db; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
-        .dark .bento-card:hover { border-color: #4b5563; box-shadow: 0 4px 12px rgba(0,0,0,0.20); }
+        /* Traços finos (Hairline 1px) e elevação sutil */
+        .bento-card {
+            border-width: 1px;
+            border-color: #E2E8F0;
+            box-shadow: 0 1px 2px rgba(15, 23, 42, 0.03);
+            transition: border-color 180ms ease, box-shadow 180ms ease, background-color 180ms ease;
+        }
+        .bento-card:hover {
+            border-color: #CBD5E1;
+            box-shadow: 0 4px 14px rgba(15, 23, 42, 0.05);
+        }
+        .dark .bento-card {
+            border-color: #1E2636;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.25);
+        }
+        .dark .bento-card:hover {
+            border-color: #2E3A52;
+            box-shadow: 0 6px 18px rgba(0, 0, 0, 0.35);
+        }
         
-        .table { width: 100%; text-align: left; }
-        .table th, .table td { padding: 12px; border-bottom: 1px solid #e5e7eb; }
-        .dark .table th, .dark .table td { border-bottom: 1px solid #272B33; color: #cbd5e1; }
-        .form-control { width: 100%; padding: 8px 12px; border: 1px solid #d1d5db; border-radius: 6px; background: transparent; }
-        .dark .form-control { border-color: #374151; background-color: #121418; color: #f3f4f6; }
+        .table { width: 100%; text-align: left; border-collapse: collapse; }
+        .table th, .table td { padding: 10px 12px; border-bottom: 1px solid #F1F5F9; }
+        .dark .table th, .dark .table td { border-bottom: 1px solid #1E2636; color: #CBD5E1; }
+        .form-control { width: 100%; padding: 7px 11px; border: 1px solid #E2E8F0; border-radius: 6px; background: #FFFFFF; color: #0F172A; transition: border-color 0.15s ease; }
+        .form-control:focus { outline: none; border-color: #2563EB; }
+        .dark .form-control { border-color: #1E2636; background-color: #0B0E14; color: #F1F5F9; }
+        .dark .form-control:focus { border-color: #3B82F6; }
 
         /* Suporte completo a Dark Mode para Selects e Dropdowns Nativos */
         html.dark, html.dark body {
@@ -88,24 +108,25 @@
         .dark select.form-control,
         select.dark-select {
             color-scheme: dark !important;
-            background-color: #121418 !important;
-            color: #f3f4f6 !important;
+            background-color: #0B0E14 !important;
+            color: #F1F5F9 !important;
+            border-color: #1E2636 !important;
             appearance: none !important;
             -webkit-appearance: none !important;
             -moz-appearance: none !important;
-            background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%239ca3af' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e") !important;
+            background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2394a3b8' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e") !important;
             background-repeat: no-repeat !important;
-            background-position: calc(100% - 14px) center !important;
-            background-size: 16px 16px !important;
-            padding-right: 2.75rem !important;
+            background-position: calc(100% - 12px) center !important;
+            background-size: 14px 14px !important;
+            padding-right: 2.5rem !important;
             cursor: pointer;
         }
 
         .dark select option, 
         .dark select optgroup,
         select.dark-select option {
-            background-color: #121418 !important;
-            color: #f3f4f6 !important;
+            background-color: #111621 !important;
+            color: #F1F5F9 !important;
             padding: 8px 12px !important;
         }
 
@@ -113,21 +134,22 @@
         html:not(.dark) select.form-control {
             color-scheme: light !important;
             background-color: #ffffff !important;
-            color: #1f2937 !important;
+            color: #0f172a !important;
+            border-color: #E2E8F0 !important;
             appearance: none !important;
             -webkit-appearance: none !important;
             -moz-appearance: none !important;
-            background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%236b7280' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e") !important;
+            background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2364748b' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e") !important;
             background-repeat: no-repeat !important;
-            background-position: calc(100% - 14px) center !important;
-            background-size: 16px 16px !important;
-            padding-right: 2.75rem !important;
+            background-position: calc(100% - 12px) center !important;
+            background-size: 14px 14px !important;
+            padding-right: 2.5rem !important;
             cursor: pointer;
         }
 
         html:not(.dark) select option {
             background-color: #ffffff !important;
-            color: #1f2937 !important;
+            color: #0f172a !important;
         }
 
         .dark input[type="text"],
@@ -136,9 +158,9 @@
         .dark input[type="number"],
         .dark input[type="search"],
         .dark textarea {
-            background-color: #121418 !important;
-            color: #f3f4f6 !important;
-            border-color: #374151 !important;
+            background-color: #0B0E14 !important;
+            color: #F1F5F9 !important;
+            border-color: #1E2636 !important;
         }
 
         /* Acessibilidade WCAG 2.2 / Alto Contraste */
@@ -160,156 +182,180 @@
     @RenderSection("Styles", required: false)
 </head>
 
-<body class="bg-gray-100 text-slate-800 dark:bg-dark-bg dark:text-slate-300 h-screen flex overflow-hidden antialiased text-[13px]">
+<body class="bg-[#F8FAFC] text-slate-800 dark:bg-dark-bg dark:text-slate-200 h-screen flex overflow-hidden antialiased text-[13px]">
 
     <!-- Hidden Anti-Forgery Form para todas as requisições AJAX do sistema -->
     <form id="__afForm" style="display:none">@Html.AntiForgeryToken()</form>
 
     <!-- Backdrop para Mobile -->
-    <div id="mobileBackdrop" onclick="fecharMobileMenu()" class="fixed inset-0 bg-black/70 z-40 hidden md:hidden backdrop-blur-sm transition-opacity"></div>
+    <div id="mobileBackdrop" onclick="fecharMobileMenu()" class="fixed inset-0 bg-slate-900/60 z-40 hidden md:hidden backdrop-blur-sm transition-opacity"></div>
 
-    <aside id="appSidebar" class="fixed inset-y-0 left-0 z-50 w-64 bg-white dark:bg-dark-card border-r border-gray-200 dark:border-dark-border flex flex-col justify-between transition-transform duration-300 transform -translate-x-full md:translate-x-0 md:static md:w-16 md:hover:w-64 md:flex-shrink-0 group overflow-hidden">
+    <aside id="appSidebar" class="fixed inset-y-0 left-0 z-50 w-64 bg-white dark:bg-dark-card border-r border-slate-200/80 dark:border-dark-border flex flex-col justify-between transition-all duration-300 transform -translate-x-full md:translate-x-0 md:static md:w-16 md:hover:w-64 md:flex-shrink-0 group overflow-hidden">
         <div class="flex flex-col h-full w-64">
             <!-- Logo & Botão Fechar Mobile -->
-            <div class="h-14 flex items-center justify-between px-4 border-b border-gray-200 dark:border-dark-border">
+            <div class="h-14 flex items-center justify-between px-4 border-b border-slate-200/80 dark:border-dark-border">
                 <a href="/Admin/Index" class="flex items-center gap-3 p-1 rounded-md cursor-pointer">
-                    <img src="/icons/corvus-logo.png?v=20261015" alt="Corvux Logo" class="w-8 h-8 rounded-lg flex-shrink-0 object-cover shadow-sm border border-white/10">
-                    <span class="font-bold text-gray-900 dark:text-white tracking-tight md:opacity-0 md:group-hover:opacity-100 transition-opacity whitespace-nowrap">Corvux Security</span>
+                    <img src="/icons/corvus-logo-light.png?v=20261017" alt="Corvux Logo" class="w-8 h-8 rounded-lg flex-shrink-0 object-contain border border-slate-200/80 block dark:hidden">
+                    <img src="/icons/corvus-logo-dark.png?v=20261017" alt="Corvux Logo" class="w-8 h-8 rounded-lg flex-shrink-0 object-contain border border-dark-border hidden dark:block">
+                    <span class="font-semibold text-slate-900 dark:text-white tracking-tight md:opacity-0 md:group-hover:opacity-100 transition-opacity whitespace-nowrap">Corvux Security</span>
                 </a>
-                <button type="button" onclick="fecharMobileMenu()" class="md:hidden text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white p-1 rounded-[6px] transition-colors" title="Fechar Menu">
+                <button type="button" onclick="fecharMobileMenu()" class="md:hidden text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white p-1 rounded-[6px] transition-colors" title="Fechar Menu">
                     <i class="ph ph-x text-[18px]"></i>
                 </button>
             </div>
 
             <!-- Navegação -->
-            <nav class="flex-1 py-4 px-3 space-y-1.5 overflow-y-auto">
-                <div class="text-[11px] font-semibold text-gray-400 uppercase tracking-[0.05em] px-2 mb-1.5 md:opacity-0 md:group-hover:opacity-100 transition-opacity">Dashboard</div>
+            <nav class="flex-1 py-3.5 px-3 space-y-1 overflow-y-auto">
+                <div class="text-[10px] font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-[0.06em] px-2 mb-1 md:opacity-0 md:group-hover:opacity-100 transition-opacity">Dashboard</div>
                 @if(User.IsInRole("Admin")) { 
-                <a id="nav-visao-geral" href="/Admin/Index" onclick="if(window.innerWidth < 768) fecharMobileMenu()" class="flex items-center gap-3 px-2 py-2 rounded-md transition-colors group/item @(ViewContext.RouteData.Values["Action"]?.ToString() == "Index" ? "bg-gray-100 dark:bg-dark-hover text-gray-900 dark:text-white font-medium" : "text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-dark-hover hover:text-gray-900 dark:hover:text-white")">
-                    <i class="ph ph-squares-four text-[18px] flex-shrink-0 @(ViewContext.RouteData.Values["Action"]?.ToString() == "Index" ? "text-brand-600 dark:text-brand-500" : "")"></i>
+                <a id="nav-visao-geral" href="/Admin/Index" onclick="if(window.innerWidth < 768) fecharMobileMenu()" class="flex items-center gap-3 px-2 py-1.5 rounded-md transition-colors group/item @(ViewContext.RouteData.Values["Action"]?.ToString() == "Index" && ViewContext.RouteData.Values["Controller"]?.ToString() == "Admin" ? "bg-brand-50/80 dark:bg-dark-hover text-brand-600 dark:text-white font-medium border border-brand-200/60 dark:border-dark-border" : "text-slate-600 dark:text-slate-400 hover:bg-slate-100/80 dark:hover:bg-dark-hover hover:text-slate-900 dark:hover:text-white")">
+                    <i class="ph ph-squares-four text-[17px] flex-shrink-0 @(ViewContext.RouteData.Values["Action"]?.ToString() == "Index" ? "text-brand-600 dark:text-brand-400" : "")"></i>
                     <span class="md:opacity-0 md:group-hover:opacity-100 transition-opacity whitespace-nowrap">Visão Geral</span>
                 </a> }
                 
-                <div class="text-[11px] font-semibold text-gray-400 uppercase tracking-[0.05em] px-2 mb-1.5 mt-3 md:opacity-0 md:group-hover:opacity-100 transition-opacity">Gerenciamento</div>
+                <div class="text-[10px] font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-[0.06em] px-2 mb-1 mt-2.5 md:opacity-0 md:group-hover:opacity-100 transition-opacity">Gerenciamento</div>
                 @if(User.IsInRole("Admin") || User.IsInRole("Recursos Humanos")) { 
-                <a id="nav-usuarios" href="/Admin/Usuarios" onclick="if(window.innerWidth < 768) fecharMobileMenu()" class="flex items-center gap-3 px-2 py-2 rounded-md transition-colors group/item @(ViewContext.RouteData.Values["Action"]?.ToString() == "Usuarios" ? "bg-gray-100 dark:bg-dark-hover text-gray-900 dark:text-white font-medium" : "text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-dark-hover hover:text-gray-900 dark:hover:text-white")">
-                    <i class="ph ph-users text-[18px] flex-shrink-0 @(ViewContext.RouteData.Values["Action"]?.ToString() == "Usuarios" ? "text-brand-600 dark:text-brand-500" : "")"></i>
+                <a id="nav-usuarios" href="/Admin/Usuarios" onclick="if(window.innerWidth < 768) fecharMobileMenu()" class="flex items-center gap-3 px-2 py-1.5 rounded-md transition-colors group/item @(ViewContext.RouteData.Values["Action"]?.ToString() == "Usuarios" ? "bg-brand-50/80 dark:bg-dark-hover text-brand-600 dark:text-white font-medium border border-brand-200/60 dark:border-dark-border" : "text-slate-600 dark:text-slate-400 hover:bg-slate-100/80 dark:hover:bg-dark-hover hover:text-slate-900 dark:hover:text-white")">
+                    <i class="ph ph-users text-[17px] flex-shrink-0 @(ViewContext.RouteData.Values["Action"]?.ToString() == "Usuarios" ? "text-brand-600 dark:text-brand-400" : "")"></i>
                     <span class="md:opacity-0 md:group-hover:opacity-100 transition-opacity whitespace-nowrap">Diretório de Usuários</span>
                 </a> }
                 @if(User.IsInRole("Admin")) { 
-                <a id="nav-politicas" href="/Admin/Politicas" onclick="if(window.innerWidth < 768) fecharMobileMenu()" class="flex items-center gap-3 px-2 py-2 rounded-md transition-colors group/item @(ViewContext.RouteData.Values["Action"]?.ToString() == "Politicas" ? "bg-gray-100 dark:bg-dark-hover text-gray-900 dark:text-white font-medium" : "text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-dark-hover hover:text-gray-900 dark:hover:text-white")">
-                    <i class="ph ph-shield-check text-[18px] flex-shrink-0 @(ViewContext.RouteData.Values["Action"]?.ToString() == "Politicas" ? "text-brand-600 dark:text-brand-500" : "")"></i>
+                <a id="nav-politicas" href="/Admin/Politicas" onclick="if(window.innerWidth < 768) fecharMobileMenu()" class="flex items-center gap-3 px-2 py-1.5 rounded-md transition-colors group/item @(ViewContext.RouteData.Values["Action"]?.ToString() == "Politicas" ? "bg-brand-50/80 dark:bg-dark-hover text-brand-600 dark:text-white font-medium border border-brand-200/60 dark:border-dark-border" : "text-slate-600 dark:text-slate-400 hover:bg-slate-100/80 dark:hover:bg-dark-hover hover:text-slate-900 dark:hover:text-white")">
+                    <i class="ph ph-shield-check text-[17px] flex-shrink-0 @(ViewContext.RouteData.Values["Action"]?.ToString() == "Politicas" ? "text-brand-600 dark:text-brand-400" : "")"></i>
                     <span class="md:opacity-0 md:group-hover:opacity-100 transition-opacity whitespace-nowrap">Políticas de Acesso</span>
                 </a> 
-                <a id="nav-perfis" href="/Admin/Perfis" onclick="if(window.innerWidth < 768) fecharMobileMenu()" class="flex items-center gap-3 px-2 py-2 rounded-md transition-colors group/item @(ViewContext.RouteData.Values["Action"]?.ToString() == "Perfis" ? "bg-gray-100 dark:bg-dark-hover text-gray-900 dark:text-white font-medium" : "text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-dark-hover hover:text-gray-900 dark:hover:text-white")">
-                    <i class="ph ph-identification-card text-[18px] flex-shrink-0 @(ViewContext.RouteData.Values["Action"]?.ToString() == "Perfis" ? "text-brand-600 dark:text-brand-500" : "")"></i>
+                <a id="nav-perfis" href="/Admin/Perfis" onclick="if(window.innerWidth < 768) fecharMobileMenu()" class="flex items-center gap-3 px-2 py-1.5 rounded-md transition-colors group/item @(ViewContext.RouteData.Values["Action"]?.ToString() == "Perfis" ? "bg-brand-50/80 dark:bg-dark-hover text-brand-600 dark:text-white font-medium border border-brand-200/60 dark:border-dark-border" : "text-slate-600 dark:text-slate-400 hover:bg-slate-100/80 dark:hover:bg-dark-hover hover:text-slate-900 dark:hover:text-white")">
+                    <i class="ph ph-identification-card text-[17px] flex-shrink-0 @(ViewContext.RouteData.Values["Action"]?.ToString() == "Perfis" ? "text-brand-600 dark:text-brand-400" : "")"></i>
                     <span class="md:opacity-0 md:group-hover:opacity-100 transition-opacity whitespace-nowrap">Perfis & Permissões</span>
                 </a> }
                 
-                <div class="text-[11px] font-semibold text-gray-400 uppercase tracking-[0.05em] px-2 mb-1.5 mt-3 md:opacity-0 md:group-hover:opacity-100 transition-opacity">Operações</div>
+                <div class="text-[10px] font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-[0.06em] px-2 mb-1 mt-2.5 md:opacity-0 md:group-hover:opacity-100 transition-opacity">Operações</div>
                 @if(User.IsInRole("Admin") || User.IsInRole("Help Desk")) { 
-                <a id="nav-chamados" href="/Admin/Chamados" onclick="if(window.innerWidth < 768) fecharMobileMenu()" class="flex items-center gap-3 px-2 py-2 rounded-md transition-colors group/item @(ViewContext.RouteData.Values["Action"]?.ToString() == "Chamados" ? "bg-gray-100 dark:bg-dark-hover text-gray-900 dark:text-white font-medium" : "text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-dark-hover hover:text-gray-900 dark:hover:text-white")">
+                <a id="nav-chamados" href="/Admin/Chamados" onclick="if(window.innerWidth < 768) fecharMobileMenu()" class="flex items-center gap-3 px-2 py-1.5 rounded-md transition-colors group/item @(ViewContext.RouteData.Values["Action"]?.ToString() == "Chamados" ? "bg-brand-50/80 dark:bg-dark-hover text-brand-600 dark:text-white font-medium border border-brand-200/60 dark:border-dark-border" : "text-slate-600 dark:text-slate-400 hover:bg-slate-100/80 dark:hover:bg-dark-hover hover:text-slate-900 dark:hover:text-white")">
                     <div class="relative flex-shrink-0">
-                        <i class="ph ph-headset text-[18px] @(ViewContext.RouteData.Values["Action"]?.ToString() == "Chamados" ? "text-brand-600 dark:text-brand-500" : "")"></i>
-                        <div class="absolute -top-1 -right-1 w-2 h-2 bg-brand-500 rounded-full border border-white dark:border-dark-card"></div>
+                        <i class="ph ph-headset text-[17px] @(ViewContext.RouteData.Values["Action"]?.ToString() == "Chamados" ? "text-brand-600 dark:text-brand-400" : "")"></i>
+                        <div class="absolute -top-0.5 -right-0.5 w-1.5 h-1.5 bg-brand-500 rounded-full"></div>
                     </div>
                     <span class="md:opacity-0 md:group-hover:opacity-100 transition-opacity whitespace-nowrap">Fila de Chamados</span>
                 </a> }
                 @if(User.IsInRole("Admin")) { 
-                <a id="nav-cloud" href="/Admin/Cloud" onclick="if(window.innerWidth < 768) fecharMobileMenu()" class="flex items-center gap-3 px-2 py-2 rounded-md transition-colors group/item @(ViewContext.RouteData.Values["Action"]?.ToString() == "Cloud" ? "bg-gray-100 dark:bg-dark-hover text-gray-900 dark:text-white font-medium" : "text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-dark-hover hover:text-gray-900 dark:hover:text-white")">
-                    <i class="ph ph-desktop text-[18px] flex-shrink-0 @(ViewContext.RouteData.Values["Action"]?.ToString() == "Cloud" ? "text-brand-600 dark:text-brand-500" : "")"></i>
+                <a id="nav-cloud" href="/Admin/Cloud" onclick="if(window.innerWidth < 768) fecharMobileMenu()" class="flex items-center gap-3 px-2 py-1.5 rounded-md transition-colors group/item @(ViewContext.RouteData.Values["Action"]?.ToString() == "Cloud" ? "bg-brand-50/80 dark:bg-dark-hover text-brand-600 dark:text-white font-medium border border-brand-200/60 dark:border-dark-border" : "text-slate-600 dark:text-slate-400 hover:bg-slate-100/80 dark:hover:bg-dark-hover hover:text-slate-900 dark:hover:text-white")">
+                    <i class="ph ph-desktop text-[17px] flex-shrink-0 @(ViewContext.RouteData.Values["Action"]?.ToString() == "Cloud" ? "text-brand-600 dark:text-brand-400" : "")"></i>
                     <span class="md:opacity-0 md:group-hover:opacity-100 transition-opacity whitespace-nowrap">Infraestrutura & Endpoints</span>
                 </a> 
-                <a id="nav-integracoes" href="/Admin/Integracoes" onclick="if(window.innerWidth < 768) fecharMobileMenu()" class="flex items-center gap-3 px-2 py-2 rounded-md transition-colors group/item @(ViewContext.RouteData.Values["Action"]?.ToString() == "Integracoes" ? "bg-gray-100 dark:bg-dark-hover text-gray-900 dark:text-white font-medium" : "text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-dark-hover hover:text-gray-900 dark:hover:text-white")">
-                    <i class="ph ph-plugs-connected text-[18px] flex-shrink-0 @(ViewContext.RouteData.Values["Action"]?.ToString() == "Integracoes" ? "text-brand-600 dark:text-brand-500" : "")"></i>
+                <a id="nav-integracoes" href="/Admin/Integracoes" onclick="if(window.innerWidth < 768) fecharMobileMenu()" class="flex items-center gap-3 px-2 py-1.5 rounded-md transition-colors group/item @(ViewContext.RouteData.Values["Action"]?.ToString() == "Integracoes" ? "bg-brand-50/80 dark:bg-dark-hover text-brand-600 dark:text-white font-medium border border-brand-200/60 dark:border-dark-border" : "text-slate-600 dark:text-slate-400 hover:bg-slate-100/80 dark:hover:bg-dark-hover hover:text-slate-900 dark:hover:text-white")">
+                    <i class="ph ph-plugs-connected text-[17px] flex-shrink-0 @(ViewContext.RouteData.Values["Action"]?.ToString() == "Integracoes" ? "text-brand-600 dark:text-brand-400" : "")"></i>
                     <span class="md:opacity-0 md:group-hover:opacity-100 transition-opacity whitespace-nowrap">Módulos & APIs</span>
                 </a> }
                 
-                <div class="text-[11px] font-semibold text-gray-400 uppercase tracking-[0.05em] px-2 mb-1.5 mt-3 md:opacity-0 md:group-hover:opacity-100 transition-opacity">Sistema</div>
+                <div class="text-[10px] font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-[0.06em] px-2 mb-1 mt-2.5 md:opacity-0 md:group-hover:opacity-100 transition-opacity">Sistema</div>
                 @if(User.IsInRole("Admin")) { 
-                <a id="nav-logs" href="/Admin/Logs" onclick="if(window.innerWidth < 768) fecharMobileMenu()" class="flex items-center gap-3 px-2 py-2 rounded-md transition-colors group/item @(ViewContext.RouteData.Values["Action"]?.ToString() == "Logs" ? "bg-gray-100 dark:bg-dark-hover text-gray-900 dark:text-white font-medium" : "text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-dark-hover hover:text-gray-900 dark:hover:text-white")">
-                    <i class="ph ph-list-magnifying-glass text-[18px] flex-shrink-0 @(ViewContext.RouteData.Values["Action"]?.ToString() == "Logs" ? "text-brand-600 dark:text-brand-500" : "")"></i>
+                <a id="nav-logs" href="/Admin/Logs" onclick="if(window.innerWidth < 768) fecharMobileMenu()" class="flex items-center gap-3 px-2 py-1.5 rounded-md transition-colors group/item @(ViewContext.RouteData.Values["Action"]?.ToString() == "Logs" ? "bg-brand-50/80 dark:bg-dark-hover text-brand-600 dark:text-white font-medium border border-brand-200/60 dark:border-dark-border" : "text-slate-600 dark:text-slate-400 hover:bg-slate-100/80 dark:hover:bg-dark-hover hover:text-slate-900 dark:hover:text-white")">
+                    <i class="ph ph-list-magnifying-glass text-[17px] flex-shrink-0 @(ViewContext.RouteData.Values["Action"]?.ToString() == "Logs" ? "text-brand-600 dark:text-brand-400" : "")"></i>
                     <span class="md:opacity-0 md:group-hover:opacity-100 transition-opacity whitespace-nowrap">Audit Logs</span>
                 </a> 
-                <a id="nav-secops" href="/Admin/Inteligencia" onclick="if(window.innerWidth < 768) fecharMobileMenu()" class="flex items-center gap-3 px-2 py-2 rounded-md transition-colors group/item @(ViewContext.RouteData.Values["Action"]?.ToString() == "Inteligencia" ? "bg-gray-100 dark:bg-dark-hover text-gray-900 dark:text-white font-medium" : "text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-dark-hover hover:text-gray-900 dark:hover:text-white")">
-                    <i class="ph ph-shield-warning text-[18px] flex-shrink-0 text-brand-500"></i>
-                    <span class="md:opacity-0 md:group-hover:opacity-100 transition-opacity whitespace-nowrap text-brand-500 font-medium">SecOps AI & Defesa</span>
+                <a id="nav-secops" href="/Admin/Inteligencia" onclick="if(window.innerWidth < 768) fecharMobileMenu()" class="flex items-center gap-3 px-2 py-1.5 rounded-md transition-colors group/item @(ViewContext.RouteData.Values["Action"]?.ToString() == "Inteligencia" ? "bg-brand-50/80 dark:bg-dark-hover text-brand-600 dark:text-white font-medium border border-brand-200/60 dark:border-dark-border" : "text-slate-600 dark:text-slate-400 hover:bg-slate-100/80 dark:hover:bg-dark-hover hover:text-slate-900 dark:hover:text-white")">
+                    <i class="ph ph-shield-warning text-[17px] flex-shrink-0 text-brand-600 dark:text-brand-400"></i>
+                    <span class="md:opacity-0 md:group-hover:opacity-100 transition-opacity whitespace-nowrap text-brand-600 dark:text-brand-400 font-medium">SecOps AI & Defesa</span>
                 </a> 
-                <a id="nav-configuracoes" href="/Admin/Configuracoes" onclick="if(window.innerWidth < 768) fecharMobileMenu()" class="flex items-center gap-3 px-2 py-2 rounded-md transition-colors group/item @(ViewContext.RouteData.Values["Action"]?.ToString() == "Configuracoes" ? "bg-gray-100 dark:bg-dark-hover text-gray-900 dark:text-white font-medium" : "text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-dark-hover hover:text-gray-900 dark:hover:text-white")">
-                    <i class="ph ph-gear text-[18px] flex-shrink-0 @(ViewContext.RouteData.Values["Action"]?.ToString() == "Configuracoes" ? "text-brand-600 dark:text-brand-500" : "")"></i>
+                <a id="nav-configuracoes" href="/Admin/Configuracoes" onclick="if(window.innerWidth < 768) fecharMobileMenu()" class="flex items-center gap-3 px-2 py-1.5 rounded-md transition-colors group/item @(ViewContext.RouteData.Values["Action"]?.ToString() == "Configuracoes" ? "bg-brand-50/80 dark:bg-dark-hover text-brand-600 dark:text-white font-medium border border-brand-200/60 dark:border-dark-border" : "text-slate-600 dark:text-slate-400 hover:bg-slate-100/80 dark:hover:bg-dark-hover hover:text-slate-900 dark:hover:text-white")">
+                    <i class="ph ph-gear text-[17px] flex-shrink-0 @(ViewContext.RouteData.Values["Action"]?.ToString() == "Configuracoes" ? "text-brand-600 dark:text-brand-400" : "")"></i>
                     <span class="md:opacity-0 md:group-hover:opacity-100 transition-opacity whitespace-nowrap">Configurações</span>
                 </a> }
+
+                <div class="text-[10px] font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-[0.06em] px-2 mb-1 mt-2.5 md:opacity-0 md:group-hover:opacity-100 transition-opacity">Portais & Fluxos</div>
+                <a href="/Portal/MinhaConta" onclick="if(window.innerWidth < 768) fecharMobileMenu()" class="flex items-center gap-3 px-2 py-1.5 rounded-md transition-colors text-slate-600 dark:text-slate-400 hover:bg-slate-100/80 dark:hover:bg-dark-hover hover:text-slate-900 dark:hover:text-white">
+                    <i class="ph ph-user-circle text-[17px] flex-shrink-0"></i>
+                    <span class="md:opacity-0 md:group-hover:opacity-100 transition-opacity whitespace-nowrap">Portal do Colaborador</span>
+                </a>
+                @if(User.IsInRole("Admin") || User.IsInRole("Recursos Humanos")) {
+                <a href="/Portal/RH" onclick="if(window.innerWidth < 768) fecharMobileMenu()" class="flex items-center gap-3 px-2 py-1.5 rounded-md transition-colors text-slate-600 dark:text-slate-400 hover:bg-slate-100/80 dark:hover:bg-dark-hover hover:text-slate-900 dark:hover:text-white">
+                    <i class="ph ph-briefcase text-[17px] flex-shrink-0"></i>
+                    <span class="md:opacity-0 md:group-hover:opacity-100 transition-opacity whitespace-nowrap">Portal RH & Admissão</span>
+                </a> }
+                @if(User.IsInRole("Admin") || User.IsInRole("Contabilidade")) {
+                <a href="/Portal/Contabilidade" onclick="if(window.innerWidth < 768) fecharMobileMenu()" class="flex items-center gap-3 px-2 py-1.5 rounded-md transition-colors text-slate-600 dark:text-slate-400 hover:bg-slate-100/80 dark:hover:bg-dark-hover hover:text-slate-900 dark:hover:text-white">
+                    <i class="ph ph-chart-line-up text-[17px] flex-shrink-0"></i>
+                    <span class="md:opacity-0 md:group-hover:opacity-100 transition-opacity whitespace-nowrap">Portal Contábil & Fiscal</span>
+                </a> }
+                <a href="/Mobile/Index" onclick="if(window.innerWidth < 768) fecharMobileMenu()" class="flex items-center gap-3 px-2 py-1.5 rounded-md transition-colors text-slate-600 dark:text-slate-400 hover:bg-slate-100/80 dark:hover:bg-dark-hover hover:text-slate-900 dark:hover:text-white">
+                    <i class="ph ph-device-mobile text-[17px] flex-shrink-0"></i>
+                    <span class="md:opacity-0 md:group-hover:opacity-100 transition-opacity whitespace-nowrap">Corvux Mobile / PWA</span>
+                </a>
             </nav>
 
             <!-- Bottom Actions -->
-            <div class="p-3 border-t border-gray-200 dark:border-dark-border flex flex-col gap-1">
-                <a href="/Portal/MinhaConta" onclick="if(window.innerWidth < 768) fecharMobileMenu()" class="flex items-center gap-3 px-2 py-2 rounded-md text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-dark-hover hover:text-gray-900 dark:hover:text-white transition-colors" title="Meu Perfil">
-                    <div class="w-8 h-8 rounded-md bg-brand-600 flex-shrink-0 flex items-center justify-center text-white font-bold text-[11px]">AD</div>
+            <div class="p-3 border-t border-slate-200/80 dark:border-dark-border flex flex-col gap-1">
+                <a href="/Portal/MinhaConta" onclick="if(window.innerWidth < 768) fecharMobileMenu()" class="flex items-center gap-3 px-2 py-1.5 rounded-md text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-dark-hover hover:text-slate-900 dark:hover:text-white transition-colors" title="Meu Perfil">
+                    <div class="w-7 h-7 rounded-md bg-brand-600 flex-shrink-0 flex items-center justify-center text-white font-semibold text-[11px]">AD</div>
                     <div class="flex-1 overflow-hidden md:opacity-0 md:group-hover:opacity-100 transition-opacity">
-                        <p class="text-[13px] font-medium text-gray-900 dark:text-white truncate">@(User.Identity?.Name ?? Context.Request.Cookies["LoggedUser"] ?? "Administrador")</p>
-                        <p class="text-[10px] text-gray-400">Minha Conta</p>
+                        <p class="text-[12px] font-medium text-slate-900 dark:text-white truncate">@(User.Identity?.Name ?? Context.Request.Cookies["LoggedUser"] ?? "Administrador")</p>
+                        <p class="text-[10px] text-slate-400">Minha Conta Zero Trust</p>
                     </div>
                 </a>
-                <a href="/Auth/Logout" class="flex items-center gap-3 px-2 py-1.5 rounded-md text-red-500 hover:bg-red-500/10 transition-colors" title="Sair do Sistema">
-                    <i class="ph ph-sign-out text-[18px] flex-shrink-0"></i>
+                <a href="/Auth/Logout" class="flex items-center gap-3 px-2 py-1.5 rounded-md text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-500/10 transition-colors" title="Sair do Sistema">
+                    <i class="ph ph-sign-out text-[17px] flex-shrink-0"></i>
                     <span class="md:opacity-0 md:group-hover:opacity-100 transition-opacity whitespace-nowrap text-[12px] font-medium">Encerrar Sessão</span>
                 </a>
             </div>
         </div>
     </aside>
 
-    <main class="flex-1 flex flex-col min-w-0 bg-gray-50 dark:bg-dark-bg w-full transition-all">
+    <main class="flex-1 flex flex-col min-w-0 bg-[#F8FAFC] dark:bg-dark-bg w-full transition-all">
         
         <!-- Header Responsivo -->
-        <header class="h-14 bg-white/50 dark:bg-dark-card/50 backdrop-blur-md border-b border-gray-200 dark:border-dark-border flex items-center justify-between px-3 sm:px-6 flex-shrink-0 sticky top-0 z-20">
-            <div class="flex items-center gap-2 sm:gap-4 min-w-0">
+        <header class="h-14 bg-white/85 dark:bg-dark-card/85 backdrop-blur-md border-b border-slate-200/80 dark:border-dark-border flex items-center justify-between px-3 sm:px-6 flex-shrink-0 sticky top-0 z-20">
+            <div class="flex items-center gap-2 sm:gap-3.5 min-w-0">
                 <!-- Botão Menu Hambúrguer (Mobile) -->
-                <button type="button" onclick="abrirMobileMenu()" class="md:hidden p-1.5 -ml-1 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-dark-hover rounded-[6px] transition-colors cursor-pointer" aria-label="Abrir Menu">
-                    <i class="ph ph-list text-[22px]"></i>
+                <button type="button" onclick="abrirMobileMenu()" class="md:hidden p-1.5 -ml-1 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-dark-hover rounded-[6px] transition-colors cursor-pointer" aria-label="Abrir Menu">
+                    <i class="ph ph-list text-[20px]"></i>
                 </button>
-                <img src="/icons/corvus-logo.png?v=20261015" alt="Corvux Logo" class="md:hidden w-7 h-7 rounded-md object-cover shadow-sm flex-shrink-0 border border-white/10">
-                <h1 class="font-semibold text-gray-900 dark:text-white text-[14px] sm:text-[16px] truncate">@ViewData["Title"]</h1>
-                <div class="hidden sm:block h-4 w-px bg-gray-300 dark:bg-gray-700"></div>
-                <span class="hidden sm:flex text-[12px] font-medium text-emerald-600 dark:text-emerald-500 items-center gap-1.5 uppercase tracking-wider">
-                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span> Sistema Operacional
+                <img src="/icons/corvus-logo-light.png?v=20261017" alt="Corvux Logo" class="md:hidden w-7 h-7 rounded-md object-contain flex-shrink-0 border border-slate-200 block dark:hidden">
+                <img src="/icons/corvus-logo-dark.png?v=20261017" alt="Corvux Logo" class="md:hidden w-7 h-7 rounded-md object-contain flex-shrink-0 border border-dark-border hidden dark:block">
+                <h1 class="font-semibold text-slate-900 dark:text-white text-[14px] sm:text-[15px] tracking-tight truncate">@ViewData["Title"]</h1>
+                <div class="hidden sm:block h-3.5 w-px bg-slate-200 dark:bg-dark-border"></div>
+                <span class="hidden sm:flex text-[11px] font-medium text-emerald-600 dark:text-emerald-400 items-center gap-1.5 uppercase tracking-wider">
+                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span> Zero Trust Ativo
                 </span>
             </div>
 
-            <div class="flex items-center gap-1.5 sm:gap-3 flex-shrink-0">
-                <!-- Barra de Busca Global Funcional -->
-                <div class="relative hidden lg:block w-64 h-8">
-                    <i class="ph ph-magnifying-glass absolute left-2.5 top-1/2 -translate-y-1/2 text-gray-400"></i>
-                    <input type="text" id="globalSearchInput" placeholder="Buscar ID, IP ou colaborador..." class="w-full h-full bg-gray-100 dark:bg-dark-bg border border-gray-200 dark:border-dark-border text-gray-900 dark:text-gray-100 text-[12px] rounded-[6px] pl-8 pr-3 focus:outline-none focus:border-brand-500 focus:ring-1 focus:ring-brand-500 transition-all">
+            <div class="flex items-center gap-1.5 sm:gap-2.5 flex-shrink-0">
+                <!-- Barra de Busca Global / Command Palette Funcional -->
+                <div class="relative hidden lg:block w-72 h-8">
+                    <i class="ph ph-magnifying-glass absolute left-2.5 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
+                    <input type="text" id="globalSearchInput" autocomplete="off" placeholder="Ir para módulo, IP ou usuário (Ctrl+K)..." class="w-full h-full bg-slate-50 dark:bg-dark-bg border border-slate-200/90 dark:border-dark-border text-slate-900 dark:text-slate-100 text-[12px] rounded-[6px] pl-8 pr-3 focus:outline-none focus:border-brand-500 focus:bg-white transition-all">
+                    <!-- Quick Jump Command Dropdown -->
+                    <div id="globalCommandDropdown" class="hidden absolute left-0 right-0 top-9 bg-white dark:bg-dark-card border border-slate-200 dark:border-dark-border rounded-lg shadow-xl z-50 py-1.5 max-h-72 overflow-y-auto text-[12px]"></div>
                 </div>
                 
                 <!-- Controles de Acessibilidade (WCAG 2.2 / Etapa 3 PIM IV) -->
-                <div class="hidden sm:flex items-center gap-0.5 bg-gray-100 dark:bg-dark-card border border-gray-200 dark:border-dark-border rounded-[6px] p-0.5" title="Acessibilidade & Inclusão (WCAG 2.2)">
-                    <button type="button" onclick="alterarTamanhoFonte(1)" class="w-7 h-7 flex items-center justify-center rounded text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-dark-border text-xs font-bold transition-colors cursor-pointer" title="Aumentar Fonte (A+)">A+</button>
-                    <button type="button" onclick="alterarTamanhoFonte(-1)" class="w-7 h-7 flex items-center justify-center rounded text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-dark-border text-xs font-bold transition-colors cursor-pointer" title="Diminuir Fonte (A-)">A-</button>
-                    <button type="button" onclick="alternarAltoContraste()" class="w-7 h-7 flex items-center justify-center rounded text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-dark-border text-xs transition-colors cursor-pointer" title="Alternar Modo Alto Contraste">
+                <div class="hidden sm:flex items-center gap-0.5 bg-slate-50 dark:bg-dark-bg border border-slate-200/90 dark:border-dark-border rounded-[6px] p-0.5" title="Acessibilidade & Inclusão (WCAG 2.2)">
+                    <button type="button" onclick="alterarTamanhoFonte(1)" class="w-7 h-7 flex items-center justify-center rounded text-slate-600 dark:text-slate-300 hover:bg-slate-200/70 dark:hover:bg-dark-hover text-xs font-semibold transition-colors cursor-pointer" title="Aumentar Fonte (A+)">A+</button>
+                    <button type="button" onclick="alterarTamanhoFonte(-1)" class="w-7 h-7 flex items-center justify-center rounded text-slate-600 dark:text-slate-300 hover:bg-slate-200/70 dark:hover:bg-dark-hover text-xs font-semibold transition-colors cursor-pointer" title="Diminuir Fonte (A-)">A-</button>
+                    <button type="button" onclick="alternarAltoContraste()" class="w-7 h-7 flex items-center justify-center rounded text-slate-600 dark:text-slate-300 hover:bg-slate-200/70 dark:hover:bg-dark-hover text-xs transition-colors cursor-pointer" title="Alternar Modo Alto Contraste">
                         <i class="ph ph-circle-half text-[15px]"></i>
                     </button>
                 </div>
                 
                 <!-- Botão Alternador de Tema -->
-                <button id="theme-toggle" class="w-8 h-8 flex items-center justify-center rounded-[6px] border border-gray-200 dark:border-dark-border bg-white dark:bg-dark-card text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white transition-colors cursor-pointer" title="Alternar Tema Claro/Escuro">
-                    <i id="theme-toggle-dark-icon" class="ph ph-moon text-[16px] hidden"></i>
-                    <i id="theme-toggle-light-icon" class="ph ph-sun text-[16px] hidden"></i>
+                <button id="theme-toggle" class="w-8 h-8 flex items-center justify-center rounded-[6px] border border-slate-200/90 dark:border-dark-border bg-white dark:bg-dark-bg text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white transition-colors cursor-pointer" title="Alternar Tema Claro/Escuro">
+                    <i id="theme-toggle-dark-icon" class="ph ph-moon text-[15px] hidden"></i>
+                    <i id="theme-toggle-light-icon" class="ph ph-sun text-[15px] hidden"></i>
                 </button>
 
                 <!-- Botão Guia do Sistema / Tour Interativo -->
-                <button type="button" onclick="iniciarTourInterativo()" class="border border-brand-500/30 bg-brand-500/10 hover:bg-brand-500/20 text-brand-400 text-[12px] font-medium px-2.5 sm:px-3 py-1.5 rounded-[6px] transition-colors flex items-center gap-1.5 cursor-pointer" title="Guia Passo a Passo do Sistema CorvuxIAM">
-                    <i class="ph ph-compass font-bold text-sm"></i> <span class="hidden sm:inline">Guia do Sistema</span>
+                <button type="button" onclick="iniciarTourInterativo()" class="border border-brand-500/30 bg-brand-50/70 dark:bg-brand-500/10 hover:bg-brand-100/70 dark:hover:bg-brand-500/20 text-brand-600 dark:text-brand-400 text-[12px] font-medium px-2.5 sm:px-3 py-1.5 rounded-[6px] transition-colors flex items-center gap-1.5 cursor-pointer" title="Guia Passo a Passo do Sistema CorvuxIAM">
+                    <i class="ph ph-compass text-sm"></i> <span class="hidden sm:inline">Guia do Sistema</span>
                 </button>
                 
                 <!-- Botão + Nova Issue / Chamado Totalmente Funcional -->
-                <button type="button" onclick="abrirModalNovaIssue()" class="bg-brand-600 hover:bg-[#1D4ED8] text-white text-[12px] font-medium px-2.5 sm:px-3.5 py-1.5 rounded-[6px] shadow-sm transition-colors flex items-center gap-1.5 cursor-pointer">
-                    <i class="ph ph-plus font-bold"></i> <span class="hidden sm:inline">Nova Issue</span>
+                <button type="button" onclick="abrirModalNovaIssue()" class="bg-brand-600 hover:bg-brand-500 text-white text-[12px] font-medium px-2.5 sm:px-3.5 py-1.5 rounded-[6px] shadow-sm transition-colors flex items-center gap-1.5 cursor-pointer">
+                    <i class="ph ph-plus"></i> <span class="hidden sm:inline">Nova Issue</span>
                 </button>
             </div>
         </header>
 
-        <div class="flex-1 overflow-y-auto overflow-x-hidden p-3 sm:p-5 md:p-[32px] pb-28 relative">
+        <div class="flex-1 overflow-y-auto overflow-x-hidden p-3 sm:p-5 md:p-[28px] pb-28 relative">
             <div class="max-w-[1400px] mx-auto min-h-full flex flex-col pb-16">
                 @RenderBody()
             </div>
@@ -443,16 +489,89 @@
             }
         }
 
-        // Listener da Barra de Busca Global
+        // Listener da Barra de Busca Global / Command Palette (Ctrl+K)
         const globalSearch = document.getElementById('globalSearchInput');
+        const globalDropdown = document.getElementById('globalCommandDropdown');
+        const QUICK_COMMANDS = [
+            { title: 'Visão Geral & Dashboard', desc: 'Telemetria, tráfego e KPIs Zero Trust', url: '/Admin/Index', icon: 'ph-squares-four' },
+            { title: 'Diretório de Usuários & RBAC', desc: 'Cadastrar colaboradores, MFA e permissões', url: '/Admin/Usuarios', icon: 'ph-users' },
+            { title: 'Políticas de Acesso & LGPD', desc: 'Regras de senha e proteção contra força bruta', url: '/Admin/Politicas', icon: 'ph-shield-check' },
+            { title: 'Perfis & Permissões', desc: 'Matriz de controle de acesso baseado em papéis', url: '/Admin/Perfis', icon: 'ph-identification-card' },
+            { title: 'Fila de Chamados (ITSM)', desc: 'Triagem de tickets de suporte e SLA', url: '/Admin/Chamados', icon: 'ph-headset' },
+            { title: 'Infraestrutura Cloud & Endpoints', desc: 'Monitoramento de rede, portas e firewall', url: '/Admin/Cloud', icon: 'ph-desktop' },
+            { title: 'Módulos & APIs', desc: 'Conectores Active Directory, SIEM e Webhooks', url: '/Admin/Integracoes', icon: 'ph-plugs-connected' },
+            { title: 'Audit Logs (SIEM)', desc: 'Trilha de auditoria imutável de eventos', url: '/Admin/Logs', icon: 'ph-list-magnifying-glass' },
+            { title: 'SecOps AI & Defesa (IDS)', desc: 'Mitigação em tempo real e CyberSec Copilot', url: '/Admin/Inteligencia', icon: 'ph-shield-warning' },
+            { title: 'Configurações Globais', desc: 'Cloudflare Turnstile, SMTP e parâmetros IAM', url: '/Admin/Configuracoes', icon: 'ph-gear' },
+            { title: 'Portal do Colaborador', desc: 'Autoatendimento, sessões e solicitações', url: '/Portal/MinhaConta', icon: 'ph-user-circle' },
+            { title: 'Portal Recursos Humanos (RH)', desc: 'Admissão, desligamento e governança de vagas', url: '/Portal/RH', icon: 'ph-briefcase' },
+            { title: 'Portal Contabilidade & Fiscal', desc: 'Auditoria financeira e conformidade fiscal', url: '/Portal/Contabilidade', icon: 'ph-chart-line-up' },
+            { title: 'Corvux Mobile / PWA', desc: 'Interface móvel para aprovação rápida e MFA', url: '/Mobile/Index', icon: 'ph-device-mobile' }
+        ];
+
+        function renderCommandDropdown(query) {
+            if (!globalDropdown) return;
+            const q = (query || '').trim().toLowerCase();
+            const matches = QUICK_COMMANDS.filter(c =>
+                !q || c.title.toLowerCase().includes(q) || c.desc.toLowerCase().includes(q)
+            ).slice(0, 8);
+
+            let html = `<div class="px-3 py-1 text-[10px] font-semibold uppercase tracking-wider text-slate-400">Navegação Rápida</div>`;
+            matches.forEach(m => {
+                html += `
+                    <a href="${m.url}" class="flex items-center gap-2.5 px-3 py-1.5 hover:bg-slate-100 dark:hover:bg-dark-hover text-slate-700 dark:text-slate-200 transition-colors">
+                        <i class="ph ${m.icon} text-brand-500 text-sm flex-shrink-0"></i>
+                        <div class="min-w-0 flex-1">
+                            <div class="font-medium text-[12px] truncate">${m.title}</div>
+                            <div class="text-[10px] text-slate-400 truncate">${m.desc}</div>
+                        </div>
+                        <i class="ph ph-arrow-up-right text-[11px] text-slate-400"></i>
+                    </a>
+                `;
+            });
+            if (q) {
+                html += `
+                    <div class="border-t border-slate-100 dark:border-dark-border mt-1 pt-1">
+                        <a href="/Admin/Usuarios?termo=${encodeURIComponent(query.trim())}" class="flex items-center gap-2 px-3 py-1.5 hover:bg-brand-50 dark:hover:bg-brand-500/10 text-brand-600 dark:text-brand-400 font-medium transition-colors">
+                            <i class="ph ph-magnifying-glass text-sm"></i>
+                            <span>Pesquisar "${query.trim()}" no Diretório de Usuários</span>
+                        </a>
+                    </div>
+                `;
+            }
+            globalDropdown.innerHTML = html;
+            globalDropdown.classList.remove('hidden');
+        }
+
         if (globalSearch) {
+            globalSearch.addEventListener('focus', function() {
+                renderCommandDropdown(this.value);
+            });
+            globalSearch.addEventListener('input', function() {
+                renderCommandDropdown(this.value);
+                const localSearch = document.getElementById('searchInput');
+                if (localSearch) {
+                    localSearch.value = this.value.trim();
+                    localSearch.dispatchEvent(new Event('input'));
+                }
+            });
             globalSearch.addEventListener('keydown', function(e) {
-                if (e.key === 'Enter') {
+                if (e.key === 'Escape' && globalDropdown) {
+                    globalDropdown.classList.add('hidden');
+                    this.blur();
+                } else if (e.key === 'Enter') {
                     const termo = this.value.trim();
+                    const q = termo.toLowerCase();
+                    const firstCmd = QUICK_COMMANDS.find(c => c.title.toLowerCase().includes(q));
+                    if (termo && firstCmd && q.length >= 3 && !document.getElementById('searchInput')) {
+                        window.location.href = firstCmd.url;
+                        return;
+                    }
                     const localSearch = document.getElementById('searchInput');
                     if (localSearch) {
                         localSearch.value = termo;
                         localSearch.dispatchEvent(new Event('input'));
+                        if (globalDropdown) globalDropdown.classList.add('hidden');
                         return;
                     }
                     if (termo) {
@@ -460,9 +579,21 @@
                     }
                 }
             });
+            document.addEventListener('click', function(e) {
+                if (globalDropdown && !globalSearch.contains(e.target) && !globalDropdown.contains(e.target)) {
+                    globalDropdown.classList.add('hidden');
+                }
+            });
+            document.addEventListener('keydown', function(e) {
+                if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k') {
+                    e.preventDefault();
+                    globalSearch.focus();
+                    globalSearch.select();
+                }
+            });
         }
 
-        // Dark / Light Theme Toggle
+        // Dark / Light Theme Toggle (Padrão: White / Light)
         const themeToggleBtn = document.getElementById('theme-toggle');
         const darkIcon = document.getElementById('theme-toggle-dark-icon');
         const lightIcon = document.getElementById('theme-toggle-light-icon');
@@ -480,9 +611,10 @@
 
         if (themeToggleBtn) {
             themeToggleBtn.addEventListener('click', function() {
-                document.documentElement.classList.toggle('dark');
-                localStorage.setItem('color-theme', document.documentElement.classList.contains('dark') ? 'dark' : 'light');
+                const isDark = document.documentElement.classList.toggle('dark');
+                localStorage.setItem('corvux-theme', isDark ? 'dark' : 'light');
                 updateThemeIcons();
+                window.dispatchEvent(new CustomEvent('corvux-theme-changed', { detail: { isDark } }));
             });
         }
 
@@ -621,7 +753,7 @@
                         title: 'Instalar no iOS (Apple)',
                         html: '<div class="text-left text-xs space-y-2 text-gray-300"><p>1. Toque no botão de <b>Compartilhar</b> <i class="ph ph-export text-brand-400"></i> na barra do Safari.</p><p>2. Role para baixo e selecione <b>Adicionar à Tela de Início</b> <i class="ph ph-plus-square text-brand-400"></i>.</p><p>3. Toque em <b>Adicionar</b> no canto superior direito.</p></div>',
                         icon: 'info',
-                        background: '#121418', color: '#fff', confirmButtonColor: '#3B82F6'
+                        background: '#111621', color: '#fff', confirmButtonColor: '#3B82F6'
                     });
                 } else {
                     fecharPwaBanner();
@@ -676,10 +808,11 @@
     <!-- ========================================== -->
     <!-- USER ONBOARDING: WELCOME MODAL             -->
     <!-- ========================================== -->
-    <div id="corvuxWelcomeModal" class="fixed inset-0 bg-black/80 z-[120] hidden items-center justify-center p-4 backdrop-blur-md transition-all">
-        <div class="bg-white dark:bg-dark-card border border-gray-200 dark:border-dark-border rounded-2xl shadow-2xl w-full max-w-lg overflow-hidden flex flex-col p-6 text-center animate-in fade-in zoom-in-95 duration-200">
-            <div class="mx-auto w-16 h-16 rounded-2xl bg-brand-500/10 border border-brand-500/30 flex items-center justify-center mb-4 shadow-inner">
-                <img src="/icons/corvus-logo.png?v=20261015" alt="CorvuxIAM" class="w-12 h-12 rounded-xl object-cover">
+    <div id="corvuxWelcomeModal" class="fixed inset-0 bg-black/70 z-[120] hidden items-center justify-center p-4 backdrop-blur-md transition-all">
+        <div class="bg-white dark:bg-dark-card border border-slate-200 dark:border-dark-border rounded-2xl shadow-2xl w-full max-w-lg overflow-hidden flex flex-col p-6 text-center animate-in fade-in zoom-in-95 duration-200">
+            <div class="mx-auto w-16 h-16 rounded-2xl bg-slate-50 dark:bg-dark-bg border border-slate-200 dark:border-dark-border flex items-center justify-center mb-4 shadow-sm">
+                <img src="/icons/corvus-logo-light.png?v=20261017" alt="CorvuxIAM" class="w-12 h-12 rounded-xl object-contain block dark:hidden">
+                <img src="/icons/corvus-logo-dark.png?v=20261017" alt="CorvuxIAM" class="w-12 h-12 rounded-xl object-contain hidden dark:block">
             </div>
             <span class="inline-block mx-auto px-3 py-1 rounded-full text-[11px] font-semibold bg-brand-500/10 text-brand-600 dark:text-brand-400 border border-brand-500/20 mb-3 uppercase tracking-wider">
                 Primeiros Passos
@@ -722,16 +855,16 @@
     <!-- ========================================== -->
     <div id="corvuxGetStartedWidget" class="fixed bottom-4 right-4 z-[90] transition-all duration-300 max-w-[340px] w-full">
         <!-- Botão Minimizado (Pill Flutuante) -->
-        <button id="corvuxChecklistPill" onclick="toggleChecklistWidget(true)" class="hidden ml-auto shadow-xl bg-gray-900/95 dark:bg-[#121418]/95 border border-brand-500/40 text-white rounded-full px-4 py-2.5 text-xs font-medium flex items-center gap-2 hover:border-brand-500 transition-all cursor-pointer backdrop-blur-md">
-            <i class="ph ph-check-square-offset text-brand-400 text-base"></i>
+        <button id="corvuxChecklistPill" onclick="toggleChecklistWidget(true)" class="hidden ml-auto shadow-xl bg-white dark:bg-dark-card border border-slate-200 dark:border-brand-500/40 text-slate-800 dark:text-white rounded-full px-4 py-2.5 text-xs font-medium flex items-center gap-2 hover:border-brand-500 transition-all cursor-pointer backdrop-blur-md">
+            <i class="ph ph-check-square-offset text-brand-500 text-base"></i>
             <span>Primeiros Passos (<b id="pillTasksCompleted">0/5</b>)</span>
-            <div class="w-12 h-1.5 bg-gray-700 rounded-full overflow-hidden ml-1">
+            <div class="w-12 h-1.5 bg-slate-200 dark:bg-slate-700 rounded-full overflow-hidden ml-1">
                 <div id="pillProgressBar" class="h-full bg-emerald-500 transition-all" style="width: 0%"></div>
             </div>
         </button>
 
         <!-- Card Expandido do Checklist -->
-        <div id="corvuxChecklistCard" class="bg-white dark:bg-dark-card border border-gray-200 dark:border-dark-border rounded-xl shadow-2xl p-4 flex flex-col text-left">
+        <div id="corvuxChecklistCard" class="bg-white dark:bg-dark-card border border-slate-200 dark:border-dark-border rounded-xl shadow-2xl p-4 flex flex-col text-left">
             <div class="flex items-center justify-between pb-3 border-b border-gray-100 dark:border-dark-border">
                 <div class="flex items-center gap-2">
                     <div class="w-6 h-6 rounded-md bg-brand-500/10 text-brand-500 flex items-center justify-center font-bold text-xs">
@@ -776,24 +909,25 @@
     </div>
 
     <!-- PWA Install Notification / Banner Mobile -->
-    <div id="pwaInstallBanner" class="fixed bottom-4 left-3 right-3 sm:left-auto sm:right-6 sm:bottom-6 sm:w-[380px] z-[9999] hidden opacity-0 bg-gray-900/95 dark:bg-[#121418]/95 backdrop-blur-md border border-brand-500/40 rounded-xl p-4 shadow-2xl transition-all duration-300 transform translate-y-4">
+    <div id="pwaInstallBanner" class="fixed bottom-4 left-3 right-3 sm:left-auto sm:right-6 sm:bottom-6 sm:w-[380px] z-[9999] hidden opacity-0 bg-white dark:bg-dark-card backdrop-blur-md border border-slate-200 dark:border-brand-500/40 rounded-xl p-4 shadow-2xl transition-all duration-300 transform translate-y-4">
         <div class="flex items-start gap-3">
-            <img src="/icons/corvus-logo.png?v=20261015" alt="CorvuxIAM" class="w-10 h-10 rounded-lg flex-shrink-0 shadow-md border border-white/10 object-cover">
+            <img src="/icons/corvus-logo-light.png?v=20261017" alt="CorvuxIAM" class="w-10 h-10 rounded-lg flex-shrink-0 shadow-sm border border-slate-200 object-contain block dark:hidden">
+            <img src="/icons/corvus-logo-dark.png?v=20261017" alt="CorvuxIAM" class="w-10 h-10 rounded-lg flex-shrink-0 shadow-sm border border-dark-border object-contain hidden dark:block">
             <div class="flex-1 min-w-0">
                 <div class="flex items-center justify-between">
-                    <h4 class="text-sm font-semibold text-white">Instalar o App CorvuxIAM</h4>
-                    <button type="button" onclick="fecharPwaBanner()" class="text-gray-400 hover:text-white p-0.5 cursor-pointer">
+                    <h4 class="text-sm font-semibold text-slate-900 dark:text-white">Instalar o App CorvuxIAM</h4>
+                    <button type="button" onclick="fecharPwaBanner()" class="text-slate-400 hover:text-slate-900 dark:hover:text-white p-0.5 cursor-pointer">
                         <i class="ph ph-x text-sm"></i>
                     </button>
                 </div>
-                <p class="text-xs text-gray-300 mt-1 leading-relaxed">
+                <p class="text-xs text-slate-500 dark:text-slate-300 mt-1 leading-relaxed">
                     Deseja instalar o CorvuxIAM no seu celular? Acesse rapidamente seu portal corporativo e chamados como um app nativo.
                 </p>
                 <div class="mt-3 flex items-center gap-2">
                     <button type="button" onclick="instalarPwaApp()" class="flex-1 bg-brand-600 hover:bg-brand-500 text-white text-xs font-semibold py-2 px-3 rounded-lg shadow transition-colors flex items-center justify-center gap-1.5 cursor-pointer">
                         <i class="ph ph-download-simple font-bold"></i> Instalar App
                     </button>
-                    <button type="button" onclick="fecharPwaBanner()" class="px-3 py-2 text-xs text-gray-400 hover:text-white rounded-lg transition-colors cursor-pointer">
+                    <button type="button" onclick="fecharPwaBanner()" class="px-3 py-2 text-xs text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white rounded-lg transition-colors cursor-pointer">
                         Agora Não
                     </button>
                 </div>

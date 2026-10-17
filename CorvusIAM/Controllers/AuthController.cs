@@ -247,10 +247,11 @@ namespace CorvusIAM.Controllers
                 await _context.SaveChangesAsync();
 
                 var resetLink = Url.Action("RedefinirSenha", "Auth", new { token, email }, Request.Scheme);
+                ViewBag.ResetLink = resetLink;
                 
                 await _emailSender.SendEmailAsync(
                     user.Email,
-                    "Redefinição de Senha - Corvus IAM",
+                    "Redefinição de Senha - Corvux IAM",
                     $"Clique no link para redefinir sua senha: {resetLink}");
             }
 

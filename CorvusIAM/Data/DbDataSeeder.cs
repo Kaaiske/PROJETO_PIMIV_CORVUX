@@ -107,13 +107,90 @@ namespace CorvusIAM.Data
                             [Status] NVARCHAR(30) NOT NULL DEFAULT 'Processada'
                         );
                     END;
+
+                    -- Índices de Alta Performance para Consultas IAM, SIEM e ITSM
+                    IF NOT EXISTS (SELECT 1 FROM sys.indexes WHERE name = 'IX_Usuarios_Email' AND object_id = OBJECT_ID('Usuarios'))
+                        CREATE NONCLUSTERED INDEX [IX_Usuarios_Email] ON [Usuarios]([Email]) INCLUDE ([Nome], [Ativo], [MfaHabilitado]);
+
+                    IF NOT EXISTS (SELECT 1 FROM sys.indexes WHERE name = 'IX_LogsAuditoria_DataHora_Tipo' AND object_id = OBJECT_ID('LogsAuditoria'))
+                        CREATE NONCLUSTERED INDEX [IX_LogsAuditoria_DataHora_Tipo] ON [LogsAuditoria]([DataHora] DESC, [Tipo]) INCLUDE ([Acao], [Origem], [UsuarioId]);
+
+                    IF NOT EXISTS (SELECT 1 FROM sys.indexes WHERE name = 'IX_ChamadosSuporte_Status_Prioridade' AND object_id = OBJECT_ID('ChamadosSuporte'))
+                        CREATE NONCLUSTERED INDEX [IX_ChamadosSuporte_Status_Prioridade] ON [ChamadosSuporte]([Status], [Prioridade]) INCLUDE ([UsuarioId], [DataAbertura], [PrazoSla]);
+
+                    IF NOT EXISTS (SELECT 1 FROM sys.indexes WHERE name = 'IX_FirewallRegras_Ip_Ativo' AND object_id = OBJECT_ID('FirewallRegras'))
+                        CREATE NONCLUSTERED INDEX [IX_FirewallRegras_Ip_Ativo] ON [FirewallRegras]([Ip], [Ativo]);
+
+                    IF NOT EXISTS (SELECT 1 FROM sys.indexes WHERE name = 'IX_DispositivosRede_Status_Tipo' AND object_id = OBJECT_ID('DispositivosRede'))
+                        CREATE NONCLUSTERED INDEX [IX_DispositivosRede_Status_Tipo] ON [DispositivosRede]([Status], [Tipo]);
+
+                    IF NOT EXISTS (SELECT 1 FROM sys.indexes WHERE name = 'IX_ConfiguracoesSistema_Chave' AND object_id = OBJECT_ID('ConfiguracoesSistema'))
+                        CREATE NONCLUSTERED INDEX [IX_ConfiguracoesSistema_Chave] ON [ConfiguracoesSistema]([Chave]);
                 ");
             }
             else
             {
-                // SQLite (desenvolvimento / testes)
+                // SQLite (desenvolvimento / testes) com otimizações WAL e índices
                 context.Database.EnsureCreated();
+                try
+                {
+                    context.Database.ExecuteSqlRaw(@"
+                        PRAGMA journal_mode = WAL;
+                        PRAGMA synchronous = NORMAL;
+                        PRAGMA temp_store = MEMORY;
+                        CREATE INDEX IF NOT EXISTS IX_Usuarios_Email ON Usuarios(Email);
+                        CREATE INDEX IF NOT EXISTS IX_LogsAuditoria_DataHora_Tipo ON LogsAuditoria(DataHora DESC, Tipo);
+                        CREATE INDEX IF NOT EXISTS IX_ChamadosSuporte_Status_Prioridade ON ChamadosSuporte(Status, Prioridade);
+                        CREATE INDEX IF NOT EXISTS IX_FirewallRegras_Ip_Ativo ON FirewallRegras(Ip, Ativo);
+                        CREATE INDEX IF NOT EXISTS IX_DispositivosRede_Status_Tipo ON DispositivosRede(Status, Tipo);
+                        CREATE INDEX IF NOT EXISTS IX_ConfiguracoesSistema_Chave ON ConfiguracoesSistema(Chave);
+                    ");
+                }
+                catch { }
             }
+
+            // 0. Usuários de Demonstração por Perfil Departamental (Fluxo Completo RBAC)
+            const string defaultHash = "$2a$11$y4AkJtTDlULmPEEKkqBLk.MM4ZKyMK8ExkIkfyAY5s/iEMDL1UvIS"; // Cv1670!
+            void EnsureDemoUser(string email, string nome, string cargo, string depto, string cpf, int perfilId)
+            {
+                var user = context.Usuarios.FirstOrDefault(u => u.Email == email);
+                if (user == null)
+                {
+                    user = new Usuario
+                    {
+                        Nome = nome,
+                        Email = email,
+                        SenhaHash = defaultHash,
+                        Ativo = true,
+                        CPF = cpf,
+                        Cargo = cargo,
+                        Departamento = depto,
+                        DataNascimento = new DateTime(1992, 5, 15),
+                        DataContratacao = new DateTime(2024, 2, 1),
+                        RG = "12.345.678-9",
+                        Telefone = "(11) 98888-7777",
+                        Endereco = "Av. Paulista, 1000 - São Paulo/SP",
+                        MfaHabilitado = false,
+                        MfaSecretKey = string.Empty,
+                        ResetSenhaToken = string.Empty,
+                        RefreshToken = string.Empty
+                    };
+                    context.Usuarios.Add(user);
+                    context.SaveChanges();
+                }
+
+                if (context.Perfis.Any(p => p.Id == perfilId) &&
+                    !context.UsuarioPerfis.Any(up => up.UsuarioId == user.Id && up.PerfilId == perfilId))
+                {
+                    context.UsuarioPerfis.Add(new UsuarioPerfil { UsuarioId = user.Id, PerfilId = perfilId });
+                    context.SaveChanges();
+                }
+            }
+
+            EnsureDemoUser("rh@corvus.com", "Carla Souza (RH)", "Gerente de Recursos Humanos", "Recursos Humanos", "111.222.333-44", 2);
+            EnsureDemoUser("contabil@corvus.com", "Beatriz Lima (Contábil)", "Controller Fiscal & Contábil", "Contabilidade", "222.333.444-55", 3);
+            EnsureDemoUser("suporte@corvus.com", "Lucas Mendes (SecOps)", "Analista de Suporte & IAM N2", "Tecnologia", "333.444.555-66", 4);
+            EnsureDemoUser("colaborador@corvus.com", "Rafael Oliveira", "Engenheiro de Software Pleno", "Engenharia", "444.555.666-77", 5);
 
             // 1. Configurações Globais essenciais
             void EnsureConfig(string chave, string valor)
@@ -221,6 +298,47 @@ namespace CorvusIAM.Data
                     new RegistroFerias { ColaboradorNome = "Amanda Lima", DataInicio = DateTime.UtcNow.AddDays(15), DataFim = DateTime.UtcNow.AddDays(45), Dias = 30, Status = "Aprovada", DataAprovacao = DateTime.UtcNow.AddDays(-3) },
                     new RegistroFerias { ColaboradorNome = "Carla Souza", DataInicio = DateTime.UtcNow.AddDays(60), DataFim = DateTime.UtcNow.AddDays(80), Dias = 20, Status = "Aprovada", DataAprovacao = DateTime.UtcNow.AddDays(-1) }
                 );
+            }
+
+            // 8. Chamados de Suporte Iniciais (ITSM / SLA Zero Trust)
+            if (!context.ChamadosSuporte.Any())
+            {
+                var adminUser = context.Usuarios.FirstOrDefault(u => u.Email == "admin@corvus.com");
+                var colabUser = context.Usuarios.FirstOrDefault(u => u.Email == "colaborador@corvus.com") ?? adminUser;
+                var suporteUser = context.Usuarios.FirstOrDefault(u => u.Email == "suporte@corvus.com") ?? adminUser;
+
+                if (colabUser != null)
+                {
+                    context.ChamadosSuporte.AddRange(
+                        new ChamadoSuporte
+                        {
+                            UsuarioId = colabUser.Id,
+                            ResponsavelId = suporteUser?.Id,
+                            Assunto = "Provisionamento de Acesso VPN Zero Trust (VLAN 30)",
+                            Descricao = "Solicito liberação de túnel WireGuard/Zero Trust para acesso ao cluster de homologação.",
+                            Categoria = "Acesso",
+                            Prioridade = "Alta",
+                            Status = "Em Atendimento",
+                            DataAbertura = DateTime.UtcNow.AddHours(-6),
+                            DataAtualizacao = DateTime.UtcNow.AddHours(-2),
+                            PrazoSla = DateTime.UtcNow.AddHours(2),
+                            Solucao = string.Empty
+                        },
+                        new ChamadoSuporte
+                        {
+                            UsuarioId = colabUser.Id,
+                            Assunto = "Recadastramento de Chave TOTP / Autenticador MFA",
+                            Descricao = "Troquei de aparelho corporativo e preciso revalidar o QR Code do autenticador 2FA.",
+                            Categoria = "Segurança",
+                            Prioridade = "Normal",
+                            Status = "Aberto",
+                            DataAbertura = DateTime.UtcNow.AddHours(-3),
+                            DataAtualizacao = DateTime.UtcNow.AddHours(-3),
+                            PrazoSla = DateTime.UtcNow.AddHours(21),
+                            Solucao = string.Empty
+                        }
+                    );
+                }
             }
 
             context.SaveChanges();

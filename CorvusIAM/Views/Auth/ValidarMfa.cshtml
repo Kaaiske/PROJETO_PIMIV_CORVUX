@@ -6,145 +6,122 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Autenticação de Dois Fatores (MFA) - CorvuxIAM</title>
-    <!-- Favicon & Icons Oficiais Corvux Security -->
-    <link rel="icon" type="image/png" sizes="32x32" href="/icons/favicon-32x32.png?v=20261015">
-    <link rel="icon" type="image/png" sizes="16x16" href="/icons/favicon-16x16.png?v=20261015">
-    <link rel="icon" type="image/png" sizes="192x192" href="/icons/icon-192.png?v=20261015">
-    <link rel="shortcut icon" href="/favicon.ico?v=20261015" type="image/x-icon">
-    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600;700&display=swap" rel="stylesheet">
+    <title>Autenticação de Dois Fatores (MFA) — CorvuxIAM</title>
+    <link rel="icon" type="image/png" sizes="32x32" href="/icons/favicon-32x32.png?v=20261017">
+    <link rel="icon" type="image/png" sizes="16x16" href="/icons/favicon-16x16.png?v=20261017">
+    <link rel="icon" type="image/png" sizes="192x192" href="/icons/icon-192.png?v=20261017">
+    <link rel="shortcut icon" href="/favicon.ico?v=20261017" type="image/x-icon">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+    <script>
+        if (localStorage.getItem('corvux-theme') === 'dark') {
+            document.documentElement.classList.add('dark');
+        }
+    </script>
     <style>
         :root {
-            --bg-body: #000000;
-            --bg-card: #111111;
-            --text-main: #FFFFFF;
-            --text-muted: #888888;
-            --accent-color: #3b82f6;
-            --accent-color-hover: #2563eb;
-            --border-color: #222222;
-            --input-bg: #0A0A0A;
+            --bg-body: #F8FAFC;
+            --bg-card: #FFFFFF;
+            --text-main: #0F172A;
+            --text-muted: #64748B;
+            --accent-color: #2563EB;
+            --accent-color-hover: #1D4ED8;
+            --border-color: #E2E8F0;
+            --input-bg: #FFFFFF;
         }
-
+        html.dark {
+            --bg-body: #0B0E14;
+            --bg-card: #111621;
+            --text-main: #F8FAFC;
+            --text-muted: #94A3B8;
+            --accent-color: #3B82F6;
+            --accent-color-hover: #2563EB;
+            --border-color: #1E2636;
+            --input-bg: #0B0E14;
+        }
         body {
             margin: 0;
             padding: 0;
             background-color: var(--bg-body);
             color: var(--text-main);
-            font-family: 'Space Grotesk', sans-serif;
+            font-family: 'Inter', sans-serif;
             min-height: 100vh;
             display: flex;
             align-items: center;
             justify-content: center;
+            -webkit-font-smoothing: antialiased;
         }
-
         .mfa-card {
             width: 100%;
-            max-width: 440px;
+            max-width: 420px;
             background: var(--bg-card);
             border: 1px solid var(--border-color);
-            border-radius: 12px;
-            padding: 36px;
-            box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+            border-radius: 14px;
+            padding: 32px;
+            box-shadow: 0 2px 12px rgba(15, 23, 42, 0.04);
             text-align: center;
         }
-
-        .icon-shield {
-            font-size: 48px;
-            color: var(--accent-color);
-            margin-bottom: 16px;
-        }
-
-        h2 {
-            font-size: 20px;
-            margin-bottom: 8px;
-            font-weight: 700;
-        }
-
-        p {
-            font-size: 13px;
-            color: var(--text-muted);
-            line-height: 1.5;
-            margin-bottom: 24px;
-        }
-
+        .logo-dark { display: none; }
+        .logo-light { display: block; }
+        html.dark .logo-dark { display: block; }
+        html.dark .logo-light { display: none; }
+        h2 { font-size: 18px; margin: 12px 0 6px; font-weight: 600; letter-spacing: -0.02em; }
+        p { font-size: 13px; color: var(--text-muted); line-height: 1.5; margin-bottom: 22px; }
         .code-input {
             width: 100%;
             box-sizing: border-box;
             background: var(--input-bg);
             border: 1px solid var(--border-color);
             border-radius: 8px;
-            padding: 14px;
-            color: #fff;
-            font-size: 24px;
+            padding: 12px;
+            color: var(--text-main);
+            font-size: 22px;
             text-align: center;
-            letter-spacing: 12px;
+            letter-spacing: 10px;
             font-family: monospace;
             outline: none;
             transition: border-color 0.2s;
         }
-
-        .code-input:focus {
-            border-color: var(--accent-color);
-        }
-
+        .code-input:focus { border-color: var(--accent-color); }
         .btn-submit {
             width: 100%;
-            margin-top: 20px;
-            padding: 12px;
+            margin-top: 16px;
+            padding: 11px;
             background: var(--accent-color);
             border: none;
             border-radius: 8px;
             color: #fff;
-            font-weight: 600;
-            font-size: 14px;
+            font-weight: 500;
+            font-size: 13px;
             cursor: pointer;
             transition: background 0.2s;
         }
-
-        .btn-submit:hover {
-            background: var(--accent-color-hover);
-        }
-
+        .btn-submit:hover { background: var(--accent-color-hover); }
         .error-message {
-            background: rgba(239, 68, 68, 0.1);
-            border: 1px solid rgba(239, 68, 68, 0.3);
-            color: #ef4444;
+            background: rgba(239, 68, 68, 0.08);
+            border: 1px solid rgba(239, 68, 68, 0.25);
+            color: #EF4444;
             padding: 10px;
-            border-radius: 6px;
+            border-radius: 8px;
             font-size: 12px;
             margin-bottom: 16px;
         }
-
         .back-link {
             display: inline-block;
-            margin-top: 20px;
+            margin-top: 18px;
             color: var(--text-muted);
             text-decoration: none;
             font-size: 12px;
         }
-
-        .back-link:hover {
-            color: #fff;
-        }
-
-        @@media (max-width: 480px) {
-            .mfa-card {
-                margin: 16px;
-                padding: 24px 16px;
-            }
-            .code-input {
-                font-size: 20px;
-                letter-spacing: 6px;
-            }
-        }
+        .back-link:hover { color: var(--accent-color); }
     </style>
 </head>
 <body>
     <div class="mfa-card">
-        <i class="bi bi-shield-lock-fill icon-shield"></i>
-        <h2>Verificação em Duas Etapas</h2>
-        <p>Insira o código de 6 dígitos gerado pelo seu aplicativo autenticador (Google Authenticator, Microsoft Authenticator ou similar).</p>
+        <img src="/icons/corvus-logo-light.png?v=20261017" alt="CorvuxIAM" class="logo-light" style="width: 48px; height: 48px; border-radius: 10px; margin: 0 auto; border: 1px solid var(--border-color);">
+        <img src="/icons/corvus-logo-dark.png?v=20261017" alt="CorvuxIAM" class="logo-dark" style="width: 48px; height: 48px; border-radius: 10px; margin: 0 auto; border: 1px solid var(--border-color);">
+        <h2>Verificação em Duas Etapas (MFA)</h2>
+        <p>Insira o código TOTP de 6 dígitos gerado pelo seu aplicativo autenticador.</p>
 
         @if (!string.IsNullOrEmpty(ViewBag.Erro as string))
         {
@@ -154,15 +131,15 @@
         }
 
         <form method="post" action="/Auth/ValidarMfa">
+            @Html.AntiForgeryToken()
             <input type="hidden" name="token" value="@ViewBag.Token" />
             <input type="text" name="codigo" class="code-input" maxlength="6" autofocus placeholder="000000" autocomplete="one-time-code" required />
-            <button type="submit" class="btn-submit">Confirmar Acesso</button>
+            <button type="submit" class="btn-submit">Confirmar Código</button>
         </form>
 
         <a href="/Auth/Login" class="back-link">
-            <i class="bi bi-arrow-left"></i> Voltar para a tela de login
+            <i class="bi bi-arrow-left"></i> Voltar para o login
         </a>
     </div>
 </body>
 </html>
-

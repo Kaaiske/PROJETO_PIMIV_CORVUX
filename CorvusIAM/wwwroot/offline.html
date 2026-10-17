@@ -3,23 +3,33 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CorvusIAM — Modo Offline</title>
-    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600;700&display=swap" rel="stylesheet">
+    <title>CorvuxIAM — Modo Offline</title>
+    <link rel="icon" type="image/png" sizes="32x32" href="/icons/favicon-32x32.png?v=20261017">
+    <link rel="shortcut icon" href="/favicon.ico?v=20261017" type="image/x-icon">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
     <style>
         :root {
-            --bg-body: #090A0C;
-            --bg-card: #121418;
-            --text-main: #FFFFFF;
-            --text-muted: #888888;
+            --bg-body: #F8FAFC;
+            --bg-card: #FFFFFF;
+            --text-main: #0F172A;
+            --text-muted: #64748B;
             --accent-blue: #2563EB;
-            --border-color: #22272E;
+            --border-color: #E2E8F0;
+        }
+        html.dark {
+            --bg-body: #0B0E14;
+            --bg-card: #111621;
+            --text-main: #F8FAFC;
+            --text-muted: #94A3B8;
+            --accent-blue: #3B82F6;
+            --border-color: #1E2636;
         }
         body {
             margin: 0;
             padding: 20px;
             background-color: var(--bg-body);
             color: var(--text-main);
-            font-family: 'Space Grotesk', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
             min-height: 100vh;
             display: flex;
             align-items: center;
@@ -29,73 +39,70 @@
         .offline-card {
             background-color: var(--bg-card);
             border: 1px solid var(--border-color);
-            border-radius: 16px;
-            padding: 32px 24px;
-            max-width: 440px;
+            border-radius: 12px;
+            padding: 36px 28px;
+            max-width: 420px;
             width: 100%;
             text-align: center;
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
-        }
-        .icon-circle {
-            width: 72px;
-            height: 72px;
-            margin: 0 auto 20px;
-            border-radius: 50%;
-            background: rgba(37, 99, 235, 0.15);
-            border: 1px solid rgba(37, 99, 235, 0.3);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 32px;
+            box-shadow: 0 2px 12px rgba(15, 23, 42, 0.04);
         }
         h1 {
-            font-size: 22px;
-            margin: 0 0 10px;
-            font-weight: 700;
+            font-size: 18px;
+            margin: 0 0 8px;
+            font-weight: 600;
+            letter-spacing: -0.02em;
         }
         p {
-            font-size: 14px;
+            font-size: 13px;
             color: var(--text-muted);
             line-height: 1.6;
             margin: 0 0 24px;
         }
         .btn-retry {
-            background: linear-gradient(135deg, #2563EB, #1D4ED8);
+            background: var(--accent-blue);
             color: #FFFFFF;
             border: none;
-            border-radius: 10px;
-            padding: 12px 24px;
-            font-size: 14px;
-            font-weight: 700;
+            border-radius: 8px;
+            padding: 11px 20px;
+            font-size: 13px;
+            font-weight: 500;
             cursor: pointer;
             width: 100%;
             box-sizing: border-box;
             transition: all 0.2s ease;
         }
         .btn-retry:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 16px rgba(37, 99, 235, 0.3);
+            opacity: 0.92;
         }
         .badge-sync {
             display: inline-block;
             margin-top: 16px;
-            font-size: 12px;
+            font-size: 11px;
             color: #10B981;
-            background: rgba(16, 185, 129, 0.1);
+            background: rgba(16, 185, 129, 0.08);
             border: 1px solid rgba(16, 185, 129, 0.2);
-            padding: 4px 10px;
-            border-radius: 20px;
+            padding: 4px 12px;
+            border-radius: 999px;
         }
+        .logo-dark { display: none; }
+        .logo-light { display: block; }
+        html.dark .logo-dark { display: block; }
+        html.dark .logo-light { display: none; }
     </style>
+    <script>
+        if (localStorage.getItem('corvux-theme') === 'dark') {
+            document.documentElement.classList.add('dark');
+        }
+    </script>
 </head>
 <body>
     <div class="offline-card">
-        <img src="/icons/corvus-logo.png?v=20261015" alt="CorvuxIAM" style="width: 72px; height: 72px; border-radius: 16px; margin: 0 auto 16px; display: block; box-shadow: 0 8px 24px rgba(0,0,0,0.6); border: 1px solid rgba(255,255,255,0.15);">
+        <img src="/icons/corvus-logo-light.png?v=20261017" alt="CorvuxIAM" class="logo-light" style="width: 64px; height: 64px; border-radius: 14px; margin: 0 auto 16px; border: 1px solid #E2E8F0;">
+        <img src="/icons/corvus-logo-dark.png?v=20261017" alt="CorvuxIAM" class="logo-dark" style="width: 64px; height: 64px; border-radius: 14px; margin: 0 auto 16px; border: 1px solid #1E2636;">
         <h1>Sem Conexão com a Internet</h1>
-        <p>Você está atualmente desconectado da rede. No aplicativo mobile CorvuxIAM, suas solicitações são armazenadas no banco local IndexedDB e transmitidas automaticamente assim que o sinal for restabelecido.</p>
+        <p>Você está desconectado da rede. No aplicativo mobile CorvuxIAM, suas solicitações são salvas localmente (IndexedDB) e sincronizadas assim que a conexão retornar.</p>
         <button class="btn-retry" onclick="window.location.reload()">Tentar Reconectar Agora</button>
         <div class="badge-sync">✓ Sincronização Automática Ativa</div>
     </div>
 </body>
 </html>
-
