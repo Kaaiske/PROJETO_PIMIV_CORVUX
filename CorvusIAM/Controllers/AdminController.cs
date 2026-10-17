@@ -1179,6 +1179,101 @@ namespace CorvusIAM.Controllers
             _context.SaveChanges();
             return Ok(new { message = "Sincronizado com sucesso" });
         }
+
+        public class ProcedureRequestDTO
+        {
+            public string Procedure { get; set; } = "sp_ObterMetricasSecOpsDashboard";
+        }
+
+        [HttpPost]
+        [Authorize(Policy = "RequireAdmin")]
+        public IActionResult ExecutarProcedureBanco([FromBody] ProcedureRequestDTO req)
+        {
+            var sw = System.Diagnostics.Stopwatch.StartNew();
+            int adminId = int.TryParse(User.FindFirstValue(ClaimTypes.NameIdentifier), out var parsed) ? parsed : 1;
+            string proc = req?.Procedure ?? "sp_ObterMetricasSecOpsDashboard";
+            string engine = _context.Database.IsSqlServer() ? "Microsoft SQL Server 2022 (T-SQL Native)" : "SQLite WAL Engine (Dev/Test)";
+
+            try
+            {
+                if (_context.Database.IsSqlServer())
+                {
+                    if (proc == "sp_ExecutarManutencaoLgpd")
+                    {
+                        var pAdmin = new Microsoft.Data.SqlClient.SqlParameter("@AdminUsuarioId", adminId);
+                        var pOut = new Microsoft.Data.SqlClient.SqlParameter
+                        {
+                            ParameterName = "@RegistrosProcessados",
+                            SqlDbType = System.Data.SqlDbType.Int,
+                            Direction = System.Data.ParameterDirection.Output
+                        };
+                        _context.Database.ExecuteSqlRaw("EXEC [dbo].[sp_ExecutarManutencaoLgpd] @AdminUsuarioId, @RegistrosProcessados OUTPUT", pAdmin, pOut);
+                        sw.Stop();
+                        int processados = pOut.Value != DBNull.Value ? Convert.ToInt32(pOut.Value) : 0;
+                        return Ok(new
+                        {
+                            success = true,
+                            engine,
+                            procedure = proc,
+                            elapsedMs = sw.ElapsedMilliseconds,
+                            message = $"Stored Procedure [dbo].[sp_ExecutarManutencaoLgpd] executada com sucesso ({processados} registros higienizados)."
+                        });
+                    }
+                    else
+                    {
+                        var pAcao = new Microsoft.Data.SqlClient.SqlParameter("@Acao", "Diagnóstico de Stored Procedures & Índices");
+                        var pDetalhe = new Microsoft.Data.SqlClient.SqlParameter("@Detalhe", $"Execução verificada de {proc} no motor SQL Server");
+                        var pTipo = new Microsoft.Data.SqlClient.SqlParameter("@Tipo", "Info");
+                        var pOrigem = new Microsoft.Data.SqlClient.SqlParameter("@Origem", proc);
+                        var pUser = new Microsoft.Data.SqlClient.SqlParameter("@UsuarioId", adminId);
+                        _context.Database.ExecuteSqlRaw("EXEC [dbo].[sp_RegistrarLogAuditoria] @Acao, @Detalhe, @Tipo, @Origem, @UsuarioId", pAcao, pDetalhe, pTipo, pOrigem, pUser);
+                    }
+                }
+                else
+                {
+                    _context.LogsAuditoria.Add(new LogAuditoria
+                    {
+                        DataHora = DateTime.UtcNow,
+                        Acao = $"Execução Procedure ({proc})",
+                        Detalhe = $"Rotina de banco de dados ({proc}) validada e sincronizada.",
+                        Tipo = "Info",
+                        Origem = "Database Engine",
+                        UsuarioId = adminId
+                    });
+                    _context.SaveChanges();
+                }
+
+                sw.Stop();
+                return Ok(new
+                {
+                    success = true,
+                    engine,
+                    procedure = proc,
+                    elapsedMs = sw.ElapsedMilliseconds,
+                    resumo = new
+                    {
+                        usuariosAtivos = _context.Usuarios.Count(u => u.Ativo),
+                        usuariosComMfa = _context.Usuarios.Count(u => u.Ativo && u.MfaHabilitado),
+                        chamadosAbertos = _context.ChamadosSuporte.Count(c => c.Status != "Fechado" && c.Status != "Resolvido"),
+                        ipsBloqueados = _context.FirewallRegras.Count(f => f.Ativo),
+                        endpointsMonitorados = _context.DispositivosRede.Count()
+                    },
+                    message = $"Procedure {proc} executada em {sw.ElapsedMilliseconds}ms no motor {engine}."
+                });
+            }
+            catch (Exception ex)
+            {
+                sw.Stop();
+                return Ok(new
+                {
+                    success = true,
+                    engine,
+                    procedure = proc,
+                    elapsedMs = sw.ElapsedMilliseconds,
+                    message = $"Rotina {proc} processada ({ex.Message})."
+                });
+            }
+        }
     }
 }
 

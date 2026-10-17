@@ -10,19 +10,19 @@
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Login — CorvuxIAM</title>
     
     <!-- Favicon & Brand Icons Corvux Security -->
-    <link rel="icon" type="image/png" sizes="32x32" href="/icons/favicon-32x32.png?v=20261017">
-    <link rel="icon" type="image/png" sizes="16x16" href="/icons/favicon-16x16.png?v=20261017">
-    <link rel="icon" type="image/png" sizes="192x192" href="/icons/icon-192.png?v=20261017">
-    <link rel="apple-touch-icon" sizes="180x180" href="/icons/icon-192.png?v=20261017">
-    <link rel="shortcut icon" href="/favicon.ico?v=20261017" type="image/x-icon">
+    <link rel="icon" type="image/png" sizes="32x32" href="/icons/favicon-32x32.png?v=20261018">
+    <link rel="icon" type="image/png" sizes="16x16" href="/icons/favicon-16x16.png?v=20261018">
+    <link rel="icon" type="image/png" sizes="192x192" href="/icons/corvux-icon-192.png?v=20261018">
+    <link rel="apple-touch-icon" sizes="180x180" href="/icons/corvux-icon-192.png?v=20261018">
+    <link rel="shortcut icon" href="/favicon.ico?v=20261018" type="image/x-icon">
 
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
-    <link rel="manifest" href="/manifest.json">
-    <meta name="theme-color" content="#FFFFFF">
+    <link rel="manifest" href="/manifest.json?v=20261018">
+    <meta name="theme-color" content="#070709">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
@@ -35,6 +35,10 @@
         }
     </script>
     <style>
+        *, *::before, *::after {
+            box-sizing: border-box;
+        }
+
         :root {
             --bg-body: #E4EBF3;
             --bg-card: #F5F7FA;
@@ -52,33 +56,43 @@
         }
 
         html.dark {
-            --bg-body: #0B0E14;
-            --bg-card: #111621;
-            --bg-card-subtle: #161C2A;
-            --text-main: #F8FAFC;
-            --text-secondary: #CBD5E1;
-            --text-muted: #94A3B8;
+            --bg-body: #070709;
+            --bg-card: #0E0E12;
+            --bg-card-subtle: #16161C;
+            --text-main: #FAFAFA;
+            --text-secondary: #D4D4D8;
+            --text-muted: #A1A1AA;
             --accent-color: #3B82F6;
             --accent-color-hover: #2563EB;
-            --border-color: #1E2636;
-            --border-hover: #2E3A52;
-            --input-bg: #0B0E14;
-            --card-shadow: 0 4px 20px rgba(0, 0, 0, 0.35);
-            --card-shadow-hover: 0 12px 32px rgba(0, 0, 0, 0.5);
+            --border-color: #22222A;
+            --border-hover: #3F3F46;
+            --input-bg: #09090C;
+            --card-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+            --card-shadow-hover: 0 12px 32px rgba(0, 0, 0, 0.65);
         }
 
-        body {
+        html, body {
             margin: 0;
             padding: 0;
+            width: 100%;
+            height: 100dvh;
+            max-height: 100dvh;
+            overflow: hidden;
+            scrollbar-width: none;
+            -ms-overflow-style: none;
             background-color: var(--bg-body);
             color: var(--text-main);
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-            min-height: 100vh;
             display: flex;
             align-items: center;
             justify-content: center;
             -webkit-font-smoothing: antialiased;
             transition: background-color 0.2s ease, color 0.2s ease;
+        }
+        html::-webkit-scrollbar, body::-webkit-scrollbar {
+            display: none;
+            width: 0;
+            height: 0;
         }
         html:not(.dark) body {
             background-image: radial-gradient(circle at 20% 20%, rgba(37, 99, 235, 0.06), transparent 45%),
@@ -87,25 +101,30 @@
 
         .login-container {
             width: 100%;
-            max-width: 760px;
-            padding: 24px 18px;
+            max-width: 720px;
+            padding: 12px 16px;
+            max-height: 100dvh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
 
-        /* BENTO GRID - TRAÇOS FINOS (HAIRLINE) */
+        /* BENTO GRID - TRAÇOS FINOS (HAIRLINE) E SEM SCROLLBAR */
         .bento-grid {
+            width: 100%;
             display: grid;
             grid-template-columns: repeat(3, 1fr);
-            grid-auto-rows: minmax(110px, auto);
-            gap: 14px;
+            grid-auto-rows: auto;
+            gap: 10px;
             opacity: 0;
-            animation: fadeIn 0.5s ease-out forwards;
+            animation: fadeIn 0.4s ease-out forwards;
         }
 
         .bento-item {
             background-color: var(--bg-card);
-            border-radius: 14px;
+            border-radius: 12px;
             border: 1px solid var(--border-color);
-            padding: 24px;
+            padding: 16px 20px;
             box-shadow: var(--card-shadow);
             transition: all 0.2s ease;
             position: relative;
@@ -125,26 +144,26 @@
 
         .glow-circle {
             position: absolute;
-            width: 160px;
-            height: 160px;
+            width: 140px;
+            height: 140px;
             background-color: var(--accent-color);
-            filter: blur(90px);
-            opacity: 0.06;
+            filter: blur(80px);
+            opacity: 0.05;
             border-radius: 50%;
             z-index: 0;
             pointer-events: none;
         }
-        .glow-top-right { top: -50px; right: -50px; }
-        .glow-bottom-left { bottom: -50px; left: -50px; }
+        .glow-top-right { top: -40px; right: -40px; }
+        .glow-bottom-left { bottom: -40px; left: -40px; }
 
         /* TYPOGRAPHY */
-        h1, h2, h3 { margin: 0 0 6px 0; font-weight: 600; letter-spacing: -0.025em; z-index: 1; position: relative; }
-        h2 { font-size: 18px; }
-        p { margin: 0; color: var(--text-muted); z-index: 1; position: relative; font-size: 13px; line-height: 1.5; font-weight: 400; }
+        h1, h2, h3 { margin: 0 0 4px 0; font-weight: 600; letter-spacing: -0.025em; z-index: 1; position: relative; }
+        h2 { font-size: 16px; }
+        p { margin: 0; color: var(--text-muted); z-index: 1; position: relative; font-size: 12.5px; line-height: 1.45; font-weight: 400; }
 
         .brand-title {
             font-family: 'Space Grotesk', sans-serif;
-            font-size: 24px;
+            font-size: 22px;
             font-weight: 700;
             letter-spacing: -0.03em;
         }
@@ -160,7 +179,7 @@
 
         /* FORM ELEMENTS */
         .form-group {
-            margin-bottom: 14px;
+            margin-bottom: 11px;
             z-index: 1;
             position: relative;
             width: 100%;
@@ -168,9 +187,9 @@
         
         .form-label {
             display: block;
-            margin-bottom: 6px;
-            font-size: 11px;
-            font-weight: 500;
+            margin-bottom: 5px;
+            font-size: 10.5px;
+            font-weight: 600;
             text-transform: uppercase;
             letter-spacing: 0.06em;
             color: var(--text-muted);
@@ -181,18 +200,17 @@
             background-color: var(--input-bg);
             border: 1px solid var(--border-color);
             border-radius: 8px;
-            padding: 10px 13px;
+            padding: 9px 12px;
             color: var(--text-main);
             font-family: inherit;
             font-size: 13px;
             transition: border-color 0.2s ease, box-shadow 0.2s ease;
-            box-sizing: border-box;
         }
         
         .form-control:focus {
             outline: none;
             border-color: var(--accent-color);
-            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.12);
         }
 
         .btn-submit {
@@ -201,13 +219,13 @@
             color: #FFFFFF;
             border: 1px solid transparent;
             border-radius: 8px;
-            padding: 11px 16px;
+            padding: 10px 14px;
             font-family: inherit;
             font-size: 13px;
             font-weight: 500;
             cursor: pointer;
             transition: all 0.2s ease;
-            margin-top: 6px;
+            margin-top: 4px;
             z-index: 1;
             position: relative;
             display: flex;
@@ -222,33 +240,6 @@
             box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);
         }
 
-        /* DEMO ROLE QUICK FILL PILLS */
-        .role-pills {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 6px;
-            margin-top: 14px;
-            padding-top: 12px;
-            border-top: 1px solid var(--border-color);
-            z-index: 1;
-            position: relative;
-        }
-        .role-pill {
-            background: var(--bg-card-subtle);
-            border: 1px solid var(--border-color);
-            color: var(--text-secondary);
-            font-size: 11px;
-            font-weight: 500;
-            padding: 4px 9px;
-            border-radius: 6px;
-            cursor: pointer;
-            transition: all 0.15s ease;
-        }
-        .role-pill:hover {
-            border-color: var(--accent-color);
-            color: var(--accent-color);
-        }
-
         /* SOCIAL & EXTRAS */
         .social-login {
             display: flex;
@@ -261,11 +252,11 @@
             background-color: var(--input-bg);
             border: 1px solid var(--border-color);
             color: var(--text-secondary);
-            padding: 9px;
+            padding: 8px;
             border-radius: 8px;
             cursor: pointer;
             transition: all 0.2s ease;
-            font-size: 15px;
+            font-size: 14px;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -287,7 +278,7 @@
 
         .stat-number {
             font-family: 'Space Grotesk', sans-serif;
-            font-size: 32px;
+            font-size: 28px;
             font-weight: 600;
             color: var(--accent-color);
             line-height: 1;
@@ -297,10 +288,10 @@
 
         .theme-switch-btn {
             position: fixed;
-            top: 18px;
-            right: 18px;
-            width: 36px;
-            height: 36px;
+            top: 14px;
+            right: 14px;
+            width: 34px;
+            height: 34px;
             border-radius: 8px;
             background: var(--bg-card);
             border: 1px solid var(--border-color);
@@ -319,15 +310,17 @@
         }
 
         @@keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
+            from { opacity: 0; transform: translateY(6px); }
             to { opacity: 1; transform: translateY(0); }
         }
 
-        @@media (max-width: 900px) {
-            .bento-grid { grid-template-columns: repeat(2, 1fr); }
-            .bento-span-2 { grid-column: span 2; }
-            .hide-mobile { display: none; }
-            #pwaMobileInstallBanner { display: none !important; }
+        @@media (max-width: 900px), (max-height: 680px) {
+            .bento-grid { grid-template-columns: 1fr; max-width: 440px; margin: 0 auto; }
+            .bento-span-2 { grid-column: span 1; }
+            .bento-row-2 { grid-row: span 1; }
+            .hide-mobile { display: none !important; }
+            .login-container { padding: 10px 14px; }
+            .bento-item { padding: 14px 16px; }
         }
 
         @@media (min-width: 900px) {
@@ -338,23 +331,14 @@
             }
         }
 
-        @@media (max-width: 600px) {
-            .bento-grid { grid-template-columns: 1fr; }
-            .bento-span-2 { grid-column: span 1; }
-            .login-container { padding: 12px; }
-            .bento-item { padding: 18px; }
-            .stat-number { font-size: 26px; }
-            .brand-title { font-size: 20px; }
-        }
-
         .error-msg {
             background-color: rgba(239, 68, 68, 0.08);
             color: #EF4444;
-            padding: 10px 12px;
+            padding: 8px 10px;
             border-radius: 8px;
             border: 1px solid rgba(239, 68, 68, 0.25);
-            margin-bottom: 16px;
-            font-size: 12px;
+            margin-bottom: 10px;
+            font-size: 11.5px;
             z-index: 1;
             position: relative;
         }
@@ -362,11 +346,11 @@
         .success-msg {
             background-color: rgba(16, 185, 129, 0.08);
             color: #10B981;
-            padding: 10px 12px;
+            padding: 8px 10px;
             border-radius: 8px;
             border: 1px solid rgba(16, 185, 129, 0.25);
-            margin-bottom: 16px;
-            font-size: 12px;
+            margin-bottom: 10px;
+            font-size: 11.5px;
             z-index: 1;
             position: relative;
         }
@@ -375,7 +359,7 @@
             width: 100%;
             min-height: 65px;
             border-radius: 8px;
-            margin-bottom: 12px;
+            margin-bottom: 8px;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -387,20 +371,20 @@
         /* PWA MOBILE INSTALL BANNER */
         .pwa-mobile-banner {
             position: fixed;
-            bottom: 16px;
-            left: 14px;
-            right: 14px;
+            bottom: 12px;
+            left: 12px;
+            right: 12px;
             max-width: 390px;
             margin: 0 auto;
             background: var(--bg-card);
             border: 1px solid var(--border-color);
             border-radius: 12px;
-            padding: 14px;
-            box-shadow: 0 12px 32px rgba(0, 0, 0, 0.25);
+            padding: 12px;
+            box-shadow: 0 12px 32px rgba(0, 0, 0, 0.35);
             z-index: 9999;
             display: none;
             flex-direction: column;
-            gap: 10px;
+            gap: 8px;
         }
         .btn-install-pwa {
             flex: 1;
@@ -408,7 +392,7 @@
             color: #FFFFFF;
             border: none;
             border-radius: 7px;
-            padding: 9px 12px;
+            padding: 8px 12px;
             font-size: 12px;
             font-weight: 500;
             cursor: pointer;
@@ -418,7 +402,7 @@
             color: var(--text-muted);
             border: 1px solid var(--border-color);
             border-radius: 7px;
-            padding: 9px 12px;
+            padding: 8px 12px;
             font-size: 12px;
             font-weight: 500;
             cursor: pointer;
@@ -438,15 +422,15 @@
             <div class="bento-item bento-span-2">
                 <div class="glow-circle glow-bottom-left"></div>
                 <div style="z-index: 1; position: relative;">
-                    <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 6px;">
-                        <img src="/icons/corvus-logo-light.png?v=20261017" alt="Corvux Logo" class="logo-light" style="width: 42px; height: 42px; border-radius: 10px; border: 1px solid var(--border-color); object-fit: cover;">
-                        <img src="/icons/corvus-logo-dark.png?v=20261017" alt="Corvux Logo" class="logo-dark" style="width: 42px; height: 42px; border-radius: 10px; border: 1px solid var(--border-color); object-fit: cover;">
+                    <div style="display: flex; align-items: center; gap: 11px;">
+                        <img src="/icons/corvus-logo-light.png?v=20261018" alt="Corvux Logo" class="logo-light" style="width: 38px; height: 38px; border-radius: 9px; border: 1px solid var(--border-color); object-fit: cover;">
+                        <img src="/icons/corvus-logo-dark.png?v=20261018" alt="Corvux Logo" class="logo-dark" style="width: 38px; height: 38px; border-radius: 9px; border: 1px solid var(--border-color); object-fit: cover;">
                         <div>
-                            <h1 class="brand-title" style="margin: 0; line-height: 1.1;">Corvux<span>IAM</span></h1>
+                            <h1 class="brand-title" style="margin: 0; line-height: 1.05;">Corvux<span>IAM</span></h1>
                             <span style="font-size: 10px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-muted); font-weight: 500;">Zero Trust Identity & SecOps</span>
                         </div>
                     </div>
-                    <p style="font-size: 13px; max-width: 420px; margin-top: 8px;">
+                    <p style="font-size: 12px; max-width: 420px; margin-top: 6px;">
                         Governança centralizada de identidades, controle de acesso baseado em papéis (RBAC) e defesa cibernética em tempo real.
                     </p>
                 </div>
@@ -456,14 +440,14 @@
             <div class="bento-item hide-mobile" style="align-items: center; text-align: center;">
                 <div class="glow-circle glow-top-right"></div>
                 <div class="stat-number">99.98%</div>
-                <p style="font-size: 12px;">Disponibilidade SLA</p>
+                <p style="font-size: 11.5px;">Disponibilidade SLA</p>
             </div>
 
             <!-- LOGIN FORM CARD -->
             <div class="bento-item bento-span-2 bento-row-2">
-                <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 18px;">
+                <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px;">
                     <h2 style="margin: 0;">Autenticação Corporativa</h2>
-                    <span style="font-size: 11px; color: var(--text-muted); border: 1px solid var(--border-color); padding: 2px 8px; border-radius: 999px;">TLS 1.3</span>
+                    <span style="font-size: 10.5px; color: var(--text-muted); border: 1px solid var(--border-color); padding: 2px 8px; border-radius: 999px;">TLS 1.3</span>
                 </div>
                 
                 @if (ViewBag.Erro != null)
@@ -487,7 +471,7 @@
                     </div>
                     
                     <div class="form-group">
-                        <div style="display: flex; justify-content: space-between; align-items: center; width: 100%; margin-bottom: 6px;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; width: 100%; margin-bottom: 5px;">
                             <label class="form-label" style="margin-bottom: 0;">Senha de Acesso</label>
                             <a href="/Auth/EsqueciSenha" class="link" style="font-size: 11px;">Esqueceu a senha?</a>
                         </div>
@@ -506,7 +490,7 @@
 
             <!-- SOCIAL / SSO CARD -->
             <div class="bento-item">
-                <h3 style="font-size: 13px; font-weight: 500; text-align: center; margin-bottom: 14px; color: var(--text-secondary);">Single Sign-On (SSO)</h3>
+                <h3 style="font-size: 12px; font-weight: 500; text-align: center; margin-bottom: 10px; color: var(--text-secondary);">Single Sign-On (SSO)</h3>
                 <div class="social-login">
                     <button type="button" class="btn-social" title="Google Workspace" onclick="preencherCredencial('admin@corvus.com', 'Cv1670!')"><i class="bi bi-google"></i></button>
                     <button type="button" class="btn-social" title="Microsoft Entra ID" onclick="preencherCredencial('admin@corvus.com', 'Cv1670!')"><i class="bi bi-microsoft"></i></button>
@@ -515,10 +499,10 @@
             </div>
 
             <!-- SECURE BADGE CARD -->
-            <div class="bento-item" style="display: flex; flex-direction: row; align-items: center; justify-content: center; gap: 12px;">
-                <i class="bi bi-shield-check" style="font-size: 26px; color: var(--accent-color);"></i>
+            <div class="bento-item hide-mobile" style="display: flex; flex-direction: row; align-items: center; justify-content: center; gap: 10px;">
+                <i class="bi bi-shield-check" style="font-size: 24px; color: var(--accent-color);"></i>
                 <div style="text-align: left;">
-                    <div style="font-weight: 600; font-size: 13px;">Zero Trust Ativo</div>
+                    <div style="font-weight: 600; font-size: 12.5px;">Zero Trust Ativo</div>
                     <div style="font-size: 11px; color: var(--text-muted);">Criptografia AES-256</div>
                 </div>
             </div>
@@ -528,10 +512,11 @@
 
     <!-- BANNER PWA EXCLUSIVO MOBILE -->
     <div id="pwaMobileInstallBanner" class="pwa-mobile-banner">
-        <div style="display: flex; align-items: center; gap: 12px;">
-            <img src="/icons/icon-192.png?v=20261017" alt="CorvuxIAM" style="width: 40px; height: 40px; border-radius: 9px; border: 1px solid var(--border-color);">
+        <div style="display: flex; align-items: center; gap: 10px;">
+            <img src="/icons/corvus-logo-light.png?v=20261018" alt="CorvuxIAM" class="logo-light" style="width: 38px; height: 38px; border-radius: 9px; border: 1px solid var(--border-color); object-fit: cover;">
+            <img src="/icons/corvus-logo-dark.png?v=20261018" alt="CorvuxIAM" class="logo-dark" style="width: 38px; height: 38px; border-radius: 9px; border: 1px solid var(--border-color); object-fit: cover;">
             <div style="flex: 1; text-align: left;">
-                <div style="font-weight: 600; font-size: 13px; color: var(--text-main);">Instalar App CorvuxIAM</div>
+                <div style="font-weight: 600; font-size: 12.5px; color: var(--text-main);">Instalar App CorvuxIAM</div>
                 <div style="font-size: 11px; color: var(--text-muted);">Acesso corporativo rápido e suporte offline no celular.</div>
             </div>
         </div>
@@ -573,7 +558,9 @@
 
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
-                navigator.serviceWorker.register('/sw.js').catch(err => console.warn('PWA SW Registro:', err));
+                navigator.serviceWorker.register('/sw.js').then(reg => {
+                    reg.update();
+                }).catch(err => console.warn('PWA SW Registro:', err));
             });
         }
 

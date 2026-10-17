@@ -1,3 +1,6 @@
+*, *::before, *::after {
+    box-sizing: border-box;
+}
 :root {
     color-scheme: light;
     font-family: 'Inter', system-ui, -apple-system, sans-serif;
@@ -11,12 +14,12 @@
 }
 html.dark {
     color-scheme: dark;
-    background: #0B0E14;
-    color: #F8FAFC;
-    --bg-card: #111621;
-    --border-color: #1E2636;
-    --text-muted: #94A3B8;
-    --input-bg: #0B0E14;
+    background: #070709;
+    color: #FAFAFA;
+    --bg-card: #0E0E12;
+    --border-color: #22222A;
+    --text-muted: #A1A1AA;
+    --input-bg: #09090C;
     --accent: #3B82F6;
 }
 body { margin: 0; -webkit-font-smoothing: antialiased; }

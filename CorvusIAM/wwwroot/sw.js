@@ -1,22 +1,20 @@
-const CACHE_NAME = 'corvux-iam-pwa-v10';
+const CACHE_NAME = 'corvux-iam-pwa-v15';
 const OFFLINE_URL = '/offline.html';
 
 const PRECACHE_ASSETS = [
   OFFLINE_URL,
-  '/manifest.json',
-  '/icons/icon-192.png?v=20261017',
-  '/icons/icon-512.png?v=20261017',
-  '/icons/corvus-logo.png?v=20261017',
-  '/icons/corvus-logo-light.png?v=20261017',
-  '/icons/corvus-logo-dark.png?v=20261017',
-  '/icons/favicon-32x32.png?v=20261017'
+  '/manifest.json?v=20261018',
+  '/icons/corvux-icon-192.png?v=20261018',
+  '/icons/corvux-icon-512.png?v=20261018',
+  '/icons/corvus-logo-light.png?v=20261018',
+  '/icons/corvus-logo-dark.png?v=20261018',
+  '/icons/favicon-32x32.png?v=20261018'
 ];
 
 self.addEventListener('install', event => {
   self.skipWaiting();
   event.waitUntil(
     caches.open(CACHE_NAME).then(async cache => {
-      // Adiciona cada asset individualmente para evitar que uma falha isolada cancele todo o precache
       await Promise.allSettled(
         PRECACHE_ASSETS.map(url => 
           cache.add(new Request(url, { cache: 'reload' })).catch(err => {
@@ -43,7 +41,6 @@ self.addEventListener('fetch', event => {
 
   const url = new URL(event.request.url);
 
-  // Ignora rotas de autenticação, APIs, downloads e métricas
   if (
     url.pathname.startsWith('/api/') || 
     url.pathname.startsWith('/Auth/') || 
@@ -66,19 +63,36 @@ self.addEventListener('fetch', event => {
     return;
   }
 
-  // Assets Estáticos (Ícones, CSS, JS, Fontes)
+  // Manifest e Ícones usam Network-First para sempre refletir a logo atualizada
   if (
-    url.pathname.startsWith('/icons/') || 
+    url.pathname.startsWith('/icons/') ||
+    url.pathname.endsWith('manifest.json') ||
+    url.pathname.endsWith('manifest.webmanifest') ||
+    url.pathname.endsWith('.ico') ||
+    url.pathname.endsWith('.png')
+  ) {
+    event.respondWith(
+      fetch(event.request).then(response => {
+        if (response && response.status === 200) {
+          const clone = response.clone();
+          caches.open(CACHE_NAME).then(cache => cache.put(event.request, clone));
+        }
+        return response;
+      }).catch(() => caches.match(event.request))
+    );
+    return;
+  }
+
+  // Demais Assets Estáticos (CSS, JS, Fontes)
+  if (
     url.pathname.endsWith('.css') || 
     url.pathname.endsWith('.js') ||
-    url.pathname.endsWith('.png') ||
     url.pathname.endsWith('.svg') ||
     url.pathname.endsWith('.woff2')
   ) {
     event.respondWith(
       caches.match(event.request).then(cachedResponse => {
         if (cachedResponse) {
-          // Busca atualização em segundo plano (Stale-While-Revalidate)
           fetch(event.request).then(networkResponse => {
             if (networkResponse && networkResponse.status === 200) {
               caches.open(CACHE_NAME).then(cache => cache.put(event.request, networkResponse));

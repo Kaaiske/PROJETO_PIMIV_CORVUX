@@ -7,16 +7,16 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-    <meta name="theme-color" content="#FFFFFF" />
+    <meta name="theme-color" content="#070709" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="default" />
-    <link rel="icon" type="image/png" sizes="32x32" href="/icons/favicon-32x32.png?v=20261017" />
-    <link rel="icon" type="image/png" sizes="192x192" href="/icons/icon-192.png?v=20261017" />
-    <link rel="apple-touch-icon" sizes="180x180" href="/icons/icon-192.png?v=20261017" />
-    <link rel="shortcut icon" href="/favicon.ico?v=20261017" type="image/x-icon" />
-    <link rel="manifest" href="/manifest.json" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/icons/favicon-32x32.png?v=20261018" />
+    <link rel="icon" type="image/png" sizes="192x192" href="/icons/corvux-icon-192.png?v=20261018" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/icons/corvux-icon-192.png?v=20261018" />
+    <link rel="shortcut icon" href="/favicon.ico?v=20261018" type="image/x-icon" />
+    <link rel="manifest" href="/manifest.json?v=20261018" />
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="~/mobile/app.css?v=20261017" />
+    <link rel="stylesheet" href="~/mobile/app.css?v=20261018" />
     <title>CorvuxIAM Mobile</title>
     <script>
         if (localStorage.getItem('corvux-theme') === 'dark') {
@@ -29,8 +29,8 @@
         <header>
             <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:12px;">
                 <div style="display:flex; align-items:center; gap:10px;">
-                    <img src="/icons/corvus-logo-light.png?v=20261017" alt="Corvux Logo" class="logo-light" style="width:36px; height:36px; border-radius:8px; border:1px solid #E2E8F0;">
-                    <img src="/icons/corvus-logo-dark.png?v=20261017" alt="Corvux Logo" class="logo-dark" style="width:36px; height:36px; border-radius:8px; border:1px solid #1E2636;">
+                    <img src="/icons/corvus-logo-light.png?v=20261018" alt="Corvux Logo" class="logo-light" style="width:36px; height:36px; border-radius:8px; border:1px solid var(--border-color); object-fit:cover;">
+                    <img src="/icons/corvus-logo-dark.png?v=20261018" alt="Corvux Logo" class="logo-dark" style="width:36px; height:36px; border-radius:8px; border:1px solid var(--border-color); object-fit:cover;">
                     <p class="marca" style="margin:0; font-size:0.95rem; letter-spacing:0.04em;">CORVUX IAM</p>
                 </div>
                 <a href="/Admin/Index" style="font-size:0.78rem; color:var(--accent); text-decoration:none; border:1px solid var(--border-color); padding:5px 10px; border-radius:6px;">Voltar ao Painel</a>
@@ -41,7 +41,8 @@
 
         <!-- Banner de Instalação PWA -->
         <div id="pwa-install-banner" class="install-banner" style="display:none; align-items:center; gap:12px;">
-            <img src="/icons/corvus-logo-dark.png?v=20261017" alt="CorvuxIAM" style="width:38px; height:38px; border-radius:8px; border:1px solid var(--border-color);">
+            <img src="/icons/corvus-logo-light.png?v=20261018" alt="CorvuxIAM" class="logo-light" style="width:38px; height:38px; border-radius:8px; border:1px solid var(--border-color); object-fit:cover;">
+            <img src="/icons/corvus-logo-dark.png?v=20261018" alt="CorvuxIAM" class="logo-dark" style="width:38px; height:38px; border-radius:8px; border:1px solid var(--border-color); object-fit:cover;">
             <div style="flex:1;">
                 <strong style="font-size:0.85rem;">Instalar Aplicativo CorvuxIAM</strong>
                 <p style="margin:2px 0 0 0; font-size:0.76rem; color:var(--text-muted);">Instale no seu smartphone para acesso rápido e suporte offline.</p>
@@ -88,6 +89,6 @@
             <a class="sair" href="/Auth/Logout" style="color:#EF4444;">Encerrar Sessão</a>
         </div>
     </main>
-    <script src="~/mobile/app.js"></script>
+    <script src="~/mobile/app.js?v=20261018"></script>
 </body>
 </html>

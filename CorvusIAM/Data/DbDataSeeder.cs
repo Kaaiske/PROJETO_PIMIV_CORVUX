@@ -126,11 +126,243 @@ namespace CorvusIAM.Data
 
                     IF NOT EXISTS (SELECT 1 FROM sys.indexes WHERE name = 'IX_ConfiguracoesSistema_Chave' AND object_id = OBJECT_ID('ConfiguracoesSistema'))
                         CREATE NONCLUSTERED INDEX [IX_ConfiguracoesSistema_Chave] ON [ConfiguracoesSistema]([Chave]);
+
+                    IF NOT EXISTS (SELECT 1 FROM sys.indexes WHERE name = 'IX_NotasFiscais_DataEmissao' AND object_id = OBJECT_ID('NotasFiscais'))
+                        CREATE NONCLUSTERED INDEX [IX_NotasFiscais_DataEmissao] ON [NotasFiscais]([DataEmissao] DESC) INCLUDE ([Numero], [Valor], [Status]);
+
+                    IF NOT EXISTS (SELECT 1 FROM sys.indexes WHERE name = 'IX_UsuarioPerfis_PerfilId' AND object_id = OBJECT_ID('UsuarioPerfis'))
+                        CREATE NONCLUSTERED INDEX [IX_UsuarioPerfis_PerfilId] ON [UsuarioPerfis]([PerfilId], [UsuarioId]);
                 ");
+
+                // Provisionamento de Views, Funções, Triggers e Stored Procedures no SQL Server (cada objeto em seu próprio batch)
+                string[] sqlServerProgrammabilityObjects = new[]
+                {
+                    @"CREATE OR ALTER VIEW [dbo].[vw_MatrizRbacUsuarios] AS
+                      SELECT u.[Id] AS [UsuarioId], u.[Nome], u.[Email], u.[Departamento], u.[Cargo], u.[Ativo], u.[MfaHabilitado],
+                             ISNULL(p.[Nome], 'Colaborador') AS [PerfilNome]
+                      FROM [dbo].[Usuarios] u
+                      LEFT JOIN [dbo].[UsuarioPerfis] up ON u.[Id] = up.[UsuarioId]
+                      LEFT JOIN [dbo].[Perfis] p ON up.[PerfilId] = p.[Id];",
+
+                    @"CREATE OR ALTER VIEW [dbo].[vw_ResumoSaudeEndpoints] AS
+                      SELECT ISNULL([Vlan], 'VLAN Padrão') AS [Vlan], [Tipo], COUNT([Id]) AS [TotalDispositivos],
+                             SUM(CASE WHEN [Status] = 'Saudavel' THEN 1 ELSE 0 END) AS [DispositivosSaudaveis],
+                             SUM(CASE WHEN [IsoladoRede] = 1 THEN 1 ELSE 0 END) AS [DispositivosIsolados],
+                             SUM(CASE WHEN [EdrAtivo] = 1 THEN 1 ELSE 0 END) AS [ComEdrAtivo],
+                             AVG(CAST([CpuUsoPercentual] AS FLOAT)) AS [MediaCpuPercentual],
+                             AVG(CAST([RamUsoPercentual] AS FLOAT)) AS [MediaRamPercentual],
+                             AVG(CAST([DiscoUsoPercentual] AS FLOAT)) AS [MediaDiscoPercentual],
+                             SUM([PatchesPendentes]) AS [TotalPatchesPendentes]
+                      FROM [dbo].[DispositivosRede]
+                      GROUP BY [Vlan], [Tipo];",
+
+                    @"CREATE OR ALTER VIEW [dbo].[vw_MonitoramentoSlaChamados] AS
+                      SELECT c.[Id] AS [ChamadoId], c.[Assunto], c.[Categoria], c.[Prioridade], c.[Status],
+                             u.[Nome] AS [SolicitanteNome], u.[Email] AS [SolicitanteEmail], c.[DataAbertura], c.[PrazoSla],
+                             CASE 
+                                 WHEN c.[Status] IN ('Fechado', 'Resolvido', 'Concluído') THEN 'SLA Cumprido'
+                                 WHEN c.[PrazoSla] IS NOT NULL AND c.[PrazoSla] < GETUTCDATE() THEN 'SLA Violado'
+                                 WHEN c.[PrazoSla] IS NOT NULL AND DATEDIFF(MINUTE, GETUTCDATE(), c.[PrazoSla]) <= 120 THEN 'Risco de Violação (<2h)'
+                                 ELSE 'Dentro do Prazo'
+                             END AS [SituacaoSla]
+                      FROM [dbo].[ChamadosSuporte] c
+                      INNER JOIN [dbo].[Usuarios] u ON c.[UsuarioId] = u.[Id];",
+
+                    @"CREATE OR ALTER FUNCTION [dbo].[fn_CalcularScoreRiscoUsuario] (@UsuarioId INT)
+                      RETURNS INT
+                      AS
+                      BEGIN
+                          DECLARE @Score INT = 10;
+                          DECLARE @Mfa BIT = 0;
+                          DECLARE @Ativo BIT = 1;
+                          DECLARE @FalhasRecentes INT = 0;
+                          SELECT @Mfa = [MfaHabilitado], @Ativo = [Ativo] FROM [dbo].[Usuarios] WHERE [Id] = @UsuarioId;
+                          IF @Mfa = 0 SET @Score = @Score + 35;
+                          IF @Ativo = 0 SET @Score = @Score + 25;
+                          SELECT @FalhasRecentes = COUNT(1) FROM [dbo].[LogsAuditoria]
+                          WHERE [UsuarioId] = @UsuarioId AND [Tipo] IN ('Warning', 'Error', 'Danger') AND [DataHora] >= DATEADD(DAY, -7, GETUTCDATE());
+                          SET @Score = @Score + (@FalhasRecentes * 10);
+                          IF @Score > 100 SET @Score = 100;
+                          RETURN @Score;
+                      END;",
+
+                    @"CREATE OR ALTER TRIGGER [dbo].[trg_AuditoriaStatusUsuario]
+                      ON [dbo].[Usuarios]
+                      AFTER UPDATE
+                      AS
+                      BEGIN
+                          SET NOCOUNT ON;
+                          IF UPDATE([Ativo]) OR UPDATE([MfaHabilitado])
+                          BEGIN
+                              INSERT INTO [dbo].[LogsAuditoria] ([DataHora], [Acao], [Detalhe], [Tipo], [Origem], [UsuarioId])
+                              SELECT GETUTCDATE(), 'Trigger DB: Alteração de Segurança de Conta',
+                                     CONCAT('Conta ', i.[Email], ' | Ativo: ', d.[Ativo], '->', i.[Ativo], ' | MFA: ', d.[MfaHabilitado], '->', i.[MfaHabilitado]),
+                                     CASE WHEN i.[Ativo] = 0 THEN 'Warning' ELSE 'Info' END,
+                                     'SQL Trigger trg_AuditoriaStatusUsuario', i.[Id]
+                              FROM inserted i
+                              INNER JOIN deleted d ON i.[Id] = d.[Id]
+                              WHERE i.[Ativo] <> d.[Ativo] OR i.[MfaHabilitado] <> d.[MfaHabilitado];
+                          END
+                      END;",
+
+                    @"CREATE OR ALTER TRIGGER [dbo].[trg_AuditoriaFirewallWaf]
+                      ON [dbo].[FirewallRegras]
+                      AFTER INSERT, UPDATE
+                      AS
+                      BEGIN
+                          SET NOCOUNT ON;
+                          INSERT INTO [dbo].[LogsAuditoria] ([DataHora], [Acao], [Detalhe], [Tipo], [Origem], [UsuarioId])
+                          SELECT GETUTCDATE(),
+                                 CASE WHEN i.[Ativo] = 1 THEN 'Trigger WAF: Regra de Bloqueio Ativada' ELSE 'Trigger WAF: Regra de Bloqueio Revogada' END,
+                                 CONCAT('IP: ', i.[Ip], ' | Motivo: ', i.[Motivo]),
+                                 CASE WHEN i.[Ativo] = 1 THEN 'Danger' ELSE 'Info' END,
+                                 'SQL Trigger trg_AuditoriaFirewallWaf', 1
+                          FROM inserted i;
+                      END;",
+
+                    @"CREATE OR ALTER PROCEDURE [dbo].[sp_RegistrarLogAuditoria]
+                          @Acao NVARCHAR(150),
+                          @Detalhe NVARCHAR(1000),
+                          @Tipo NVARCHAR(30) = 'Info',
+                          @Origem NVARCHAR(100) = 'System Core',
+                          @UsuarioId INT = 1
+                      AS
+                      BEGIN
+                          SET NOCOUNT ON;
+                          INSERT INTO [dbo].[LogsAuditoria] ([DataHora], [Acao], [Detalhe], [Tipo], [Origem], [UsuarioId])
+                          VALUES (GETUTCDATE(), @Acao, @Detalhe, @Tipo, @Origem, @UsuarioId);
+                      END;",
+
+                    @"CREATE OR ALTER PROCEDURE [dbo].[sp_BloquearIpFirewall]
+                          @Ip NVARCHAR(50),
+                          @Motivo NVARCHAR(200),
+                          @PaisOrigem NVARCHAR(10) = 'BR',
+                          @CriadoPor NVARCHAR(100) = 'SecOps Admin',
+                          @AdminUsuarioId INT = 1
+                      AS
+                      BEGIN
+                          SET NOCOUNT ON;
+                          BEGIN TRY
+                              BEGIN TRANSACTION;
+                              IF EXISTS (SELECT 1 FROM [dbo].[FirewallRegras] WHERE [Ip] = @Ip)
+                              BEGIN
+                                  UPDATE [dbo].[FirewallRegras]
+                                  SET [Ativo] = 1, [Motivo] = @Motivo, [DataBloqueio] = GETUTCDATE(), [CriadoPor] = @CriadoPor
+                                  WHERE [Ip] = @Ip;
+                              END
+                              ELSE
+                              BEGIN
+                                  INSERT INTO [dbo].[FirewallRegras] ([Ip], [Motivo], [PaisOrigem], [DataBloqueio], [Ativo], [CriadoPor])
+                                  VALUES (@Ip, @Motivo, @PaisOrigem, GETUTCDATE(), 1, @CriadoPor);
+                              END
+                              COMMIT TRANSACTION;
+                          END TRY
+                          BEGIN CATCH
+                              IF @@TRANCOUNT > 0 ROLLBACK TRANSACTION;
+                              THROW;
+                          END CATCH
+                      END;",
+
+                    @"CREATE OR ALTER PROCEDURE [dbo].[sp_AbrirChamadoSuporteComSla]
+                          @UsuarioId INT,
+                          @Assunto NVARCHAR(200),
+                          @Descricao NVARCHAR(MAX),
+                          @Categoria NVARCHAR(50) = 'Acesso',
+                          @Prioridade NVARCHAR(30) = 'Normal',
+                          @NovoChamadoId INT OUTPUT
+                      AS
+                      BEGIN
+                          SET NOCOUNT ON;
+                          DECLARE @HorasSla INT = CASE @Prioridade WHEN 'Critica' THEN 2 WHEN 'Alta' THEN 4 WHEN 'Normal' THEN 8 ELSE 24 END;
+                          DECLARE @Agora DATETIME2 = GETUTCDATE();
+                          DECLARE @Prazo DATETIME2 = DATEADD(HOUR, @HorasSla, @Agora);
+                          INSERT INTO [dbo].[ChamadosSuporte]
+                              ([UsuarioId], [Assunto], [Descricao], [Categoria], [Prioridade], [Status], [DataAbertura], [DataAtualizacao], [PrazoSla], [Solucao])
+                          VALUES
+                              (@UsuarioId, @Assunto, @Descricao, @Categoria, @Prioridade, 'Aberto', @Agora, @Agora, @Prazo, N'');
+                          SET @NovoChamadoId = SCOPE_IDENTITY();
+                      END;",
+
+                    @"CREATE OR ALTER PROCEDURE [dbo].[sp_RevogarSessoesUsuario]
+                          @UsuarioId INT,
+                          @AdminExecutorId INT = 1
+                      AS
+                      BEGIN
+                          SET NOCOUNT ON;
+                          UPDATE [dbo].[Usuarios]
+                          SET [RefreshToken] = N'', [RefreshTokenExpiryTime] = NULL, [ResetSenhaToken] = N'', [ResetSenhaTokenExpira] = NULL
+                          WHERE [Id] = @UsuarioId;
+                          INSERT INTO [dbo].[LogsAuditoria] ([DataHora], [Acao], [Detalhe], [Tipo], [Origem], [UsuarioId])
+                          VALUES (GETUTCDATE(), N'Revogação Zero-Trust de Sessão', N'Tokens JWT/Refresh invalidados via sp_RevogarSessoesUsuario', N'Warning', N'sp_RevogarSessoesUsuario', @AdminExecutorId);
+                      END;",
+
+                    @"CREATE OR ALTER PROCEDURE [dbo].[sp_ProcessarFechamentoContabil]
+                          @MesAno NVARCHAR(20),
+                          @ReceitaBruta DECIMAL(18,2),
+                          @DespesasOperacionais DECIMAL(18,2),
+                          @UsuarioId INT = 1
+                      AS
+                      BEGIN
+                          SET NOCOUNT ON;
+                          BEGIN TRY
+                              BEGIN TRANSACTION;
+                              DECLARE @LucroLiquido DECIMAL(18,2) = @ReceitaBruta - @DespesasOperacionais;
+                              INSERT INTO [dbo].[FechamentosMensais]
+                                  ([MesAno], [ReceitaBruta], [DespesasOperacionais], [LucroLiquido], [DataFechamento], [Status], [FechadoPorUsuarioId])
+                              VALUES
+                                  (@MesAno, @ReceitaBruta, @DespesasOperacionais, @LucroLiquido, GETUTCDATE(), N'Fechado', @UsuarioId);
+                              INSERT INTO [dbo].[LogsAuditoria] ([DataHora], [Acao], [Detalhe], [Tipo], [Origem], [UsuarioId])
+                              VALUES (GETUTCDATE(), N'Fechamento Contábil via Procedure', @MesAno, N'Info', N'sp_ProcessarFechamentoContabil', @UsuarioId);
+                              COMMIT TRANSACTION;
+                          END TRY
+                          BEGIN CATCH
+                              IF @@TRANCOUNT > 0 ROLLBACK TRANSACTION;
+                              THROW;
+                          END CATCH
+                      END;",
+
+                    @"CREATE OR ALTER PROCEDURE [dbo].[sp_ExecutarManutencaoLgpd]
+                          @AdminUsuarioId INT = 1,
+                          @RegistrosProcessados INT OUTPUT
+                      AS
+                      BEGIN
+                          SET NOCOUNT ON;
+                          DECLARE @DiasRetencao INT = 180;
+                          SELECT TOP 1 @DiasRetencao = TRY_CAST([Valor] AS INT) FROM [dbo].[ConfiguracoesSistema] WHERE [Chave] = N'LGPD_DATA_RETENTION_DAYS';
+                          IF @DiasRetencao IS NULL OR @DiasRetencao < 30 SET @DiasRetencao = 180;
+                          DECLARE @DataCorte DATETIME2 = DATEADD(DAY, -@DiasRetencao, GETUTCDATE());
+                          DELETE FROM [dbo].[LogsAuditoria] WHERE [DataHora] < @DataCorte AND [Tipo] = N'Info';
+                          SET @RegistrosProcessados = @@ROWCOUNT;
+                          UPDATE [dbo].[Usuarios] SET [ResetSenhaToken] = N'', [ResetSenhaTokenExpira] = NULL
+                          WHERE [ResetSenhaTokenExpira] IS NOT NULL AND [ResetSenhaTokenExpira] < GETUTCDATE();
+                          SET @RegistrosProcessados = @RegistrosProcessados + @@ROWCOUNT;
+                          INSERT INTO [dbo].[LogsAuditoria] ([DataHora], [Acao], [Detalhe], [Tipo], [Origem], [UsuarioId])
+                          VALUES (GETUTCDATE(), N'Manutenção & Expurgo LGPD (DB Procedure)', CONCAT(N'Retenção ', @DiasRetencao, N' dias | Higienizados: ', @RegistrosProcessados), N'Info', N'sp_ExecutarManutencaoLgpd', @AdminUsuarioId);
+                      END;",
+
+                    @"CREATE OR ALTER PROCEDURE [dbo].[sp_ObterMetricasSecOpsDashboard]
+                      AS
+                      BEGIN
+                          SET NOCOUNT ON;
+                          SELECT
+                              (SELECT COUNT(1) FROM [dbo].[Usuarios] WHERE [Ativo] = 1) AS [UsuariosAtivos],
+                              (SELECT COUNT(1) FROM [dbo].[Usuarios] WHERE [Ativo] = 1 AND [MfaHabilitado] = 1) AS [UsuariosComMfa],
+                              (SELECT COUNT(1) FROM [dbo].[ChamadosSuporte] WHERE [Status] NOT IN ('Fechado', 'Resolvido', 'Concluído')) AS [ChamadosAbertos],
+                              (SELECT COUNT(1) FROM [dbo].[FirewallRegras] WHERE [Ativo] = 1) AS [IpsBloqueadosWaf],
+                              (SELECT COUNT(1) FROM [dbo].[DispositivosRede] WHERE [Status] = 'Saudavel' AND [IsoladoRede] = 0) AS [EndpointsSaudaveis],
+                              (SELECT COUNT(1) FROM [dbo].[DispositivosRede] WHERE [IsoladoRede] = 1 OR [Status] = 'Critico') AS [EndpointsCriticosOuIsolados],
+                              (SELECT COUNT(1) FROM [dbo].[LogsAuditoria] WHERE [DataHora] >= DATEADD(HOUR, -24, GETUTCDATE()) AND [Tipo] IN ('Warning', 'Error', 'Danger')) AS [IncidentesUltimas24h];
+                      END;"
+                };
+
+                foreach (var sqlObj in sqlServerProgrammabilityObjects)
+                {
+                    try { context.Database.ExecuteSqlRaw(sqlObj); } catch { }
+                }
             }
             else
             {
-                // SQLite (desenvolvimento / testes) com otimizações WAL e índices
+                // SQLite (desenvolvimento / testes) com otimizações WAL, Índices, Views e Triggers
                 context.Database.EnsureCreated();
                 try
                 {
@@ -144,6 +376,27 @@ namespace CorvusIAM.Data
                         CREATE INDEX IF NOT EXISTS IX_FirewallRegras_Ip_Ativo ON FirewallRegras(Ip, Ativo);
                         CREATE INDEX IF NOT EXISTS IX_DispositivosRede_Status_Tipo ON DispositivosRede(Status, Tipo);
                         CREATE INDEX IF NOT EXISTS IX_ConfiguracoesSistema_Chave ON ConfiguracoesSistema(Chave);
+                        CREATE INDEX IF NOT EXISTS IX_NotasFiscais_DataEmissao ON NotasFiscais(DataEmissao DESC);
+                        CREATE INDEX IF NOT EXISTS IX_UsuarioPerfis_PerfilId ON UsuarioPerfis(PerfilId, UsuarioId);
+
+                        CREATE VIEW IF NOT EXISTS vw_MatrizRbacUsuarios AS
+                        SELECT u.Id AS UsuarioId, u.Nome, u.Email, u.Departamento, u.Cargo, u.Ativo, u.MfaHabilitado,
+                               IFNULL(p.Nome, 'Colaborador') AS PerfilNome
+                        FROM Usuarios u
+                        LEFT JOIN UsuarioPerfis up ON u.Id = up.UsuarioId
+                        LEFT JOIN Perfis p ON up.PerfilId = p.Id;
+
+                        CREATE VIEW IF NOT EXISTS vw_ResumoSaudeEndpoints AS
+                        SELECT IFNULL(Vlan, 'VLAN Padrão') AS Vlan, Tipo, COUNT(Id) AS TotalDispositivos,
+                               SUM(CASE WHEN Status = 'Saudavel' THEN 1 ELSE 0 END) AS DispositivosSaudaveis,
+                               SUM(CASE WHEN IsoladoRede = 1 THEN 1 ELSE 0 END) AS DispositivosIsolados,
+                               SUM(CASE WHEN EdrAtivo = 1 THEN 1 ELSE 0 END) AS ComEdrAtivo,
+                               AVG(CpuUsoPercentual) AS MediaCpuPercentual,
+                               AVG(RamUsoPercentual) AS MediaRamPercentual,
+                               AVG(DiscoUsoPercentual) AS MediaDiscoPercentual,
+                               SUM(PatchesPendentes) AS TotalPatchesPendentes
+                        FROM DispositivosRede
+                        GROUP BY Vlan, Tipo;
                     ");
                 }
                 catch { }

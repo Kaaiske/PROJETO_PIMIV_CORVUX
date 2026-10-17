@@ -275,6 +275,75 @@
         </div>
     </div>
 
+    <!-- SEÇÃO 6: ARQUITETURA DE BANCO DE DADOS, STORED PROCEDURES, VIEWS & TRIGGERS -->
+    <div class="bento-card bg-white dark:bg-dark-card border border-gray-200 dark:border-dark-border rounded-[6px] overflow-hidden">
+        <div class="px-[20px] py-[16px] border-b border-gray-200 dark:border-dark-border bg-gray-50/50 dark:bg-dark-bg/40 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+            <div class="flex items-center gap-2.5">
+                <div class="w-8 h-8 rounded-lg bg-cyan-500/10 border border-cyan-500/30 text-cyan-500 flex items-center justify-center font-bold">
+                    <i class="ph ph-database text-lg"></i>
+                </div>
+                <div>
+                    <h3 class="text-[14px] font-[600] text-gray-900 dark:text-white">Motor de Banco de Dados, Stored Procedures & Triggers</h3>
+                    <p class="text-[11px] text-gray-500 dark:text-gray-400">Objetos programáveis T-SQL, Views analíticas, Triggers de auditoria SIEM e Índices Non-Clustered</p>
+                </div>
+            </div>
+            <div class="flex items-center gap-2">
+                <button type="button" onclick="executarProcedureDb('sp_ObterMetricasSecOpsDashboard')" class="border border-cyan-500/30 bg-cyan-500/10 hover:bg-cyan-500/20 text-cyan-600 dark:text-cyan-400 text-[11px] font-medium px-2.5 py-1 rounded-[6px] transition-colors flex items-center gap-1 cursor-pointer">
+                    <i class="ph ph-play"></i> Testar sp_ObterMetricasSecOpsDashboard
+                </button>
+                <button type="button" onclick="executarProcedureDb('sp_ExecutarManutencaoLgpd')" class="border border-brand-500/30 bg-brand-500/10 hover:bg-brand-500/20 text-brand-600 dark:text-brand-400 text-[11px] font-medium px-2.5 py-1 rounded-[6px] transition-colors flex items-center gap-1 cursor-pointer">
+                    <i class="ph ph-broom"></i> Executar sp_ExecutarManutencaoLgpd
+                </button>
+            </div>
+        </div>
+        <div class="p-[20px] grid grid-cols-1 md:grid-cols-3 gap-4 text-[12px]">
+            <div class="p-3 rounded-[6px] border border-gray-200 dark:border-dark-border bg-gray-50/60 dark:bg-dark-bg/50">
+                <div class="font-semibold text-gray-900 dark:text-white mb-2 flex items-center justify-between">
+                    <span>Stored Procedures (7 Ativas)</span>
+                    <span class="text-[10px] font-mono text-emerald-500">T-SQL / ACID</span>
+                </div>
+                <ul class="space-y-1 text-[11px] font-mono text-gray-600 dark:text-gray-400">
+                    <li>• dbo.sp_RegistrarLogAuditoria</li>
+                    <li>• dbo.sp_BloquearIpFirewall</li>
+                    <li>• dbo.sp_AbrirChamadoSuporteComSla</li>
+                    <li>• dbo.sp_RevogarSessoesUsuario</li>
+                    <li>• dbo.sp_ProcessarFechamentoContabil</li>
+                    <li>• dbo.sp_ExecutarManutencaoLgpd</li>
+                    <li>• dbo.sp_ObterMetricasSecOpsDashboard</li>
+                </ul>
+            </div>
+            <div class="p-3 rounded-[6px] border border-gray-200 dark:border-dark-border bg-gray-50/60 dark:bg-dark-bg/50">
+                <div class="font-semibold text-gray-900 dark:text-white mb-2 flex items-center justify-between">
+                    <span>Views, Functions & Triggers</span>
+                    <span class="text-[10px] font-mono text-blue-500">SIEM / RBAC</span>
+                </div>
+                <ul class="space-y-1 text-[11px] font-mono text-gray-600 dark:text-gray-400">
+                    <li>• dbo.vw_MatrizRbacUsuarios</li>
+                    <li>• dbo.vw_ResumoSaudeEndpoints</li>
+                    <li>• dbo.vw_MonitoramentoSlaChamados</li>
+                    <li>• dbo.fn_CalcularScoreRiscoUsuario</li>
+                    <li>• dbo.trg_AuditoriaStatusUsuario</li>
+                    <li>• dbo.trg_AuditoriaFirewallWaf</li>
+                </ul>
+            </div>
+            <div class="p-3 rounded-[6px] border border-gray-200 dark:border-dark-border bg-gray-50/60 dark:bg-dark-bg/50">
+                <div class="font-semibold text-gray-900 dark:text-white mb-2 flex items-center justify-between">
+                    <span>Índices Non-Clustered (8 Ativos)</span>
+                    <span class="text-[10px] font-mono text-amber-500">High Perf</span>
+                </div>
+                <ul class="space-y-1 text-[11px] font-mono text-gray-600 dark:text-gray-400">
+                    <li>• IX_Usuarios_Email (INCLUDE)</li>
+                    <li>• IX_LogsAuditoria_DataHora_Tipo</li>
+                    <li>• IX_ChamadosSuporte_Status_Prioridade</li>
+                    <li>• IX_FirewallRegras_Ip_Ativo</li>
+                    <li>• IX_DispositivosRede_Status_Tipo</li>
+                    <li>• IX_NotasFiscais_DataEmissao</li>
+                    <li>• IX_UsuarioPerfis_PerfilId</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
     <!-- BOTÃO FIXO/FINAL DE SALVAR -->
     <div class="flex items-center justify-between pt-4 border-t border-gray-200 dark:border-dark-border">
         <p class="text-[12px] text-gray-500 dark:text-gray-400">
@@ -288,6 +357,29 @@
 
 @section Scripts {
     <script>
+        async function executarProcedureDb(procName) {
+            try {
+                const res = await fetch('/Admin/ExecutarProcedureBanco', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'RequestVerificationToken': getCsrfToken()
+                    },
+                    body: JSON.stringify({ Procedure: procName })
+                });
+                const data = await res.json();
+                Swal.fire({
+                    title: 'Stored Procedure Executada',
+                    text: data.message || ('Rotina ' + procName + ' concluída com sucesso.'),
+                    icon: 'success',
+                    background: '#0E0E12',
+                    color: '#FAFAFA',
+                    confirmButtonColor: '#3B82F6'
+                });
+            } catch (err) {
+                Swal.fire({ title: 'Erro', text: 'Falha ao comunicar com o motor de banco de dados.', icon: 'error' });
+            }
+        }
         async function salvarConfiguracoes(e) {
             e.preventDefault();
             const btn = document.getElementById('btnSalvarCfg');
