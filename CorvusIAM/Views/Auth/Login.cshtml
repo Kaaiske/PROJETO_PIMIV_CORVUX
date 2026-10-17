@@ -36,19 +36,19 @@
     </script>
     <style>
         :root {
-            --bg-body: #F8FAFC;
-            --bg-card: #FFFFFF;
-            --bg-card-subtle: #F1F5F9;
+            --bg-body: #E4EBF3;
+            --bg-card: #F5F7FA;
+            --bg-card-subtle: #EBF0F6;
             --text-main: #0F172A;
-            --text-secondary: #475569;
+            --text-secondary: #334155;
             --text-muted: #64748B;
             --accent-color: #2563EB;
             --accent-color-hover: #1D4ED8;
-            --border-color: #E2E8F0;
-            --border-hover: #CBD5E1;
-            --input-bg: #FFFFFF;
-            --card-shadow: 0 1px 3px rgba(15, 23, 42, 0.03), 0 1px 2px rgba(15, 23, 42, 0.02);
-            --card-shadow-hover: 0 8px 24px rgba(15, 23, 42, 0.06);
+            --border-color: #CBD5E1;
+            --border-hover: #94A3B8;
+            --input-bg: #EDF2F7;
+            --card-shadow: 0 2px 6px rgba(15, 23, 42, 0.05), 0 1px 2px rgba(15, 23, 42, 0.03);
+            --card-shadow-hover: 0 8px 24px rgba(15, 23, 42, 0.08);
         }
 
         html.dark {
@@ -79,6 +79,10 @@
             justify-content: center;
             -webkit-font-smoothing: antialiased;
             transition: background-color 0.2s ease, color 0.2s ease;
+        }
+        html:not(.dark) body {
+            background-image: radial-gradient(circle at 20% 20%, rgba(37, 99, 235, 0.06), transparent 45%),
+                              radial-gradient(circle at 80% 80%, rgba(15, 23, 42, 0.04), transparent 50%);
         }
 
         .login-container {
@@ -498,16 +502,6 @@
                         Acessar Plataforma <i class="bi bi-arrow-right"></i>
                     </button>
                 </form>
-
-                <!-- Preenchimento Rápido de Fluxo por Perfil -->
-                <div class="role-pills">
-                    <span style="width: 100%; font-size: 10px; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-muted);">Acesso Rápido por Perfil:</span>
-                    <button type="button" class="role-pill" onclick="preencherCredencial('admin@corvus.com', 'Cv1670!')">Admin CTO</button>
-                    <button type="button" class="role-pill" onclick="preencherCredencial('rh@corvus.com', 'Cv1670!')">Recursos Humanos</button>
-                    <button type="button" class="role-pill" onclick="preencherCredencial('contabil@corvus.com', 'Cv1670!')">Contabilidade</button>
-                    <button type="button" class="role-pill" onclick="preencherCredencial('suporte@corvus.com', 'Cv1670!')">Help Desk</button>
-                    <button type="button" class="role-pill" onclick="preencherCredencial('colaborador@corvus.com', 'Cv1670!')">Colaborador</button>
-                </div>
             </div>
 
             <!-- SOCIAL / SSO CARD -->

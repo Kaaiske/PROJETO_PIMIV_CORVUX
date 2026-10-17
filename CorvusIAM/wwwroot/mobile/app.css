@@ -1,12 +1,12 @@
 :root {
     color-scheme: light;
     font-family: 'Inter', system-ui, -apple-system, sans-serif;
-    background: #F8FAFC;
+    background: #E4EBF3;
     color: #0F172A;
-    --bg-card: #FFFFFF;
-    --border-color: #E2E8F0;
-    --text-muted: #64748B;
-    --input-bg: #FFFFFF;
+    --bg-card: #F5F7FA;
+    --border-color: #CBD5E1;
+    --text-muted: #475569;
+    --input-bg: #EDF2F7;
     --accent: #2563EB;
 }
 html.dark {
