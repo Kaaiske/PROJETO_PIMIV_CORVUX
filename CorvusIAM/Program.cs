@@ -324,31 +324,42 @@ using (var scope = app.Services.CreateScope())
                     if (context.Database.IsSqlServer())
                     {
                         context.Database.ExecuteSqlRaw(@"
-                            IF NOT EXISTS (SELECT * FROM sys.columns WHERE object_id = OBJECT_ID(N'[Perfis]') AND name = 'Ativo')
+                            IF NOT EXISTS (SELECT 1 FROM sys.columns WHERE object_id = OBJECT_ID(N'[Perfis]') AND name = 'Ativo')
                                 ALTER TABLE [Perfis] ADD [Ativo] BIT NOT NULL CONSTRAINT DF_Perfis_Ativo DEFAULT 1;
-                            IF NOT EXISTS (SELECT * FROM sys.columns WHERE object_id = OBJECT_ID(N'[Usuarios]') AND name = 'MfaHabilitado')
+                        ");
+                        context.Database.ExecuteSqlRaw(@"
+                            IF NOT EXISTS (SELECT 1 FROM sys.columns WHERE object_id = OBJECT_ID(N'[Usuarios]') AND name = 'MfaHabilitado')
                                 ALTER TABLE [Usuarios] ADD [MfaHabilitado] BIT NOT NULL CONSTRAINT DF_Usuarios_Mfa DEFAULT 0;
-                            IF NOT EXISTS (SELECT * FROM sys.columns WHERE object_id = OBJECT_ID(N'[Usuarios]') AND name = 'MfaSecretKey')
+                        ");
+                        context.Database.ExecuteSqlRaw(@"
+                            IF NOT EXISTS (SELECT 1 FROM sys.columns WHERE object_id = OBJECT_ID(N'[Usuarios]') AND name = 'MfaSecretKey')
                                 ALTER TABLE [Usuarios] ADD [MfaSecretKey] NVARCHAR(100) NULL;
-                            IF NOT EXISTS (SELECT * FROM sys.columns WHERE object_id = OBJECT_ID(N'[ChamadosSuporte]') AND name = 'AnexoUrl')
+                        ");
+                        context.Database.ExecuteSqlRaw(@"
+                            IF NOT EXISTS (SELECT 1 FROM sys.columns WHERE object_id = OBJECT_ID(N'[ChamadosSuporte]') AND name = 'AnexoUrl')
                                 ALTER TABLE [ChamadosSuporte] ADD [AnexoUrl] NVARCHAR(500) NULL;
-                            IF NOT EXISTS (SELECT * FROM sys.columns WHERE object_id = OBJECT_ID(N'[ChamadosSuporte]') AND name = 'AnexoNomeOriginal')
+                        ");
+                        context.Database.ExecuteSqlRaw(@"
+                            IF NOT EXISTS (SELECT 1 FROM sys.columns WHERE object_id = OBJECT_ID(N'[ChamadosSuporte]') AND name = 'AnexoNomeOriginal')
                                 ALTER TABLE [ChamadosSuporte] ADD [AnexoNomeOriginal] NVARCHAR(255) NULL;
-
-                            UPDATE [Usuarios] SET [MfaSecretKey] = '' WHERE [MfaSecretKey] IS NULL;
-                            UPDATE [Usuarios] SET [ResetSenhaToken] = '' WHERE [ResetSenhaToken] IS NULL;
-                            UPDATE [Usuarios] SET [RefreshToken] = '' WHERE [RefreshToken] IS NULL;
-                            UPDATE [Usuarios] SET [CPF] = '' WHERE [CPF] IS NULL;
-                            UPDATE [Usuarios] SET [Cargo] = '' WHERE [Cargo] IS NULL;
-                            UPDATE [Usuarios] SET [RG] = '' WHERE [RG] IS NULL;
-                            UPDATE [Usuarios] SET [Telefone] = '' WHERE [Telefone] IS NULL;
-                            UPDATE [Usuarios] SET [Departamento] = '' WHERE [Departamento] IS NULL;
-                            UPDATE [Usuarios] SET [Endereco] = '' WHERE [Endereco] IS NULL;
+                        ");
+                        context.Database.ExecuteSqlRaw(@"
                             IF OBJECT_ID(N'[ConfiguracoesSistema]', N'U') IS NOT NULL
                             BEGIN
                                 ALTER TABLE [ConfiguracoesSistema] ALTER COLUMN [Valor] NVARCHAR(MAX) NOT NULL;
                                 UPDATE [ConfiguracoesSistema] SET [Valor] = '0x4AAAAAAFXK5J9F5V8zblrT' WHERE [Chave] = 'TURNSTILE_SITEKEY' AND ([Valor] LIKE '3x0000%' OR [Valor] LIKE '1x0000%');
                             END
+                        ");
+                        context.Database.ExecuteSqlRaw(@"
+                            EXEC('UPDATE [Usuarios] SET [MfaSecretKey] = '''' WHERE [MfaSecretKey] IS NULL');
+                            EXEC('UPDATE [Usuarios] SET [ResetSenhaToken] = '''' WHERE [ResetSenhaToken] IS NULL');
+                            EXEC('UPDATE [Usuarios] SET [RefreshToken] = '''' WHERE [RefreshToken] IS NULL');
+                            EXEC('UPDATE [Usuarios] SET [CPF] = '''' WHERE [CPF] IS NULL');
+                            EXEC('UPDATE [Usuarios] SET [Cargo] = '''' WHERE [Cargo] IS NULL');
+                            EXEC('UPDATE [Usuarios] SET [RG] = '''' WHERE [RG] IS NULL');
+                            EXEC('UPDATE [Usuarios] SET [Telefone] = '''' WHERE [Telefone] IS NULL');
+                            EXEC('UPDATE [Usuarios] SET [Departamento] = '''' WHERE [Departamento] IS NULL');
+                            EXEC('UPDATE [Usuarios] SET [Endereco] = '''' WHERE [Endereco] IS NULL');
                         ");
 
                         // Assegura criação/atualização das Stored Procedures (PIM IV)
