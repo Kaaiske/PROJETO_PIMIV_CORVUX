@@ -34,6 +34,7 @@ namespace CorvusIAM.Data
             modelBuilder.Entity<FirewallRegra>().ToTable(tb => tb.HasTrigger("trg_AuditoriaFirewallWaf"));
             modelBuilder.Entity<ChamadoSuporte>().ToTable(tb => tb.HasTrigger("trg_AuditoriaChamados"));
             modelBuilder.Entity<ConfiguracaoSistema>().ToTable(tb => tb.HasTrigger("trg_AuditoriaConfig"));
+            modelBuilder.Entity<ConfiguracaoSistema>().Property(c => c.Valor).IsRequired();
 
             modelBuilder.Entity<UsuarioPerfil>()
                 .HasKey(up => new { up.UsuarioId, up.PerfilId });

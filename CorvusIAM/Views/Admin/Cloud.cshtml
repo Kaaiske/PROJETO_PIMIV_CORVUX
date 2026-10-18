@@ -11,9 +11,12 @@
 }
 
 <div class="mb-4 flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3">
-    <h1 class="text-[16px] font-[600] text-gray-900 dark:text-white flex items-center gap-2 m-0">
-        <i class="ph ph-desktop text-brand-500"></i> Endpoints & Dispositivos
-    </h1>
+    <div>
+        <h1 class="text-[16px] font-[600] text-gray-900 dark:text-white flex items-center gap-2 m-0">
+            <i class="ph ph-desktop text-brand-500"></i> Endpoints, Dispositivos &amp; Telemetria de Rede
+        </h1>
+        <p class="text-[11px] text-gray-500 dark:text-gray-400 mt-0.5">Monitoramento em tempo real das estações de trabalho e servidores: saúde de hardware (CPU, RAM e Disco), proteção antivírus EDR e aplicação remota de patches.</p>
+    </div>
     <div class="flex flex-wrap gap-2 w-full sm:w-auto">
         <button onclick="solicitarReinicioServico()" class="flex-1 sm:flex-initial bg-gray-800 hover:bg-gray-700 text-gray-200 border border-gray-600 text-[12px] font-medium px-3 py-1.5 rounded-[6px] shadow-sm transition-colors flex items-center justify-center gap-1.5 cursor-pointer" title="Reiniciar Serviço de Aplicação Web">
             <i class="ph ph-arrows-counter-clockwise text-amber-400"></i> Reiniciar Web
@@ -29,86 +32,260 @@
 
 <!-- KPI Cards -->
 <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-4">
-    <div class="bento-card bg-white dark:bg-dark-card border border-gray-200 dark:border-dark-border rounded-[6px] p-4 flex flex-col justify-between">
+    <div class="bento-card bg-white dark:bg-dark-card border border-gray-200 dark:border-dark-border rounded-[8px] p-4 flex flex-col justify-between">
         <div class="text-[11px] font-[600] text-gray-500 dark:text-gray-400 uppercase tracking-[0.05em] flex justify-between items-center mb-1.5">
             Total na Rede
             <i class="ph ph-devices text-brand-500 text-[16px]"></i>
         </div>
         <div class="flex items-baseline justify-between">
             <div class="text-[24px] font-[700] text-gray-900 dark:text-white leading-[1]" id="kpiTotalDevices">@total</div>
-            <div class="text-[11px] text-gray-500">@estacoes Est. • @servidores Serv.</div>
+            <div class="text-[11px] text-gray-500">@estacoes Estações • @servidores Servidores</div>
         </div>
     </div>
 
-    <div class="bento-card bg-white dark:bg-dark-card border border-gray-200 dark:border-dark-border rounded-[6px] p-4 flex flex-col justify-between">
+    <div class="bento-card bg-white dark:bg-dark-card border border-gray-200 dark:border-dark-border rounded-[8px] p-4 flex flex-col justify-between">
         <div class="text-[11px] font-[600] text-gray-500 dark:text-gray-400 uppercase tracking-[0.05em] flex justify-between items-center mb-1.5">
             Saudáveis
             <i class="ph ph-check-circle text-emerald-500 text-[16px]"></i>
         </div>
-        <div class="text-[24px] font-[700] text-emerald-500 leading-[1]" id="kpiHealthyDevices">@saudaveis</div>
+        <div class="flex items-baseline justify-between">
+            <div class="text-[24px] font-[700] text-emerald-500 leading-[1]" id="kpiHealthyDevices">@saudaveis</div>
+            <div class="text-[11px] text-emerald-500">Em conformidade</div>
+        </div>
     </div>
 
-    <div class="bento-card bg-white dark:bg-dark-card border border-gray-200 dark:border-dark-border rounded-[6px] p-4 flex flex-col justify-between">
+    <div class="bento-card bg-white dark:bg-dark-card border border-gray-200 dark:border-dark-border rounded-[8px] p-4 flex flex-col justify-between">
         <div class="text-[11px] font-[600] text-gray-500 dark:text-gray-400 uppercase tracking-[0.05em] flex justify-between items-center mb-1.5">
-            Atenção
+            Requerem Atenção
             <i class="ph ph-warning text-orange-500 text-[16px]"></i>
         </div>
-        <div class="text-[24px] font-[700] text-orange-500 leading-[1]" id="kpiWarningDevices">@atencao</div>
+        <div class="flex items-baseline justify-between">
+            <div class="text-[24px] font-[700] text-orange-500 leading-[1]" id="kpiWarningDevices">@atencao</div>
+            <div class="text-[11px] text-orange-500">Patches / Disco</div>
+        </div>
     </div>
 
-    <div class="bento-card bg-white dark:bg-dark-card border border-gray-200 dark:border-dark-border rounded-[6px] p-4 flex flex-col justify-between">
+    <div class="bento-card bg-white dark:bg-dark-card border border-gray-200 dark:border-dark-border rounded-[8px] p-4 flex flex-col justify-between">
         <div class="text-[11px] font-[600] text-gray-500 dark:text-gray-400 uppercase tracking-[0.05em] flex justify-between items-center mb-1.5">
-            Latência
+            Latência da VLAN
             <i class="ph ph-wifi-high text-blue-500 text-[16px]"></i>
         </div>
-        <div class="text-[24px] font-[700] text-gray-900 dark:text-white leading-[1]">3.8 ms</div>
+        <div class="flex items-baseline justify-between">
+            <div class="text-[24px] font-[700] text-gray-900 dark:text-white leading-[1]">3.8 ms</div>
+            <div class="text-[11px] text-blue-500">Rede 1 Gbps</div>
+        </div>
     </div>
 </div>
 
 <!-- Barra Compacta de Diagnóstico -->
-<div class="bento-card bg-amber-500/5 border border-amber-500/20 rounded-[6px] px-4 py-2.5 mb-4 flex flex-wrap items-center justify-between gap-3">
+<div class="bento-card bg-amber-500/5 border border-amber-500/20 rounded-[8px] px-4 py-2.5 mb-4 flex flex-wrap items-center justify-between gap-3">
     <div class="flex items-center gap-2.5 text-xs">
         <i class="ph ph-robot text-amber-500 text-lg"></i>
         <span class="text-gray-700 dark:text-gray-300" id="aiDiagText">
             @if (atencao > 0)
             {
-                <span><b>@atencao dispositivos</b> requerem atenção ou atualização de patches.</span>
+                <span><b>Diagnóstico Automático:</b> Identificados <b>@atencao dispositivos</b> com patches de segurança pendentes ou alto consumo de disco/memória.</span>
             }
             else
             {
-                <span class="text-emerald-500 font-semibold">Todos os dispositivos estão 100% saudáveis.</span>
+                <span class="text-emerald-500 font-semibold">Todos os dispositivos da rede estão 100% saudáveis e protegidos pelo agente EDR.</span>
             }
         </span>
     </div>
     <button onclick="remediarTodosLote()" class="px-2.5 py-1 bg-amber-600 hover:bg-amber-700 text-white rounded text-[11px] font-medium transition-colors cursor-pointer">
-        Aplicar Correções
+        Aplicar Correções Automáticas
     </button>
 </div>
 
-<!-- Tabela de Máquinas e Telemetria -->
-<div class="bento-card bg-white dark:bg-dark-card border border-gray-200 dark:border-dark-border rounded-[6px] flex flex-col overflow-hidden">
-    <div class="p-[16px] border-b border-gray-100 dark:border-dark-border bg-gray-50 dark:bg-dark-bg/50 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+<!-- Inventário de Dispositivos e Telemetria em Tempo Real (Bento UI) -->
+<div class="bento-card bg-white dark:bg-dark-card border border-gray-200 dark:border-dark-border rounded-[8px] p-4 mb-4">
+    <div class="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-3 pb-3 border-b border-gray-100 dark:border-dark-border">
         <div>
-            <h3 class="text-[12px] font-[600] text-gray-500 dark:text-gray-400 uppercase tracking-[0.05em] m-0">Inventário de Dispositivos e Telemetria em Tempo Real</h3>
+            <h3 class="text-[13px] font-[700] text-gray-900 dark:text-white flex items-center gap-2 m-0">
+                <i class="ph ph-broadcast text-brand-500"></i> Inventário de Dispositivos e Telemetria em Tempo Real
+            </h3>
+            <p class="text-[11px] text-gray-500 dark:text-gray-400 mt-0.5 m-0">
+                Esta área exibe todas as máquinas conectadas à empresa. Acompanhe o consumo de <b>CPU, Memória RAM e Disco</b>, verifique se o <b>Antivírus (EDR)</b> está ativo e execute ações diretas como <b>Inspecionar Tráfego</b>, <b>Instalar Atualizações (Patches)</b> ou <b>Isolar Máquina</b> em caso de suspeita de invasão.
+            </p>
         </div>
-        <div class="flex flex-wrap gap-1.5" id="filterTabs">
-            <button onclick="filtrarDispositivos('todos')" id="tab-todos" class="tab-btn px-2.5 py-1 text-[11px] font-medium rounded bg-brand-600 text-white transition-colors cursor-pointer">Todos (@total)</button>
-            <button onclick="filtrarDispositivos('atencao')" id="tab-atencao" class="tab-btn px-2.5 py-1 text-[11px] font-medium rounded text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-dark-border transition-colors cursor-pointer">Requer Atenção (@atencao)</button>
-            <button onclick="filtrarDispositivos('estacoes')" id="tab-estacoes" class="tab-btn px-2.5 py-1 text-[11px] font-medium rounded text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-dark-border transition-colors cursor-pointer">Estações (@estacoes)</button>
-            <button onclick="filtrarDispositivos('servidores')" id="tab-servidores" class="tab-btn px-2.5 py-1 text-[11px] font-medium rounded text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-dark-border transition-colors cursor-pointer">Servidores (@servidores)</button>
+        <div class="flex flex-wrap items-center gap-2 shrink-0">
+            <div class="flex flex-wrap gap-1" id="filterTabs">
+                <button onclick="filtrarDispositivos('todos')" id="tab-todos" class="tab-btn px-2.5 py-1 text-[11px] font-medium rounded bg-brand-600 text-white transition-colors cursor-pointer">Todos (@total)</button>
+                <button onclick="filtrarDispositivos('atencao')" id="tab-atencao" class="tab-btn px-2.5 py-1 text-[11px] font-medium rounded text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-dark-border transition-colors cursor-pointer">Atenção (@atencao)</button>
+                <button onclick="filtrarDispositivos('estacoes')" id="tab-estacoes" class="tab-btn px-2.5 py-1 text-[11px] font-medium rounded text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-dark-border transition-colors cursor-pointer">Estações (@estacoes)</button>
+                <button onclick="filtrarDispositivos('servidores')" id="tab-servidores" class="tab-btn px-2.5 py-1 text-[11px] font-medium rounded text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-dark-border transition-colors cursor-pointer">Servidores (@servidores)</button>
+            </div>
+            <div class="flex items-center bg-gray-100 dark:bg-dark-bg border border-gray-200 dark:border-dark-border rounded-[6px] p-0.5">
+                <button type="button" onclick="alternarVisaoInventario('bento')" id="btnInvBento" class="px-2 py-0.5 rounded text-[11px] font-medium bg-brand-600 text-white cursor-pointer flex items-center gap-1">
+                    <i class="ph ph-squares-four"></i> Bento
+                </button>
+                <button type="button" onclick="alternarVisaoInventario('table')" id="btnInvTable" class="px-2 py-0.5 rounded text-[11px] font-medium text-gray-500 hover:text-gray-900 dark:hover:text-white cursor-pointer flex items-center gap-1">
+                    <i class="ph ph-table"></i> Tabela
+                </button>
+            </div>
         </div>
     </div>
-    
-    <div class="overflow-x-auto">
+
+    <!-- Guia Rápido de Legenda para o Usuário -->
+    <div class="grid grid-cols-1 sm:grid-cols-3 gap-2.5 my-3 text-[11px]">
+        <div class="p-2 rounded bg-emerald-500/5 border border-emerald-500/20 flex items-center gap-2">
+            <span class="w-2 h-2 rounded-full bg-emerald-500 shrink-0"></span>
+            <span class="text-gray-600 dark:text-gray-300"><b>Saudável:</b> Recursos normais, antivírus EDR ativo e sistema operacional atualizado.</span>
+        </div>
+        <div class="p-2 rounded bg-orange-500/5 border border-orange-500/20 flex items-center gap-2">
+            <span class="w-2 h-2 rounded-full bg-orange-500 shrink-0"></span>
+            <span class="text-gray-600 dark:text-gray-300"><b>Alerta / Atenção:</b> Patches de segurança pendentes ou uso elevado de RAM/Disco (&gt;80%).</span>
+        </div>
+        <div class="p-2 rounded bg-red-500/5 border border-red-500/20 flex items-center gap-2">
+            <span class="w-2 h-2 rounded-full bg-red-500 shrink-0"></span>
+            <span class="text-gray-600 dark:text-gray-300"><b>Crítico / Isolado:</b> Máquina em quarentena ou com falha de proteção EDR.</span>
+        </div>
+    </div>
+
+    <!-- VISÃO 1: BENTO GRID DE DISPOSITIVOS (PADRÃO) -->
+    <div id="inventarioBentoGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3.5 mt-3">
+        @foreach (var dev in dispositivos)
+        {
+            var statusFilter = (dev.Status != "Saudavel" || dev.IsoladoRede) ? "atencao" : "saudavel";
+            var isServer = dev.Tipo == "servidores";
+            var cpuColor = dev.CpuUsoPercentual > 80 ? "bg-orange-500" : "bg-brand-500";
+            var ramColor = dev.RamUsoPercentual > 85 ? "bg-orange-500" : "bg-emerald-500";
+            var diskColor = dev.DiscoUsoPercentual > 85 ? "bg-red-500" : "bg-blue-500";
+
+            <div class="device-row bento-card bg-gray-50/60 dark:bg-dark-bg/60 border border-gray-200 dark:border-dark-border rounded-[8px] p-3.5 flex flex-col justify-between hover:border-brand-500/50 transition-all" data-type="@dev.Tipo" data-status="@statusFilter">
+                <div>
+                    <!-- Topo do Card: Hostname, Usuário e Status -->
+                    <div class="flex items-start justify-between gap-2 mb-2.5">
+                        <div class="flex items-center gap-2">
+                            <div class="w-8 h-8 rounded-lg bg-brand-500/10 border border-brand-500/20 flex items-center justify-center text-brand-500">
+                                <i class="ph @(isServer ? "ph-hard-drives" : "ph-laptop") text-base"></i>
+                            </div>
+                            <div>
+                                <div class="font-[700] text-[13px] text-gray-900 dark:text-white leading-tight">@dev.Hostname</div>
+                                <div class="text-[10px] text-gray-500">@(dev.UsuarioResponsavel ?? "Serviço Automático") • @(isServer ? "Servidor" : "Estação")</div>
+                            </div>
+                        </div>
+                        <div>
+                            @if (dev.IsoladoRede)
+                            {
+                                <span class="inline-flex items-center gap-1 text-[10px] font-bold text-red-500 bg-red-500/10 border border-red-500/20 px-2 py-0.5 rounded">
+                                    <span class="w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse"></span> Isolado
+                                </span>
+                            }
+                            else if (dev.Status == "Critico")
+                            {
+                                <span class="inline-flex items-center gap-1 text-[10px] font-bold text-red-500 bg-red-500/10 border border-red-500/20 px-2 py-0.5 rounded">
+                                    <span class="w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse"></span> Crítico
+                                </span>
+                            }
+                            else if (dev.Status == "Alerta")
+                            {
+                                <span class="inline-flex items-center gap-1 text-[10px] font-bold text-orange-500 bg-orange-500/10 border border-orange-500/20 px-2 py-0.5 rounded">
+                                    <span class="w-1.5 h-1.5 rounded-full bg-orange-500 animate-pulse"></span> Alerta
+                                </span>
+                            }
+                            else
+                            {
+                                <span class="inline-flex items-center gap-1 text-[10px] font-bold text-emerald-500 bg-emerald-500/10 border border-emerald-500/20 px-2 py-0.5 rounded">
+                                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> Saudável
+                                </span>
+                            }
+                        </div>
+                    </div>
+
+                    <!-- Metadados de Rede e Sistema Operacional -->
+                    <div class="grid grid-cols-2 gap-1.5 text-[10px] bg-white dark:bg-dark-card p-2 rounded border border-gray-100 dark:border-dark-border mb-2.5">
+                        <div>
+                            <span class="text-gray-400 block">IP &amp; Rede:</span>
+                            <span class="font-mono font-semibold text-gray-800 dark:text-gray-200">@dev.Ip</span> <span class="text-gray-400">(@(dev.Vlan ?? "VLAN 10"))</span>
+                        </div>
+                        <div>
+                            <span class="text-gray-400 block">Sistema Operacional:</span>
+                            <span class="font-medium text-gray-800 dark:text-gray-200 truncate block" title="@dev.SistemaOperacional">@(dev.SistemaOperacional ?? "Windows / Linux")</span>
+                        </div>
+                    </div>
+
+                    <!-- Barras de Telemetria de Hardware (CPU, RAM, Disco) -->
+                    <div class="space-y-1.5 mb-2.5 text-[10px]">
+                        <div>
+                            <div class="flex justify-between text-gray-500 mb-0.5"><span>Processador (CPU)</span><b class="font-mono">@dev.CpuUsoPercentual%</b></div>
+                            <div class="w-full h-1.5 bg-gray-200 dark:bg-dark-card rounded-full overflow-hidden"><div class="h-full @cpuColor" style="width: @(dev.CpuUsoPercentual)%"></div></div>
+                        </div>
+                        <div>
+                            <div class="flex justify-between text-gray-500 mb-0.5"><span>Memória RAM</span><b class="font-mono @(dev.RamUsoPercentual > 85 ? "text-orange-500" : "")">@dev.RamUsoPercentual%</b></div>
+                            <div class="w-full h-1.5 bg-gray-200 dark:bg-dark-card rounded-full overflow-hidden"><div class="h-full @ramColor" style="width: @(dev.RamUsoPercentual)%"></div></div>
+                        </div>
+                        <div>
+                            <div class="flex justify-between text-gray-500 mb-0.5"><span>Armazenamento (Disco)</span><b class="font-mono @(dev.DiscoUsoPercentual > 85 ? "text-red-500" : "")">@dev.DiscoUsoPercentual%</b></div>
+                            <div class="w-full h-1.5 bg-gray-200 dark:bg-dark-card rounded-full overflow-hidden"><div class="h-full @diskColor" style="width: @(dev.DiscoUsoPercentual)%"></div></div>
+                        </div>
+                    </div>
+
+                    <!-- Postura de Segurança: EDR + Patches -->
+                    <div class="flex items-center justify-between gap-1.5 mb-3 text-[10px]">
+                        @if (dev.EdrAtivo && dev.EdrStatus != "Assinatura Antiga")
+                        {
+                            <span class="inline-flex items-center gap-1 font-medium text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded border border-emerald-500/20">
+                                <i class="ph ph-shield-check"></i> @(dev.EdrStatus ?? "EDR Ativo")
+                            </span>
+                        }
+                        else
+                        {
+                            <span class="inline-flex items-center gap-1 font-medium text-orange-500 bg-orange-500/10 px-2 py-0.5 rounded border border-orange-500/20">
+                                <i class="ph ph-warning-circle"></i> @(dev.EdrStatus ?? "Assinatura Antiga")
+                            </span>
+                        }
+
+                        @if (dev.PatchesPendentes > 0)
+                        {
+                            <span class="inline-flex items-center gap-1 font-medium text-orange-500 bg-orange-500/10 px-2 py-0.5 rounded border border-orange-500/20">
+                                <i class="ph ph-warning"></i> @dev.PatchesPendentes Patches
+                            </span>
+                        }
+                        else
+                        {
+                            <span class="inline-flex items-center gap-1 font-medium text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded border border-emerald-500/20">
+                                <i class="ph ph-check"></i> SO Atualizado
+                            </span>
+                        }
+                    </div>
+                </div>
+
+                <!-- Ações Rápidas do Dispositivo -->
+                <div class="pt-2.5 border-t border-gray-200/70 dark:border-dark-border flex flex-wrap items-center justify-between gap-1">
+                    <div class="flex items-center gap-1">
+                        <button onclick="abrirModalTrafegoEndpoint('@dev.Hostname', '@(dev.UsuarioResponsavel ?? "Sem usuário")', '@dev.Ip')" class="px-2 py-1 bg-purple-500/10 hover:bg-purple-500/20 text-purple-600 dark:text-purple-400 text-[11px] font-medium rounded transition-colors cursor-pointer flex items-center gap-1" title="Ver conexões e portas de rede ativas">
+                            <i class="ph ph-activity"></i> Tráfego
+                        </button>
+                        <button onclick="escanearDispositivo('@dev.Hostname')" class="px-2 py-1 bg-brand-500/10 hover:bg-brand-500/20 text-brand-600 dark:text-brand-400 text-[11px] font-medium rounded transition-colors cursor-pointer" title="Executar varredura de antivírus">
+                            Escanear
+                        </button>
+                        @if (dev.PatchesPendentes > 0)
+                        {
+                            <button onclick="aplicarPatchesDispositivo('@dev.Hostname')" class="px-2 py-1 bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 text-[11px] font-medium rounded transition-colors cursor-pointer">
+                                Atualizar
+                            </button>
+                        }
+                    </div>
+                    <button onclick="isolarDispositivo('@dev.Hostname', this)" class="px-2 py-1 @(dev.IsoladoRede ? "bg-gray-700 text-white" : "bg-red-500/10 hover:bg-red-500/20 text-red-500") text-[11px] font-medium rounded transition-colors cursor-pointer">
+                        @(dev.IsoladoRede ? "Liberar" : "Isolar")
+                    </button>
+                </div>
+            </div>
+        }
+    </div>
+
+    <!-- VISÃO 2: TABELA TRADICIONAL (OCULTA POR PADRÃO) -->
+    <div id="inventarioTableWrap" class="hidden overflow-x-auto mt-3 border border-gray-200 dark:border-dark-border rounded-[6px]">
         <table class="w-full text-left border-collapse" id="tabelaEndpoints">
             <thead>
                 <tr class="border-b border-gray-200 dark:border-dark-border bg-gray-50 dark:bg-dark-bg/50 text-[11px] font-[600] text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                     <th class="px-4 py-3">Dispositivo / Host</th>
-                    <th class="px-4 py-3">IP & Rede</th>
+                    <th class="px-4 py-3">IP &amp; Rede</th>
                     <th class="px-4 py-3">Sistema Operacional</th>
                     <th class="px-4 py-3">Consumo de Recursos</th>
                     <th class="px-4 py-3">EDR / Antivírus</th>
-                    <th class="px-4 py-3">Patches & Segurança</th>
+                    <th class="px-4 py-3">Patches &amp; Segurança</th>
                     <th class="px-4 py-3">Status</th>
                     <th class="px-4 py-3 text-right">Ações Rápidas</th>
                 </tr>
@@ -316,6 +493,26 @@
 
 @section Scripts {
     <script>
+        function alternarVisaoInventario(modo) {
+            const bento = document.getElementById('inventarioBentoGrid');
+            const table = document.getElementById('inventarioTableWrap');
+            const bBento = document.getElementById('btnInvBento');
+            const bTable = document.getElementById('btnInvTable');
+            if (!bento || !table) return;
+
+            if (modo === 'table') {
+                bento.classList.add('hidden');
+                table.classList.remove('hidden');
+                bTable.className = 'px-2 py-0.5 rounded text-[11px] font-medium bg-brand-600 text-white cursor-pointer flex items-center gap-1';
+                bBento.className = 'px-2 py-0.5 rounded text-[11px] font-medium text-gray-500 hover:text-gray-900 dark:hover:text-white cursor-pointer flex items-center gap-1';
+            } else {
+                table.classList.add('hidden');
+                bento.classList.remove('hidden');
+                bBento.className = 'px-2 py-0.5 rounded text-[11px] font-medium bg-brand-600 text-white cursor-pointer flex items-center gap-1';
+                bTable.className = 'px-2 py-0.5 rounded text-[11px] font-medium text-gray-500 hover:text-gray-900 dark:hover:text-white cursor-pointer flex items-center gap-1';
+            }
+        }
+
         function filtrarDispositivos(tipo) {
             document.querySelectorAll('.tab-btn').forEach(b => {
                 b.classList.remove('bg-brand-600', 'text-white');

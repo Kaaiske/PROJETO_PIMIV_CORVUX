@@ -2,57 +2,208 @@
 @{
     Layout = "_Layout";
     ViewData["Title"] = "Fila Help Desk";
+    var lista = Model?.ToList() ?? new List<CorvusIAM.Entities.ChamadoSuporte>();
+    int total = lista.Count;
+    int abertos = lista.Count(c => c.Status == "Aberto");
+    int andamento = lista.Count(c => c.Status == "Em Andamento");
+    int fechados = lista.Count(c => c.Status == "Fechado" || c.Status == "Resolvido");
 }
 
 <div class="mb-4 flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3">
-    <h1 class="text-[16px] font-[600] text-gray-900 dark:text-white flex items-center gap-2 m-0">
-        <i class="ph ph-headset text-brand-500"></i> Chamados
-    </h1>
-    <button onclick="openNovaIssueModal()" class="w-full sm:w-auto bg-brand-600 hover:bg-[#1D4ED8] text-white text-[12px] font-medium px-3 py-1.5 rounded-[6px] shadow-sm transition-colors flex items-center justify-center gap-1.5 cursor-pointer">
-        <i class="ph ph-plus"></i> Novo Chamado
-    </button>
+    <div>
+        <h1 class="text-[16px] font-[600] text-gray-900 dark:text-white flex items-center gap-2 m-0">
+            <i class="ph ph-headset text-brand-500"></i> Central de Chamados &amp; Help Desk (ITSM)
+        </h1>
+        <p class="text-[11px] text-gray-500 dark:text-gray-400 mt-0.5">Gerenciamento de incidentes, solicitações de acesso IAM, desbloqueio MFA e suporte técnico com SLA.</p>
+    </div>
+    <div class="flex items-center gap-2">
+        <div class="flex items-center bg-white dark:bg-dark-card border border-gray-200 dark:border-dark-border rounded-[6px] p-0.5">
+            <button type="button" onclick="alternarVisaoChamados('bento')" id="btnViewBento" class="px-2.5 py-1 rounded text-[11px] font-medium bg-brand-600 text-white cursor-pointer flex items-center gap-1">
+                <i class="ph ph-squares-four"></i> Bento
+            </button>
+            <button type="button" onclick="alternarVisaoChamados('table')" id="btnViewTable" class="px-2.5 py-1 rounded text-[11px] font-medium text-gray-500 hover:text-gray-900 dark:hover:text-white cursor-pointer flex items-center gap-1">
+                <i class="ph ph-list-bullets"></i> Lista
+            </button>
+        </div>
+        <button onclick="openNovaIssueModal()" class="bg-brand-600 hover:bg-[#1D4ED8] text-white text-[12px] font-medium px-3 py-1.5 rounded-[6px] shadow-sm transition-colors flex items-center gap-1.5 cursor-pointer">
+            <i class="ph ph-plus"></i> Novo Chamado
+        </button>
+    </div>
 </div>
 
-<div class="bento-card bg-white dark:bg-dark-card border border-gray-200 dark:border-dark-border rounded-[6px] flex flex-col overflow-hidden">
-    @if(!Model.Any()) {
-        <div class="p-[24px] text-[13px] text-gray-500 dark:text-gray-400">Nenhum chamado pendente na fila.</div>
-    } else {
+<!-- Bento KPIs ITSM -->
+<div class="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-4">
+    <div class="bento-card bg-white dark:bg-dark-card border border-gray-200 dark:border-dark-border rounded-[8px] p-3.5 flex flex-col justify-between">
+        <div class="text-[10px] font-[600] text-gray-500 dark:text-gray-400 uppercase flex justify-between items-center mb-1">
+            <span>Total na Fila</span>
+            <i class="ph ph-ticket text-brand-500 text-[16px]"></i>
+        </div>
+        <div class="flex items-baseline justify-between">
+            <span class="text-[22px] font-[700] text-gray-900 dark:text-white leading-none">@total</span>
+            <span class="text-[10px] text-gray-400 font-mono">Tickets</span>
+        </div>
+    </div>
+
+    <div class="bento-card bg-white dark:bg-dark-card border border-gray-200 dark:border-dark-border rounded-[8px] p-3.5 flex flex-col justify-between">
+        <div class="text-[10px] font-[600] text-gray-500 dark:text-gray-400 uppercase flex justify-between items-center mb-1">
+            <span>Abertos / Pendentes</span>
+            <i class="ph ph-warning-circle text-orange-500 text-[16px]"></i>
+        </div>
+        <div class="flex items-baseline justify-between">
+            <span class="text-[22px] font-[700] text-orange-500 leading-none">@abertos</span>
+            <span class="text-[10px] text-orange-500 font-mono">Prioridade</span>
+        </div>
+    </div>
+
+    <div class="bento-card bg-white dark:bg-dark-card border border-gray-200 dark:border-dark-border rounded-[8px] p-3.5 flex flex-col justify-between">
+        <div class="text-[10px] font-[600] text-gray-500 dark:text-gray-400 uppercase flex justify-between items-center mb-1">
+            <span>Em Atendimento</span>
+            <i class="ph ph-spinner-gap text-blue-500 text-[16px]"></i>
+        </div>
+        <div class="flex items-baseline justify-between">
+            <span class="text-[22px] font-[700] text-blue-500 leading-none">@andamento</span>
+            <span class="text-[10px] text-blue-500 font-mono">N1 / N2</span>
+        </div>
+    </div>
+
+    <div class="bento-card bg-white dark:bg-dark-card border border-gray-200 dark:border-dark-border rounded-[8px] p-3.5 flex flex-col justify-between">
+        <div class="text-[10px] font-[600] text-gray-500 dark:text-gray-400 uppercase flex justify-between items-center mb-1">
+            <span>Concluídos &amp; SLA</span>
+            <i class="ph ph-check-circle text-emerald-500 text-[16px]"></i>
+        </div>
+        <div class="flex items-baseline justify-between">
+            <span class="text-[22px] font-[700] text-emerald-500 leading-none">@fechados</span>
+            <span class="text-[10px] text-emerald-500 font-mono">98.6% no Prazo</span>
+        </div>
+    </div>
+</div>
+
+<!-- Barra de Filtro e Busca Bento -->
+<div class="bento-card bg-white dark:bg-dark-card border border-gray-200 dark:border-dark-border rounded-[8px] p-3 mb-4 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
+    <div class="flex flex-wrap gap-1.5">
+        <button type="button" onclick="filtrarChamados('todos')" id="f-chamado-todos" class="chamado-filter-btn px-2.5 py-1 rounded text-[11px] font-medium bg-brand-600 text-white cursor-pointer">Todos (@total)</button>
+        <button type="button" onclick="filtrarChamados('Aberto')" id="f-chamado-Aberto" class="chamado-filter-btn px-2.5 py-1 rounded text-[11px] font-medium text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-dark-border cursor-pointer">Abertos (@abertos)</button>
+        <button type="button" onclick="filtrarChamados('Em Andamento')" id="f-chamado-Em Andamento" class="chamado-filter-btn px-2.5 py-1 rounded text-[11px] font-medium text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-dark-border cursor-pointer">Em Andamento (@andamento)</button>
+        <button type="button" onclick="filtrarChamados('Fechado')" id="f-chamado-Fechado" class="chamado-filter-btn px-2.5 py-1 rounded text-[11px] font-medium text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-dark-border cursor-pointer">Fechados (@fechados)</button>
+    </div>
+    <div class="relative w-full sm:w-64">
+        <i class="ph ph-magnifying-glass absolute left-2.5 top-2 text-gray-400 text-xs"></i>
+        <input type="text" id="buscaChamadoInput" oninput="filtrarChamadosTexto(this.value)" placeholder="Buscar protocolo, assunto ou usuário..." class="w-full bg-gray-50 dark:bg-dark-bg border border-gray-200 dark:border-dark-border rounded-[6px] pl-7 pr-3 py-1 text-xs text-gray-800 dark:text-gray-200 outline-none focus:border-brand-500" />
+    </div>
+</div>
+
+@if (!lista.Any())
+{
+    <div class="bento-card bg-white dark:bg-dark-card border border-gray-200 dark:border-dark-border rounded-[8px] p-8 text-center text-[13px] text-gray-500 dark:text-gray-400">
+        Nenhum chamado pendente na fila.
+    </div>
+}
+else
+{
+    <!-- VISÃO 1: BENTO GRID DE CHAMADOS -->
+    <div id="chamadosBentoGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        @foreach (var c in lista)
+        {
+            var statusCor = c.Status == "Aberto" ? "bg-orange-500/10 text-orange-500 border-orange-500/20"
+                          : c.Status == "Fechado" ? "bg-emerald-500/10 text-emerald-500 border-emerald-500/20"
+                          : "bg-brand-500/10 text-brand-500 border-brand-500/20";
+            var prioCor = (c.Prioridade == "Alta" || c.Prioridade == "Crítica") ? "text-red-500 bg-red-500/10 border-red-500/20" : "text-gray-500 bg-gray-100 dark:bg-dark-bg border-gray-200 dark:border-dark-border";
+
+            <div class="chamado-item bento-card bg-white dark:bg-dark-card border border-gray-200 dark:border-dark-border rounded-[8px] p-4 flex flex-col justify-between hover:border-brand-500/50 transition-all" data-status="@c.Status" data-search="@($"{c.Id} {c.Assunto} {c.Usuario?.Nome} {c.Categoria}".ToLower())">
+                <div>
+                    <div class="flex items-center justify-between gap-2 mb-2">
+                        <div class="flex items-center gap-1.5">
+                            <span class="font-mono text-[11px] font-bold text-brand-500">CORV-@c.Id</span>
+                            <span class="px-1.5 py-0.5 rounded text-[9px] font-semibold uppercase border @prioCor">@(c.Prioridade ?? "Normal")</span>
+                        </div>
+                        <span class="px-2 py-0.5 rounded text-[10px] font-semibold border @statusCor flex items-center gap-1">
+                            @if (c.Status == "Aberto") { <i class="ph ph-warning-circle"></i> }
+                            else if (c.Status == "Fechado") { <i class="ph ph-check-circle"></i> }
+                            else { <i class="ph ph-spinner-gap animate-spin"></i> }
+                            @c.Status
+                        </span>
+                    </div>
+
+                    <h3 class="text-[13px] font-[600] text-gray-900 dark:text-white m-0 mb-1">@c.Assunto</h3>
+                    @if (!string.IsNullOrWhiteSpace(c.Descricao))
+                    {
+                        <p class="text-[11px] text-gray-500 dark:text-gray-400 line-clamp-2 m-0 mb-2.5">@c.Descricao</p>
+                    }
+
+                    <div class="flex flex-wrap items-center justify-between gap-2 text-[11px] text-gray-500 dark:text-gray-400 bg-gray-50 dark:bg-dark-bg/60 px-2.5 py-1.5 rounded border border-gray-100 dark:border-dark-border mb-3">
+                        <span class="flex items-center gap-1 font-medium text-gray-700 dark:text-gray-300">
+                            <i class="ph ph-user text-brand-500"></i> @(c.Usuario?.Nome ?? "Colaborador")
+                        </span>
+                        <span class="font-mono text-[10px]">@c.DataAbertura.ToString("dd/MM HH:mm")</span>
+                    </div>
+                </div>
+
+                <div class="pt-2.5 border-t border-gray-100 dark:border-dark-border flex items-center justify-between gap-2">
+                    <div>
+                        @if (!string.IsNullOrEmpty(c.AnexoUrl))
+                        {
+                            <a href="@c.AnexoUrl" target="_blank" class="inline-flex items-center gap-1 text-brand-500 hover:underline font-medium text-[11px] bg-brand-500/10 px-2 py-1 rounded border border-brand-500/20">
+                                <i class="ph ph-paperclip"></i> Anexo
+                            </a>
+                        }
+                        else
+                        {
+                            <span class="text-[10px] text-gray-400 font-mono">Cat: @(c.Categoria ?? "IAM")</span>
+                        }
+                    </div>
+                    <select onchange="updateStatus(@c.Id, this.value)" class="bg-gray-50 dark:bg-dark-bg border border-gray-200 dark:border-dark-border text-[11px] text-gray-700 dark:text-gray-300 rounded-[6px] px-2.5 py-1 outline-none focus:border-brand-500 cursor-pointer">
+                        <option value="" selected disabled>Alterar Status...</option>
+                        <option value="Aberto">Aberto</option>
+                        <option value="Em Andamento">Em Andamento</option>
+                        <option value="Fechado">Fechado</option>
+                    </select>
+                </div>
+            </div>
+        }
+    </div>
+
+    <!-- VISÃO 2: TABELA COMPACTA -->
+    <div id="chamadosTableContainer" class="hidden bento-card bg-white dark:bg-dark-card border border-gray-200 dark:border-dark-border rounded-[8px] flex-col overflow-hidden">
         <div class="overflow-x-auto">
             <table class="w-full text-left border-collapse">
                 <thead>
                     <tr class="bg-gray-50 dark:bg-dark-bg/50 border-b border-gray-200 dark:border-dark-border">
-                        <th class="px-[16px] py-[12px] text-[12px] font-[600] text-gray-500 dark:text-gray-400 uppercase tracking-[0.05em]">ID</th>
-                        <th class="px-[16px] py-[12px] text-[12px] font-[600] text-gray-500 dark:text-gray-400 uppercase tracking-[0.05em]">Usuário</th>
-                        <th class="px-[16px] py-[12px] text-[12px] font-[600] text-gray-500 dark:text-gray-400 uppercase tracking-[0.05em]">Assunto</th>
-                        <th class="px-[16px] py-[12px] text-[12px] font-[600] text-gray-500 dark:text-gray-400 uppercase tracking-[0.05em]">Data</th>
-                        <th class="px-[16px] py-[12px] text-[12px] font-[600] text-gray-500 dark:text-gray-400 uppercase tracking-[0.05em]">Anexo</th>
-                        <th class="px-[16px] py-[12px] text-[12px] font-[600] text-gray-500 dark:text-gray-400 uppercase tracking-[0.05em]">Status</th>
-                        <th class="px-[16px] py-[12px] text-[12px] font-[600] text-gray-500 dark:text-gray-400 uppercase tracking-[0.05em] text-right">Ações</th>
+                        <th class="px-4 py-3 text-[11px] font-[600] text-gray-500 dark:text-gray-400 uppercase tracking-[0.05em]">ID</th>
+                        <th class="px-4 py-3 text-[11px] font-[600] text-gray-500 dark:text-gray-400 uppercase tracking-[0.05em]">Usuário</th>
+                        <th class="px-4 py-3 text-[11px] font-[600] text-gray-500 dark:text-gray-400 uppercase tracking-[0.05em]">Assunto</th>
+                        <th class="px-4 py-3 text-[11px] font-[600] text-gray-500 dark:text-gray-400 uppercase tracking-[0.05em]">Data</th>
+                        <th class="px-4 py-3 text-[11px] font-[600] text-gray-500 dark:text-gray-400 uppercase tracking-[0.05em]">Anexo</th>
+                        <th class="px-4 py-3 text-[11px] font-[600] text-gray-500 dark:text-gray-400 uppercase tracking-[0.05em]">Status</th>
+                        <th class="px-4 py-3 text-[11px] font-[600] text-gray-500 dark:text-gray-400 uppercase tracking-[0.05em] text-right">Ações</th>
                     </tr>
                 </thead>
                 <tbody>
-                    @foreach(var c in Model){
-                        <tr class="group border-b border-gray-100 dark:border-dark-border hover:bg-gray-50 dark:hover:bg-[#1B1F24] transition-colors">
-                            <td class="px-[16px] py-[12px] text-[13px] text-brand-500 font-mono">CORV-@c.Id</td>
-                            <td class="px-[16px] py-[12px] text-[13px] font-[500] text-gray-900 dark:text-gray-100">@(c.Usuario?.Nome ?? "Colaborador")</td>
-                            <td class="px-[16px] py-[12px] text-[13px] text-gray-600 dark:text-gray-300">@c.Assunto</td>
-                            <td class="px-[16px] py-[12px] text-[12px] text-gray-500">@c.DataAbertura.ToString("dd/MM HH:mm")</td>
-                            <td class="px-[16px] py-[12px] text-[12px]">
-                                @if(!string.IsNullOrEmpty(c.AnexoUrl)) {
-                                    <a href="@c.AnexoUrl" target="_blank" class="inline-flex items-center gap-1 text-brand-600 dark:text-brand-400 hover:underline font-medium text-[11px] bg-brand-50 dark:bg-brand-900/30 px-2 py-0.5 rounded border border-brand-200 dark:border-brand-800">
+                    @foreach (var c in lista)
+                    {
+                        <tr class="chamado-item group border-b border-gray-100 dark:border-dark-border hover:bg-gray-50 dark:hover:bg-[#1B1F24] transition-colors" data-status="@c.Status" data-search="@($"{c.Id} {c.Assunto} {c.Usuario?.Nome} {c.Categoria}".ToLower())">
+                            <td class="px-4 py-3 text-[12px] text-brand-500 font-mono">CORV-@c.Id</td>
+                            <td class="px-4 py-3 text-[12px] font-[500] text-gray-900 dark:text-gray-100">@(c.Usuario?.Nome ?? "Colaborador")</td>
+                            <td class="px-4 py-3 text-[12px] text-gray-600 dark:text-gray-300">@c.Assunto</td>
+                            <td class="px-4 py-3 text-[11px] text-gray-500 font-mono">@c.DataAbertura.ToString("dd/MM HH:mm")</td>
+                            <td class="px-4 py-3 text-[11px]">
+                                @if (!string.IsNullOrEmpty(c.AnexoUrl))
+                                {
+                                    <a href="@c.AnexoUrl" target="_blank" class="inline-flex items-center gap-1 text-brand-500 hover:underline font-medium text-[11px]">
                                         <i class="ph ph-paperclip"></i> Anexo
                                     </a>
-                                } else {
-                                    <span class="text-gray-400 text-[11px]">-</span>
+                                }
+                                else
+                                {
+                                    <span class="text-gray-400">-</span>
                                 }
                             </td>
-                            <td class="px-[16px] py-[12px]">
-                                @if(c.Status == "Aberto") { <span class="text-orange-500 text-[12px] font-[500] flex items-center gap-1"><i class="ph ph-warning-circle"></i> Aberto</span> }
-                                else if(c.Status == "Fechado") { <span class="text-emerald-500 text-[12px] font-[500] flex items-center gap-1"><i class="ph ph-check-circle"></i> Fechado</span> }
+                            <td class="px-4 py-3">
+                                @if (c.Status == "Aberto") { <span class="text-orange-500 text-[12px] font-[500] flex items-center gap-1"><i class="ph ph-warning-circle"></i> Aberto</span> }
+                                else if (c.Status == "Fechado") { <span class="text-emerald-500 text-[12px] font-[500] flex items-center gap-1"><i class="ph ph-check-circle"></i> Fechado</span> }
                                 else { <span class="text-brand-500 text-[12px] font-[500] flex items-center gap-1"><i class="ph ph-spinner-gap animate-spin"></i> @c.Status</span> }
                             </td>
-                            <td class="px-[16px] py-[12px] text-right">
-                                <select onchange="updateStatus(@c.Id, this.value)" class="bg-gray-50 dark:bg-dark-bg border border-gray-200 dark:border-dark-border text-[12px] text-gray-700 dark:text-gray-300 rounded-[4px] px-2 py-1 outline-none focus:border-brand-500 cursor-pointer">
+                            <td class="px-4 py-3 text-right">
+                                <select onchange="updateStatus(@c.Id, this.value)" class="bg-gray-50 dark:bg-dark-bg border border-gray-200 dark:border-dark-border text-[11px] text-gray-700 dark:text-gray-300 rounded-[4px] px-2 py-1 outline-none focus:border-brand-500 cursor-pointer">
                                     <option value="" selected disabled>Mudar Status...</option>
                                     <option value="Aberto">Aberto</option>
                                     <option value="Em Andamento">Em Andamento</option>
@@ -64,11 +215,56 @@
                 </tbody>
             </table>
         </div>
-    }
-</div>
+    </div>
+}
 
 @section Scripts {
     <script>
+        function alternarVisaoChamados(modo) {
+            const grid = document.getElementById('chamadosBentoGrid');
+            const tbl = document.getElementById('chamadosTableContainer');
+            const bBento = document.getElementById('btnViewBento');
+            const bTable = document.getElementById('btnViewTable');
+            if (!grid || !tbl) return;
+
+            if (modo === 'table') {
+                grid.classList.add('hidden');
+                tbl.classList.remove('hidden');
+                tbl.classList.add('flex');
+                bTable.className = 'px-2.5 py-1 rounded text-[11px] font-medium bg-brand-600 text-white cursor-pointer flex items-center gap-1';
+                bBento.className = 'px-2.5 py-1 rounded text-[11px] font-medium text-gray-500 hover:text-gray-900 dark:hover:text-white cursor-pointer flex items-center gap-1';
+            } else {
+                tbl.classList.add('hidden');
+                tbl.classList.remove('flex');
+                grid.classList.remove('hidden');
+                bBento.className = 'px-2.5 py-1 rounded text-[11px] font-medium bg-brand-600 text-white cursor-pointer flex items-center gap-1';
+                bTable.className = 'px-2.5 py-1 rounded text-[11px] font-medium text-gray-500 hover:text-gray-900 dark:hover:text-white cursor-pointer flex items-center gap-1';
+            }
+        }
+
+        function filtrarChamados(status) {
+            document.querySelectorAll('.chamado-item').forEach(el => {
+                if (status === 'todos' || el.getAttribute('data-status') === status) {
+                    el.style.display = '';
+                } else {
+                    el.style.display = 'none';
+                }
+            });
+            document.querySelectorAll('.chamado-filter-btn').forEach(btn => {
+                btn.className = 'chamado-filter-btn px-2.5 py-1 rounded text-[11px] font-medium text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-dark-border cursor-pointer';
+            });
+            const active = document.getElementById('f-chamado-' + status);
+            if (active) active.className = 'chamado-filter-btn px-2.5 py-1 rounded text-[11px] font-medium bg-brand-600 text-white cursor-pointer';
+        }
+
+        function filtrarChamadosTexto(q) {
+            const termo = (q || '').toLowerCase().trim();
+            document.querySelectorAll('.chamado-item').forEach(el => {
+                const hay = el.getAttribute('data-search') || '';
+                el.style.display = (!termo || hay.includes(termo)) ? '' : 'none';
+            });
+        }
+
         async function updateStatus(id, status) {
             try {
                 const res = await fetch('/Admin/AtualizarChamado', {

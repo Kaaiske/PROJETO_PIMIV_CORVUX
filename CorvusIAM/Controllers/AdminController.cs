@@ -160,8 +160,27 @@ namespace CorvusIAM.Controllers
             public bool Pcd { get; set; } = false;
         }
 
+        private static readonly string _cargosFilePath = "catalogo_cargos.json";
+        private static readonly string _diversidadeFilePath = "diversidade_ibge.json";
+
         private List<CargoItemDTO> ObterCatalogoCargos()
         {
+            try
+            {
+                if (System.IO.File.Exists(_cargosFilePath))
+                {
+                    var fileJson = System.IO.File.ReadAllText(_cargosFilePath);
+                    var list = System.Text.Json.JsonSerializer.Deserialize<List<CargoItemDTO>>(fileJson);
+                    if (list != null && list.Count > 0)
+                    {
+                        for (int i = 0; i < list.Count; i++)
+                            if (list[i].Id <= 0) list[i].Id = i + 1;
+                        return list;
+                    }
+                }
+            }
+            catch { }
+
             var cfg = _context.ConfiguracoesSistema.AsNoTracking().FirstOrDefault(c => c.Chave == "CATALOGO_CARGOS_JSON");
             if (cfg != null && !string.IsNullOrWhiteSpace(cfg.Valor))
             {
@@ -198,20 +217,46 @@ namespace CorvusIAM.Controllers
         private void SalvarCatalogoCargos(List<CargoItemDTO> cargos)
         {
             var json = System.Text.Json.JsonSerializer.Serialize(cargos);
-            var cfg = _context.ConfiguracoesSistema.FirstOrDefault(c => c.Chave == "CATALOGO_CARGOS_JSON");
-            if (cfg == null)
+            try { System.IO.File.WriteAllText(_cargosFilePath, json); } catch { }
+
+            try
             {
-                _context.ConfiguracoesSistema.Add(new ConfiguracaoSistema { Chave = "CATALOGO_CARGOS_JSON", Valor = json });
+                if (_context.Database.IsSqlServer())
+                {
+                    try { _context.Database.ExecuteSqlRaw("ALTER TABLE [ConfiguracoesSistema] ALTER COLUMN [Valor] NVARCHAR(MAX) NOT NULL;"); } catch { }
+                }
+                var cfg = _context.ConfiguracoesSistema.FirstOrDefault(c => c.Chave == "CATALOGO_CARGOS_JSON");
+                if (cfg == null)
+                {
+                    cfg = new ConfiguracaoSistema { Chave = "CATALOGO_CARGOS_JSON", Valor = json };
+                    _context.ConfiguracoesSistema.Add(cfg);
+                }
+                else
+                {
+                    cfg.Valor = json;
+                }
+                _context.SaveChanges();
             }
-            else
+            catch
             {
-                cfg.Valor = json;
+                foreach (var entry in _context.ChangeTracker.Entries<ConfiguracaoSistema>().ToList())
+                    entry.State = EntityState.Detached;
             }
-            _context.SaveChanges();
         }
 
         private Dictionary<int, DiversidadeInfoDTO> ObterMapaDiversidade()
         {
+            try
+            {
+                if (System.IO.File.Exists(_diversidadeFilePath))
+                {
+                    var fileJson = System.IO.File.ReadAllText(_diversidadeFilePath);
+                    var dict = System.Text.Json.JsonSerializer.Deserialize<Dictionary<int, DiversidadeInfoDTO>>(fileJson);
+                    if (dict != null && dict.Count > 0) return dict;
+                }
+            }
+            catch { }
+
             var cfg = _context.ConfiguracoesSistema.AsNoTracking().FirstOrDefault(c => c.Chave == "DIVERSIDADE_ETNICO_RACIAL_MAP_JSON");
             if (cfg != null && !string.IsNullOrWhiteSpace(cfg.Valor))
             {
@@ -236,16 +281,31 @@ namespace CorvusIAM.Controllers
         private void SalvarMapaDiversidade(Dictionary<int, DiversidadeInfoDTO> mapa)
         {
             var json = System.Text.Json.JsonSerializer.Serialize(mapa);
-            var cfg = _context.ConfiguracoesSistema.FirstOrDefault(c => c.Chave == "DIVERSIDADE_ETNICO_RACIAL_MAP_JSON");
-            if (cfg == null)
+            try { System.IO.File.WriteAllText(_diversidadeFilePath, json); } catch { }
+
+            try
             {
-                _context.ConfiguracoesSistema.Add(new ConfiguracaoSistema { Chave = "DIVERSIDADE_ETNICO_RACIAL_MAP_JSON", Valor = json });
+                if (_context.Database.IsSqlServer())
+                {
+                    try { _context.Database.ExecuteSqlRaw("ALTER TABLE [ConfiguracoesSistema] ALTER COLUMN [Valor] NVARCHAR(MAX) NOT NULL;"); } catch { }
+                }
+                var cfg = _context.ConfiguracoesSistema.FirstOrDefault(c => c.Chave == "DIVERSIDADE_ETNICO_RACIAL_MAP_JSON");
+                if (cfg == null)
+                {
+                    cfg = new ConfiguracaoSistema { Chave = "DIVERSIDADE_ETNICO_RACIAL_MAP_JSON", Valor = json };
+                    _context.ConfiguracoesSistema.Add(cfg);
+                }
+                else
+                {
+                    cfg.Valor = json;
+                }
+                _context.SaveChanges();
             }
-            else
+            catch
             {
-                cfg.Valor = json;
+                foreach (var entry in _context.ChangeTracker.Entries<ConfiguracaoSistema>().ToList())
+                    entry.State = EntityState.Detached;
             }
-            _context.SaveChanges();
         }
 
         [HttpPost]
@@ -395,7 +455,13 @@ namespace CorvusIAM.Controllers
         public IActionResult Politicas() => View(_context.PoliticasAcesso.ToList());
         
         [Authorize(Policy = "RequireAdmin")]
-        public IActionResult Perfis() => View(_context.Perfis.Where(p => p.Ativo).ToList());
+        public IActionResult Perfis() => View(_context.Perfis
+            .AsNoTracking()
+            .Include(p => p.UsuarioPerfis)
+            .Include(p => p.PerfilPermissoes)
+                .ThenInclude(pp => pp.Permissao)
+            .Where(p => p.Ativo)
+            .ToList());
 
         [HttpPost]
         [Authorize(Policy = "RequireAdmin")]
@@ -1124,6 +1190,9 @@ namespace CorvusIAM.Controllers
             user.Departamento = u.Departamento ?? user.Departamento;
             user.Endereco = u.Endereco ?? user.Endereco;
 
+            _context.LogsAuditoria.Add(new LogAuditoria { DataHora = DateTime.Now, Acao = "Edição Colaborador", Detalhe = $"Usuário {user.Email} atualizado ({u.Cargo} | Autodeclaração: {u.RacaCorIbge})", Tipo = "Info", Origem = "Admin Panel", UsuarioId = int.TryParse(adminId, out var aid) ? aid : 1 });
+            _context.SaveChanges();
+
             if (!string.IsNullOrWhiteSpace(u.Cargo))
             {
                 var cargos = ObterCatalogoCargos();
@@ -1154,8 +1223,6 @@ namespace CorvusIAM.Controllers
                 SalvarMapaDiversidade(divMap);
             }
             
-            _context.LogsAuditoria.Add(new LogAuditoria { DataHora = DateTime.Now, Acao = "Edição Colaborador", Detalhe = $"Usuário {user.Email} atualizado ({u.Cargo} | Autodeclaração: {u.RacaCorIbge})", Tipo = "Info", Origem = "Admin Panel", UsuarioId = int.TryParse(adminId, out var aid) ? aid : 1 });
-            _context.SaveChanges();
             return Ok(new { message = "Colaborador atualizado com sucesso." });
         }
 
@@ -1228,6 +1295,11 @@ namespace CorvusIAM.Controllers
                     _context.UsuarioPerfis.Add(new UsuarioPerfil { UsuarioId = usuarioDb.Id, PerfilId = perfilDb.Id });
                 }
 
+                var racaInfo = string.IsNullOrWhiteSpace(novoUsuario.RacaCorIbge) ? "Não Informado" : novoUsuario.RacaCorIbge;
+                int currentAdminId = int.TryParse(User.FindFirstValue(System.Security.Claims.ClaimTypes.NameIdentifier), out var parsedId) ? parsedId : 1;
+                _context.LogsAuditoria.Add(new LogAuditoria { DataHora = DateTime.Now, Acao = "Novo Colaborador", Detalhe = $"Usuário {email} adicionado ({usuarioDb.Cargo} | Autodeclaração IBGE: {racaInfo})", Tipo = "Info", Origem = "Admin Panel", UsuarioId = currentAdminId });
+                _context.SaveChanges();
+
                 if (!string.IsNullOrWhiteSpace(novoUsuario.Cargo))
                 {
                     var cargos = ObterCatalogoCargos();
@@ -1248,16 +1320,12 @@ namespace CorvusIAM.Controllers
                 var divMap = ObterMapaDiversidade();
                 divMap[usuarioDb.Id] = new DiversidadeInfoDTO
                 {
-                    RacaCorIbge = string.IsNullOrWhiteSpace(novoUsuario.RacaCorIbge) ? "Não Informado" : novoUsuario.RacaCorIbge,
+                    RacaCorIbge = racaInfo,
                     ModalidadeIngresso = string.IsNullOrWhiteSpace(novoUsuario.ModalidadeIngresso) ? "Ampla Concorrência" : novoUsuario.ModalidadeIngresso,
                     NomeSocial = novoUsuario.NomeSocial ?? "",
                     Pcd = novoUsuario.Pcd
                 };
                 SalvarMapaDiversidade(divMap);
-
-                int currentAdminId = int.TryParse(User.FindFirstValue(System.Security.Claims.ClaimTypes.NameIdentifier), out var parsedId) ? parsedId : 1;
-                _context.LogsAuditoria.Add(new LogAuditoria { DataHora = DateTime.Now, Acao = "Novo Colaborador", Detalhe = $"Usuário {email} adicionado ({usuarioDb.Cargo} | Autodeclaração IBGE: {divMap[usuarioDb.Id].RacaCorIbge})", Tipo = "Info", Origem = "Admin Panel", UsuarioId = currentAdminId });
-                _context.SaveChanges();
                 
                 if (!string.IsNullOrWhiteSpace(novoUsuario.EmailPessoal))
                 {

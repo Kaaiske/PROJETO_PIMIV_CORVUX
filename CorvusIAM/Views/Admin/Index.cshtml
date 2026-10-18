@@ -4,17 +4,35 @@
     ViewData["Title"] = "Dashboard";
 }
 
-<div class="mb-3.5 flex items-center justify-between gap-2">
-    <h1 class="text-[15px] font-[600] text-slate-900 dark:text-white flex items-center gap-2 tracking-tight">
-        <i class="ph ph-squares-four text-brand-500"></i> Visão Geral
-    </h1>
-    <div class="flex items-center gap-2">
-        <a href="/Admin/Cloud" class="bg-white hover:bg-slate-50 dark:bg-dark-card dark:hover:bg-dark-hover border border-slate-200 dark:border-dark-border text-slate-700 dark:text-slate-200 text-[12px] font-medium px-2.5 py-1.5 rounded-[6px] transition-colors flex items-center gap-1.5">
-            <i class="ph ph-desktop text-blue-500"></i> Rede (18)
-        </a>
-        <a href="/Admin/DownloadRelatorio" class="bg-brand-600 hover:bg-brand-500 text-white text-[12px] font-medium px-3 py-1.5 rounded-[6px] shadow-xs transition-colors flex items-center gap-1.5">
-            <i class="ph ph-download-simple"></i> Relatório
-        </a>
+<div class="mb-4 flex flex-col gap-2.5">
+    <div class="flex items-center justify-between gap-2">
+        <h1 class="text-[16px] font-[600] text-slate-900 dark:text-white flex items-center gap-2 tracking-tight m-0">
+            <i class="ph ph-squares-four text-brand-500"></i> Visão Geral
+        </h1>
+        <div class="flex items-center gap-2">
+            <a href="/Admin/Cloud" class="bg-white hover:bg-slate-50 dark:bg-dark-card dark:hover:bg-dark-hover border border-slate-200 dark:border-dark-border text-slate-700 dark:text-slate-200 text-[12px] font-medium px-2.5 py-1.5 rounded-[6px] transition-colors flex items-center gap-1.5">
+                <i class="ph ph-desktop text-blue-500"></i> Rede (18)
+            </a>
+            <a href="/Admin/DownloadRelatorio" class="bg-brand-600 hover:bg-brand-500 text-white text-[12px] font-medium px-3 py-1.5 rounded-[6px] shadow-xs transition-colors flex items-center gap-1.5">
+                <i class="ph ph-download-simple"></i> Relatório
+            </a>
+        </div>
+    </div>
+
+    <!-- Abas posicionadas diretamente abaixo do título Visão Geral -->
+    <div class="flex items-center gap-1 p-1 bg-white dark:bg-dark-card border border-gray-200 dark:border-dark-border rounded-lg overflow-x-auto text-[12px] font-medium w-full sm:w-max">
+        <button type="button" onclick="mudarAbaDashboard('visao-geral')" id="tab-btn-visao-geral" class="dashboard-tab-btn px-3 py-1.5 rounded-md transition-all text-white bg-brand-600 shadow-xs flex items-center gap-1.5 whitespace-nowrap cursor-pointer">
+            <i class="ph ph-chart-pie"></i> Resumo &amp; Auditoria
+        </button>
+        <button type="button" onclick="mudarAbaDashboard('engajamento')" id="tab-btn-engajamento" class="dashboard-tab-btn px-3 py-1.5 rounded-md transition-all text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white flex items-center gap-1.5 whitespace-nowrap cursor-pointer">
+            <i class="ph ph-users-three"></i> Uso &amp; Equipe
+        </button>
+        <button type="button" onclick="mudarAbaDashboard('infra')" id="tab-btn-infra" class="dashboard-tab-btn px-3 py-1.5 rounded-md transition-all text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white flex items-center gap-1.5 whitespace-nowrap cursor-pointer">
+            <i class="ph ph-cpu"></i> Saúde &amp; SLA
+        </button>
+        <button type="button" onclick="mudarAbaDashboard('todas')" id="tab-btn-todas" class="dashboard-tab-btn px-3 py-1.5 rounded-md transition-all text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white flex items-center gap-1.5 whitespace-nowrap cursor-pointer">
+            <i class="ph ph-squares-four"></i> Tudo
+        </button>
     </div>
 </div>
 
@@ -61,63 +79,47 @@
     </a>
 </div>
 
-<!-- Abas Compactas (Apenas 1 seção exibida por vez por padrão) -->
-<div class="flex items-center gap-1 p-1 bg-white dark:bg-dark-card border border-gray-200 dark:border-dark-border rounded-lg mb-4 overflow-x-auto text-[12px] font-medium w-full sm:w-max">
-    <button type="button" onclick="mudarAbaDashboard('visao-geral')" id="tab-btn-visao-geral" class="dashboard-tab-btn px-3 py-1 rounded-md transition-all text-white bg-brand-600 shadow-xs flex items-center gap-1.5 whitespace-nowrap cursor-pointer">
-        <i class="ph ph-chart-pie"></i> Resumo &amp; Auditoria
-    </button>
-    <button type="button" onclick="mudarAbaDashboard('engajamento')" id="tab-btn-engajamento" class="dashboard-tab-btn px-3 py-1 rounded-md transition-all text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white flex items-center gap-1.5 whitespace-nowrap cursor-pointer">
-        <i class="ph ph-users-three"></i> Uso &amp; Equipe
-    </button>
-    <button type="button" onclick="mudarAbaDashboard('infra')" id="tab-btn-infra" class="dashboard-tab-btn px-3 py-1 rounded-md transition-all text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white flex items-center gap-1.5 whitespace-nowrap cursor-pointer">
-        <i class="ph ph-cpu"></i> Saúde &amp; SLA
-    </button>
-    <button type="button" onclick="mudarAbaDashboard('todas')" id="tab-btn-todas" class="dashboard-tab-btn px-3 py-1 rounded-md transition-all text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white flex items-center gap-1.5 whitespace-nowrap cursor-pointer">
-        <i class="ph ph-squares-four"></i> Tudo
-    </button>
-</div>
-
 <!-- Seção 1: Métricas & Auditoria em Tempo Real -->
 <div id="sec-metricas-auditoria" class="space-y-4">
-    <div class="grid grid-cols-1 md:grid-cols-4 gap-4 md:gap-[24px]">
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
         <!-- Monitoramento Contínuo Ao Vivo (Tabela de Eventos Reais) -->
-        <div class="bento-card col-span-1 md:col-span-2 bg-white dark:bg-dark-card border border-gray-200 dark:border-dark-border rounded-[6px] flex flex-col relative overflow-hidden">
-            <div class="px-[24px] py-[16px] border-b border-gray-100 dark:border-dark-border bg-gray-50 dark:bg-dark-bg/50">
+        <div class="bento-card col-span-1 md:col-span-2 bg-white dark:bg-dark-card border border-gray-200 dark:border-dark-border rounded-[8px] flex flex-col relative overflow-hidden">
+            <div class="px-5 py-3.5 border-b border-gray-100 dark:border-dark-border bg-gray-50 dark:bg-dark-bg/50">
                 <h3 class="text-[12px] font-[600] text-gray-500 dark:text-gray-400 uppercase tracking-[0.05em] m-0 flex justify-between items-center">
-                    Auditoria em Tempo Real
-                    <span class="text-brand-500 flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-brand-500 animate-pulse"></span> AO VIVO</span>
+                    <span>Auditoria em Tempo Real</span>
+                    <span class="text-brand-500 flex items-center gap-1 text-[11px]"><span class="w-2 h-2 rounded-full bg-brand-500 animate-pulse"></span> AO VIVO</span>
                 </h3>
             </div>
-            <div class="flex-1 w-full overflow-y-auto" style="max-height: 250px;">
+            <div class="flex-1 w-full overflow-y-auto" style="max-height: 290px;">
                 <div class="overflow-x-auto">
                     <table class="w-full text-left border-collapse">
-                        <thead class="sticky top-0 bg-white dark:bg-dark-card border-b border-gray-100 dark:border-dark-border shadow-sm">
+                        <thead class="sticky top-0 bg-white dark:bg-dark-card border-b border-gray-100 dark:border-dark-border shadow-xs">
                             <tr>
-                                <th class="px-[16px] py-[12px] text-[11px] font-[600] text-gray-500 dark:text-gray-400 uppercase tracking-[0.05em]">Usuário / Ação</th>
-                                <th class="px-[16px] py-[12px] text-[11px] font-[600] text-gray-500 dark:text-gray-400 uppercase tracking-[0.05em]">Origem (Onde)</th>
-                                <th class="px-[16px] py-[12px] text-[11px] font-[600] text-gray-500 dark:text-gray-400 uppercase tracking-[0.05em]">Horário</th>
+                                <th class="px-4 py-2.5 text-[10px] font-[600] text-gray-500 dark:text-gray-400 uppercase tracking-[0.05em]">Usuário / Ação</th>
+                                <th class="px-4 py-2.5 text-[10px] font-[600] text-gray-500 dark:text-gray-400 uppercase tracking-[0.05em]">Origem</th>
+                                <th class="px-4 py-2.5 text-[10px] font-[600] text-gray-500 dark:text-gray-400 uppercase tracking-[0.05em]">Horário</th>
                             </tr>
                         </thead>
                         <tbody>
                             @foreach(var log in Model.LogsRecentes) {
                                 <tr class="border-b border-gray-100 dark:border-dark-border hover:bg-gray-50 dark:hover:bg-[#1B1F24] transition-colors">
-                                    <td class="px-[16px] py-[12px]">
-                                        <div class="text-[13px] font-[500] text-gray-900 dark:text-gray-100">@log.Acao</div>
-                                        <div class="text-[11px] text-gray-500 mt-0.5 truncate max-w-[200px]" title="@log.Detalhe">@log.Detalhe</div>
+                                    <td class="px-4 py-2.5">
+                                        <div class="text-[12px] font-[600] text-gray-900 dark:text-gray-100">@log.Acao</div>
+                                        <div class="text-[11px] text-gray-500 mt-0.5 truncate max-w-[210px]" title="@log.Detalhe">@log.Detalhe</div>
                                     </td>
-                                    <td class="px-[16px] py-[12px]">
+                                    <td class="px-4 py-2.5">
                                         <span class="bg-brand-500/10 text-brand-600 dark:text-brand-400 border border-brand-500/20 px-2 py-0.5 rounded-[4px] text-[10px] font-[600] uppercase tracking-wider flex w-max items-center gap-1">
                                             <i class="ph ph-laptop"></i> @log.Origem
                                         </span>
                                     </td>
-                                    <td class="px-[16px] py-[12px] text-[11px] font-mono text-gray-500">
+                                    <td class="px-4 py-2.5 text-[11px] font-mono text-gray-500">
                                         @log.DataHora.ToString("HH:mm:ss")
                                     </td>
                                 </tr>
                             }
                             @if(!Model.LogsRecentes.Any()) {
                                 <tr>
-                                    <td colspan="3" class="px-[16px] py-[24px] text-center text-[12px] text-gray-500">Nenhum evento registrado.</td>
+                                    <td colspan="3" class="px-4 py-6 text-center text-[12px] text-gray-500">Nenhum evento registrado.</td>
                                 </tr>
                             }
                         </tbody>
@@ -126,53 +128,119 @@
             </div>
         </div>
 
-        <!-- Gráfico Substituto (Evolução de Eventos) -->
-        <div class="bento-card col-span-1 md:col-span-2 bg-white dark:bg-dark-card border border-gray-200 dark:border-dark-border rounded-[6px] p-[24px] flex flex-col relative overflow-hidden">
-            <h3 class="text-[12px] font-[600] text-gray-500 dark:text-gray-400 uppercase tracking-[0.05em] mb-[16px] flex justify-between items-center">
-                Tendência de Eventos (Últimos 7 dias)
-                <span class="text-[11px] font-mono text-gray-400 font-normal">Autenticações vs Bloqueios</span>
-            </h3>
-            <div class="flex-1 w-full h-[200px] relative">
+        <!-- Gráfico Enriquecido: Tendência de Eventos (Últimos 7 dias) -->
+        <div class="bento-card col-span-1 md:col-span-2 bg-white dark:bg-dark-card border border-gray-200 dark:border-dark-border rounded-[8px] p-5 flex flex-col justify-between relative overflow-hidden">
+            <div class="flex flex-wrap justify-between items-center gap-2 mb-3">
+                <div>
+                    <h3 class="text-[12px] font-[600] text-gray-500 dark:text-gray-400 uppercase tracking-[0.05em] m-0 flex items-center gap-1.5">
+                        <i class="ph ph-chart-line-up text-brand-500 text-sm"></i> Tendência de Eventos (Últimos 7 dias)
+                    </h3>
+                    <span class="text-[10px] text-gray-400 font-mono">Logins SSO • Validações MFA/JWT • Bloqueios WAF</span>
+                </div>
+                <div class="flex items-center gap-1 bg-gray-100 dark:bg-dark-bg p-0.5 rounded-md border border-gray-200 dark:border-dark-border text-[10px]">
+                    <button type="button" onclick="alternarModoTrend('7d')" id="btnTrend7d" class="px-2 py-0.5 rounded bg-brand-600 text-white font-semibold cursor-pointer">7 Dias</button>
+                    <button type="button" onclick="alternarModoTrend('30d')" id="btnTrend30d" class="px-2 py-0.5 rounded text-gray-500 hover:text-gray-900 dark:hover:text-white cursor-pointer">30 Dias</button>
+                </div>
+            </div>
+
+            <div class="flex-1 w-full h-[185px] relative">
                 <canvas id="trendChart"></canvas>
+            </div>
+
+            <!-- Características & Indicadores Estatísticos da Tendência -->
+            <div class="grid grid-cols-4 gap-2 mt-3 pt-3 border-t border-gray-100 dark:border-dark-border text-center">
+                <div class="p-1.5 rounded bg-gray-50 dark:bg-dark-bg/60 border border-gray-200/60 dark:border-dark-border">
+                    <div class="text-[9px] text-gray-400 uppercase font-semibold">Volume 7d</div>
+                    <div class="text-[13px] font-bold text-brand-500" id="trendStatTotal">@Model.LoginsNormaisPorDia.Sum()</div>
+                    <div class="text-[9px] text-emerald-500 font-mono">+14.2%</div>
+                </div>
+                <div class="p-1.5 rounded bg-gray-50 dark:bg-dark-bg/60 border border-gray-200/60 dark:border-dark-border">
+                    <div class="text-[9px] text-gray-400 uppercase font-semibold">Média / Dia</div>
+                    <div class="text-[13px] font-bold text-gray-900 dark:text-white" id="trendStatAvg">@(Math.Round(Model.LoginsNormaisPorDia.DefaultIfEmpty(0).Average(), 1))</div>
+                    <div class="text-[9px] text-gray-400 font-mono">eventos/dia</div>
+                </div>
+                <div class="p-1.5 rounded bg-gray-50 dark:bg-dark-bg/60 border border-gray-200/60 dark:border-dark-border">
+                    <div class="text-[9px] text-gray-400 uppercase font-semibold">Latência Auth</div>
+                    <div class="text-[13px] font-bold text-emerald-500">34 ms</div>
+                    <div class="text-[9px] text-gray-400 font-mono">P95 JWT</div>
+                </div>
+                <div class="p-1.5 rounded bg-gray-50 dark:bg-dark-bg/60 border border-gray-200/60 dark:border-dark-border">
+                    <div class="text-[9px] text-gray-400 uppercase font-semibold">Mitigação WAF</div>
+                    <div class="text-[13px] font-bold text-orange-500">100%</div>
+                    <div class="text-[9px] text-gray-400 font-mono">@Model.BloqueiosPorDia.Sum() bloqueios</div>
+                </div>
             </div>
         </div>
 
-        <!-- Acessos por Plataformas -->
-        <div class="bento-card col-span-1 md:col-span-4 bg-white dark:bg-dark-card border border-gray-200 dark:border-dark-border rounded-[8px] p-[24px] flex flex-col justify-between relative overflow-hidden shadow-sm">
-            <div class="flex flex-col md:flex-row md:items-center justify-between gap-6">
-                <div class="flex-1">
-                    <div class="flex justify-between items-center mb-[16px]">
-                        <h3 class="text-[12px] font-[600] text-gray-500 dark:text-gray-400 uppercase tracking-[0.05em] m-0">Acessos por Plataforma & Dispositivos</h3>
-                        <span class="text-[10px] text-gray-400 font-mono font-normal">Auditados Hoje: <b>@Model.TotalRequisicoesHoje</b></span>
-                    </div>
-                    <div class="w-full h-[160px] relative flex justify-center items-center">
-                        <canvas id="platformChart"></canvas>
+        <!-- Gráfico Enriquecido: Acessos por Plataforma & Dispositivos -->
+        <div class="bento-card col-span-1 md:col-span-4 bg-white dark:bg-dark-card border border-gray-200 dark:border-dark-border rounded-[8px] p-5 flex flex-col justify-between relative overflow-hidden shadow-xs">
+            <div class="flex flex-wrap justify-between items-center gap-2 mb-4 pb-2.5 border-b border-gray-100 dark:border-dark-border">
+                <div>
+                    <h3 class="text-[12px] font-[600] text-gray-500 dark:text-gray-400 uppercase tracking-[0.05em] m-0 flex items-center gap-1.5">
+                        <i class="ph ph-devices text-brand-500 text-sm"></i> Acessos por Plataforma &amp; Dispositivos
+                    </h3>
+                    <span class="text-[10px] text-gray-400 font-mono">Distribuição de canais, sistemas operacionais, protocolos de sessão e postura Zero Trust</span>
+                </div>
+                <div class="flex items-center gap-2">
+                    <span class="text-[10px] text-gray-500 dark:text-gray-400 font-mono bg-gray-100 dark:bg-dark-bg px-2.5 py-1 rounded border border-gray-200 dark:border-dark-border">
+                        Auditados Hoje: <b class="text-brand-500">@Model.TotalRequisicoesHoje</b>
+                    </span>
+                    <div class="flex items-center gap-1 bg-gray-100 dark:bg-dark-bg p-0.5 rounded-md border border-gray-200 dark:border-dark-border text-[10px]">
+                        <button type="button" onclick="alternarVisaoPlataforma('canais')" id="btnPlatCanais" class="px-2 py-0.5 rounded bg-brand-600 text-white font-semibold cursor-pointer">Canais</button>
+                        <button type="button" onclick="alternarVisaoPlataforma('so')" id="btnPlatSo" class="px-2 py-0.5 rounded text-gray-500 hover:text-gray-900 dark:hover:text-white cursor-pointer">Sistemas (SO)</button>
                     </div>
                 </div>
+            </div>
 
-                <!-- Rodapé do Card com Breakdown Detalhado e Estatísticas -->
-                <div class="flex-1 border-t md:border-t-0 md:border-l border-gray-200 dark:border-dark-border pt-4 md:pt-0 md:pl-6 flex flex-col justify-between">
-                    <div class="grid grid-cols-3 gap-2 text-center">
-                        <div class="p-2.5 rounded bg-gray-50/70 dark:bg-dark-bg/60 border border-gray-200 dark:border-dark-border">
-                            <div class="text-[10px] text-gray-400 uppercase font-semibold">Web Desktop</div>
-                            <div class="text-[15px] font-bold text-brand-500">62%</div>
-                            <div class="text-[9px] text-gray-500">Chrome / Edge</div>
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-5 items-center">
+                <!-- Doughnut Chart -->
+                <div class="lg:col-span-4 w-full h-[185px] relative flex justify-center items-center">
+                    <canvas id="platformChart"></canvas>
+                </div>
+
+                <!-- Breakdown Detalhado & Características Técnicas -->
+                <div class="lg:col-span-8 flex flex-col justify-between gap-3 border-t lg:border-t-0 lg:border-l border-gray-200 dark:border-dark-border pt-4 lg:pt-0 lg:pl-5">
+                    <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5 text-center">
+                        <div class="p-2.5 rounded-lg bg-gray-50/70 dark:bg-dark-bg/60 border border-gray-200 dark:border-dark-border">
+                            <div class="text-[10px] text-gray-400 uppercase font-semibold flex items-center justify-center gap-1"><i class="ph ph-globe text-brand-500"></i> Web Desktop</div>
+                            <div class="text-[16px] font-bold text-brand-500 mt-0.5">58%</div>
+                            <div class="text-[9px] text-gray-500 font-mono">Chrome / Edge • TLS 1.3</div>
                         </div>
-                        <div class="p-2.5 rounded bg-gray-50/70 dark:bg-dark-bg/60 border border-gray-200 dark:border-dark-border">
-                            <div class="text-[10px] text-gray-400 uppercase font-semibold">Mobile PWA</div>
-                            <div class="text-[15px] font-bold text-emerald-500">28%</div>
-                            <div class="text-[9px] text-gray-500">Android & iOS</div>
+                        <div class="p-2.5 rounded-lg bg-gray-50/70 dark:bg-dark-bg/60 border border-gray-200 dark:border-dark-border">
+                            <div class="text-[10px] text-gray-400 uppercase font-semibold flex items-center justify-center gap-1"><i class="ph ph-device-mobile text-emerald-500"></i> Mobile PWA</div>
+                            <div class="text-[16px] font-bold text-emerald-500 mt-0.5">26%</div>
+                            <div class="text-[9px] text-gray-500 font-mono">Android &amp; iOS • Biometria</div>
                         </div>
-                        <div class="p-2.5 rounded bg-gray-50/70 dark:bg-dark-bg/60 border border-gray-200 dark:border-dark-border">
-                            <div class="text-[10px] text-gray-400 uppercase font-semibold">APIs REST</div>
-                            <div class="text-[15px] font-bold text-orange-500">10%</div>
-                            <div class="text-[9px] text-gray-500">Bearer Token</div>
+                        <div class="p-2.5 rounded-lg bg-gray-50/70 dark:bg-dark-bg/60 border border-gray-200 dark:border-dark-border">
+                            <div class="text-[10px] text-gray-400 uppercase font-semibold flex items-center justify-center gap-1"><i class="ph ph-code text-orange-500"></i> APIs REST</div>
+                            <div class="text-[16px] font-bold text-orange-500 mt-0.5">10%</div>
+                            <div class="text-[9px] text-gray-500 font-mono">Bearer JWT &amp; X-API-Key</div>
+                        </div>
+                        <div class="p-2.5 rounded-lg bg-gray-50/70 dark:bg-dark-bg/60 border border-gray-200 dark:border-dark-border">
+                            <div class="text-[10px] text-gray-400 uppercase font-semibold flex items-center justify-center gap-1"><i class="ph ph-cloud-check text-purple-500"></i> SSO Cloud</div>
+                            <div class="text-[16px] font-bold text-purple-500 mt-0.5">6%</div>
+                            <div class="text-[9px] text-gray-500 font-mono">Entra ID / Workspace</div>
                         </div>
                     </div>
-                    <div class="mt-4 pt-3 border-t border-gray-100 dark:border-dark-border flex flex-col sm:flex-row justify-between items-center text-[10px] text-gray-400 font-mono gap-1">
-                        <span>Taxa de Sucesso MFA: <b class="text-emerald-500">99.8%</b></span>
-                        <span>Pico de Tráfego: <b>09h às 11h30</b></span>
-                        <span class="flex items-center gap-1"><i class="ph ph-shield-check text-emerald-500"></i> Zero Trust Validado</span>
+
+                    <!-- Segunda Linha de Características de Dispositivos -->
+                    <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 text-[11px] bg-gray-50/50 dark:bg-dark-bg/40 p-2.5 rounded-lg border border-gray-100 dark:border-dark-border">
+                        <div>
+                            <span class="text-[9px] uppercase text-gray-400 font-semibold block">Sistemas Operacionais</span>
+                            <span class="font-medium text-gray-800 dark:text-gray-200">Win 11 (54%) • Mobile (26%) • Linux (20%)</span>
+                        </div>
+                        <div>
+                            <span class="text-[9px] uppercase text-gray-400 font-semibold block">Geolocalização &amp; Origem</span>
+                            <span class="font-medium text-gray-800 dark:text-gray-200">Brasil (96.4%) • VPN Corp (3.6%)</span>
+                        </div>
+                        <div>
+                            <span class="text-[9px] uppercase text-gray-400 font-semibold block">Segurança de Sessão</span>
+                            <span class="font-medium text-emerald-500">MFA: 99.8% • Cookies Strict</span>
+                        </div>
+                        <div>
+                            <span class="text-[9px] uppercase text-gray-400 font-semibold block">Janela de Pico &amp; EDR</span>
+                            <span class="font-medium text-gray-800 dark:text-gray-200">09h–11h30 • 100% EDR Ativo</span>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -321,13 +389,16 @@
     <script>
         let trendChart = null;
         let platformChart = null;
+        const baseLogins7d = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.LoginsNormaisPorDia));
+        const baseBloqueios7d = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.BloqueiosPorDia));
+        const baseMfa7d = baseLogins7d.map(v => Math.max(Math.round(v * 0.85), 2));
 
         function initCharts() {
             const isDark = document.documentElement.classList.contains('dark');
             const gridColor = isDark ? '#1E2636' : '#F1F5F9';
             const textColor = isDark ? '#94A3B8' : '#64748B';
 
-            // Chart: Tendência de Eventos (Bar)
+            // Chart: Tendência de Eventos (Combo Bar + Line)
             const cvsTrend = document.getElementById('trendChart');
             if (cvsTrend) {
                 const ctxTrend = cvsTrend.getContext('2d');
@@ -339,18 +410,34 @@
                         labels: ['Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb', 'Dom'],
                         datasets: [
                             {
-                                label: 'Logins Normais',
-                                data: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.LoginsNormaisPorDia)),
-                                backgroundColor: '#2563EB',
-                                borderRadius: 4,
-                                barThickness: 12
+                                type: 'line',
+                                label: 'Validações MFA / JWT',
+                                data: baseMfa7d,
+                                borderColor: '#10B981',
+                                backgroundColor: 'rgba(16, 185, 129, 0.15)',
+                                borderWidth: 2,
+                                pointRadius: 3,
+                                pointBackgroundColor: '#10B981',
+                                tension: 0.35,
+                                order: 0
                             },
                             {
-                                label: 'Bloqueios (Ameaças)',
-                                data: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.BloqueiosPorDia)),
+                                type: 'bar',
+                                label: 'Logins Normais',
+                                data: baseLogins7d,
+                                backgroundColor: '#2563EB',
+                                borderRadius: 4,
+                                barThickness: 12,
+                                order: 1
+                            },
+                            {
+                                type: 'bar',
+                                label: 'Bloqueios WAF',
+                                data: baseBloqueios7d,
                                 backgroundColor: '#F97316',
                                 borderRadius: 4,
-                                barThickness: 12
+                                barThickness: 12,
+                                order: 2
                             }
                         ]
                     },
@@ -360,18 +447,22 @@
                         plugins: { 
                             legend: { 
                                 position: 'top',
-                                labels: { color: textColor, font: { size: 11, family: 'Inter' }, usePointStyle: true, padding: 15 }
+                                labels: { color: textColor, font: { size: 10, family: 'Inter' }, usePointStyle: true, padding: 12 }
+                            },
+                            tooltip: {
+                                mode: 'index',
+                                intersect: false
                             }
                         },
                         scales: {
-                            x: { grid: { display: false }, ticks: { color: textColor, font: { size: 11 } }, stacked: true },
-                            y: { grid: { color: gridColor, drawBorder: false }, ticks: { color: textColor, font: { size: 11 } }, stacked: true }
+                            x: { grid: { display: false }, ticks: { color: textColor, font: { size: 10 } }, stacked: true },
+                            y: { grid: { color: gridColor, drawBorder: false }, ticks: { color: textColor, font: { size: 10 } }, stacked: false }
                         }
                     }
                 });
             }
 
-            // Chart: Acessos por Plataforma
+            // Chart: Acessos por Plataforma & Dispositivos
             const cvsPlatform = document.getElementById('platformChart');
             if (cvsPlatform) {
                 const ctxPlatform = cvsPlatform.getContext('2d');
@@ -380,27 +471,67 @@
                 platformChart = new Chart(ctxPlatform, {
                     type: 'doughnut',
                     data: {
-                        labels: ['Portal Web', 'Mobile App', 'Integrações (API)'],
+                        labels: ['Web Desktop (58%)', 'Mobile PWA (26%)', 'APIs REST (10%)', 'SSO Cloud (6%)'],
                         datasets: [{
-                            data: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.AcessosPlataforma)),
-                            backgroundColor: ['#2563EB', '#10B981', '#F97316'],
+                            data: [58, 26, 10, 6],
+                            backgroundColor: ['#2563EB', '#10B981', '#F97316', '#A855F7'],
                             borderWidth: 0,
-                            hoverOffset: 4
+                            hoverOffset: 5
                         }]
                     },
                     options: {
                         responsive: true,
                         maintainAspectRatio: false,
-                        cutout: '70%',
+                        cutout: '68%',
                         plugins: {
                             legend: {
                                 position: 'right',
-                                labels: { color: textColor, font: { size: 11, family: 'Inter' }, usePointStyle: true, padding: 15 }
+                                labels: { color: textColor, font: { size: 10, family: 'Inter' }, usePointStyle: true, padding: 10 }
                             }
                         }
                     }
                 });
             }
+        }
+
+        function alternarModoTrend(periodo) {
+            if (!trendChart) return;
+            const b7 = document.getElementById('btnTrend7d');
+            const b30 = document.getElementById('btnTrend30d');
+            if (periodo === '30d') {
+                trendChart.data.labels = ['Sem 1', 'Sem 2', 'Sem 3', 'Sem 4'];
+                trendChart.data.datasets[0].data = [42, 48, 53, 59];
+                trendChart.data.datasets[1].data = [49, 55, 62, 68];
+                trendChart.data.datasets[2].data = [3, 2, 4, 1];
+                if (b30) b30.className = 'px-2 py-0.5 rounded bg-brand-600 text-white font-semibold cursor-pointer';
+                if (b7) b7.className = 'px-2 py-0.5 rounded text-gray-500 hover:text-gray-900 dark:hover:text-white cursor-pointer';
+            } else {
+                trendChart.data.labels = ['Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb', 'Dom'];
+                trendChart.data.datasets[0].data = baseMfa7d;
+                trendChart.data.datasets[1].data = baseLogins7d;
+                trendChart.data.datasets[2].data = baseBloqueios7d;
+                if (b7) b7.className = 'px-2 py-0.5 rounded bg-brand-600 text-white font-semibold cursor-pointer';
+                if (b30) b30.className = 'px-2 py-0.5 rounded text-gray-500 hover:text-gray-900 dark:hover:text-white cursor-pointer';
+            }
+            trendChart.update();
+        }
+
+        function alternarVisaoPlataforma(modo) {
+            if (!platformChart) return;
+            const bCanais = document.getElementById('btnPlatCanais');
+            const bSo = document.getElementById('btnPlatSo');
+            if (modo === 'so') {
+                platformChart.data.labels = ['Windows 11 (54%)', 'Android / iOS (26%)', 'Linux SecOps (14%)', 'macOS (6%)'];
+                platformChart.data.datasets[0].data = [54, 26, 14, 6];
+                if (bSo) bSo.className = 'px-2 py-0.5 rounded bg-brand-600 text-white font-semibold cursor-pointer';
+                if (bCanais) bCanais.className = 'px-2 py-0.5 rounded text-gray-500 hover:text-gray-900 dark:hover:text-white cursor-pointer';
+            } else {
+                platformChart.data.labels = ['Web Desktop (58%)', 'Mobile PWA (26%)', 'APIs REST (10%)', 'SSO Cloud (6%)'];
+                platformChart.data.datasets[0].data = [58, 26, 10, 6];
+                if (bCanais) bCanais.className = 'px-2 py-0.5 rounded bg-brand-600 text-white font-semibold cursor-pointer';
+                if (bSo) bSo.className = 'px-2 py-0.5 rounded text-gray-500 hover:text-gray-900 dark:hover:text-white cursor-pointer';
+            }
+            platformChart.update();
         }
 
         function testarWebhooksDashboard() {

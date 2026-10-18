@@ -2,51 +2,213 @@
 @{
     Layout = "_Layout";
     ViewData["Title"] = "Logs Globais";
+
+    var lista = Model?.ToList() ?? new List<CorvusIAM.Entities.LogAuditoria>();
+    var totalLogs = lista.Count;
+    var qtdInfo = lista.Count(l => l.Tipo == "Info" || string.IsNullOrEmpty(l.Tipo));
+    var qtdWarn = lista.Count(l => l.Tipo == "Warning");
+    var qtdErr = lista.Count(l => l.Tipo == "Error" || l.Tipo == "Critico");
+    var qtdDbTrigger = lista.Count(l => (l.Origem ?? "").Contains("Trigger") || (l.Acao ?? "").Contains("SQL") || (l.Origem ?? "").Contains("SQL"));
 }
 
-<div class="mb-4 flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3">
-    <h1 class="text-[16px] font-[600] text-gray-900 dark:text-white flex items-center gap-2 m-0">
-        <i class="ph ph-list-magnifying-glass text-brand-500"></i> Logs de Auditoria
-    </h1>
-    <a href="/Admin/ExportarLogsAuditoriaCsv" class="w-full sm:w-auto bg-brand-600 hover:bg-[#1D4ED8] text-white text-[12px] font-medium px-3 py-1.5 rounded-[6px] shadow-sm transition-colors flex items-center justify-center gap-1.5">
-        <i class="ph ph-download-simple"></i> Exportar CSV
-    </a>
+<!-- CABEÇALHO -->
+<div class="mb-3.5 flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3">
+    <div>
+        <h1 class="text-[16px] font-[600] text-gray-900 dark:text-white flex items-center gap-2 m-0">
+            <i class="ph ph-list-magnifying-glass text-brand-500"></i> Logs Globais de Auditoria &amp; Trilha Imutável
+        </h1>
+        <p class="text-[11px] text-gray-500 dark:text-gray-400 mt-0.5">
+            Registro cronológico imutável de autenticações, alterações cadastrais, gatilhos de banco de dados (SQL Triggers) e eventos de segurança HTTP.
+        </p>
+    </div>
+    <div class="flex items-center gap-2">
+        <button type="button" onclick="window.exibirAvisoHttpStatus && window.exibirAvisoHttpStatus(401)" class="bg-white dark:bg-dark-card border border-gray-200 dark:border-dark-border hover:border-amber-500/40 text-gray-700 dark:text-gray-300 text-[11px] font-medium px-2.5 py-1.5 rounded-[6px] transition-colors flex items-center gap-1.5 cursor-pointer" title="Testar Aviso de Status HTTP">
+            <i class="ph ph-warning-octagon text-amber-500"></i> Guia Status HTTP
+        </button>
+        <a href="/Admin/ExportarLogsAuditoriaCsv" class="bg-brand-600 hover:bg-[#1D4ED8] text-white text-[12px] font-medium px-3 py-1.5 rounded-[6px] shadow-sm transition-colors flex items-center justify-center gap-1.5">
+            <i class="ph ph-download-simple"></i> Exportar CSV
+        </a>
+    </div>
 </div>
 
-<div class="bento-card bg-white dark:bg-dark-card border border-gray-200 dark:border-dark-border rounded-[6px] flex flex-col overflow-hidden">
+<!-- BENTO GRID: RESUMO EXECUTIVO DE LOGS -->
+<div class="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-3.5">
+    <div class="bento-card bg-white dark:bg-dark-card border border-gray-200 dark:border-dark-border rounded-[10px] p-3.5 flex items-center justify-between">
+        <div>
+            <span class="text-[10px] font-semibold uppercase tracking-wider text-gray-400 block">Eventos Auditados</span>
+            <div class="text-xl font-bold text-gray-900 dark:text-white mt-0.5 font-mono">@totalLogs</div>
+            <span class="text-[10px] text-brand-500 font-medium">Retenção LGPD ativa</span>
+        </div>
+        <div class="w-9 h-9 rounded-lg bg-brand-500/10 border border-brand-500/20 flex items-center justify-center text-brand-500 text-lg">
+            <i class="ph ph-database"></i>
+        </div>
+    </div>
+
+    <div class="bento-card bg-white dark:bg-dark-card border border-gray-200 dark:border-dark-border rounded-[10px] p-3.5 flex items-center justify-between">
+        <div>
+            <span class="text-[10px] font-semibold uppercase tracking-wider text-gray-400 block">Operações Normais (200 OK)</span>
+            <div class="text-xl font-bold text-emerald-500 mt-0.5 font-mono">@qtdInfo</div>
+            <span class="text-[10px] text-gray-500 font-medium">Logins, cadastros e leituras</span>
+        </div>
+        <div class="w-9 h-9 rounded-lg bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-500 text-lg">
+            <i class="ph ph-check-circle"></i>
+        </div>
+    </div>
+
+    <div class="bento-card bg-white dark:bg-dark-card border border-gray-200 dark:border-dark-border rounded-[10px] p-3.5 flex items-center justify-between">
+        <div>
+            <span class="text-[10px] font-semibold uppercase tracking-wider text-gray-400 block">Alertas &amp; Avisos (4xx)</span>
+            <div class="text-xl font-bold text-amber-500 mt-0.5 font-mono">@qtdWarn</div>
+            <span class="text-[10px] text-amber-500 font-medium">Tentativas ou bloqueios</span>
+        </div>
+        <div class="w-9 h-9 rounded-lg bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-500 text-lg">
+            <i class="ph ph-warning"></i>
+        </div>
+    </div>
+
+    <div class="bento-card bg-white dark:bg-dark-card border border-gray-200 dark:border-dark-border rounded-[10px] p-3.5 flex items-center justify-between">
+        <div>
+            <span class="text-[10px] font-semibold uppercase tracking-wider text-gray-400 block">Erros Críticos / Triggers</span>
+            <div class="text-xl font-bold text-red-500 mt-0.5 font-mono">@(qtdErr + qtdDbTrigger)</div>
+            <span class="text-[10px] text-purple-500 font-medium">@qtdDbTrigger eventos via DB Trigger</span>
+        </div>
+        <div class="w-9 h-9 rounded-lg bg-red-500/10 border border-red-500/20 flex items-center justify-center text-red-500 text-lg">
+            <i class="ph ph-shield-warning"></i>
+        </div>
+    </div>
+</div>
+
+<!-- BENTO BARRA DE FILTROS E VISUALIZAÇÃO -->
+<div class="bento-card bg-white dark:bg-dark-card border border-gray-200 dark:border-dark-border rounded-[10px] p-3 mb-3.5 flex flex-col md:flex-row md:items-center justify-between gap-2.5">
+    <div class="flex flex-wrap items-center gap-1.5">
+        <button type="button" onclick="filtrarLogs('todos', this)" class="log-filter-btn active px-2.5 py-1 rounded-[6px] text-[11px] font-semibold bg-brand-600 text-white cursor-pointer transition-colors">
+            Todos (@totalLogs)
+        </button>
+        <button type="button" onclick="filtrarLogs('Info', this)" class="log-filter-btn px-2.5 py-1 rounded-[6px] text-[11px] font-medium bg-gray-100 dark:bg-dark-bg text-gray-600 dark:text-gray-300 hover:bg-gray-200 cursor-pointer transition-colors">
+            <span class="inline-block w-1.5 h-1.5 rounded-full bg-brand-500 mr-1"></span>Info / 200 OK
+        </button>
+        <button type="button" onclick="filtrarLogs('Warning', this)" class="log-filter-btn px-2.5 py-1 rounded-[6px] text-[11px] font-medium bg-gray-100 dark:bg-dark-bg text-gray-600 dark:text-gray-300 hover:bg-gray-200 cursor-pointer transition-colors">
+            <span class="inline-block w-1.5 h-1.5 rounded-full bg-amber-500 mr-1"></span>Warning / 4xx
+        </button>
+        <button type="button" onclick="filtrarLogs('Error', this)" class="log-filter-btn px-2.5 py-1 rounded-[6px] text-[11px] font-medium bg-gray-100 dark:bg-dark-bg text-gray-600 dark:text-gray-300 hover:bg-gray-200 cursor-pointer transition-colors">
+            <span class="inline-block w-1.5 h-1.5 rounded-full bg-red-500 mr-1"></span>Error / 5xx
+        </button>
+    </div>
+
+    <div class="flex items-center gap-2">
+        <div class="relative flex-1 sm:w-64">
+            <i class="ph ph-magnifying-glass absolute left-2.5 top-1/2 -translate-y-1/2 text-gray-400 text-xs"></i>
+            <input type="text" id="inputBuscaLogs" oninput="aplicarBuscaLogs()" placeholder="Filtrar por ação, IP, origem ou detalhe..." class="w-full pl-8 pr-3 py-1 bg-gray-50 dark:bg-dark-bg border border-gray-200 dark:border-dark-border rounded-[6px] text-[11px] text-gray-900 dark:text-white outline-none focus:border-brand-500" />
+        </div>
+        <div class="flex items-center bg-gray-100 dark:bg-dark-bg p-0.5 rounded-[6px] border border-gray-200 dark:border-dark-border">
+            <button type="button" id="btnLogBento" onclick="alternarModoLogs('bento')" class="px-2 py-1 rounded-[4px] text-[11px] font-semibold bg-brand-600 text-white cursor-pointer flex items-center gap-1" title="Cards Bento">
+                <i class="ph ph-squares-four"></i> Bento
+            </button>
+            <button type="button" id="btnLogTabela" onclick="alternarModoLogs('tabela')" class="px-2 py-1 rounded-[4px] text-[11px] font-medium text-gray-500 dark:text-gray-400 cursor-pointer flex items-center gap-1" title="Tabela Compacta">
+                <i class="ph ph-table"></i> Tabela
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- MODO 1: BENTO GRID DE CARDS DE AUDITORIA -->
+<div id="gridLogsBento" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3 mb-4">
+    @if (!lista.Any())
+    {
+        <div class="col-span-full bento-card bg-white dark:bg-dark-card border border-gray-200 dark:border-dark-border rounded-[10px] p-8 text-center text-[13px] text-gray-500 dark:text-gray-400">
+            Nenhum log de auditoria encontrado.
+        </div>
+    }
+    @foreach (var l in lista)
+    {
+        bool isErr = l.Tipo == "Error" || l.Tipo == "Critico";
+        bool isWarn = l.Tipo == "Warning";
+        string badgeClass = isErr
+            ? "bg-red-500/10 text-red-600 dark:text-red-400 border-red-500/20"
+            : isWarn
+                ? "bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/20"
+                : "bg-brand-500/10 text-brand-600 dark:text-brand-400 border-brand-500/20";
+
+        string httpCode = isErr ? "HTTP 403/500" : isWarn ? "HTTP 401/429" : "HTTP 200 OK";
+        string iconName = isErr ? "ph-shield-warning text-red-500" : isWarn ? "ph-warning-circle text-amber-500" : "ph-check-circle text-emerald-500";
+        string searchPayload = $"{l.Acao} {l.Detalhe} {l.Origem} {l.Tipo}".ToLower();
+
+        <div class="log-item-bento bento-card bg-white dark:bg-dark-card border border-gray-200 dark:border-dark-border rounded-[10px] p-3.5 flex flex-col justify-between hover:border-brand-500/40 transition-all"
+             data-tipo="@l.Tipo"
+             data-search="@searchPayload">
+            <div>
+                <div class="flex items-center justify-between gap-2 mb-2">
+                    <div class="flex items-center gap-1.5">
+                        <i class="ph @iconName text-sm"></i>
+                        <span class="border px-1.5 py-0.5 rounded text-[9px] font-bold uppercase tracking-wider @badgeClass">
+                            @(string.IsNullOrEmpty(l.Tipo) ? "Info" : l.Tipo)
+                        </span>
+                        <span class="text-[9px] font-mono px-1.5 py-0.5 rounded bg-gray-100 dark:bg-dark-bg text-gray-500 dark:text-gray-400 border border-gray-200 dark:border-dark-border">
+                            @httpCode
+                        </span>
+                    </div>
+                    <span class="text-[10px] font-mono text-gray-400">@l.DataHora.ToString("dd/MM/yy HH:mm:ss")</span>
+                </div>
+
+                <h4 class="text-[12px] font-semibold text-gray-900 dark:text-white mb-1">@l.Acao</h4>
+                <p class="text-[11px] text-gray-600 dark:text-gray-300 leading-relaxed line-clamp-2 mb-2.5">@l.Detalhe</p>
+            </div>
+
+            <div class="pt-2 border-t border-gray-100 dark:border-dark-border flex items-center justify-between text-[10px]">
+                <span class="text-gray-400 flex items-center gap-1">
+                    <i class="ph ph-globe-hemisphere-west"></i> Origem:
+                </span>
+                <span class="font-mono text-brand-600 dark:text-brand-400 font-medium truncate max-w-[180px]">@l.Origem</span>
+            </div>
+        </div>
+    }
+</div>
+
+<!-- MODO 2: TABELA TRADICIONAL -->
+<div id="tabelaLogsContainer" class="hidden bento-card bg-white dark:bg-dark-card border border-gray-200 dark:border-dark-border rounded-[10px] flex-col overflow-hidden">
     <div class="overflow-x-auto">
         <table class="w-full text-left border-collapse">
             <thead>
                 <tr class="bg-gray-50 dark:bg-dark-bg/50 border-b border-gray-200 dark:border-dark-border">
-                    <th class="px-[16px] py-[12px] text-[12px] font-[600] text-gray-500 dark:text-gray-400 uppercase tracking-[0.05em]">Data/Hora</th>
-                    <th class="px-[16px] py-[12px] text-[12px] font-[600] text-gray-500 dark:text-gray-400 uppercase tracking-[0.05em]">Ação</th>
-                    <th class="px-[16px] py-[12px] text-[12px] font-[600] text-gray-500 dark:text-gray-400 uppercase tracking-[0.05em]">Detalhe</th>
-                    <th class="px-[16px] py-[12px] text-[12px] font-[600] text-gray-500 dark:text-gray-400 uppercase tracking-[0.05em]">Origem</th>
-                    <th class="px-[16px] py-[12px] text-[12px] font-[600] text-gray-500 dark:text-gray-400 uppercase tracking-[0.05em]">Tipo</th>
+                    <th class="px-[16px] py-[10px] text-[11px] font-[600] text-gray-500 dark:text-gray-400 uppercase tracking-[0.05em]">Data/Hora</th>
+                    <th class="px-[16px] py-[10px] text-[11px] font-[600] text-gray-500 dark:text-gray-400 uppercase tracking-[0.05em]">Ação</th>
+                    <th class="px-[16px] py-[10px] text-[11px] font-[600] text-gray-500 dark:text-gray-400 uppercase tracking-[0.05em]">Detalhe</th>
+                    <th class="px-[16px] py-[10px] text-[11px] font-[600] text-gray-500 dark:text-gray-400 uppercase tracking-[0.05em]">Origem</th>
+                    <th class="px-[16px] py-[10px] text-[11px] font-[600] text-gray-500 dark:text-gray-400 uppercase tracking-[0.05em]">Tipo / Status</th>
                 </tr>
             </thead>
             <tbody>
-                @if(!Model.Any()){ 
-                    <tr><td colspan="5" class="px-[16px] py-[24px] text-center text-[13px] text-gray-500 dark:text-gray-400">Nenhum log encontrado.</td></tr> 
+                @if (!lista.Any())
+                {
+                    <tr><td colspan="5" class="px-[16px] py-[24px] text-center text-[13px] text-gray-500 dark:text-gray-400">Nenhum log encontrado.</td></tr>
                 }
-                @foreach(var l in Model) {
-                    <tr class="group border-b border-gray-100 dark:border-dark-border hover:bg-gray-50 dark:hover:bg-[#1B1F24] transition-colors">
-                        <td class="px-[16px] py-[12px] text-[12px] text-gray-500 font-mono">@l.DataHora.ToString("dd/MM/yy HH:mm:ss")</td>
-                        <td class="px-[16px] py-[12px] text-[13px] font-[500] text-gray-900 dark:text-gray-100">@l.Acao</td>
-                        <td class="px-[16px] py-[12px] text-[13px] text-gray-600 dark:text-gray-300">@l.Detalhe</td>
-                        <td class="px-[16px] py-[12px] text-[12px] text-brand-600 dark:text-brand-400 font-mono">@l.Origem</td>
-                        <td class="px-[16px] py-[12px]">
-                            @if(l.Tipo == "Error") {
-                                <span class="bg-red-500/10 text-red-600 dark:text-red-400 border border-red-500/20 px-2 py-0.5 rounded-[4px] text-[11px] font-[600] uppercase tracking-wider">
-                                    @l.Tipo
+                @foreach (var l in lista)
+                {
+                    string searchPayload = $"{l.Acao} {l.Detalhe} {l.Origem} {l.Tipo}".ToLower();
+                    <tr class="log-item-row group border-b border-gray-100 dark:border-dark-border hover:bg-gray-50 dark:hover:bg-[#1B1F24] transition-colors"
+                        data-tipo="@l.Tipo"
+                        data-search="@searchPayload">
+                        <td class="px-[16px] py-[10px] text-[11px] text-gray-500 font-mono whitespace-nowrap">@l.DataHora.ToString("dd/MM/yy HH:mm:ss")</td>
+                        <td class="px-[16px] py-[10px] text-[12px] font-[600] text-gray-900 dark:text-gray-100">@l.Acao</td>
+                        <td class="px-[16px] py-[10px] text-[12px] text-gray-600 dark:text-gray-300">@l.Detalhe</td>
+                        <td class="px-[16px] py-[10px] text-[11px] text-brand-600 dark:text-brand-400 font-mono">@l.Origem</td>
+                        <td class="px-[16px] py-[10px]">
+                            @if (l.Tipo == "Error" || l.Tipo == "Critico")
+                            {
+                                <span class="bg-red-500/10 text-red-600 dark:text-red-400 border border-red-500/20 px-2 py-0.5 rounded-[4px] text-[10px] font-[600] uppercase tracking-wider">
+                                    @l.Tipo • 500
                                 </span>
-                            } else if (l.Tipo == "Warning") {
-                                <span class="bg-orange-500/10 text-orange-600 dark:text-orange-400 border border-orange-500/20 px-2 py-0.5 rounded-[4px] text-[11px] font-[600] uppercase tracking-wider">
-                                    @l.Tipo
+                            }
+                            else if (l.Tipo == "Warning")
+                            {
+                                <span class="bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20 px-2 py-0.5 rounded-[4px] text-[10px] font-[600] uppercase tracking-wider">
+                                    @l.Tipo • 4xx
                                 </span>
-                            } else {
-                                <span class="bg-brand-500/10 text-brand-600 dark:text-brand-400 border border-brand-500/20 px-2 py-0.5 rounded-[4px] text-[11px] font-[600] uppercase tracking-wider">
-                                    @l.Tipo
+                            }
+                            else
+                            {
+                                <span class="bg-brand-500/10 text-brand-600 dark:text-brand-400 border border-brand-500/20 px-2 py-0.5 rounded-[4px] text-[10px] font-[600] uppercase tracking-wider">
+                                    @l.Tipo • 200
                                 </span>
                             }
                         </td>
@@ -56,3 +218,55 @@
         </table>
     </div>
 </div>
+
+@section Scripts {
+    <script>
+        let filtroTipoLogAtual = 'todos';
+
+        function filtrarLogs(tipo, btnEl) {
+            filtroTipoLogAtual = tipo;
+            document.querySelectorAll('.log-filter-btn').forEach(b => {
+                b.className = 'log-filter-btn px-2.5 py-1 rounded-[6px] text-[11px] font-medium bg-gray-100 dark:bg-dark-bg text-gray-600 dark:text-gray-300 hover:bg-gray-200 cursor-pointer transition-colors';
+            });
+            if (btnEl) {
+                btnEl.className = 'log-filter-btn active px-2.5 py-1 rounded-[6px] text-[11px] font-semibold bg-brand-600 text-white cursor-pointer transition-colors';
+            }
+            aplicarBuscaLogs();
+        }
+
+        function aplicarBuscaLogs() {
+            const termo = (document.getElementById('inputBuscaLogs')?.value || '').toLowerCase().trim();
+
+            const filtrarEl = (el) => {
+                const t = el.getAttribute('data-tipo') || 'Info';
+                const s = el.getAttribute('data-search') || '';
+                const matchTipo = (filtroTipoLogAtual === 'todos') || (t.toLowerCase() === filtroTipoLogAtual.toLowerCase());
+                const matchTermo = !termo || s.includes(termo);
+                el.style.display = (matchTipo && matchTermo) ? '' : 'none';
+            };
+
+            document.querySelectorAll('.log-item-bento').forEach(filtrarEl);
+            document.querySelectorAll('.log-item-row').forEach(filtrarEl);
+        }
+
+        function alternarModoLogs(modo) {
+            const bento = document.getElementById('gridLogsBento');
+            const tabela = document.getElementById('tabelaLogsContainer');
+            const btnBento = document.getElementById('btnLogBento');
+            const btnTabela = document.getElementById('btnLogTabela');
+
+            if (modo === 'bento') {
+                bento.classList.remove('hidden');
+                tabela.classList.add('hidden');
+                btnBento.className = 'px-2 py-1 rounded-[4px] text-[11px] font-semibold bg-brand-600 text-white cursor-pointer flex items-center gap-1';
+                btnTabela.className = 'px-2 py-1 rounded-[4px] text-[11px] font-medium text-gray-500 dark:text-gray-400 cursor-pointer flex items-center gap-1';
+            } else {
+                bento.classList.add('hidden');
+                tabela.classList.remove('hidden');
+                tabela.classList.add('flex');
+                btnTabela.className = 'px-2 py-1 rounded-[4px] text-[11px] font-semibold bg-brand-600 text-white cursor-pointer flex items-center gap-1';
+                btnBento.className = 'px-2 py-1 rounded-[4px] text-[11px] font-medium text-gray-500 dark:text-gray-400 cursor-pointer flex items-center gap-1';
+            }
+        }
+    </script>
+}

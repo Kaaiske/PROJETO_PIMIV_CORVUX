@@ -1611,6 +1611,121 @@
         window.lerTextoAssistivo = lerTextoAssistivo;
         window.togglePainelVoz = togglePainelVoz;
         window.iniciarDitadoCampo = iniciarDitadoCampo;
+
+        // =========================================================================
+        // 3. CENTRAL GLOBAL DE AVISOS DE ERROS & CÓDIGOS DE STATUS HTTP (RFC 9110)
+        // =========================================================================
+        const CATALOGO_STATUS_HTTP = {
+            200: {
+                titulo: 'HTTP 200 OK — Operação Bem-Sucedida',
+                icone: 'success',
+                cor: '#10b981',
+                causa: 'A requisição foi processada com sucesso pelo servidor CorvuxIAM e os dados foram validados.',
+                acao: 'Nenhuma ação corretiva necessária. Fluxo operando dentro do SLA nominal.'
+            },
+            201: {
+                titulo: 'HTTP 201 Created — Recurso Provisionado',
+                icone: 'success',
+                cor: '#10b981',
+                causa: 'Um novo registro (Colaborador, Cargo, Chamado ou Integração) foi criado e auditado no banco.',
+                acao: 'O identificador único (ID) e a trilha de auditoria já estão disponíveis.'
+            },
+            400: {
+                titulo: 'Aviso HTTP 400 — Bad Request (Requisição Inválida)',
+                icone: 'warning',
+                cor: '#f59e0b',
+                causa: 'Campos obrigatórios ausentes, formato JSON malformado ou parâmetros fora do padrão esperado.',
+                acao: 'Verifique se todos os campos obrigatórios (Nome, E-mail, Cargo) foram preenchidos corretamente.'
+            },
+            401: {
+                titulo: 'Aviso HTTP 401 — Unauthorized (Não Autenticado)',
+                icone: 'warning',
+                cor: '#f59e0b',
+                causa: 'Sessão expirada, Token JWT ausente/inválido ou cabeçalho X-API-Key não reconhecido pelo IAM.',
+                acao: 'Renove sua sessão fazendo login novamente ou verifique a chave de API configurada.'
+            },
+            403: {
+                titulo: 'Aviso HTTP 403 — Forbidden (Acesso Negado / WAF)',
+                icone: 'error',
+                cor: '#ef4444',
+                causa: 'O perfil RBAC atual não possui permissão para este recurso ou a requisição foi bloqueada pelo Firewall Zero-Trust / Token Anti-CSRF.',
+                acao: 'Solicite elevação de privilégio RBAC ao Administrador ou recarregue a página para atualizar o token CSRF.'
+            },
+            404: {
+                titulo: 'Aviso HTTP 404 — Not Found (Recurso Não Encontrado)',
+                icone: 'info',
+                cor: '#3b82f6',
+                causa: 'A rota solicitada, endpoint de API ou registro de colaborador não existe ou foi removido.',
+                acao: 'Confirme a URL do endpoint (ex.: /api/v1/users) ou atualize a listagem atual.'
+            },
+            422: {
+                titulo: 'Aviso HTTP 422 — Unprocessable Entity (Regra de Negócio)',
+                icone: 'warning',
+                cor: '#f59e0b',
+                causa: 'A sintaxe da requisição está correta, mas violou uma regra de validação (ex.: e-mail já cadastrado ou senha fora da política NIST).',
+                acao: 'Revise os dados informados para garantir que não haja duplicidade de e-mail ou matrícula.'
+            },
+            429: {
+                titulo: 'Aviso HTTP 429 — Too Many Requests (Rate Limit Ativado)',
+                icone: 'warning',
+                cor: '#f97316',
+                causa: 'O cliente excedeu o limite máximo de requisições por minuto permitido pela política Anti-Brute Force / DDoS.',
+                acao: 'Aguarde a janela de resfriamento (backoff) antes de reenviar novas requisições.'
+            },
+            500: {
+                titulo: 'Alerta Crítico HTTP 500 — Internal Server Error',
+                icone: 'error',
+                cor: '#ef4444',
+                causa: 'Exceção interna no processamento do servidor ou restrição de banco de dados (SQL Trigger / Truncation).',
+                acao: 'Verifique os Logs Globais de Auditoria. O motor de auto-cura (Self-Healing) do CorvuxIAM já registrou a ocorrência.'
+            },
+            503: {
+                titulo: 'Alerta Crítico HTTP 503 — Service Unavailable (Serviço Indisponível)',
+                icone: 'error',
+                cor: '#ef4444',
+                causa: 'Timeout de comunicação com o banco de dados, manutenção programada ou modo Lockdown Zero-Trust ativo.',
+                acao: 'Verifique a conectividade de rede ou o painel de Saúde & SLA no Dashboard.'
+            }
+        };
+
+        window.exibirAvisoHttpStatus = function(statusCode, detalheExtra) {
+            const code = parseInt(statusCode, 10) || 500;
+            const info = CATALOGO_STATUS_HTTP[code] || {
+                titulo: `Aviso de Status HTTP ${code}`,
+                icone: code >= 500 ? 'error' : 'warning',
+                cor: code >= 500 ? '#ef4444' : '#f59e0b',
+                causa: 'O servidor retornou um código de status HTTP não nominal durante a operação.',
+                acao: 'Consulte os Logs Globais de Auditoria para inspecionar o payload completo.'
+            };
+
+            if (typeof Swal !== 'undefined') {
+                Swal.fire({
+                    title: info.titulo,
+                    html: `
+                        <div class="text-left text-xs space-y-2.5 mt-1">
+                            <div class="flex items-center justify-between p-2 rounded-lg bg-black/40 border border-white/10">
+                                <span class="text-gray-400 font-semibold uppercase text-[10px]">Código RFC 9110</span>
+                                <span class="font-mono font-bold px-2 py-0.5 rounded text-[11px]" style="background:${info.cor}20; color:${info.cor}; border:1px solid ${info.cor}40;">HTTP ${code}</span>
+                            </div>
+                            <div class="p-2.5 rounded-lg bg-white/5 border border-white/10">
+                                <div class="text-[10px] font-bold uppercase tracking-wider text-gray-400 mb-0.5">Diagnóstico / Causa Provável</div>
+                                <div class="text-gray-200 leading-relaxed">${info.causa}</div>
+                                ${detalheExtra ? `<div class="mt-1.5 pt-1.5 border-t border-white/10 font-mono text-[10px] text-amber-300">Detalhe: ${detalheExtra}</div>` : ''}
+                            </div>
+                            <div class="p-2.5 rounded-lg bg-brand-500/10 border border-brand-500/20">
+                                <div class="text-[10px] font-bold uppercase tracking-wider text-brand-400 mb-0.5">Ação Recomendada (SecOps)</div>
+                                <div class="text-gray-200 leading-relaxed">${info.acao}</div>
+                            </div>
+                        </div>
+                    `,
+                    icon: info.icone,
+                    background: '#121418',
+                    color: '#fff',
+                    confirmButtonColor: info.cor,
+                    confirmButtonText: 'Entendido'
+                });
+            }
+        };
     </script>
 
     @RenderSection("Scripts", required: false)

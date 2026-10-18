@@ -345,7 +345,10 @@ using (var scope = app.Services.CreateScope())
                             UPDATE [Usuarios] SET [Departamento] = '' WHERE [Departamento] IS NULL;
                             UPDATE [Usuarios] SET [Endereco] = '' WHERE [Endereco] IS NULL;
                             IF OBJECT_ID(N'[ConfiguracoesSistema]', N'U') IS NOT NULL
+                            BEGIN
+                                ALTER TABLE [ConfiguracoesSistema] ALTER COLUMN [Valor] NVARCHAR(MAX) NOT NULL;
                                 UPDATE [ConfiguracoesSistema] SET [Valor] = '0x4AAAAAAFXK5J9F5V8zblrT' WHERE [Chave] = 'TURNSTILE_SITEKEY' AND ([Valor] LIKE '3x0000%' OR [Valor] LIKE '1x0000%');
+                            END
                         ");
 
                         // Assegura criação/atualização das Stored Procedures (PIM IV)

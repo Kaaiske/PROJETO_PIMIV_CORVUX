@@ -12,11 +12,16 @@
     }
 }
 
-<div class="mb-3 flex items-center justify-between gap-2">
-    <h1 class="text-[15px] font-[600] text-gray-900 dark:text-white flex items-center gap-2">
-        <i class="ph ph-sliders-horizontal text-brand-500"></i> Parâmetros do Sistema
-    </h1>
-    <div class="flex items-center gap-2">
+<div class="mb-3.5 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2.5">
+    <div>
+        <h1 class="text-[16px] font-[600] text-gray-900 dark:text-white flex items-center gap-2 m-0">
+            <i class="ph ph-sliders-horizontal text-brand-500"></i> Parâmetros do Sistema
+        </h1>
+        <p class="text-[11px] text-gray-500 dark:text-gray-400 mt-0.5 leading-relaxed max-w-3xl">
+            Esta área centraliza as políticas globais de segurança do CorvuxIAM: tempos de expiração de sessão e tokens JWT, proteção contra força bruta, blindagem de borda Cloudflare WAF/Turnstile, motores de acessibilidade assistiva (Voz Neural / VLibras) e o catálogo corporativo de cargos.
+        </p>
+    </div>
+    <div class="flex items-center gap-2 shrink-0">
         <button type="button" onclick="restaurarPadroesSeguros()" class="bg-white dark:bg-dark-card border border-gray-300 dark:border-dark-border text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-dark-hover text-[12px] font-medium px-3 py-1.5 rounded-[6px] transition-colors flex items-center gap-1.5 cursor-pointer" title="Restaurar Baseline NIST">
             <i class="ph ph-arrow-counter-clockwise"></i> Padrão
         </button>

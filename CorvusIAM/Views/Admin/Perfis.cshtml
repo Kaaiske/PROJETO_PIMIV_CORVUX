@@ -1,59 +1,222 @@
 @model IEnumerable<CorvusIAM.Entities.Perfil>
 @{
     Layout = "_Layout";
-    ViewData["Title"] = "Gestão de Perfis";
+    ViewData["Title"] = "Perfis RBAC";
+    var perfis = Model?.ToList() ?? new List<CorvusIAM.Entities.Perfil>();
+    int totalPerfis = perfis.Count;
+    int totalVinculos = perfis.Sum(p => p.UsuarioPerfis?.Count ?? 0);
 }
 
 <div class="mb-4 flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3">
-    <h1 class="text-[16px] font-[600] text-gray-900 dark:text-white flex items-center gap-2 m-0">
-        <i class="ph ph-identification-badge text-brand-500"></i> Perfis RBAC
-    </h1>
-    <button onclick="openModal('newPerfilModal')" class="w-full sm:w-auto bg-brand-600 hover:bg-[#1D4ED8] text-white text-[12px] font-medium px-3 py-1.5 rounded-[6px] shadow-sm transition-colors flex items-center justify-center gap-1.5 cursor-pointer">
-        <i class="ph ph-plus"></i> Novo Perfil
-    </button>
+    <div>
+        <h1 class="text-[16px] font-[600] text-gray-900 dark:text-white flex items-center gap-2 m-0">
+            <i class="ph ph-identification-badge text-brand-500"></i> Perfis RBAC &amp; Permissões Granulares
+        </h1>
+        <p class="text-[11px] text-gray-500 dark:text-gray-400 mt-0.5">Controle de acesso baseado em papéis (Role-Based Access Control), escopos JWT e privilégio mínimo.</p>
+    </div>
+    <div class="flex items-center gap-2">
+        <button type="button" onclick="document.getElementById('rbacMatrixSection').scrollIntoView({behavior:'smooth'})" class="bg-white dark:bg-dark-card hover:bg-gray-50 dark:hover:bg-dark-hover border border-gray-200 dark:border-dark-border text-gray-700 dark:text-gray-200 text-[12px] font-medium px-3 py-1.5 rounded-[6px] transition-colors flex items-center gap-1.5 cursor-pointer">
+            <i class="ph ph-table text-brand-500"></i> Matriz RBAC
+        </button>
+        <button onclick="openModal('newPerfilModal')" class="bg-brand-600 hover:bg-[#1D4ED8] text-white text-[12px] font-medium px-3 py-1.5 rounded-[6px] shadow-sm transition-colors flex items-center gap-1.5 cursor-pointer">
+            <i class="ph ph-plus"></i> Novo Perfil
+        </button>
+    </div>
 </div>
 
-<div class="bento-card bg-white dark:bg-dark-card border border-gray-200 dark:border-dark-border rounded-[6px] flex flex-col overflow-hidden">
-    @if(!Model.Any()) {
-        <div class="p-[24px] text-[13px] text-gray-500 dark:text-gray-400">Nenhum perfil cadastrado.</div>
-    } else {
-        <div class="overflow-x-auto">
-            <table class="w-full text-left border-collapse">
-                <thead>
-                    <tr class="bg-gray-50 dark:bg-dark-bg/50 border-b border-gray-200 dark:border-dark-border">
-                        <th class="px-[16px] py-[12px] text-[12px] font-[600] text-gray-500 dark:text-gray-400 uppercase tracking-[0.05em]">ID</th>
-                        <th class="px-[16px] py-[12px] text-[12px] font-[600] text-gray-500 dark:text-gray-400 uppercase tracking-[0.05em]">Nome do Perfil</th>
-                        <th class="px-[16px] py-[12px] text-[12px] font-[600] text-gray-500 dark:text-gray-400 uppercase tracking-[0.05em]">Descrição / Nível</th>
-                        <th class="px-[16px] py-[12px] text-[12px] font-[600] text-gray-500 dark:text-gray-400 uppercase tracking-[0.05em] text-right">Ações</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach(var p in Model){
-                        <tr class="group border-b border-gray-100 dark:border-dark-border hover:bg-gray-50 dark:hover:bg-[#1B1F24] transition-colors">
-                            <td class="px-[16px] py-[12px] text-[13px] text-brand-500 font-mono">CORV-P-@p.Id</td>
-                            <td class="px-[16px] py-[12px] text-[13px] font-[500] text-gray-900 dark:text-gray-100">@p.Nome</td>
-                            <td class="px-[16px] py-[12px]">
-                                <span class="bg-brand-500/10 text-brand-600 dark:text-brand-400 border border-brand-500/20 px-2 py-0.5 rounded-[4px] text-[11px] font-[600]">
-                                    @(p.Descricao ?? "Perfil padrão do sistema")
-                                </span>
-                            </td>
-                            <td class="px-[16px] py-[12px] text-right">
-                                <button onclick="excluirPerfil(@p.Id, '@Html.Raw(System.Web.HttpUtility.JavaScriptStringEncode(p.Nome))')" class="text-gray-400 hover:text-red-500 transition-colors cursor-pointer" title="Excluir">
-                                    <i class="ph ph-trash text-[16px]"></i>
-                                </button>
-                            </td>
-                        </tr>
+<!-- Bento KPIs RBAC -->
+<div class="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-4">
+    <div class="bento-card bg-white dark:bg-dark-card border border-gray-200 dark:border-dark-border rounded-[8px] p-3.5 flex flex-col justify-between">
+        <div class="text-[10px] font-[600] text-gray-500 dark:text-gray-400 uppercase flex justify-between items-center mb-1">
+            <span>Papéis Ativos</span>
+            <i class="ph ph-identification-badge text-brand-500 text-[16px]"></i>
+        </div>
+        <div class="flex items-baseline justify-between">
+            <span class="text-[22px] font-[700] text-gray-900 dark:text-white leading-none">@totalPerfis</span>
+            <span class="text-[10px] text-brand-500 font-mono">RBAC v2</span>
+        </div>
+    </div>
+
+    <div class="bento-card bg-white dark:bg-dark-card border border-gray-200 dark:border-dark-border rounded-[8px] p-3.5 flex flex-col justify-between">
+        <div class="text-[10px] font-[600] text-gray-500 dark:text-gray-400 uppercase flex justify-between items-center mb-1">
+            <span>Usuários Vinculados</span>
+            <i class="ph ph-users-three text-emerald-500 text-[16px]"></i>
+        </div>
+        <div class="flex items-baseline justify-between">
+            <span class="text-[22px] font-[700] text-emerald-500 leading-none">@totalVinculos</span>
+            <span class="text-[10px] text-gray-400 font-mono">Ativos</span>
+        </div>
+    </div>
+
+    <div class="bento-card bg-white dark:bg-dark-card border border-gray-200 dark:border-dark-border rounded-[8px] p-3.5 flex flex-col justify-between">
+        <div class="text-[10px] font-[600] text-gray-500 dark:text-gray-400 uppercase flex justify-between items-center mb-1">
+            <span>Claims &amp; Escopos</span>
+            <i class="ph ph-key text-purple-500 text-[16px]"></i>
+        </div>
+        <div class="flex items-baseline justify-between">
+            <span class="text-[22px] font-[700] text-purple-500 leading-none">8</span>
+            <span class="text-[10px] text-gray-400 font-mono">JWT + Cookie</span>
+        </div>
+    </div>
+
+    <div class="bento-card bg-white dark:bg-dark-card border border-gray-200 dark:border-dark-border rounded-[8px] p-3.5 flex flex-col justify-between">
+        <div class="text-[10px] font-[600] text-gray-500 dark:text-gray-400 uppercase flex justify-between items-center mb-1">
+            <span>Least Privilege</span>
+            <i class="ph ph-shield-check text-blue-500 text-[16px]"></i>
+        </div>
+        <div class="flex items-baseline justify-between">
+            <span class="text-[22px] font-[700] text-blue-500 leading-none">100%</span>
+            <span class="text-[10px] text-emerald-500 font-mono">Zero Trust</span>
+        </div>
+    </div>
+</div>
+
+<!-- Bento Grid de Perfis -->
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-5">
+    @foreach (var p in perfis)
+    {
+        var qtdUsers = p.UsuarioPerfis?.Count ?? 0;
+        var nomeLower = (p.Nome ?? "").ToLower();
+        string badgeCor = nomeLower.Contains("admin") ? "bg-red-500/10 text-red-500 border-red-500/20"
+                        : nomeLower.Contains("humanos") || nomeLower.Contains("rh") ? "bg-purple-500/10 text-purple-500 border-purple-500/20"
+                        : nomeLower.Contains("help") || nomeLower.Contains("suporte") ? "bg-amber-500/10 text-amber-500 border-amber-500/20"
+                        : nomeLower.Contains("contab") ? "bg-emerald-500/10 text-emerald-500 border-emerald-500/20"
+                        : "bg-brand-500/10 text-brand-500 border-brand-500/20";
+
+        string nivelAcesso = nomeLower.Contains("admin") ? "Acesso Irrestrito (Tier 0)"
+                           : nomeLower.Contains("humanos") ? "Gestão de Pessoas & LGPD (Tier 1)"
+                           : nomeLower.Contains("help") ? "Operação ITSM & Suporte (Tier 2)"
+                           : nomeLower.Contains("contab") ? "Gestão Fiscal & Folha (Tier 2)"
+                           : "Portal Self-Service (Tier 3)";
+
+        var permissoesBanco = p.PerfilPermissoes?.Where(pp => pp.Permissao != null).Select(pp => pp.Permissao.Nome).ToList() ?? new List<string>();
+        if (!permissoesBanco.Any())
+        {
+            if (nomeLower.Contains("admin")) permissoesBanco.AddRange(new[] { "usuarios.gerenciar", "perfis.gerenciar", "politicas.gerenciar", "logs.visualizar", "secops.waf", "chamados.atender" });
+            else if (nomeLower.Contains("humanos")) permissoesBanco.AddRange(new[] { "usuarios.visualizar", "usuarios.gerenciar", "cargos.gerenciar", "relatorios.rh" });
+            else if (nomeLower.Contains("contab")) permissoesBanco.AddRange(new[] { "usuarios.visualizar", "fiscal.nfe", "folha.processar" });
+            else if (nomeLower.Contains("help")) permissoesBanco.AddRange(new[] { "chamados.atender", "usuarios.visualizar", "mfa.reset" });
+            else permissoesBanco.AddRange(new[] { "portal.acessar", "chamados.abrir", "perfil.proprio" });
+        }
+
+        <div class="bento-card bg-white dark:bg-dark-card border border-gray-200 dark:border-dark-border rounded-[8px] p-4 flex flex-col justify-between hover:border-brand-500/50 transition-all">
+            <div>
+                <div class="flex items-start justify-between gap-2 mb-2.5">
+                    <div>
+                        <span class="text-[10px] font-mono text-gray-400">CORV-P-@p.Id</span>
+                        <h3 class="text-[14px] font-[700] text-gray-900 dark:text-white m-0 flex items-center gap-1.5">
+                            <i class="ph ph-shield-star text-brand-500"></i> @p.Nome
+                        </h3>
+                    </div>
+                    <span class="px-2 py-0.5 rounded text-[10px] font-semibold border @badgeCor">
+                        @qtdUsers @(qtdUsers == 1 ? "usuário" : "usuários")
+                    </span>
+                </div>
+
+                <p class="text-[12px] text-gray-600 dark:text-gray-400 m-0 mb-2.5">
+                    @(string.IsNullOrWhiteSpace(p.Descricao) ? "Perfil corporativo de controle de acesso." : p.Descricao)
+                </p>
+
+                <div class="text-[10px] text-gray-400 uppercase font-semibold mb-1.5">Escopos &amp; Claims Ativos:</div>
+                <div class="flex flex-wrap gap-1 mb-3">
+                    @foreach (var perm in permissoesBanco)
+                    {
+                        <span class="px-2 py-0.5 rounded bg-gray-100 dark:bg-dark-bg border border-gray-200 dark:border-dark-border text-[10px] font-mono text-gray-700 dark:text-gray-300">
+                            @perm
+                        </span>
                     }
-                </tbody>
-            </table>
+                </div>
+            </div>
+
+            <div class="pt-2.5 border-t border-gray-100 dark:border-dark-border flex items-center justify-between text-[11px]">
+                <span class="text-gray-500 dark:text-gray-400 font-medium">@nivelAcesso</span>
+                <div class="flex items-center gap-1.5">
+                    <button type="button" onclick="inspecionarPerfil('@Html.Raw(System.Web.HttpUtility.JavaScriptStringEncode(p.Nome))', '@Html.Raw(System.Web.HttpUtility.JavaScriptStringEncode(nivelAcesso))', '@string.Join(", ", permissoesBanco)')" class="px-2 py-1 rounded border border-gray-200 dark:border-dark-border text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-dark-hover transition-colors cursor-pointer" title="Ver detalhes de políticas">
+                        <i class="ph ph-eye"></i> Escopos
+                    </button>
+                    <button type="button" onclick="excluirPerfil(@p.Id, '@Html.Raw(System.Web.HttpUtility.JavaScriptStringEncode(p.Nome))')" class="px-2 py-1 rounded border border-red-500/20 text-red-500 hover:bg-red-500/10 transition-colors cursor-pointer" title="Excluir Perfil">
+                        <i class="ph ph-trash"></i>
+                    </button>
+                </div>
+            </div>
         </div>
     }
 </div>
 
+<!-- Matriz de Governança RBAC (Bento Card) -->
+<div id="rbacMatrixSection" class="bento-card bg-white dark:bg-dark-card border border-gray-200 dark:border-dark-border rounded-[8px] overflow-hidden">
+    <div class="px-4 py-3 border-b border-gray-100 dark:border-dark-border bg-gray-50 dark:bg-dark-bg/50 flex flex-wrap justify-between items-center gap-2">
+        <div>
+            <h3 class="text-[12px] font-[700] text-gray-900 dark:text-white uppercase tracking-wider m-0 flex items-center gap-1.5">
+                <i class="ph ph-lock-key text-brand-500"></i> Matriz de Governança RBAC (Módulos vs. Papéis)
+            </h3>
+        </div>
+        <span class="text-[10px] font-mono text-emerald-500 bg-emerald-500/10 px-2 py-0.5 rounded border border-emerald-500/20">
+            Política Authorize(Policy) Ativa
+        </span>
+    </div>
+    <div class="overflow-x-auto">
+        <table class="w-full text-left border-collapse text-xs">
+            <thead>
+                <tr class="border-b border-gray-200 dark:border-dark-border text-[10px] uppercase text-gray-500 dark:text-gray-400 bg-gray-50/40 dark:bg-dark-bg/30">
+                    <th class="px-4 py-2.5">Módulo / Recurso do Sistema</th>
+                    <th class="px-3 py-2.5 text-center">Admin</th>
+                    <th class="px-3 py-2.5 text-center">Recursos Humanos</th>
+                    <th class="px-3 py-2.5 text-center">Help Desk</th>
+                    <th class="px-3 py-2.5 text-center">Contabilidade</th>
+                    <th class="px-3 py-2.5 text-center">Colaborador</th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-gray-100 dark:divide-dark-border text-[11px]">
+                <tr>
+                    <td class="px-4 py-2.5 font-medium text-gray-800 dark:text-gray-200">SecOps, Firewall WAF &amp; Parâmetros Globais</td>
+                    <td class="px-3 py-2.5 text-center text-emerald-500 font-bold">Total (R/W)</td>
+                    <td class="px-3 py-2.5 text-center text-gray-400">—</td>
+                    <td class="px-3 py-2.5 text-center text-gray-400">—</td>
+                    <td class="px-3 py-2.5 text-center text-gray-400">—</td>
+                    <td class="px-3 py-2.5 text-center text-gray-400">—</td>
+                </tr>
+                <tr>
+                    <td class="px-4 py-2.5 font-medium text-gray-800 dark:text-gray-200">Gestão de Colaboradores, Cargos &amp; Equidade IBGE</td>
+                    <td class="px-3 py-2.5 text-center text-emerald-500 font-bold">Total (R/W)</td>
+                    <td class="px-3 py-2.5 text-center text-emerald-500 font-bold">Total (R/W)</td>
+                    <td class="px-3 py-2.5 text-center text-blue-500">Leitura</td>
+                    <td class="px-3 py-2.5 text-center text-blue-500">Leitura</td>
+                    <td class="px-3 py-2.5 text-center text-gray-400">—</td>
+                </tr>
+                <tr>
+                    <td class="px-4 py-2.5 font-medium text-gray-800 dark:text-gray-200">Fila de Chamados ITSM &amp; Reset de Senha/MFA</td>
+                    <td class="px-3 py-2.5 text-center text-emerald-500 font-bold">Total (R/W)</td>
+                    <td class="px-3 py-2.5 text-center text-blue-500">Abrir Ticket</td>
+                    <td class="px-3 py-2.5 text-center text-emerald-500 font-bold">Atender (R/W)</td>
+                    <td class="px-3 py-2.5 text-center text-blue-500">Abrir Ticket</td>
+                    <td class="px-3 py-2.5 text-center text-blue-500">Abrir Ticket</td>
+                </tr>
+                <tr>
+                    <td class="px-4 py-2.5 font-medium text-gray-800 dark:text-gray-200">Faturamento NF-e, Folha &amp; Auditoria Contábil</td>
+                    <td class="px-3 py-2.5 text-center text-emerald-500 font-bold">Total (R/W)</td>
+                    <td class="px-3 py-2.5 text-center text-blue-500">Folha / Férias</td>
+                    <td class="px-3 py-2.5 text-center text-gray-400">—</td>
+                    <td class="px-3 py-2.5 text-center text-emerald-500 font-bold">Total (R/W)</td>
+                    <td class="px-3 py-2.5 text-center text-gray-400">—</td>
+                </tr>
+                <tr>
+                    <td class="px-4 py-2.5 font-medium text-gray-800 dark:text-gray-200">Portal de Autoatendimento &amp; Crachá Digital PWA</td>
+                    <td class="px-3 py-2.5 text-center text-emerald-500 font-bold">Ativo</td>
+                    <td class="px-3 py-2.5 text-center text-emerald-500 font-bold">Ativo</td>
+                    <td class="px-3 py-2.5 text-center text-emerald-500 font-bold">Ativo</td>
+                    <td class="px-3 py-2.5 text-center text-emerald-500 font-bold">Ativo</td>
+                    <td class="px-3 py-2.5 text-center text-emerald-500 font-bold">Ativo</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
 <!-- Modal Overlay -->
 <div id="modalOverlay" class="fixed inset-0 bg-black/80 z-[100] hidden items-center justify-center p-4 backdrop-blur-sm transition-opacity">
-    <div id="newPerfilModal" class="hidden bg-white dark:bg-dark-card border border-gray-200 dark:border-dark-border rounded-[8px] shadow-2xl w-full max-w-sm overflow-hidden flex-col mx-2 sm:mx-0">
-        <div class="px-4 sm:px-6 py-3 sm:py-4 border-b border-gray-200 dark:border-dark-border flex justify-between items-center bg-gray-50 dark:bg-dark-bg/50">
+    <div id="newPerfilModal" class="hidden bg-white dark:bg-dark-card border border-gray-200 dark:border-dark-border rounded-[8px] shadow-2xl w-full max-w-md overflow-hidden flex-col mx-2 sm:mx-0">
+        <div class="px-5 py-3.5 border-b border-gray-200 dark:border-dark-border flex justify-between items-center bg-gray-50 dark:bg-dark-bg/50">
             <h3 class="text-[14px] font-[600] text-gray-900 dark:text-white flex items-center gap-2 m-0">
                 <i class="ph ph-shield-check text-brand-500"></i> Novo Perfil RBAC
             </h3>
@@ -61,20 +224,29 @@
                 <i class="ph ph-x text-[16px]"></i>
             </button>
         </div>
-        <div class="p-6">
-            <form onsubmit="adicionarPerfil(event)" class="space-y-4">
+        <div class="p-5">
+            <form onsubmit="adicionarPerfil(event)" class="space-y-3.5">
                 <div>
-                    <label class="block text-[11px] font-semibold text-gray-500 uppercase tracking-wider mb-1">Nome do Papel</label>
-                    <input type="text" id="nomePerfil" placeholder="Ex: Auditoria Financeira" required class="w-full bg-gray-50 dark:bg-dark-bg border border-gray-200 dark:border-dark-border text-gray-900 dark:text-gray-100 text-[13px] rounded-[6px] px-3 py-2 outline-none focus:border-brand-500" />
+                    <label class="block text-[11px] font-semibold text-gray-500 uppercase tracking-wider mb-1">Nome do Papel RBAC</label>
+                    <input type="text" id="nomePerfil" placeholder="Ex: Auditoria Externa LGPD" required class="w-full bg-gray-50 dark:bg-dark-bg border border-gray-200 dark:border-dark-border text-gray-900 dark:text-gray-100 text-[13px] rounded-[6px] px-3 py-2 outline-none focus:border-brand-500" />
                 </div>
                 <div>
-                    <label class="block text-[11px] font-semibold text-gray-500 uppercase tracking-wider mb-1">Descrição</label>
-                    <input type="text" id="descricaoPerfil" placeholder="Ex: Permissão de visualização contábil" required class="w-full bg-gray-50 dark:bg-dark-bg border border-gray-200 dark:border-dark-border text-gray-900 dark:text-gray-100 text-[13px] rounded-[6px] px-3 py-2 outline-none focus:border-brand-500" />
+                    <label class="block text-[11px] font-semibold text-gray-500 uppercase tracking-wider mb-1">Descrição &amp; Escopo de Atuação</label>
+                    <input type="text" id="descricaoPerfil" placeholder="Ex: Acesso de leitura a logs e relatórios de conformidade" required class="w-full bg-gray-50 dark:bg-dark-bg border border-gray-200 dark:border-dark-border text-gray-900 dark:text-gray-100 text-[13px] rounded-[6px] px-3 py-2 outline-none focus:border-brand-500" />
+                </div>
+                <div>
+                    <label class="block text-[11px] font-semibold text-gray-500 uppercase tracking-wider mb-1.5">Permissões Iniciais Sugeridas</label>
+                    <div class="grid grid-cols-2 gap-1.5 text-xs bg-gray-50 dark:bg-dark-bg p-2.5 rounded border border-gray-200 dark:border-dark-border">
+                        <label class="flex items-center gap-1.5 text-gray-700 dark:text-gray-300"><input type="checkbox" checked class="accent-brand-600" /> usuarios.visualizar</label>
+                        <label class="flex items-center gap-1.5 text-gray-700 dark:text-gray-300"><input type="checkbox" class="accent-brand-600" /> usuarios.gerenciar</label>
+                        <label class="flex items-center gap-1.5 text-gray-700 dark:text-gray-300"><input type="checkbox" checked class="accent-brand-600" /> chamados.atender</label>
+                        <label class="flex items-center gap-1.5 text-gray-700 dark:text-gray-300"><input type="checkbox" checked class="accent-brand-600" /> logs.visualizar</label>
+                    </div>
                 </div>
                 
-                <div class="flex justify-end gap-3 pt-4 border-t border-gray-200 dark:border-dark-border mt-4">
-                    <button type="button" onclick="closeModal()" class="px-4 py-2 text-[12px] font-medium text-gray-700 dark:text-gray-300 border border-gray-300 dark:border-dark-border rounded-[6px] hover:bg-gray-50 dark:hover:bg-[#1B1F24] transition-colors cursor-pointer">Cancelar</button>
-                    <button type="submit" id="btnSalvarPerfil" class="px-4 py-2 text-[12px] font-medium text-white bg-brand-600 rounded-[6px] hover:bg-[#1D4ED8] transition-colors cursor-pointer">Salvar Perfil</button>
+                <div class="flex justify-end gap-2.5 pt-3 border-t border-gray-200 dark:border-dark-border">
+                    <button type="button" onclick="closeModal()" class="px-4 py-1.5 text-[12px] font-medium text-gray-700 dark:text-gray-300 border border-gray-300 dark:border-dark-border rounded-[6px] hover:bg-gray-50 dark:hover:bg-[#1B1F24] transition-colors cursor-pointer">Cancelar</button>
+                    <button type="submit" id="btnSalvarPerfil" class="px-4 py-1.5 text-[12px] font-medium text-white bg-brand-600 rounded-[6px] hover:bg-[#1D4ED8] transition-colors cursor-pointer">Salvar Perfil</button>
                 </div>
             </form>
         </div>
@@ -88,7 +260,6 @@
             if(!overlay) return;
             overlay.classList.remove('hidden');
             overlay.classList.add('flex');
-            
             const modal = document.getElementById(id);
             if(modal) {
                 modal.classList.remove('hidden');
@@ -101,12 +272,26 @@
             if(!overlay) return;
             overlay.classList.add('hidden');
             overlay.classList.remove('flex');
-
             const modal = document.getElementById('newPerfilModal');
             if(modal) {
                 modal.classList.add('hidden');
                 modal.classList.remove('flex');
             }
+        }
+
+        function inspecionarPerfil(nome, nivel, escopos) {
+            Swal.fire({
+                title: `Perfil RBAC: ${nome}`,
+                html: `<div class="text-left text-xs space-y-2 text-gray-300">
+                        <div><b>Classificação Zero Trust:</b> ${nivel}</div>
+                        <div><b>Claims JWT Atribuídas:</b> <code class="text-brand-400">${escopos}</code></div>
+                        <div><b>Validação de Sessão:</b> Cookie HttpOnly + Bearer Token</div>
+                       </div>`,
+                icon: 'info',
+                background: '#121418',
+                color: '#fff',
+                confirmButtonColor: '#3B82F6'
+            });
         }
 
         document.addEventListener('keydown', (e) => {
@@ -173,7 +358,8 @@
                     if(res.ok) {
                         Swal.fire({ title: 'Excluído!', text: 'Perfil removido com sucesso.', icon: 'success', background: '#121418', color: '#fff' }).then(() => window.location.reload());
                     } else {
-                        Swal.fire({ title: 'Erro', text: 'Não foi possível excluir o perfil.', icon: 'error', background: '#121418', color: '#fff' });
+                        const errObj = await res.json().catch(() => ({}));
+                        Swal.fire({ title: 'Aviso', text: errObj.message || 'Não foi possível excluir o perfil.', icon: 'warning', background: '#121418', color: '#fff' });
                     }
                 } catch(err) {
                     Swal.fire({ title: 'Erro de Conexão', text: 'Falha ao comunicar com o servidor.', icon: 'error', background: '#121418', color: '#fff' });

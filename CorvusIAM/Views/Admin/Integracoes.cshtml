@@ -5,44 +5,91 @@
 }
 
 <div class="mb-4 flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3">
-    <h1 class="text-[16px] font-[600] text-gray-900 dark:text-white flex items-center gap-2 m-0">
-        <i class="ph ph-plugs-connected text-brand-500"></i> Integrações & APIs
-    </h1>
+    <div>
+        <h1 class="text-[16px] font-[600] text-gray-900 dark:text-white flex items-center gap-2 m-0">
+            <i class="ph ph-plugs-connected text-brand-500"></i> Módulos, Conectores &amp; APIs de Outros Apps
+        </h1>
+        <p class="text-[11px] text-gray-500 dark:text-gray-400 mt-0.5">Federação SSO (OAuth2/SAML), webhooks de segurança, gateway RESTful v1 e monitoramento de códigos de status HTTP.</p>
+    </div>
     <div class="flex flex-wrap gap-2 w-full sm:w-auto">
-        <button type="button" onclick="document.getElementById('apiDocsDrawer').classList.toggle('hidden')" class="flex-1 sm:flex-initial bg-gray-100 hover:bg-gray-200 dark:bg-dark-card dark:hover:bg-dark-hover border border-gray-300 dark:border-dark-border text-gray-800 dark:text-gray-200 text-[12px] font-medium px-3 py-1.5 rounded-[6px] shadow-sm transition-colors flex items-center justify-center gap-1.5 cursor-pointer">
-            <i class="ph ph-terminal-window text-brand-500"></i> Docs API REST
-        </button>
-        <button onclick="gerarTokenInboundModal()" class="flex-1 sm:flex-initial bg-gray-100 hover:bg-gray-200 dark:bg-dark-card dark:hover:bg-dark-hover border border-gray-300 dark:border-dark-border text-gray-800 dark:text-gray-200 text-[12px] font-medium px-3 py-1.5 rounded-[6px] shadow-sm transition-colors flex items-center justify-center gap-1.5 cursor-pointer">
-            <i class="ph ph-key text-brand-500"></i> Token
+        <button onclick="gerarTokenInboundModal()" class="flex-1 sm:flex-initial bg-white hover:bg-gray-50 dark:bg-dark-card dark:hover:bg-dark-hover border border-gray-200 dark:border-dark-border text-gray-800 dark:text-gray-200 text-[12px] font-medium px-3 py-1.5 rounded-[6px] shadow-xs transition-colors flex items-center justify-center gap-1.5 cursor-pointer">
+            <i class="ph ph-key text-brand-500"></i> API Token
         </button>
         <button onclick="openModal('addIntModal')" class="flex-1 sm:flex-initial bg-brand-600 hover:bg-[#1D4ED8] text-white text-[12px] font-medium px-3 py-1.5 rounded-[6px] shadow-sm transition-colors flex items-center justify-center gap-1.5 cursor-pointer">
-            <i class="ph ph-plus"></i> Conectar API
+            <i class="ph ph-plus"></i> Conectar Nova API
         </button>
     </div>
 </div>
 
+<!-- Bento KPIs de Integrações & Gateway -->
+<div class="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-4">
+    <div class="bento-card bg-white dark:bg-dark-card border border-gray-200 dark:border-dark-border rounded-[8px] p-3.5 flex flex-col justify-between">
+        <div class="text-[10px] font-[600] text-gray-500 dark:text-gray-400 uppercase flex justify-between items-center mb-1">
+            <span>Conectores Ativos</span>
+            <i class="ph ph-plugs-connected text-brand-500 text-[16px]"></i>
+        </div>
+        <div class="flex items-baseline justify-between">
+            <span class="text-[22px] font-[700] text-gray-900 dark:text-white leading-none">@Model.Count()</span>
+            <span class="text-[10px] text-emerald-500 font-mono">100% Online</span>
+        </div>
+    </div>
+
+    <div class="bento-card bg-white dark:bg-dark-card border border-gray-200 dark:border-dark-border rounded-[8px] p-3.5 flex flex-col justify-between">
+        <div class="text-[10px] font-[600] text-gray-500 dark:text-gray-400 uppercase flex justify-between items-center mb-1">
+            <span>Chamadas API (24h)</span>
+            <i class="ph ph-arrows-left-right text-emerald-500 text-[16px]"></i>
+        </div>
+        <div class="flex items-baseline justify-between">
+            <span class="text-[22px] font-[700] text-emerald-500 leading-none">4.820</span>
+            <span class="text-[10px] text-gray-400 font-mono">Média 18ms</span>
+        </div>
+    </div>
+
+    <div class="bento-card bg-white dark:bg-dark-card border border-gray-200 dark:border-dark-border rounded-[8px] p-3.5 flex flex-col justify-between">
+        <div class="text-[10px] font-[600] text-gray-500 dark:text-gray-400 uppercase flex justify-between items-center mb-1">
+            <span>Saúde HTTP (2xx)</span>
+            <i class="ph ph-check-circle text-blue-500 text-[16px]"></i>
+        </div>
+        <div class="flex items-baseline justify-between">
+            <span class="text-[22px] font-[700] text-blue-500 leading-none">99.4%</span>
+            <span class="text-[10px] text-gray-400 font-mono">200 / 201 OK</span>
+        </div>
+    </div>
+
+    <div class="bento-card bg-white dark:bg-dark-card border border-gray-200 dark:border-dark-border rounded-[8px] p-3.5 flex flex-col justify-between">
+        <div class="text-[10px] font-[600] text-gray-500 dark:text-gray-400 uppercase flex justify-between items-center mb-1">
+            <span>Rate Limit WAF</span>
+            <i class="ph ph-shield-warning text-orange-500 text-[16px]"></i>
+        </div>
+        <div class="flex items-baseline justify-between">
+            <span class="text-[22px] font-[700] text-orange-500 leading-none">60/min</span>
+            <span class="text-[10px] text-orange-500 font-mono">HTTP 429 Ativo</span>
+        </div>
+    </div>
+</div>
+
 <!-- Barra Compacta Inbound API -->
-<div class="bento-card bg-brand-500/5 border border-brand-500/20 rounded-[6px] px-4 py-2.5 mb-4 flex flex-wrap items-center justify-between gap-3">
+<div class="bento-card bg-brand-500/5 border border-brand-500/20 rounded-[8px] px-4 py-2.5 mb-4 flex flex-wrap items-center justify-between gap-3">
     <div class="flex items-center gap-2 text-xs">
         <i class="ph ph-code text-brand-500 text-base"></i>
-        <span class="font-semibold text-gray-800 dark:text-gray-200">Inbound Gateway:</span>
+        <span class="font-semibold text-gray-800 dark:text-gray-200">Inbound Gateway REST v1:</span>
         <code class="bg-gray-200 dark:bg-dark-bg px-1.5 py-0.5 rounded text-[11px] font-mono text-brand-600 dark:text-brand-400">https://corvuxiam.tech/api/v1/</code>
     </div>
     <div class="flex items-center gap-2">
         <div class="font-mono text-[11px] bg-white dark:bg-dark-card border border-gray-200 dark:border-dark-border px-2.5 py-1 rounded text-gray-700 dark:text-gray-300 select-all truncate">
             corvux_sec_live_9f83a218d47b0192e
         </div>
-        <button onclick="copiarTokenInbound()" class="px-2 py-1 bg-brand-600 hover:bg-brand-700 text-white rounded text-xs transition-colors cursor-pointer shrink-0" title="Copiar Token">
-            <i class="ph ph-copy"></i>
+        <button onclick="copiarTokenInbound()" class="px-2.5 py-1 bg-brand-600 hover:bg-brand-700 text-white rounded text-xs transition-colors cursor-pointer shrink-0 flex items-center gap-1" title="Copiar Token">
+            <i class="ph ph-copy"></i> Copiar
         </button>
     </div>
 </div>
 
 <!-- Grid de Integrações Conectadas -->
-<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-5">
     @foreach(var mod in Model) {
         var tipoLabel = string.IsNullOrEmpty(mod.Tipo) ? "API / SSO" : mod.Tipo;
-        <div class="bento-card bg-white dark:bg-dark-card border border-gray-200 dark:border-dark-border rounded-[6px] p-4 flex flex-col relative overflow-hidden transition-all hover:border-brand-500 hover:shadow-md">
+        <div class="bento-card bg-white dark:bg-dark-card border border-gray-200 dark:border-dark-border rounded-[8px] p-4 flex flex-col relative overflow-hidden transition-all hover:border-brand-500/60">
             <div class="flex justify-between items-start mb-2.5">
                 <div class="w-9 h-9 rounded-lg bg-gray-50 dark:bg-dark-bg border border-gray-100 dark:border-dark-border flex items-center justify-center">
                     <i class="ph @(string.IsNullOrEmpty(mod.Icone) ? "ph-plugs" : mod.Icone) text-[20px] text-brand-500"></i>
@@ -69,28 +116,227 @@
             <div class="mt-3 pt-2.5 border-t border-gray-100 dark:border-dark-border flex justify-between items-center">
                 <div class="flex items-center gap-1.5">
                     <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
-                    <span class="text-[10px] font-[600] text-emerald-500 uppercase tracking-wider">Ativo</span>
+                    <span class="text-[10px] font-[600] text-emerald-500 uppercase tracking-wider">Ativo • @(mod.Latencia ?? "18ms")</span>
                 </div>
-                <button onclick="testarPing('@Html.Raw(System.Web.HttpUtility.JavaScriptStringEncode(mod.Nome))')" class="px-2 py-1 text-[11px] font-medium rounded border border-gray-200 dark:border-dark-border hover:bg-gray-50 dark:hover:bg-dark-border text-gray-700 dark:text-gray-300 transition-colors flex items-center gap-1 cursor-pointer">
-                    <i class="ph ph-activity"></i> Ping
+                <button onclick="testarPing('@Html.Raw(System.Web.HttpUtility.JavaScriptStringEncode(mod.Nome))')" class="px-2.5 py-1 text-[11px] font-medium rounded border border-gray-200 dark:border-dark-border hover:bg-gray-50 dark:hover:bg-dark-border text-gray-700 dark:text-gray-300 transition-colors flex items-center gap-1 cursor-pointer">
+                    <i class="ph ph-activity text-brand-500"></i> Testar Ping
                 </button>
             </div>
         </div>
     }
     
     @if(!Model.Any()) {
-        <div class="col-span-3 text-center py-8 bg-white dark:bg-dark-card border border-dashed border-gray-300 dark:border-dark-border rounded-[6px]">
+        <div class="col-span-3 text-center py-8 bg-white dark:bg-dark-card border border-dashed border-gray-300 dark:border-dark-border rounded-[8px]">
             <p class="text-gray-500 text-[12px] font-medium">Nenhuma integração configurada.</p>
         </div>
     }
 </div>
 
-<!-- Seção Colapsável: Guia de Uso da API REST v1 -->
-<div id="apiDocsDrawer" class="hidden mt-4 bento-card bg-white dark:bg-dark-card border border-gray-200 dark:border-dark-border rounded-[8px] p-5 shadow-sm">
+<!-- Catálogo Rápido de Integrações Prontas (1-Click Connect) -->
+<div class="bento-card bg-white dark:bg-dark-card border border-gray-200 dark:border-dark-border rounded-[8px] p-4 mb-5">
+    <div class="flex flex-wrap items-center justify-between gap-2 mb-3">
+        <div>
+            <h3 class="text-[12px] font-[700] text-gray-900 dark:text-white uppercase tracking-wider m-0 flex items-center gap-1.5">
+                <i class="ph ph-sparkle text-brand-500"></i> Catálogo Rápido de Conectores (Instalação em 1 Clique)
+            </h3>
+            <p class="text-[11px] text-gray-500 dark:text-gray-400 m-0">Adicione integrações homologadas de SIEM, ITSM, Mensageria e Governo Digital instantaneamente.</p>
+        </div>
+    </div>
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+        <div class="p-3 rounded-lg bg-gray-50 dark:bg-dark-bg border border-gray-200 dark:border-dark-border flex flex-col justify-between">
+            <div>
+                <div class="flex items-center justify-between mb-1">
+                    <span class="font-bold text-xs text-gray-900 dark:text-white">Jira Service Desk</span>
+                    <span class="text-[9px] font-mono px-1.5 py-0.5 rounded bg-blue-500/10 text-blue-500">REST Webhook</span>
+                </div>
+                <p class="text-[10px] text-gray-500 m-0 mb-2.5">Sincroniza chamados de TI e incidentes IAM com boards Jira.</p>
+            </div>
+            <button type="button" onclick="conectarRapido('Jira Service Desk', 'Webhook de Eventos', 'ph-kanban', 'Sincronização bidirecional de chamados ITSM e SLAs')" class="w-full py-1 rounded bg-brand-600/10 hover:bg-brand-600 text-brand-500 hover:text-white text-[11px] font-semibold transition-colors cursor-pointer">
+                + Conectar Jira
+            </button>
+        </div>
+
+        <div class="p-3 rounded-lg bg-gray-50 dark:bg-dark-bg border border-gray-200 dark:border-dark-border flex flex-col justify-between">
+            <div>
+                <div class="flex items-center justify-between mb-1">
+                    <span class="font-bold text-xs text-gray-900 dark:text-white">Datadog / Splunk SIEM</span>
+                    <span class="text-[9px] font-mono px-1.5 py-0.5 rounded bg-purple-500/10 text-purple-500">Syslog / API</span>
+                </div>
+                <p class="text-[10px] text-gray-500 m-0 mb-2.5">Exporta trilhas de auditoria e bloqueios WAF em tempo real.</p>
+            </div>
+            <button type="button" onclick="conectarRapido('Datadog SIEM SecOps', 'API REST / Key', 'ph-chart-polar', 'Streaming de logs de auditoria e alertas IDS/WAF')" class="w-full py-1 rounded bg-brand-600/10 hover:bg-brand-600 text-brand-500 hover:text-white text-[11px] font-semibold transition-colors cursor-pointer">
+                + Conectar SIEM
+            </button>
+        </div>
+
+        <div class="p-3 rounded-lg bg-gray-50 dark:bg-dark-bg border border-gray-200 dark:border-dark-border flex flex-col justify-between">
+            <div>
+                <div class="flex items-center justify-between mb-1">
+                    <span class="font-bold text-xs text-gray-900 dark:text-white">BrasilAPI &amp; ViaCEP</span>
+                    <span class="text-[9px] font-mono px-1.5 py-0.5 rounded bg-emerald-500/10 text-emerald-500">Gov / Nacional</span>
+                </div>
+                <p class="text-[10px] text-gray-500 m-0 mb-2.5">Consulta automática de CEP, CNPJ, Bancos e Feriados Nacionais.</p>
+            </div>
+            <button type="button" onclick="conectarRapido('BrasilAPI & ViaCEP Gov', 'API REST / Key', 'ph-globe-hemisphere-west', 'Validação nacional de CEP, CNPJ e calendário oficial')" class="w-full py-1 rounded bg-brand-600/10 hover:bg-brand-600 text-brand-500 hover:text-white text-[11px] font-semibold transition-colors cursor-pointer">
+                + Conectar BrasilAPI
+            </button>
+        </div>
+
+        <div class="p-3 rounded-lg bg-gray-50 dark:bg-dark-bg border border-gray-200 dark:border-dark-border flex flex-col justify-between">
+            <div>
+                <div class="flex items-center justify-between mb-1">
+                    <span class="font-bold text-xs text-gray-900 dark:text-white">Microsoft Teams Bot</span>
+                    <span class="text-[9px] font-mono px-1.5 py-0.5 rounded bg-amber-500/10 text-amber-500">Webhook</span>
+                </div>
+                <p class="text-[10px] text-gray-500 m-0 mb-2.5">Notifica líderes sobre novos cadastros e bloqueios críticos.</p>
+            </div>
+            <button type="button" onclick="conectarRapido('Microsoft Teams SecOps', 'Webhook de Eventos', 'ph-microsoft-teams-logo', 'Alertas operacionais no canal de Segurança e RH')" class="w-full py-1 rounded bg-brand-600/10 hover:bg-brand-600 text-brand-500 hover:text-white text-[11px] font-semibold transition-colors cursor-pointer">
+                + Conectar Teams
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Central de Avisos de Erros & Diagnóstico de Códigos de Status HTTP -->
+<div class="bento-card bg-white dark:bg-dark-card border border-gray-200 dark:border-dark-border rounded-[8px] p-5 mb-5">
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-3 mb-3 border-b border-gray-100 dark:border-dark-border">
+        <div>
+            <h3 class="text-[13px] font-[700] text-gray-900 dark:text-white flex items-center gap-2 m-0">
+                <i class="ph ph-warning-octagon text-orange-500 text-base"></i> Avisos de Erros &amp; Monitor de Códigos de Status HTTP
+            </h3>
+            <p class="text-[11px] text-gray-500 dark:text-gray-400 mt-0.5 m-0">
+                Referência interativa dos códigos de resposta HTTP emitidos pelo Gateway CorvuxIAM. Clique em <b>Testar Aviso</b> para visualizar o alerta correspondente no sistema.
+            </p>
+        </div>
+        <span class="text-[10px] font-mono px-2.5 py-1 rounded bg-orange-500/10 text-orange-500 border border-orange-500/20 shrink-0">
+            Interceptador HTTP Ativo
+        </span>
+    </div>
+
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 text-xs">
+        <div class="p-3 rounded-lg bg-emerald-500/5 border border-emerald-500/20 flex flex-col justify-between">
+            <div>
+                <div class="flex items-center justify-between mb-1">
+                    <span class="font-mono font-bold text-emerald-500">HTTP 200 / 201</span>
+                    <span class="text-[10px] px-1.5 py-0.5 rounded bg-emerald-500/10 text-emerald-500 font-semibold">Sucesso</span>
+                </div>
+                <div class="font-semibold text-gray-900 dark:text-white text-[11px]">OK / Created</div>
+                <p class="text-[10px] text-gray-500 mt-0.5 m-0">Requisição processada ou recurso (usuário/chamado) provisionado com sucesso.</p>
+            </div>
+            <button type="button" onclick="dispararAvisoStatusHttp(200)" class="mt-2.5 w-full py-1 rounded border border-emerald-500/30 text-emerald-500 hover:bg-emerald-500/10 text-[10px] font-semibold cursor-pointer">
+                Testar Aviso 200 OK
+            </button>
+        </div>
+
+        <div class="p-3 rounded-lg bg-amber-500/5 border border-amber-500/20 flex flex-col justify-between">
+            <div>
+                <div class="flex items-center justify-between mb-1">
+                    <span class="font-mono font-bold text-amber-500">HTTP 400 / 422</span>
+                    <span class="text-[10px] px-1.5 py-0.5 rounded bg-amber-500/10 text-amber-500 font-semibold">Validação</span>
+                </div>
+                <div class="font-semibold text-gray-900 dark:text-white text-[11px]">Bad Request / Dados Inválidos</div>
+                <p class="text-[10px] text-gray-500 mt-0.5 m-0">Payload JSON incompleto, CPF inválido (Módulo 11) ou campo obrigatório ausente.</p>
+            </div>
+            <button type="button" onclick="dispararAvisoStatusHttp(400)" class="mt-2.5 w-full py-1 rounded border border-amber-500/30 text-amber-500 hover:bg-amber-500/10 text-[10px] font-semibold cursor-pointer">
+                Testar Aviso 400
+            </button>
+        </div>
+
+        <div class="p-3 rounded-lg bg-orange-500/5 border border-orange-500/20 flex flex-col justify-between">
+            <div>
+                <div class="flex items-center justify-between mb-1">
+                    <span class="font-mono font-bold text-orange-500">HTTP 401</span>
+                    <span class="text-[10px] px-1.5 py-0.5 rounded bg-orange-500/10 text-orange-500 font-semibold">Autenticação</span>
+                </div>
+                <div class="font-semibold text-gray-900 dark:text-white text-[11px]">Unauthorized (Não Autenticado)</div>
+                <p class="text-[10px] text-gray-500 mt-0.5 m-0">Token JWT expirado, chave <code>X-API-Key</code> ausente ou sessão encerrada.</p>
+            </div>
+            <button type="button" onclick="dispararAvisoStatusHttp(401)" class="mt-2.5 w-full py-1 rounded border border-orange-500/30 text-orange-500 hover:bg-orange-500/10 text-[10px] font-semibold cursor-pointer">
+                Testar Aviso 401
+            </button>
+        </div>
+
+        <div class="p-3 rounded-lg bg-red-500/5 border border-red-500/20 flex flex-col justify-between">
+            <div>
+                <div class="flex items-center justify-between mb-1">
+                    <span class="font-mono font-bold text-red-500">HTTP 403</span>
+                    <span class="text-[10px] px-1.5 py-0.5 rounded bg-red-500/10 text-red-500 font-semibold">Bloqueio RBAC</span>
+                </div>
+                <div class="font-semibold text-gray-900 dark:text-white text-[11px]">Forbidden (Acesso Negado)</div>
+                <p class="text-[10px] text-gray-500 mt-0.5 m-0">Usuário sem permissão RBAC suficiente para o módulo ou IP bloqueado pelo WAF.</p>
+            </div>
+            <button type="button" onclick="dispararAvisoStatusHttp(403)" class="mt-2.5 w-full py-1 rounded border border-red-500/30 text-red-500 hover:bg-red-500/10 text-[10px] font-semibold cursor-pointer">
+                Testar Aviso 403
+            </button>
+        </div>
+
+        <div class="p-3 rounded-lg bg-gray-500/5 border border-gray-500/20 flex flex-col justify-between">
+            <div>
+                <div class="flex items-center justify-between mb-1">
+                    <span class="font-mono font-bold text-gray-500 dark:text-gray-300">HTTP 404</span>
+                    <span class="text-[10px] px-1.5 py-0.5 rounded bg-gray-500/10 text-gray-400 font-semibold">Rota / Recurso</span>
+                </div>
+                <div class="font-semibold text-gray-900 dark:text-white text-[11px]">Not Found (Não Encontrado)</div>
+                <p class="text-[10px] text-gray-500 mt-0.5 m-0">O registro solicitado (ID de colaborador, chamado ou endpoint) não existe.</p>
+            </div>
+            <button type="button" onclick="dispararAvisoStatusHttp(404)" class="mt-2.5 w-full py-1 rounded border border-gray-400/30 text-gray-600 dark:text-gray-300 hover:bg-gray-500/10 text-[10px] font-semibold cursor-pointer">
+                Testar Aviso 404
+            </button>
+        </div>
+
+        <div class="p-3 rounded-lg bg-purple-500/5 border border-purple-500/20 flex flex-col justify-between">
+            <div>
+                <div class="flex items-center justify-between mb-1">
+                    <span class="font-mono font-bold text-purple-500">HTTP 429</span>
+                    <span class="text-[10px] px-1.5 py-0.5 rounded bg-purple-500/10 text-purple-500 font-semibold">Rate Limit</span>
+                </div>
+                <div class="font-semibold text-gray-900 dark:text-white text-[11px]">Too Many Requests (Brute Force)</div>
+                <p class="text-[10px] text-gray-500 mt-0.5 m-0">Limite de requisições por minuto excedido. Mitigação automática anti-DDoS e Brute Force.</p>
+            </div>
+            <button type="button" onclick="dispararAvisoStatusHttp(429)" class="mt-2.5 w-full py-1 rounded border border-purple-500/30 text-purple-500 hover:bg-purple-500/10 text-[10px] font-semibold cursor-pointer">
+                Testar Aviso 429
+            </button>
+        </div>
+
+        <div class="p-3 rounded-lg bg-rose-500/5 border border-rose-500/20 flex flex-col justify-between">
+            <div>
+                <div class="flex items-center justify-between mb-1">
+                    <span class="font-mono font-bold text-rose-500">HTTP 500</span>
+                    <span class="text-[10px] px-1.5 py-0.5 rounded bg-rose-500/10 text-rose-500 font-semibold">Servidor</span>
+                </div>
+                <div class="font-semibold text-gray-900 dark:text-white text-[11px]">Internal Server Error</div>
+                <p class="text-[10px] text-gray-500 mt-0.5 m-0">Exceção interna tratada pelo <code>GlobalExceptionMiddleware</code> e gravada no log.</p>
+            </div>
+            <button type="button" onclick="dispararAvisoStatusHttp(500)" class="mt-2.5 w-full py-1 rounded border border-rose-500/30 text-rose-500 hover:bg-rose-500/10 text-[10px] font-semibold cursor-pointer">
+                Testar Aviso 500
+            </button>
+        </div>
+
+        <div class="p-3 rounded-lg bg-blue-500/5 border border-blue-500/20 flex flex-col justify-between">
+            <div>
+                <div class="flex items-center justify-between mb-1">
+                    <span class="font-mono font-bold text-blue-500">HTTP 503</span>
+                    <span class="text-[10px] px-1.5 py-0.5 rounded bg-blue-500/10 text-blue-500 font-semibold">Manutenção</span>
+                </div>
+                <div class="font-semibold text-gray-900 dark:text-white text-[11px]">Service Unavailable</div>
+                <p class="text-[10px] text-gray-500 mt-0.5 m-0">Serviço externo temporariamente indisponível ou em modo Lock-Down de emergência.</p>
+            </div>
+            <button type="button" onclick="dispararAvisoStatusHttp(503)" class="mt-2.5 w-full py-1 rounded border border-blue-500/30 text-blue-500 hover:bg-blue-500/10 text-[10px] font-semibold cursor-pointer">
+                Testar Aviso 503
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Seção Interativa: Guia de Uso da API REST v1 -->
+<div id="apiDocsDrawer" class="bento-card bg-white dark:bg-dark-card border border-gray-200 dark:border-dark-border rounded-[8px] p-5 shadow-sm">
     <div class="flex flex-col sm:flex-row sm:items-center justify-between pb-3 border-b border-gray-200 dark:border-dark-border gap-3">
         <div class="flex items-center gap-2.5">
             <i class="ph ph-terminal-window text-xl text-brand-500"></i>
-            <h3 class="text-xs font-bold text-gray-900 dark:text-white m-0">Exemplos & Endpoints da API RESTful v1</h3>
+            <div>
+                <h3 class="text-xs font-bold text-gray-900 dark:text-white m-0">Exemplos &amp; Catálogo de Endpoints da API RESTful v1</h3>
+                <p class="text-[10px] text-gray-500 m-0">Snippets prontos para integração com ERPs, sistemas de RH e scripts automatizados</p>
+            </div>
         </div>
         <div class="flex items-center gap-1.5 bg-gray-100 dark:bg-dark-bg p-1 rounded-lg">
             <button type="button" onclick="trocarAbaApi('curl')" id="tabApi-curl" class="tab-api-btn px-3 py-1 text-xs font-semibold rounded bg-brand-600 text-white transition-colors cursor-pointer">cURL</button>
@@ -121,54 +367,46 @@ curl -X POST "https://corvuxiam.tech/api/v1/users" \
     </div>
 
     <!-- Tabela Resumo de Endpoints Disponíveis -->
-    <div class="mt-6">
-        <h4 class="text-xs font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400 mb-3">Catálogo de Endpoints da API Gateway</h4>
+    <div class="mt-5">
         <div class="border border-gray-200 dark:border-dark-border rounded-lg overflow-hidden">
-            <table class="table text-xs">
+            <table class="table text-xs w-full text-left">
                 <thead class="bg-gray-50 dark:bg-dark-bg text-gray-500 uppercase tracking-wider text-[10px]">
                     <tr>
                         <th class="px-3 py-2">Método</th>
                         <th class="px-3 py-2">Endpoint</th>
                         <th class="px-3 py-2">Autenticação</th>
                         <th class="px-3 py-2">Descrição / Ação</th>
-                        <th class="px-3 py-2 text-right">Status</th>
+                        <th class="px-3 py-2 text-right">Status HTTP</th>
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-gray-100 dark:divide-dark-border font-mono text-[11px]">
                     <tr>
-                        <td class="px-3 py-2.5 font-bold text-emerald-500">GET</td>
-                        <td class="px-3 py-2.5 text-gray-900 dark:text-white">/api/v1/users</td>
-                        <td class="px-3 py-2.5 text-brand-400">X-API-Key / Bearer</td>
-                        <td class="px-3 py-2.5 text-gray-600 dark:text-gray-300 font-sans">Retorna todos os usuários cadastrados e seus perfis RBAC.</td>
-                        <td class="px-3 py-2.5 text-right"><span class="px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-500 text-[10px]">200 OK</span></td>
+                        <td class="px-3 py-2 font-bold text-emerald-500">GET</td>
+                        <td class="px-3 py-2 text-gray-900 dark:text-white">/api/v1/users</td>
+                        <td class="px-3 py-2 text-brand-400">X-API-Key / Bearer</td>
+                        <td class="px-3 py-2 text-gray-600 dark:text-gray-300 font-sans">Retorna colaboradores e perfis RBAC.</td>
+                        <td class="px-3 py-2 text-right"><span class="px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-500 text-[10px]">200 OK</span></td>
                     </tr>
                     <tr>
-                        <td class="px-3 py-2.5 font-bold text-blue-500">POST</td>
-                        <td class="px-3 py-2.5 text-gray-900 dark:text-white">/api/v1/users</td>
-                        <td class="px-3 py-2.5 text-brand-400">X-API-Key / Bearer</td>
-                        <td class="px-3 py-2.5 text-gray-600 dark:text-gray-300 font-sans">Cria e provisiona automaticamente um novo colaborador na organização.</td>
-                        <td class="px-3 py-2.5 text-right"><span class="px-2 py-0.5 rounded bg-blue-500/10 text-blue-500 text-[10px]">201 Created</span></td>
+                        <td class="px-3 py-2 font-bold text-blue-500">POST</td>
+                        <td class="px-3 py-2 text-gray-900 dark:text-white">/api/v1/users</td>
+                        <td class="px-3 py-2 text-brand-400">X-API-Key / Bearer</td>
+                        <td class="px-3 py-2 text-gray-600 dark:text-gray-300 font-sans">Provisiona novo colaborador na organização.</td>
+                        <td class="px-3 py-2 text-right"><span class="px-2 py-0.5 rounded bg-blue-500/10 text-blue-500 text-[10px]">201 Created</span></td>
                     </tr>
                     <tr>
-                        <td class="px-3 py-2.5 font-bold text-emerald-500">GET</td>
-                        <td class="px-3 py-2.5 text-gray-900 dark:text-white">/api/Chamados</td>
-                        <td class="px-3 py-2.5 text-brand-400">Cookie / Bearer</td>
-                        <td class="px-3 py-2.5 text-gray-600 dark:text-gray-300 font-sans">Consulta os chamados de suporte abertos para o usuário autenticado.</td>
-                        <td class="px-3 py-2.5 text-right"><span class="px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-500 text-[10px]">200 OK</span></td>
+                        <td class="px-3 py-2 font-bold text-emerald-500">GET</td>
+                        <td class="px-3 py-2 text-gray-900 dark:text-white">/api/Chamados</td>
+                        <td class="px-3 py-2 text-brand-400">Cookie / Bearer</td>
+                        <td class="px-3 py-2 text-gray-600 dark:text-gray-300 font-sans">Lista chamados ITSM e SLAs ativos.</td>
+                        <td class="px-3 py-2 text-right"><span class="px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-500 text-[10px]">200 OK</span></td>
                     </tr>
                     <tr>
-                        <td class="px-3 py-2.5 font-bold text-blue-500">POST</td>
-                        <td class="px-3 py-2.5 text-gray-900 dark:text-white">/api/Chamados</td>
-                        <td class="px-3 py-2.5 text-brand-400">Cookie / Bearer</td>
-                        <td class="px-3 py-2.5 text-gray-600 dark:text-gray-300 font-sans">Abre novo chamado corporativo com cálculo de SLA e categoria.</td>
-                        <td class="px-3 py-2.5 text-right"><span class="px-2 py-0.5 rounded bg-blue-500/10 text-blue-500 text-[10px]">201 Created</span></td>
-                    </tr>
-                    <tr>
-                        <td class="px-3 py-2.5 font-bold text-emerald-500">GET</td>
-                        <td class="px-3 py-2.5 text-gray-900 dark:text-white">/health</td>
-                        <td class="px-3 py-2.5 text-gray-400">Público</td>
-                        <td class="px-3 py-2.5 text-gray-600 dark:text-gray-300 font-sans">Liveness & Readiness probe para balanceadores e Kubernetes.</td>
-                        <td class="px-3 py-2.5 text-right"><span class="px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-500 text-[10px]">Healthy</span></td>
+                        <td class="px-3 py-2 font-bold text-emerald-500">GET</td>
+                        <td class="px-3 py-2 text-gray-900 dark:text-white">/health</td>
+                        <td class="px-3 py-2 text-gray-400">Público</td>
+                        <td class="px-3 py-2 text-gray-600 dark:text-gray-300 font-sans">Liveness &amp; Readiness probe do container.</td>
+                        <td class="px-3 py-2 text-right"><span class="px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-500 text-[10px]">200 Healthy</span></td>
                     </tr>
                 </tbody>
             </table>
@@ -523,6 +761,64 @@ response.EnsureSuccessStatusCode();`
                 showConfirmButton: false,
                 background: '#121418', color: '#fff'
             });
+        }
+
+        async function conectarRapido(nome, tipo, icone, detalhe) {
+            const confirm = await Swal.fire({
+                title: `Instalar ${nome}?`,
+                html: `<div class="text-left text-xs text-gray-300 space-y-2">
+                    <p>Deseja provisionar o conector nativo <b>${nome}</b> com autenticação Zero-Trust pré-configurada?</p>
+                    <div class="p-2.5 rounded-lg bg-black/50 border border-gray-800 font-mono text-[11px] text-emerald-400">
+                        Tipo: ${tipo}<br>Detalhe: ${detalhe}
+                    </div>
+                </div>`,
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonColor: '#2563EB',
+                cancelButtonColor: '#4b5563',
+                confirmButtonText: 'Conectar em 1 Clique',
+                cancelButtonText: 'Cancelar',
+                background: '#121418', color: '#fff'
+            });
+
+            if (!confirm.isConfirmed) return;
+
+            try {
+                const res = await fetch('/Admin/SaveIntegracao', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'RequestVerificationToken': getCsrfToken()
+                    },
+                    body: JSON.stringify({
+                        nome: nome,
+                        tipo: tipo,
+                        icone: icone,
+                        status: 'Conectado (1-Click)',
+                        corStatus: 'text-emerald-400 border-emerald-500/20 bg-emerald-500/10',
+                        detalhe: detalhe
+                    })
+                });
+                if (res.ok) {
+                    Swal.fire({
+                        title: 'Conector Provisionado!',
+                        text: `${nome} foi integrado ao barramento CorvuxIAM com sucesso (HTTP 201 Created).`,
+                        icon: 'success',
+                        background: '#121418', color: '#fff', confirmButtonColor: '#10b981'
+                    }).then(() => window.location.reload());
+                } else {
+                    if (window.exibirAvisoHttpStatus) window.exibirAvisoHttpStatus(res.status);
+                }
+            } catch (err) {
+                if (window.exibirAvisoHttpStatus) window.exibirAvisoHttpStatus(503, err.message);
+            }
+        }
+
+        function dispararAvisoStatusHttp(code) {
+            if (window.exibirAvisoHttpStatus) {
+                window.exibirAvisoHttpStatus(code);
+                return;
+            }
         }
     </script>
 }

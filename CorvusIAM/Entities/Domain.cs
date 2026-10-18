@@ -134,7 +134,7 @@ namespace CorvusIAM.Entities
     {
         [Key] public int Id { get; set; }
         [Required, MaxLength(100)] public string Chave { get; set; } = string.Empty;
-        [Required, MaxLength(500)] public string Valor { get; set; } = string.Empty;
+        [Required] public string Valor { get; set; } = string.Empty;
     }
 
     public class FirewallRegra
