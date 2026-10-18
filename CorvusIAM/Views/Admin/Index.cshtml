@@ -4,119 +4,81 @@
     ViewData["Title"] = "Dashboard";
 }
 
-<div class="mb-[20px] flex flex-col sm:flex-row sm:justify-between sm:items-end gap-3">
-    <div>
-        <h1 class="text-[16px] font-[600] text-slate-900 dark:text-white flex items-center gap-2 tracking-tight">
-            <i class="ph ph-squares-four text-brand-500"></i> Dashboard Security Operations (SecOps)
-        </h1>
-        <p class="text-[12px] text-slate-500 dark:text-slate-400 mt-0.5">Visão executiva unificada, fluxo de identidades Zero Trust e telemetria em tempo real</p>
-    </div>
-    <div class="flex flex-wrap gap-2 w-full sm:w-auto">
-        <a href="/Admin/Cloud" class="bg-white hover:bg-slate-50 dark:bg-dark-card dark:hover:bg-dark-hover border border-slate-200 dark:border-dark-border text-slate-700 dark:text-slate-200 text-[12px] font-medium px-3 py-1.5 rounded-[6px] transition-colors flex items-center justify-center gap-1.5">
-            <i class="ph ph-desktop text-blue-500"></i> Saúde da Rede (18 Hosts)
+<div class="mb-3.5 flex items-center justify-between gap-2">
+    <h1 class="text-[15px] font-[600] text-slate-900 dark:text-white flex items-center gap-2 tracking-tight">
+        <i class="ph ph-squares-four text-brand-500"></i> Visão Geral
+    </h1>
+    <div class="flex items-center gap-2">
+        <a href="/Admin/Cloud" class="bg-white hover:bg-slate-50 dark:bg-dark-card dark:hover:bg-dark-hover border border-slate-200 dark:border-dark-border text-slate-700 dark:text-slate-200 text-[12px] font-medium px-2.5 py-1.5 rounded-[6px] transition-colors flex items-center gap-1.5">
+            <i class="ph ph-desktop text-blue-500"></i> Rede (18)
         </a>
-        <a href="/Admin/DownloadRelatorio" class="bg-brand-600 hover:bg-brand-500 text-white text-[12px] font-medium px-3 py-1.5 rounded-[6px] shadow-xs transition-colors flex items-center justify-center gap-1.5">
-            <i class="ph ph-download-simple"></i> Exportar Auditoria
+        <a href="/Admin/DownloadRelatorio" class="bg-brand-600 hover:bg-brand-500 text-white text-[12px] font-medium px-3 py-1.5 rounded-[6px] shadow-xs transition-colors flex items-center gap-1.5">
+            <i class="ph ph-download-simple"></i> Relatório
         </a>
     </div>
 </div>
 
-<!-- TOP KPIs (Cards Clicáveis com Fluxo Direto) -->
-<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3.5 md:gap-5 mb-[22px]">
-    <!-- Nível de Segurança -->
-    <a href="/Admin/Politicas" class="bento-card bg-white dark:bg-dark-card border border-slate-200 dark:border-dark-border rounded-[8px] p-[18px] flex flex-col justify-between relative overflow-hidden group cursor-pointer">
-        <div class="text-[11px] font-[600] text-slate-500 dark:text-slate-400 uppercase tracking-[0.05em] flex justify-between items-center mb-3">
-            <span>Nível de Segurança</span>
-            <i class="ph ph-shield-check text-emerald-500 text-[18px] group-hover:scale-110 transition-transform"></i>
+<!-- TOP KPIs -->
+<div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 mb-4">
+    <a href="/Admin/Politicas" class="bento-card bg-white dark:bg-dark-card border border-slate-200 dark:border-dark-border rounded-[8px] p-3.5 flex flex-col justify-between group cursor-pointer">
+        <div class="text-[10px] font-[600] text-slate-500 dark:text-slate-400 uppercase flex justify-between items-center mb-1.5">
+            <span>Segurança</span>
+            <i class="ph ph-shield-check text-emerald-500 text-[16px]"></i>
         </div>
-        <div>
-            <div class="text-[28px] font-[700] text-slate-900 dark:text-white leading-[1] tracking-tight">A+</div>
-            <div class="text-[11px] text-emerald-600 dark:text-emerald-400 mt-1.5 font-[500] flex items-center justify-between">
-                <span class="flex items-center gap-1"><i class="ph ph-check-circle"></i> Zero Trust Ativo</span>
-                <i class="ph ph-arrow-right text-slate-400 group-hover:translate-x-0.5 transition-transform"></i>
-            </div>
-        </div>
+        <div class="text-[22px] font-[700] text-slate-900 dark:text-white leading-none">A+</div>
     </a>
 
-    <!-- Active Users -->
-    <a href="/Admin/Usuarios" class="bento-card bg-white dark:bg-dark-card border border-slate-200 dark:border-dark-border rounded-[8px] p-[18px] flex flex-col justify-between relative overflow-hidden group cursor-pointer">
-        <div class="text-[11px] font-[600] text-slate-500 dark:text-slate-400 uppercase tracking-[0.05em] flex justify-between items-center mb-3">
-            <span>Usuários Ativos</span>
-            <i class="ph ph-users text-brand-500 text-[18px] group-hover:scale-110 transition-transform"></i>
+    <a href="/Admin/Usuarios" class="bento-card bg-white dark:bg-dark-card border border-slate-200 dark:border-dark-border rounded-[8px] p-3.5 flex flex-col justify-between group cursor-pointer">
+        <div class="text-[10px] font-[600] text-slate-500 dark:text-slate-400 uppercase flex justify-between items-center mb-1.5">
+            <span>Colaboradores</span>
+            <i class="ph ph-users text-brand-500 text-[16px]"></i>
         </div>
-        <div>
-            <div class="text-[28px] font-[700] text-slate-900 dark:text-white leading-[1] tracking-tight">@Model.TotalUsuarios</div>
-            <div class="text-[11px] text-brand-600 dark:text-brand-400 mt-1.5 font-[500] flex items-center justify-between">
-                <span>Gerenciar Diretório</span>
-                <i class="ph ph-arrow-right text-slate-400 group-hover:translate-x-0.5 transition-transform"></i>
-            </div>
-        </div>
+        <div class="text-[22px] font-[700] text-slate-900 dark:text-white leading-none">@Model.TotalUsuarios</div>
     </a>
 
-    <!-- Security Incidents -->
-    <a href="/Admin/Inteligencia" class="bento-card bg-white dark:bg-dark-card border border-slate-200 dark:border-dark-border rounded-[8px] p-[18px] flex flex-col justify-between relative overflow-hidden group cursor-pointer">
-        <div class="text-[11px] font-[600] text-slate-500 dark:text-slate-400 uppercase tracking-[0.05em] flex justify-between items-center mb-3">
-            <span>Acessos Bloqueados</span>
-            <i class="ph ph-warning-circle text-orange-500 text-[18px] group-hover:scale-110 transition-transform"></i>
+    <a href="/Admin/Inteligencia" class="bento-card bg-white dark:bg-dark-card border border-slate-200 dark:border-dark-border rounded-[8px] p-3.5 flex flex-col justify-between group cursor-pointer">
+        <div class="text-[10px] font-[600] text-slate-500 dark:text-slate-400 uppercase flex justify-between items-center mb-1.5">
+            <span>Bloqueios</span>
+            <i class="ph ph-warning-circle text-orange-500 text-[16px]"></i>
         </div>
-        <div>
-            <div class="text-[28px] font-[700] text-slate-900 dark:text-white leading-[1] tracking-tight">@Model.AcessosBloqueados</div>
-            <div class="text-[11px] text-orange-600 dark:text-orange-400 mt-1.5 font-[500] flex items-center justify-between">
-                <span>Inspecionar IDS/WAF</span>
-                <i class="ph ph-arrow-right text-slate-400 group-hover:translate-x-0.5 transition-transform"></i>
-            </div>
-        </div>
+        <div class="text-[22px] font-[700] text-slate-900 dark:text-white leading-none">@Model.AcessosBloqueados</div>
     </a>
 
-    <!-- Dispositivos na Rede -->
-    <a href="/Admin/Cloud" class="bento-card bg-white dark:bg-dark-card border border-slate-200 dark:border-dark-border rounded-[8px] p-[18px] flex flex-col justify-between relative overflow-hidden group cursor-pointer">
-        <div class="text-[11px] font-[600] text-slate-500 dark:text-slate-400 uppercase tracking-[0.05em] flex justify-between items-center mb-3">
-            <span>Endpoints da Rede</span>
-            <i class="ph ph-desktop text-blue-500 text-[18px] group-hover:scale-110 transition-transform"></i>
+    <a href="/Admin/Cloud" class="bento-card bg-white dark:bg-dark-card border border-slate-200 dark:border-dark-border rounded-[8px] p-3.5 flex flex-col justify-between group cursor-pointer">
+        <div class="text-[10px] font-[600] text-slate-500 dark:text-slate-400 uppercase flex justify-between items-center mb-1.5">
+            <span>Endpoints</span>
+            <i class="ph ph-desktop text-blue-500 text-[16px]"></i>
         </div>
-        <div>
-            <div class="text-[28px] font-[700] text-slate-900 dark:text-white leading-[1] tracking-tight">18</div>
-            <div class="text-[11px] text-blue-600 dark:text-blue-400 mt-1.5 font-[500] flex items-center justify-between">
-                <span>15 Saudáveis • 3 Alertas</span>
-                <i class="ph ph-arrow-right text-slate-400 group-hover:translate-x-0.5 transition-transform"></i>
-            </div>
-        </div>
+        <div class="text-[22px] font-[700] text-slate-900 dark:text-white leading-none">18</div>
     </a>
 
-    <!-- System Health -->
-    <a href="/Admin/Configuracoes" class="bento-card bg-brand-600 border border-brand-500 rounded-[8px] p-[18px] flex flex-col justify-between relative overflow-hidden group cursor-pointer">
-        <div class="text-[11px] font-[600] text-white/85 uppercase tracking-[0.05em] flex justify-between items-center mb-3">
-            <span>Saúde Operacional</span>
-            <i class="ph ph-heartbeat text-white text-[18px] group-hover:scale-110 transition-transform"></i>
+    <a href="/Admin/Configuracoes" class="col-span-2 sm:col-span-1 bento-card bg-brand-600 border border-brand-500 rounded-[8px] p-3.5 flex flex-col justify-between group cursor-pointer">
+        <div class="text-[10px] font-[600] text-white/85 uppercase flex justify-between items-center mb-1.5">
+            <span>Disponibilidade</span>
+            <i class="ph ph-heartbeat text-white text-[16px]"></i>
         </div>
-        <div>
-            <div class="text-[28px] font-[700] text-white leading-[1] tracking-tight">99.98%</div>
-            <div class="text-[11px] text-white/85 mt-1.5 font-[500] flex items-center justify-between">
-                <span>Uptime & Parâmetros</span>
-                <i class="ph ph-arrow-right text-white/70 group-hover:translate-x-0.5 transition-transform"></i>
-            </div>
-        </div>
+        <div class="text-[22px] font-[700] text-white leading-none">99.98%</div>
     </a>
 </div>
 
-<!-- Seletor de Visão Executiva Compacta (Redução de Poluição Visual) -->
-<div class="flex items-center gap-1.5 p-1 bg-white dark:bg-dark-card border border-gray-200 dark:border-dark-border rounded-lg mb-6 overflow-x-auto text-[12px] font-medium shadow-xs w-full sm:w-max">
-    <button type="button" onclick="mudarAbaDashboard('todas')" id="tab-btn-todas" class="dashboard-tab-btn px-3 py-1.5 rounded-md transition-all text-white bg-brand-600 shadow-xs flex items-center gap-1.5 whitespace-nowrap cursor-pointer">
-        <i class="ph ph-squares-four"></i> Visão Completa
+<!-- Abas Compactas (Apenas 1 seção exibida por vez por padrão) -->
+<div class="flex items-center gap-1 p-1 bg-white dark:bg-dark-card border border-gray-200 dark:border-dark-border rounded-lg mb-4 overflow-x-auto text-[12px] font-medium w-full sm:w-max">
+    <button type="button" onclick="mudarAbaDashboard('visao-geral')" id="tab-btn-visao-geral" class="dashboard-tab-btn px-3 py-1 rounded-md transition-all text-white bg-brand-600 shadow-xs flex items-center gap-1.5 whitespace-nowrap cursor-pointer">
+        <i class="ph ph-chart-pie"></i> Resumo &amp; Auditoria
     </button>
-    <button type="button" onclick="mudarAbaDashboard('visao-geral')" id="tab-btn-visao-geral" class="dashboard-tab-btn px-3 py-1.5 rounded-md transition-all text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white flex items-center gap-1.5 whitespace-nowrap cursor-pointer">
-        <i class="ph ph-chart-pie"></i> Métricas & Auditoria
+    <button type="button" onclick="mudarAbaDashboard('engajamento')" id="tab-btn-engajamento" class="dashboard-tab-btn px-3 py-1 rounded-md transition-all text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white flex items-center gap-1.5 whitespace-nowrap cursor-pointer">
+        <i class="ph ph-users-three"></i> Uso &amp; Equipe
     </button>
-    <button type="button" onclick="mudarAbaDashboard('engajamento')" id="tab-btn-engajamento" class="dashboard-tab-btn px-3 py-1.5 rounded-md transition-all text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white flex items-center gap-1.5 whitespace-nowrap cursor-pointer">
-        <i class="ph ph-users-three"></i> Uso & Colaboradores
+    <button type="button" onclick="mudarAbaDashboard('infra')" id="tab-btn-infra" class="dashboard-tab-btn px-3 py-1 rounded-md transition-all text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white flex items-center gap-1.5 whitespace-nowrap cursor-pointer">
+        <i class="ph ph-cpu"></i> Saúde &amp; SLA
     </button>
-    <button type="button" onclick="mudarAbaDashboard('infra')" id="tab-btn-infra" class="dashboard-tab-btn px-3 py-1.5 rounded-md transition-all text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white flex items-center gap-1.5 whitespace-nowrap cursor-pointer">
-        <i class="ph ph-cpu"></i> Conectores & SLA
+    <button type="button" onclick="mudarAbaDashboard('todas')" id="tab-btn-todas" class="dashboard-tab-btn px-3 py-1 rounded-md transition-all text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white flex items-center gap-1.5 whitespace-nowrap cursor-pointer">
+        <i class="ph ph-squares-four"></i> Tudo
     </button>
 </div>
 
 <!-- Seção 1: Métricas & Auditoria em Tempo Real -->
-<div id="sec-metricas-auditoria" class="space-y-6">
+<div id="sec-metricas-auditoria" class="space-y-4">
     <div class="grid grid-cols-1 md:grid-cols-4 gap-4 md:gap-[24px]">
         <!-- Monitoramento Contínuo Ao Vivo (Tabela de Eventos Reais) -->
         <div class="bento-card col-span-1 md:col-span-2 bg-white dark:bg-dark-card border border-gray-200 dark:border-dark-border rounded-[6px] flex flex-col relative overflow-hidden">
@@ -219,36 +181,28 @@
 </div>
 
 <!-- Seção 2: Telemetria de Uso por Usuário & Setores -->
-<div id="sec-engajamento-equipe">
-    <div class="mt-6 bento-card bg-white dark:bg-dark-card border border-gray-200 dark:border-dark-border rounded-[8px] p-6 shadow-sm">
-        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-5 pb-3 border-b border-gray-200 dark:border-dark-border">
-            <div>
-                <h3 class="text-sm font-bold text-gray-900 dark:text-white uppercase tracking-wider flex items-center gap-2">
-                    <i class="ph ph-chart-bar text-brand-500 text-lg"></i> Telemetria de Uso e Engajamento por Usuário
-                </h3>
-                <p class="text-xs text-gray-500 dark:text-gray-400 mt-0.5">Frequência de logins, requisições disparadas, dispositivos utilizados e última atividade registrada</p>
-            </div>
-            <div class="flex items-center gap-2">
-                <span class="text-xs font-mono px-2.5 py-1 rounded bg-brand-500/10 text-brand-500 border border-brand-500/20">
-                    <i class="ph ph-users"></i> @(Model.RankingUsoUsuarios?.Count ?? 0) Usuários Monitorados
-                </span>
-            </div>
+<div id="sec-engajamento-equipe" style="display: none;">
+    <div class="mt-4 bento-card bg-white dark:bg-dark-card border border-gray-200 dark:border-dark-border rounded-[8px] p-5 shadow-xs">
+        <div class="flex items-center justify-between gap-2 mb-4 pb-2.5 border-b border-gray-200 dark:border-dark-border">
+            <h3 class="text-[13px] font-bold text-gray-900 dark:text-white flex items-center gap-2">
+                <i class="ph ph-chart-bar text-brand-500 text-base"></i> Uso por Colaborador &amp; Setor
+            </h3>
+            <span class="text-[11px] font-mono px-2 py-0.5 rounded bg-brand-500/10 text-brand-500 border border-brand-500/20">
+                @(Model.RankingUsoUsuarios?.Count ?? 0) Ativos
+            </span>
         </div>
 
-        <!-- Grid: Tabela de Usuários & Distribuição Departamental -->
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            <!-- Tabela de Ranking de Uso -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
             <div class="lg:col-span-2 overflow-x-auto border border-gray-200 dark:border-dark-border rounded-lg">
                 <table class="table text-xs">
                     <thead class="bg-gray-50 dark:bg-dark-bg text-gray-500 uppercase tracking-wider text-[10px]">
                         <tr>
-                            <th class="px-3 py-2.5">Colaborador</th>
-                            <th class="px-3 py-2.5">Perfil</th>
-                            <th class="px-3 py-2.5 text-center">Logins</th>
-                            <th class="px-3 py-2.5 text-center">Volume Req.</th>
-                            <th class="px-3 py-2.5">Último Acesso</th>
-                            <th class="px-3 py-2.5">Dispositivo / IP</th>
-                            <th class="px-3 py-2.5 text-right">Status</th>
+                            <th class="px-3 py-2">Colaborador</th>
+                            <th class="px-3 py-2">Perfil</th>
+                            <th class="px-3 py-2 text-center">Logins</th>
+                            <th class="px-3 py-2 text-center">Req.</th>
+                            <th class="px-3 py-2">Acesso</th>
+                            <th class="px-3 py-2 text-right">Status</th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-gray-100 dark:divide-dark-border font-mono text-[11px]">
@@ -257,36 +211,32 @@
                             @foreach (var user in Model.RankingUsoUsuarios.Take(7))
                             {
                                 <tr class="hover:bg-gray-50/50 dark:hover:bg-dark-hover transition-colors font-sans">
-                                    <td class="px-3 py-2.5">
+                                    <td class="px-3 py-2">
                                         <div class="font-semibold text-gray-900 dark:text-white">@user.Nome</div>
                                         <div class="text-[10px] text-gray-400 font-mono">@user.Email</div>
                                     </td>
-                                    <td class="px-3 py-2.5">
-                                        <span class="px-2 py-0.5 rounded text-[10px] font-semibold bg-brand-500/10 text-brand-600 dark:text-brand-400 border border-brand-500/20">
+                                    <td class="px-3 py-2">
+                                        <span class="px-2 py-0.5 rounded text-[10px] font-semibold bg-brand-500/10 text-brand-600 dark:text-brand-400">
                                             @user.Perfil
                                         </span>
                                     </td>
-                                    <td class="px-3 py-2.5 text-center font-mono font-bold text-gray-700 dark:text-gray-300">
+                                    <td class="px-3 py-2 text-center font-mono font-bold text-gray-700 dark:text-gray-300">
                                         @user.TotalLogins
                                     </td>
-                                    <td class="px-3 py-2.5 text-center font-mono text-brand-500 font-bold">
+                                    <td class="px-3 py-2 text-center font-mono text-brand-500 font-bold">
                                         @user.TotalRequisicoes
                                     </td>
-                                    <td class="px-3 py-2.5 font-mono text-gray-500 text-[10px]">
+                                    <td class="px-3 py-2 font-mono text-gray-500 text-[10px]">
                                         @user.UltimoAcesso.ToString("dd/MM HH:mm")
                                     </td>
-                                    <td class="px-3 py-2.5 text-[11px] text-gray-600 dark:text-gray-400">
-                                        <div>@user.Dispositivo</div>
-                                        <div class="font-mono text-[10px] text-gray-400">@user.IpOrigem</div>
-                                    </td>
-                                    <td class="px-3 py-2.5 text-right font-sans">
+                                    <td class="px-3 py-2 text-right font-sans">
                                         @if (user.Status == "Bloqueado")
                                         {
-                                            <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-red-500/10 text-red-500 border border-red-500/20">Bloqueado</span>
+                                            <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-red-500/10 text-red-500">Bloqueado</span>
                                         }
                                         else
                                         {
-                                            <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-500/10 text-emerald-500 border border-emerald-500/20">Ativo</span>
+                                            <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-500/10 text-emerald-500">Ativo</span>
                                         }
                                     </td>
                                 </tr>
@@ -296,13 +246,12 @@
                 </table>
             </div>
 
-            <!-- Alocação de Recursos por Departamento -->
             <div class="flex flex-col justify-between bg-gray-50/50 dark:bg-dark-bg/40 border border-gray-200 dark:border-dark-border rounded-lg p-4">
                 <div>
                     <h4 class="text-xs font-bold uppercase tracking-wider text-gray-700 dark:text-gray-300 mb-3 flex items-center gap-1.5">
-                        <i class="ph ph-buildings text-brand-500"></i> Uso por Departamento
+                        <i class="ph ph-buildings text-brand-500"></i> Departamentos
                     </h4>
-                    <div class="space-y-3">
+                    <div class="space-y-2.5">
                         @for (int i = 0; i < Model.DepartamentosNomes.Count; i++)
                         {
                             var dep = Model.DepartamentosNomes[i];
@@ -312,15 +261,12 @@
                                     <span class="text-gray-700 dark:text-gray-300 font-medium">@dep</span>
                                     <span class="font-mono font-bold text-gray-900 dark:text-white">@perc%</span>
                                 </div>
-                                <div class="w-full h-2 bg-gray-200 dark:bg-dark-card rounded-full overflow-hidden">
+                                <div class="w-full h-1.5 bg-gray-200 dark:bg-dark-card rounded-full overflow-hidden">
                                     <div class="h-full bg-brand-500 rounded-full" style="width: @perc%"></div>
                                 </div>
                             </div>
                         }
                     </div>
-                </div>
-                <div class="mt-4 pt-3 border-t border-gray-200 dark:border-dark-border text-[11px] text-gray-500">
-                    <i class="ph ph-info mr-1"></i> Dados computados em tempo real a partir de conexões autenticadas e telemetria de rede.
                 </div>
             </div>
         </div>
@@ -328,62 +274,44 @@
 </div>
 
 <!-- Seção 3: Infraestrutura, Conectores & SLA -->
-<div id="sec-infra-conectores">
-    <!-- Painel de Saúde dos Serviços Críticos & SLA de Governança -->
-    <div class="mt-6 mb-8 bento-card bg-white dark:bg-dark-card border border-gray-200 dark:border-dark-border rounded-[6px] p-[24px] shadow-sm">
-        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-4 pb-3 border-b border-gray-100 dark:border-dark-border">
-            <div>
-                <h3 class="text-[13px] font-[600] text-gray-900 dark:text-white uppercase tracking-[0.05em] m-0 flex items-center gap-2">
-                    <i class="ph ph-heartbeat text-emerald-500 text-[18px]"></i> Saúde dos Serviços Críticos & Governança (Zero Trust)
-                </h3>
-                <p class="text-[11px] text-gray-500 mt-0.5">Telemetria de microsserviços internos, banco de dados e certificados de segurança</p>
-            </div>
-            <div class="flex items-center gap-2">
-                <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 text-xs font-semibold">
-                    <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span> SLA 99.98% Garantido
-                </span>
-            </div>
+<div id="sec-infra-conectores" style="display: none;">
+    <div class="mt-4 mb-6 bento-card bg-white dark:bg-dark-card border border-gray-200 dark:border-dark-border rounded-[8px] p-5 shadow-xs">
+        <div class="flex items-center justify-between gap-2 mb-3 pb-2.5 border-b border-gray-100 dark:border-dark-border">
+            <h3 class="text-[13px] font-[600] text-gray-900 dark:text-white flex items-center gap-2">
+                <i class="ph ph-heartbeat text-emerald-500 text-[16px]"></i> Saúde dos Serviços Críticos
+            </h3>
+            <span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 text-[11px] font-semibold">
+                <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span> SLA 99.98%
+            </span>
         </div>
 
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
-            <div class="p-3 rounded-lg border border-gray-100 dark:border-[#272B33] bg-gray-50/50 dark:bg-dark-bg/30">
-                <div class="flex items-center justify-between text-xs mb-1.5">
-                    <span class="font-medium text-gray-700 dark:text-gray-300 flex items-center gap-1.5">
-                        <i class="ph ph-database text-brand-500"></i> Banco SQL Server
-                    </span>
-                    <span class="text-emerald-500 font-mono font-bold text-[11px]">4ms • Online</span>
-                </div>
-                <div class="text-[11px] text-gray-500">Replicação ativa, Triggers de Auditoria e Backups 3-2-1 diários</div>
+        <div class="grid grid-cols-2 lg:grid-cols-4 gap-3">
+            <div class="p-3 rounded-lg border border-gray-100 dark:border-[#272B33] bg-gray-50/50 dark:bg-dark-bg/30 flex items-center justify-between">
+                <span class="text-xs font-medium text-gray-700 dark:text-gray-300 flex items-center gap-1.5">
+                    <i class="ph ph-database text-brand-500"></i> SQL Server
+                </span>
+                <span class="text-emerald-500 font-mono font-bold text-[11px]">4ms • OK</span>
             </div>
 
-            <div class="p-3 rounded-lg border border-gray-100 dark:border-[#272B33] bg-gray-50/50 dark:bg-dark-bg/30">
-                <div class="flex items-center justify-between text-xs mb-1.5">
-                    <span class="font-medium text-gray-700 dark:text-gray-300 flex items-center gap-1.5">
-                        <i class="ph ph-shield-check text-emerald-500"></i> WAF & Proteção Edge
-                    </span>
-                    <span class="text-emerald-500 font-mono font-bold text-[11px]">3 Regras • Ativo</span>
-                </div>
-                <div class="text-[11px] text-gray-500">Bloqueio automático de força bruta, rate-limiting e Turnstile anti-bot</div>
+            <div class="p-3 rounded-lg border border-gray-100 dark:border-[#272B33] bg-gray-50/50 dark:bg-dark-bg/30 flex items-center justify-between">
+                <span class="text-xs font-medium text-gray-700 dark:text-gray-300 flex items-center gap-1.5">
+                    <i class="ph ph-shield-check text-emerald-500"></i> WAF Edge
+                </span>
+                <span class="text-emerald-500 font-mono font-bold text-[11px]">Ativo</span>
             </div>
 
-            <div class="p-3 rounded-lg border border-gray-100 dark:border-[#272B33] bg-gray-50/50 dark:bg-dark-bg/30">
-                <div class="flex items-center justify-between text-xs mb-1.5">
-                    <span class="font-medium text-gray-700 dark:text-gray-300 flex items-center gap-1.5">
-                        <i class="ph ph-cpu text-purple-500"></i> Motor Heurístico de IA
-                    </span>
-                    <span class="text-purple-500 font-mono font-bold text-[11px]">Online (ML)</span>
-                </div>
-                <div class="text-[11px] text-gray-500">Análise de anomalias de login e radar de CVEs sincronizado</div>
+            <div class="p-3 rounded-lg border border-gray-100 dark:border-[#272B33] bg-gray-50/50 dark:bg-dark-bg/30 flex items-center justify-between">
+                <span class="text-xs font-medium text-gray-700 dark:text-gray-300 flex items-center gap-1.5">
+                    <i class="ph ph-cpu text-purple-500"></i> Motor IA
+                </span>
+                <span class="text-purple-500 font-mono font-bold text-[11px]">Online</span>
             </div>
 
-            <div class="p-3 rounded-lg border border-gray-100 dark:border-[#272B33] bg-gray-50/50 dark:bg-dark-bg/30">
-                <div class="flex items-center justify-between text-xs mb-1.5">
-                    <span class="font-medium text-gray-700 dark:text-gray-300 flex items-center gap-1.5">
-                        <i class="ph ph-certificate text-blue-500"></i> TLS/SSL & Criptografia
-                    </span>
-                    <span class="text-blue-500 font-mono font-bold text-[11px]">Grau A+ • HSTS</span>
-                </div>
-                <div class="text-[11px] text-gray-500">SHA-256 TLS 1.3 ponta a ponta e senhas em BCrypt com sal aleatório</div>
+            <div class="p-3 rounded-lg border border-gray-100 dark:border-[#272B33] bg-gray-50/50 dark:bg-dark-bg/30 flex items-center justify-between">
+                <span class="text-xs font-medium text-gray-700 dark:text-gray-300 flex items-center gap-1.5">
+                    <i class="ph ph-certificate text-blue-500"></i> TLS 1.3
+                </span>
+                <span class="text-blue-500 font-mono font-bold text-[11px]">Grau A+</span>
             </div>
         </div>
     </div>
@@ -547,7 +475,7 @@
             initCharts();
             try {
                 const savedTab = localStorage.getItem('corvux_dashboard_tab');
-                if (savedTab) mudarAbaDashboard(savedTab);
+                if (savedTab && savedTab !== 'todas') mudarAbaDashboard(savedTab);
             } catch(e) {}
         });
     </script>

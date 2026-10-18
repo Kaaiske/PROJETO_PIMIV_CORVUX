@@ -1,352 +1,213 @@
 @model IEnumerable<CorvusIAM.Entities.ConfiguracaoSistema>
 @{
     Layout = "_Layout";
-    ViewData["Title"] = "Configurações Globais (Bento UI)";
+    ViewData["Title"] = "Configurações";
 
     var dict = Model.ToDictionary(m => m.Chave, m => m.Valor ?? "");
-    string GetVal(string key, string def = "") => dict.ContainsKey(key) ? dict[key] : def;
+    string GetVal(string key, string def = "")
+    {
+        if (!dict.TryGetValue(key, out var v) || string.IsNullOrWhiteSpace(v)) return def;
+        if (key == "TURNSTILE_SITEKEY" && (v.StartsWith("3x0000") || v.StartsWith("1x0000"))) return "0x4AAAAAAFXK5J9F5V8zblrT";
+        return v;
+    }
 }
 
-<div class="mb-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-    <div>
-        <div class="flex items-center gap-2">
-            <h1 class="text-[16px] font-[600] text-gray-900 dark:text-white flex items-center gap-2">
-                <i class="ph ph-squares-four text-brand-500"></i> Configurações Globais do Sistema
-            </h1>
-            <span class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-brand-500/10 text-brand-600 dark:text-brand-400 border border-brand-500/20">
-                Bento Control Center
-            </span>
-        </div>
-        <p class="text-[12px] text-gray-500 dark:text-gray-400 mt-0.5">Governança IAM, WAF Zero-Trust, APIs de Acessibilidade (TTS/STT/VLibras), LGPD e Equidade Étnico-Racial</p>
-    </div>
+<div class="mb-3 flex items-center justify-between gap-2">
+    <h1 class="text-[15px] font-[600] text-gray-900 dark:text-white flex items-center gap-2">
+        <i class="ph ph-sliders-horizontal text-brand-500"></i> Parâmetros do Sistema
+    </h1>
     <div class="flex items-center gap-2">
-        <button type="button" onclick="restaurarPadroesSeguros()" class="bg-white dark:bg-dark-card border border-gray-300 dark:border-dark-border text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-dark-hover text-[12px] font-medium px-3 py-1.5 rounded-[6px] transition-colors flex items-center gap-1.5 cursor-pointer">
-            <i class="ph ph-arrow-counter-clockwise"></i> Baseline NIST
+        <button type="button" onclick="restaurarPadroesSeguros()" class="bg-white dark:bg-dark-card border border-gray-300 dark:border-dark-border text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-dark-hover text-[12px] font-medium px-3 py-1.5 rounded-[6px] transition-colors flex items-center gap-1.5 cursor-pointer" title="Restaurar Baseline NIST">
+            <i class="ph ph-arrow-counter-clockwise"></i> Padrão
         </button>
-        <button type="button" onclick="document.getElementById('formConfiguracoes').requestSubmit()" class="bg-brand-600 hover:bg-brand-500 text-white text-[12px] font-semibold px-4 py-1.5 rounded-[6px] shadow-xs transition-colors flex items-center gap-1.5 cursor-pointer">
-            <i class="ph ph-floppy-disk"></i> Salvar Alterações
+        <button type="button" onclick="document.getElementById('formConfiguracoes').requestSubmit()" id="btnSalvarCfgTop" class="bg-brand-600 hover:bg-brand-500 text-white text-[12px] font-semibold px-3.5 py-1.5 rounded-[6px] shadow-xs transition-colors flex items-center gap-1.5 cursor-pointer">
+            <i class="ph ph-floppy-disk"></i> Salvar
         </button>
-    </div>
-</div>
-
-<!-- Top Bento KPI Strip (12-Column Asymmetric Bento Overview) -->
-<div class="grid grid-cols-2 lg:grid-cols-12 gap-3 mb-4">
-    <div class="lg:col-span-3 bento-card bg-white dark:bg-dark-card border border-gray-200 dark:border-dark-border rounded-[8px] p-3 flex items-center justify-between">
-        <div>
-            <span class="text-[10px] font-semibold uppercase tracking-wider text-blue-600 dark:text-blue-400 block">IAM &amp; Zero-Trust</span>
-            <span class="text-[15px] font-bold text-gray-900 dark:text-white">@GetVal("SESSION_TIMEOUT_MINUTES", "30") min</span>
-            <span class="text-[10px] text-gray-500 block">Sessão • JWT @GetVal("JWT_EXPIRATION_HOURS", "8")h</span>
-        </div>
-        <div class="w-9 h-9 rounded-[8px] bg-blue-500/10 border border-blue-500/20 text-blue-500 flex items-center justify-center">
-            <i class="ph ph-fingerprint text-[18px]"></i>
-        </div>
-    </div>
-
-    <div class="lg:col-span-3 bento-card bg-white dark:bg-dark-card border border-gray-200 dark:border-dark-border rounded-[8px] p-3 flex items-center justify-between">
-        <div>
-            <span class="text-[10px] font-semibold uppercase tracking-wider text-emerald-600 dark:text-emerald-400 block">WAF &amp; Motor DPI</span>
-            <span class="text-[15px] font-bold text-gray-900 dark:text-white">@GetVal("WAF_RATE_LIMIT_PER_MINUTE", "60") req/m</span>
-            <span class="text-[10px] text-gray-500 block">Auto-Isolamento Ativo</span>
-        </div>
-        <div class="w-9 h-9 rounded-[8px] bg-emerald-500/10 border border-emerald-500/20 text-emerald-500 flex items-center justify-center">
-            <i class="ph ph-shield-check text-[18px]"></i>
-        </div>
-    </div>
-
-    <div class="lg:col-span-3 bento-card bg-white dark:bg-dark-card border border-gray-200 dark:border-dark-border rounded-[8px] p-3 flex items-center justify-between">
-        <div>
-            <span class="text-[10px] font-semibold uppercase tracking-wider text-purple-600 dark:text-purple-400 block">APIs Acessibilidade</span>
-            <span class="text-[15px] font-bold text-gray-900 dark:text-white">TTS • STT • Libras</span>
-            <span class="text-[10px] text-gray-500 block">Voz Neural + VLibras Gov.br</span>
-        </div>
-        <div class="w-9 h-9 rounded-[8px] bg-purple-500/10 border border-purple-500/20 text-purple-500 flex items-center justify-center">
-            <i class="ph ph-speaker-high text-[18px]"></i>
-        </div>
-    </div>
-
-    <div class="lg:col-span-3 bento-card bg-white dark:bg-dark-card border border-gray-200 dark:border-dark-border rounded-[8px] p-3 flex items-center justify-between">
-        <div>
-            <span class="text-[10px] font-semibold uppercase tracking-wider text-amber-600 dark:text-amber-400 block">LGPD &amp; Equidade</span>
-            <span class="text-[15px] font-bold text-gray-900 dark:text-white">@GetVal("LGPD_DATA_RETENTION_DAYS", "180") dias</span>
-            <span class="text-[10px] text-gray-500 block">Lei 13.709/18 &amp; Lei 12.288/10</span>
-        </div>
-        <div class="w-9 h-9 rounded-[8px] bg-amber-500/10 border border-amber-500/20 text-amber-500 flex items-center justify-center">
-            <i class="ph ph-scales text-[18px]"></i>
-        </div>
     </div>
 </div>
 
 <form id="formConfiguracoes" onsubmit="salvarConfiguracoes(event)">
-    <!-- BENTO GRID PRINCIPAL (12 COLUNAS) -->
-    <div class="grid grid-cols-1 lg:grid-cols-12 gap-4">
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-3.5">
 
-        <!-- BENTO 1 (7 Cols): IDENTIDADE, SESSÕES & AUTENTICAÇÃO (IAM) -->
-        <div class="lg:col-span-7 bento-card bg-white dark:bg-dark-card border border-gray-200 dark:border-dark-border rounded-[8px] overflow-hidden flex flex-col justify-between">
+        <!-- BENTO 1 (7 Cols): IDENTIDADE & SESSÃO -->
+        <div class="lg:col-span-7 bento-card bg-white dark:bg-dark-card border border-gray-200 dark:border-dark-border rounded-[8px] p-4 flex flex-col justify-between">
             <div>
-                <div class="px-4 py-3 border-b border-gray-200 dark:border-dark-border bg-gray-50/50 dark:bg-dark-bg/40 flex items-center justify-between">
-                    <div class="flex items-center gap-2.5">
-                        <div class="w-7 h-7 rounded-[6px] bg-blue-500/10 border border-blue-500/30 text-blue-500 flex items-center justify-center">
-                            <i class="ph ph-fingerprint text-[16px]"></i>
-                        </div>
-                        <div>
-                            <h3 class="text-[13px] font-[600] text-gray-900 dark:text-white">Identidade, Acesso &amp; Sessão (IAM)</h3>
-                            <p class="text-[10px] text-gray-500 dark:text-gray-400">Ciclo de vida de credenciais, MFA compulsório e expiração</p>
-                        </div>
-                    </div>
-                    <span class="text-[10px] font-mono px-2 py-0.5 rounded bg-blue-500/10 text-blue-500 border border-blue-500/20">RBAC / Zero-Trust</span>
-                </div>
-                <div class="p-4 grid grid-cols-1 sm:grid-cols-2 gap-3.5">
-                    <div>
-                        <label class="block text-[11px] font-[600] text-gray-700 dark:text-gray-300 mb-1 flex items-center justify-between">
-                            <span>Timeout de Inatividade</span>
-                            <span class="text-[10px] text-gray-400 font-mono">Minutos</span>
-                        </label>
-                        <input type="number" data-chave="SESSION_TIMEOUT_MINUTES" value="@GetVal("SESSION_TIMEOUT_MINUTES", "30")" min="5" max="720" class="cfg-input w-full bg-gray-50 dark:bg-dark-bg border border-gray-200 dark:border-dark-border text-gray-900 dark:text-gray-100 text-[12px] rounded-[6px] px-3 py-1.5 outline-none focus:border-brand-500 font-mono" />
-                    </div>
-
-                    <div>
-                        <label class="block text-[11px] font-[600] text-gray-700 dark:text-gray-300 mb-1 flex items-center justify-between">
-                            <span>Validade Token JWT API</span>
-                            <span class="text-[10px] text-gray-400 font-mono">Horas</span>
-                        </label>
-                        <input type="number" data-chave="JWT_EXPIRATION_HOURS" value="@GetVal("JWT_EXPIRATION_HOURS", "8")" min="1" max="72" class="cfg-input w-full bg-gray-50 dark:bg-dark-bg border border-gray-200 dark:border-dark-border text-gray-900 dark:text-gray-100 text-[12px] rounded-[6px] px-3 py-1.5 outline-none focus:border-brand-500 font-mono" />
-                    </div>
-
-                    <div>
-                        <label class="block text-[11px] font-[600] text-gray-700 dark:text-gray-300 mb-1 flex items-center justify-between">
-                            <span>Tentativas Máximas Login</span>
-                            <span class="text-[10px] text-gray-400 font-mono">Falhas</span>
-                        </label>
-                        <input type="number" data-chave="MAX_LOGIN_ATTEMPTS" value="@GetVal("MAX_LOGIN_ATTEMPTS", "5")" min="3" max="20" class="cfg-input w-full bg-gray-50 dark:bg-dark-bg border border-gray-200 dark:border-dark-border text-gray-900 dark:text-gray-100 text-[12px] rounded-[6px] px-3 py-1.5 outline-none focus:border-brand-500 font-mono" />
-                    </div>
-
-                    <div>
-                        <label class="block text-[11px] font-[600] text-gray-700 dark:text-gray-300 mb-1 flex items-center justify-between">
-                            <span>Quarentena de Bloqueio</span>
-                            <span class="text-[10px] text-gray-400 font-mono">Minutos</span>
-                        </label>
-                        <input type="number" data-chave="ACCOUNT_LOCKOUT_MINUTES" value="@GetVal("ACCOUNT_LOCKOUT_MINUTES", "15")" min="5" max="1440" class="cfg-input w-full bg-gray-50 dark:bg-dark-bg border border-gray-200 dark:border-dark-border text-gray-900 dark:text-gray-100 text-[12px] rounded-[6px] px-3 py-1.5 outline-none focus:border-brand-500 font-mono" />
-                    </div>
-                </div>
-            </div>
-            <div class="px-4 py-3 border-t border-gray-100 dark:border-dark-border bg-gray-50/30 dark:bg-dark-bg/20 flex items-center justify-between gap-2">
-                <div>
-                    <span class="text-[12px] font-[600] text-gray-900 dark:text-white block">MFA/2FA Obrigatório para Administradores</span>
-                    <span class="text-[10px] text-gray-500 dark:text-gray-400">Exige TOTP configurado para contas com perfil Admin.</span>
-                </div>
-                <select data-chave="MFA_ENFORCEMENT_ADMINS" class="cfg-input dark-select bg-gray-50 dark:bg-dark-bg border border-gray-200 dark:border-dark-border text-gray-900 dark:text-gray-100 text-[11px] rounded-[6px] px-2.5 py-1.5 outline-none focus:border-brand-500">
-                    <option value="true" selected="@(GetVal("MFA_ENFORCEMENT_ADMINS", "true").ToLower() == "true")">Ativado (Compulsório)</option>
-                    <option value="false" selected="@(GetVal("MFA_ENFORCEMENT_ADMINS", "true").ToLower() == "false")">Desativado (Opcional)</option>
-                </select>
-            </div>
-        </div>
-
-        <!-- BENTO 2 (5 Cols): APIs E SERVIÇOS DE ACESSIBILIDADE ASSISTIVA (TTS, STT & VLIBRAS) -->
-        <div class="lg:col-span-5 bento-card bg-white dark:bg-dark-card border border-gray-200 dark:border-dark-border rounded-[8px] overflow-hidden flex flex-col justify-between">
-            <div>
-                <div class="px-4 py-3 border-b border-gray-200 dark:border-dark-border bg-gray-50/50 dark:bg-dark-bg/40 flex items-center justify-between">
-                    <div class="flex items-center gap-2.5">
-                        <div class="w-7 h-7 rounded-[6px] bg-purple-500/10 border border-purple-500/30 text-purple-500 flex items-center justify-center">
-                            <i class="ph ph-person-arms-spread text-[16px]"></i>
-                        </div>
-                        <div>
-                            <h3 class="text-[13px] font-[600] text-gray-900 dark:text-white">APIs de Acessibilidade &amp; Voz</h3>
-                            <p class="text-[10px] text-gray-500 dark:text-gray-400">Google Cloud TTS/STT, Web Speech &amp; VLibras</p>
-                        </div>
-                    </div>
-                    <span class="text-[10px] font-mono px-2 py-0.5 rounded bg-purple-500/10 text-purple-500 border border-purple-500/20">WCAG 2.1 AAA</span>
-                </div>
-                <div class="p-4 space-y-3">
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                        <div>
-                            <label class="block text-[11px] font-[600] text-gray-700 dark:text-gray-300 mb-1">Motor Text-to-Speech (TTS)</label>
-                            <select data-chave="A11Y_TTS_PROVIDER" class="cfg-input dark-select w-full bg-gray-50 dark:bg-dark-bg border border-gray-200 dark:border-dark-border text-gray-900 dark:text-gray-100 text-[11px] rounded-[6px] px-2.5 py-1.5 outline-none focus:border-brand-500">
-                                <option value="Hybrid_GCloud_WebSpeech" selected="@(GetVal("A11Y_TTS_PROVIDER", "Hybrid_GCloud_WebSpeech") == "Hybrid_GCloud_WebSpeech")">Google Cloud TTS + Web Speech</option>
-                                <option value="WebSpeech_Native" selected="@(GetVal("A11Y_TTS_PROVIDER", "Hybrid_GCloud_WebSpeech") == "WebSpeech_Native")">Web Speech API Nativa</option>
-                            </select>
-                        </div>
-                        <div>
-                            <label class="block text-[11px] font-[600] text-gray-700 dark:text-gray-300 mb-1">Speech-to-Text (Ditado)</label>
-                            <select data-chave="A11Y_STT_ENABLED" class="cfg-input dark-select w-full bg-gray-50 dark:bg-dark-bg border border-gray-200 dark:border-dark-border text-gray-900 dark:text-gray-100 text-[11px] rounded-[6px] px-2.5 py-1.5 outline-none focus:border-brand-500">
-                                <option value="true" selected="@(GetVal("A11Y_STT_ENABLED", "true") == "true")">Ativo (Busca &amp; Campos)</option>
-                                <option value="false" selected="@(GetVal("A11Y_STT_ENABLED", "true") == "false")">Desativado</option>
-                            </select>
-                        </div>
-                    </div>
-
-                    <div class="flex items-center justify-between pt-1">
-                        <div>
-                            <span class="text-[11px] font-[600] text-gray-900 dark:text-white block">Avatar VLibras (Governo Federal)</span>
-                            <span class="text-[10px] text-gray-500">Tradução automática da interface para Língua Brasileira de Sinais.</span>
-                        </div>
-                        <select data-chave="A11Y_VLIBRAS_ENABLED" class="cfg-input dark-select bg-gray-50 dark:bg-dark-bg border border-gray-200 dark:border-dark-border text-gray-900 dark:text-gray-100 text-[11px] rounded-[6px] px-2.5 py-1.5 outline-none focus:border-brand-500">
-                            <option value="true" selected="@(GetVal("A11Y_VLIBRAS_ENABLED", "true") == "true")">Incorporado</option>
-                            <option value="false" selected="@(GetVal("A11Y_VLIBRAS_ENABLED", "true") == "false")">Oculto</option>
+                <div class="flex items-center justify-between mb-3 pb-2 border-b border-gray-100 dark:border-dark-border">
+                    <h3 class="text-[13px] font-[600] text-gray-900 dark:text-white flex items-center gap-2">
+                        <i class="ph ph-fingerprint text-blue-500 text-[16px]"></i> Identidade &amp; Sessão (IAM)
+                    </h3>
+                    <div class="flex items-center gap-2">
+                        <span class="text-[11px] text-gray-500">MFA Admin:</span>
+                        <select data-chave="MFA_ENFORCEMENT_ADMINS" class="cfg-input dark-select bg-gray-50 dark:bg-dark-bg border border-gray-200 dark:border-dark-border text-gray-900 dark:text-gray-100 text-[11px] rounded-[6px] px-2 py-1 outline-none">
+                            <option value="true" selected="@(GetVal("MFA_ENFORCEMENT_ADMINS", "true").ToLower() == "true")">Obrigatório</option>
+                            <option value="false" selected="@(GetVal("MFA_ENFORCEMENT_ADMINS", "true").ToLower() == "false")">Opcional</option>
                         </select>
                     </div>
                 </div>
+                <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                    <div>
+                        <label class="block text-[11px] text-gray-500 dark:text-gray-400 mb-1">Timeout (min)</label>
+                        <input type="number" data-chave="SESSION_TIMEOUT_MINUTES" value="@GetVal("SESSION_TIMEOUT_MINUTES", "30")" min="5" max="720" class="cfg-input w-full bg-gray-50 dark:bg-dark-bg border border-gray-200 dark:border-dark-border text-gray-900 dark:text-gray-100 text-[12px] rounded-[6px] px-2.5 py-1.5 outline-none focus:border-brand-500 font-mono" />
+                    </div>
+                    <div>
+                        <label class="block text-[11px] text-gray-500 dark:text-gray-400 mb-1">Token JWT (h)</label>
+                        <input type="number" data-chave="JWT_EXPIRATION_HOURS" value="@GetVal("JWT_EXPIRATION_HOURS", "8")" min="1" max="72" class="cfg-input w-full bg-gray-50 dark:bg-dark-bg border border-gray-200 dark:border-dark-border text-gray-900 dark:text-gray-100 text-[12px] rounded-[6px] px-2.5 py-1.5 outline-none focus:border-brand-500 font-mono" />
+                    </div>
+                    <div>
+                        <label class="block text-[11px] text-gray-500 dark:text-gray-400 mb-1">Máx. Tentativas</label>
+                        <input type="number" data-chave="MAX_LOGIN_ATTEMPTS" value="@GetVal("MAX_LOGIN_ATTEMPTS", "5")" min="3" max="20" class="cfg-input w-full bg-gray-50 dark:bg-dark-bg border border-gray-200 dark:border-dark-border text-gray-900 dark:text-gray-100 text-[12px] rounded-[6px] px-2.5 py-1.5 outline-none focus:border-brand-500 font-mono" />
+                    </div>
+                    <div>
+                        <label class="block text-[11px] text-gray-500 dark:text-gray-400 mb-1">Bloqueio (min)</label>
+                        <input type="number" data-chave="ACCOUNT_LOCKOUT_MINUTES" value="@GetVal("ACCOUNT_LOCKOUT_MINUTES", "15")" min="5" max="1440" class="cfg-input w-full bg-gray-50 dark:bg-dark-bg border border-gray-200 dark:border-dark-border text-gray-900 dark:text-gray-100 text-[12px] rounded-[6px] px-2.5 py-1.5 outline-none focus:border-brand-500 font-mono" />
+                    </div>
+                </div>
             </div>
-            <div class="px-4 py-2.5 border-t border-gray-100 dark:border-dark-border bg-gray-50/30 dark:bg-dark-bg/20 flex flex-wrap items-center justify-between gap-2">
-                <button type="button" onclick="window.lerTextoAssistivo && window.lerTextoAssistivo('Motor de síntese de voz do Corvux I A M operacional. Acessibilidade ativa para baixa visão e dislexia.')" class="text-[11px] font-medium px-2.5 py-1 rounded bg-purple-500/10 text-purple-600 dark:text-purple-300 hover:bg-purple-500/20 transition-colors flex items-center gap-1 cursor-pointer">
-                    <i class="ph ph-speaker-high"></i> Ouvir Teste TTS
-                </button>
-                <button type="button" onclick="window.togglePainelVoz && window.togglePainelVoz()" class="text-[11px] font-medium px-2.5 py-1 rounded bg-brand-500/10 text-brand-600 dark:text-brand-400 hover:bg-brand-500/20 transition-colors flex items-center gap-1 cursor-pointer">
-                    <i class="ph ph-sliders"></i> Abrir Painel de Voz
-                </button>
+        </div>
+
+        <!-- BENTO 2 (5 Cols): ACESSIBILIDADE & VOZ (TTS / STT / VLIBRAS) -->
+        <div class="lg:col-span-5 bento-card bg-white dark:bg-dark-card border border-gray-200 dark:border-dark-border rounded-[8px] p-4 flex flex-col justify-between">
+            <div class="flex items-center justify-between mb-3 pb-2 border-b border-gray-100 dark:border-dark-border">
+                <h3 class="text-[13px] font-[600] text-gray-900 dark:text-white flex items-center gap-2">
+                    <i class="ph ph-speaker-high text-purple-500 text-[16px]"></i> Acessibilidade &amp; Voz
+                </h3>
+                <div class="flex items-center gap-1.5">
+                    <button type="button" onclick="window.lerTextoAssistivo && window.lerTextoAssistivo('Síntese de voz ativa no Corvux I A M.')" class="text-[11px] px-2 py-0.5 rounded bg-purple-500/10 text-purple-500 hover:bg-purple-500/20 transition-colors cursor-pointer" title="Testar Voz">
+                        <i class="ph ph-play"></i> Testar
+                    </button>
+                    <button type="button" onclick="window.togglePainelVoz && window.togglePainelVoz()" class="text-[11px] px-2 py-0.5 rounded bg-brand-500/10 text-brand-500 hover:bg-brand-500/20 transition-colors cursor-pointer">
+                        Painel
+                    </button>
+                </div>
+            </div>
+            <div class="grid grid-cols-3 gap-2.5">
+                <div>
+                    <label class="block text-[11px] text-gray-500 dark:text-gray-400 mb-1">Text-to-Speech</label>
+                    <select data-chave="A11Y_TTS_PROVIDER" class="cfg-input dark-select w-full bg-gray-50 dark:bg-dark-bg border border-gray-200 dark:border-dark-border text-gray-900 dark:text-gray-100 text-[11px] rounded-[6px] px-2 py-1.5 outline-none">
+                        <option value="Hybrid_GCloud_WebSpeech" selected="@(GetVal("A11Y_TTS_PROVIDER", "Hybrid_GCloud_WebSpeech") == "Hybrid_GCloud_WebSpeech")">Google + Web</option>
+                        <option value="WebSpeech_Native" selected="@(GetVal("A11Y_TTS_PROVIDER", "Hybrid_GCloud_WebSpeech") == "WebSpeech_Native")">Web Nativo</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-[11px] text-gray-500 dark:text-gray-400 mb-1">Ditado (STT)</label>
+                    <select data-chave="A11Y_STT_ENABLED" class="cfg-input dark-select w-full bg-gray-50 dark:bg-dark-bg border border-gray-200 dark:border-dark-border text-gray-900 dark:text-gray-100 text-[11px] rounded-[6px] px-2 py-1.5 outline-none">
+                        <option value="true" selected="@(GetVal("A11Y_STT_ENABLED", "true") == "true")">Ativo</option>
+                        <option value="false" selected="@(GetVal("A11Y_STT_ENABLED", "true") == "false")">Inativo</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-[11px] text-gray-500 dark:text-gray-400 mb-1">VLibras Gov</label>
+                    <select data-chave="A11Y_VLIBRAS_ENABLED" class="cfg-input dark-select w-full bg-gray-50 dark:bg-dark-bg border border-gray-200 dark:border-dark-border text-gray-900 dark:text-gray-100 text-[11px] rounded-[6px] px-2 py-1.5 outline-none">
+                        <option value="true" selected="@(GetVal("A11Y_VLIBRAS_ENABLED", "true") == "true")">Ativo</option>
+                        <option value="false" selected="@(GetVal("A11Y_VLIBRAS_ENABLED", "true") == "false")">Oculto</option>
+                    </select>
+                </div>
             </div>
         </div>
 
         <!-- BENTO 3 (7 Cols): DEFESA CIBERNÉTICA, WAF & ZERO-TRUST -->
-        <div class="lg:col-span-7 bento-card bg-white dark:bg-dark-card border border-gray-200 dark:border-dark-border rounded-[8px] overflow-hidden flex flex-col justify-between">
-            <div>
-                <div class="px-4 py-3 border-b border-gray-200 dark:border-dark-border bg-gray-50/50 dark:bg-dark-bg/40 flex items-center justify-between">
-                    <div class="flex items-center gap-2.5">
-                        <div class="w-7 h-7 rounded-[6px] bg-emerald-500/10 border border-emerald-500/30 text-emerald-500 flex items-center justify-center">
-                            <i class="ph ph-shield-check text-[16px]"></i>
-                        </div>
-                        <div>
-                            <h3 class="text-[13px] font-[600] text-gray-900 dark:text-white">Defesa Cibernética, WAF &amp; Zero-Trust</h3>
-                            <p class="text-[10px] text-gray-500 dark:text-gray-400">Mitigação de invasões ativas, isolamento automatizado e rate limiting</p>
-                        </div>
-                    </div>
-                    <span class="text-[10px] font-mono px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-500 border border-emerald-500/20">WAF / IDS / DPI</span>
-                </div>
-                <div class="p-4 space-y-3">
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
-                        <div>
-                            <label class="block text-[11px] font-[600] text-gray-700 dark:text-gray-300 mb-1">API Gateway Token (M2M Key)</label>
-                            <input type="text" data-chave="API_GATEWAY_TOKEN" value="@GetVal("API_GATEWAY_TOKEN", "corvux_sec_live_9f83a218d47b0192e")" class="cfg-input w-full bg-gray-50 dark:bg-dark-bg border border-gray-200 dark:border-dark-border text-gray-900 dark:text-gray-100 text-[12px] rounded-[6px] px-3 py-1.5 outline-none focus:border-brand-500 font-mono" />
-                        </div>
-                        <div>
-                            <label class="block text-[11px] font-[600] text-gray-700 dark:text-gray-300 mb-1 flex items-center justify-between">
-                                <span>WAF Rate Limiting</span>
-                                <span class="text-[10px] text-gray-400 font-mono">Req/Min/IP</span>
-                            </label>
-                            <input type="number" data-chave="WAF_RATE_LIMIT_PER_MINUTE" value="@GetVal("WAF_RATE_LIMIT_PER_MINUTE", "60")" min="10" max="1000" class="cfg-input w-full bg-gray-50 dark:bg-dark-bg border border-gray-200 dark:border-dark-border text-gray-900 dark:text-gray-100 text-[12px] rounded-[6px] px-3 py-1.5 outline-none focus:border-brand-500 font-mono" />
-                        </div>
-                    </div>
-
-                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-2.5 pt-2 border-t border-gray-100 dark:border-dark-border">
-                        <div class="p-2.5 rounded-[6px] bg-red-500/5 border border-red-500/20">
-                            <span class="text-[11px] font-[600] text-red-600 dark:text-red-400 block mb-1">Modo Lockdown</span>
-                            <select data-chave="LOCKDOWN_MODE" class="cfg-input dark-select w-full bg-white dark:bg-dark-bg border border-gray-200 dark:border-dark-border text-gray-900 dark:text-gray-100 text-[11px] rounded px-2 py-1 outline-none">
-                                <option value="false" selected="@(GetVal("LOCKDOWN_MODE", "false").ToLower() == "false")">Normal</option>
-                                <option value="true" selected="@(GetVal("LOCKDOWN_MODE", "false").ToLower() == "true")">Quarentena</option>
-                            </select>
-                        </div>
-                        <div class="p-2.5 rounded-[6px] bg-gray-50 dark:bg-dark-bg/40 border border-gray-200 dark:border-dark-border">
-                            <span class="text-[11px] font-[600] text-gray-800 dark:text-gray-200 block mb-1">Auto-Isolar Host</span>
-                            <select data-chave="AUTO_ISOLATE_HIGH_RISK_ENDPOINTS" class="cfg-input dark-select w-full bg-white dark:bg-dark-bg border border-gray-200 dark:border-dark-border text-gray-900 dark:text-gray-100 text-[11px] rounded px-2 py-1 outline-none">
-                                <option value="true" selected="@(GetVal("AUTO_ISOLATE_HIGH_RISK_ENDPOINTS", "true").ToLower() == "true")">Defesa Ativa</option>
-                                <option value="false" selected="@(GetVal("AUTO_ISOLATE_HIGH_RISK_ENDPOINTS", "true").ToLower() == "false")">Apenas Logar</option>
-                            </select>
-                        </div>
-                        <div class="p-2.5 rounded-[6px] bg-gray-50 dark:bg-dark-bg/40 border border-gray-200 dark:border-dark-border">
-                            <span class="text-[11px] font-[600] text-gray-800 dark:text-gray-200 block mb-1">Inspeção DPI</span>
-                            <select data-chave="ENABLE_DEEP_PACKET_INSPECTION" class="cfg-input dark-select w-full bg-white dark:bg-dark-bg border border-gray-200 dark:border-dark-border text-gray-900 dark:text-gray-100 text-[11px] rounded px-2 py-1 outline-none">
-                                <option value="true" selected="@(GetVal("ENABLE_DEEP_PACKET_INSPECTION", "true").ToLower() == "true")">Ativado</option>
-                                <option value="false" selected="@(GetVal("ENABLE_DEEP_PACKET_INSPECTION", "true").ToLower() == "false")">Desativado</option>
-                            </select>
-                        </div>
-                    </div>
+        <div class="lg:col-span-7 bento-card bg-white dark:bg-dark-card border border-gray-200 dark:border-dark-border rounded-[8px] p-4">
+            <div class="flex items-center justify-between mb-3 pb-2 border-b border-gray-100 dark:border-dark-border">
+                <h3 class="text-[13px] font-[600] text-gray-900 dark:text-white flex items-center gap-2">
+                    <i class="ph ph-shield-check text-emerald-500 text-[16px]"></i> Firewall WAF &amp; Zero-Trust
+                </h3>
+                <div class="flex items-center gap-2">
+                    <span class="text-[11px] text-red-500 font-medium">Lockdown:</span>
+                    <select data-chave="LOCKDOWN_MODE" class="cfg-input dark-select bg-red-500/10 border border-red-500/30 text-red-600 dark:text-red-400 text-[11px] rounded-[6px] px-2 py-0.5 outline-none">
+                        <option value="false" selected="@(GetVal("LOCKDOWN_MODE", "false").ToLower() == "false")">Normal</option>
+                        <option value="true" selected="@(GetVal("LOCKDOWN_MODE", "false").ToLower() == "true")">Quarentena</option>
+                    </select>
                 </div>
             </div>
-        </div>
-
-        <!-- BENTO 4 (5 Cols): PRIVACIDADE LGPD & EQUIDADE ÉTNICO-RACIAL -->
-        <div class="lg:col-span-5 bento-card bg-white dark:bg-dark-card border border-gray-200 dark:border-dark-border rounded-[8px] overflow-hidden flex flex-col justify-between">
-            <div>
-                <div class="px-4 py-3 border-b border-gray-200 dark:border-dark-border bg-gray-50/50 dark:bg-dark-bg/40 flex items-center justify-between">
-                    <div class="flex items-center gap-2.5">
-                        <div class="w-7 h-7 rounded-[6px] bg-amber-500/10 border border-amber-500/30 text-amber-500 flex items-center justify-center">
-                            <i class="ph ph-scales text-[16px]"></i>
-                        </div>
-                        <div>
-                            <h3 class="text-[13px] font-[600] text-gray-900 dark:text-white">LGPD &amp; Governança Étnico-Racial</h3>
-                            <p class="text-[10px] text-gray-500 dark:text-gray-400">Lei 13.709/18, Lei 12.288/10 &amp; Anonimização</p>
-                        </div>
-                    </div>
-                    <span class="text-[10px] font-mono px-2 py-0.5 rounded bg-amber-500/10 text-amber-500 border border-amber-500/20">Compliance</span>
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                <div class="col-span-2 sm:col-span-1">
+                    <label class="block text-[11px] text-gray-500 dark:text-gray-400 mb-1">Chave M2M API</label>
+                    <input type="text" data-chave="API_GATEWAY_TOKEN" value="@GetVal("API_GATEWAY_TOKEN", "corvux_sec_live_9f83a218d47b0192e")" class="cfg-input w-full bg-gray-50 dark:bg-dark-bg border border-gray-200 dark:border-dark-border text-gray-900 dark:text-gray-100 text-[11px] rounded-[6px] px-2.5 py-1.5 outline-none font-mono" />
                 </div>
-                <div class="p-4 space-y-3">
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                        <div>
-                            <label class="block text-[11px] font-[600] text-gray-700 dark:text-gray-300 mb-1">Retenção Logs (Dias)</label>
-                            <input type="number" data-chave="LGPD_DATA_RETENTION_DAYS" value="@GetVal("LGPD_DATA_RETENTION_DAYS", "180")" min="30" max="1825" class="cfg-input w-full bg-gray-50 dark:bg-dark-bg border border-gray-200 dark:border-dark-border text-gray-900 dark:text-gray-100 text-[12px] rounded-[6px] px-3 py-1.5 outline-none focus:border-brand-500 font-mono" />
-                        </div>
-                        <div>
-                            <label class="block text-[11px] font-[600] text-gray-700 dark:text-gray-300 mb-1">Banner Consentimento</label>
-                            <select data-chave="COOKIE_CONSENT_STRICT_MODE" class="cfg-input dark-select w-full bg-gray-50 dark:bg-dark-bg border border-gray-200 dark:border-dark-border text-gray-900 dark:text-gray-100 text-[11px] rounded-[6px] px-2.5 py-1.5 outline-none">
-                                <option value="true" selected="@(GetVal("COOKIE_CONSENT_STRICT_MODE", "true").ToLower() == "true")">Estrito (LGPD)</option>
-                                <option value="false" selected="@(GetVal("COOKIE_CONSENT_STRICT_MODE", "true").ToLower() == "false")">Desativado</option>
-                            </select>
-                        </div>
-                    </div>
-                    <div class="pt-2 border-t border-gray-100 dark:border-dark-border flex items-center justify-between gap-2">
-                        <div>
-                            <span class="text-[11px] font-[600] text-gray-900 dark:text-white block">Anonimização em Relatórios &amp; Censo IBGE</span>
-                            <span class="text-[10px] text-gray-500">Mascara CPFs e protege autodeclaração afrodescendente (Art. 11 LGPD).</span>
-                        </div>
-                        <select data-chave="AUDIT_LOG_ANONYMIZATION" class="cfg-input dark-select bg-gray-50 dark:bg-dark-bg border border-gray-200 dark:border-dark-border text-gray-900 dark:text-gray-100 text-[11px] rounded-[6px] px-2.5 py-1.5 outline-none">
-                            <option value="true" selected="@(GetVal("AUDIT_LOG_ANONYMIZATION", "true").ToLower() == "true")">Ativado</option>
-                            <option value="false" selected="@(GetVal("AUDIT_LOG_ANONYMIZATION", "true").ToLower() == "false")">Dados Brutos</option>
-                        </select>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- BENTO 5 (6 Cols): NOTIFICAÇÕES & SMTP CORPORATIVO -->
-        <div class="lg:col-span-6 bento-card bg-white dark:bg-dark-card border border-gray-200 dark:border-dark-border rounded-[8px] overflow-hidden">
-            <div class="px-4 py-3 border-b border-gray-200 dark:border-dark-border bg-gray-50/50 dark:bg-dark-bg/40 flex items-center justify-between">
-                <div class="flex items-center gap-2.5">
-                    <div class="w-7 h-7 rounded-[6px] bg-indigo-500/10 border border-indigo-500/30 text-indigo-500 flex items-center justify-center">
-                        <i class="ph ph-envelope-simple text-[16px]"></i>
-                    </div>
-                    <div>
-                        <h3 class="text-[13px] font-[600] text-gray-900 dark:text-white">Mensageria SMTP &amp; Alertas</h3>
-                        <p class="text-[10px] text-gray-500 dark:text-gray-400">Disparo assíncrono não-bloqueante de credenciais</p>
-                    </div>
-                </div>
-                <span class="text-[10px] font-mono px-2 py-0.5 rounded bg-indigo-500/10 text-indigo-500 border border-indigo-500/20">Async SMTP</span>
-            </div>
-            <div class="p-4 grid grid-cols-1 sm:grid-cols-3 gap-3">
                 <div>
-                    <label class="block text-[11px] font-[600] text-gray-700 dark:text-gray-300 mb-1">Host SMTP</label>
+                    <label class="block text-[11px] text-gray-500 dark:text-gray-400 mb-1">Rate Limit / min</label>
+                    <input type="number" data-chave="WAF_RATE_LIMIT_PER_MINUTE" value="@GetVal("WAF_RATE_LIMIT_PER_MINUTE", "60")" min="10" max="1000" class="cfg-input w-full bg-gray-50 dark:bg-dark-bg border border-gray-200 dark:border-dark-border text-gray-900 dark:text-gray-100 text-[12px] rounded-[6px] px-2.5 py-1.5 outline-none font-mono" />
+                </div>
+                <div>
+                    <label class="block text-[11px] text-gray-500 dark:text-gray-400 mb-1">Isolar Host</label>
+                    <select data-chave="AUTO_ISOLATE_HIGH_RISK_ENDPOINTS" class="cfg-input dark-select w-full bg-gray-50 dark:bg-dark-bg border border-gray-200 dark:border-dark-border text-gray-900 dark:text-gray-100 text-[11px] rounded-[6px] px-2 py-1.5 outline-none">
+                        <option value="true" selected="@(GetVal("AUTO_ISOLATE_HIGH_RISK_ENDPOINTS", "true").ToLower() == "true")">Automático</option>
+                        <option value="false" selected="@(GetVal("AUTO_ISOLATE_HIGH_RISK_ENDPOINTS", "true").ToLower() == "false")">Apenas Log</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-[11px] text-gray-500 dark:text-gray-400 mb-1">Inspeção DPI</label>
+                    <select data-chave="ENABLE_DEEP_PACKET_INSPECTION" class="cfg-input dark-select w-full bg-gray-50 dark:bg-dark-bg border border-gray-200 dark:border-dark-border text-gray-900 dark:text-gray-100 text-[11px] rounded-[6px] px-2 py-1.5 outline-none">
+                        <option value="true" selected="@(GetVal("ENABLE_DEEP_PACKET_INSPECTION", "true").ToLower() == "true")">Ativo</option>
+                        <option value="false" selected="@(GetVal("ENABLE_DEEP_PACKET_INSPECTION", "true").ToLower() == "false")">Inativo</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <!-- BENTO 4 (5 Cols): PRIVACIDADE & LGPD -->
+        <div class="lg:col-span-5 bento-card bg-white dark:bg-dark-card border border-gray-200 dark:border-dark-border rounded-[8px] p-4">
+            <div class="flex items-center justify-between mb-3 pb-2 border-b border-gray-100 dark:border-dark-border">
+                <h3 class="text-[13px] font-[600] text-gray-900 dark:text-white flex items-center gap-2">
+                    <i class="ph ph-scales text-amber-500 text-[16px]"></i> Privacidade &amp; LGPD
+                </h3>
+                <span class="text-[10px] text-gray-400 font-mono">Lei 13.709/18</span>
+            </div>
+            <div class="grid grid-cols-3 gap-2.5">
+                <div>
+                    <label class="block text-[11px] text-gray-500 dark:text-gray-400 mb-1">Retenção (dias)</label>
+                    <input type="number" data-chave="LGPD_DATA_RETENTION_DAYS" value="@GetVal("LGPD_DATA_RETENTION_DAYS", "180")" min="30" max="1825" class="cfg-input w-full bg-gray-50 dark:bg-dark-bg border border-gray-200 dark:border-dark-border text-gray-900 dark:text-gray-100 text-[12px] rounded-[6px] px-2.5 py-1.5 outline-none font-mono" />
+                </div>
+                <div>
+                    <label class="block text-[11px] text-gray-500 dark:text-gray-400 mb-1">Cookies</label>
+                    <select data-chave="COOKIE_CONSENT_STRICT_MODE" class="cfg-input dark-select w-full bg-gray-50 dark:bg-dark-bg border border-gray-200 dark:border-dark-border text-gray-900 dark:text-gray-100 text-[11px] rounded-[6px] px-2 py-1.5 outline-none">
+                        <option value="true" selected="@(GetVal("COOKIE_CONSENT_STRICT_MODE", "true").ToLower() == "true")">Banner Ativo</option>
+                        <option value="false" selected="@(GetVal("COOKIE_CONSENT_STRICT_MODE", "true").ToLower() == "false")">Oculto</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-[11px] text-gray-500 dark:text-gray-400 mb-1">Anonimizar CSV</label>
+                    <select data-chave="AUDIT_LOG_ANONYMIZATION" class="cfg-input dark-select w-full bg-gray-50 dark:bg-dark-bg border border-gray-200 dark:border-dark-border text-gray-900 dark:text-gray-100 text-[11px] rounded-[6px] px-2 py-1.5 outline-none">
+                        <option value="true" selected="@(GetVal("AUDIT_LOG_ANONYMIZATION", "true").ToLower() == "true")">Ativo</option>
+                        <option value="false" selected="@(GetVal("AUDIT_LOG_ANONYMIZATION", "true").ToLower() == "false")">Bruto</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <!-- BENTO 5 (6 Cols): SERVIDOR SMTP -->
+        <div class="lg:col-span-6 bento-card bg-white dark:bg-dark-card border border-gray-200 dark:border-dark-border rounded-[8px] p-4">
+            <h3 class="text-[13px] font-[600] text-gray-900 dark:text-white flex items-center gap-2 mb-3 pb-2 border-b border-gray-100 dark:border-dark-border">
+                <i class="ph ph-envelope-simple text-indigo-500 text-[16px]"></i> E-mail &amp; Notificações (SMTP)
+            </h3>
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
+                <div>
+                    <label class="block text-[11px] text-gray-500 dark:text-gray-400 mb-1">Host SMTP</label>
                     <input type="text" data-chave="SMTP_HOST" value="@GetVal("SMTP_HOST", "smtp.gmail.com")" class="cfg-input w-full bg-gray-50 dark:bg-dark-bg border border-gray-200 dark:border-dark-border text-gray-900 dark:text-gray-100 text-[12px] rounded-[6px] px-2.5 py-1.5 outline-none font-mono" />
                 </div>
                 <div>
-                    <label class="block text-[11px] font-[600] text-gray-700 dark:text-gray-300 mb-1">Porta TLS</label>
+                    <label class="block text-[11px] text-gray-500 dark:text-gray-400 mb-1">Porta TLS</label>
                     <input type="number" data-chave="SMTP_PORT" value="@GetVal("SMTP_PORT", "587")" class="cfg-input w-full bg-gray-50 dark:bg-dark-bg border border-gray-200 dark:border-dark-border text-gray-900 dark:text-gray-100 text-[12px] rounded-[6px] px-2.5 py-1.5 outline-none font-mono" />
                 </div>
                 <div>
-                    <label class="block text-[11px] font-[600] text-gray-700 dark:text-gray-300 mb-1">Remetente Oficial</label>
+                    <label class="block text-[11px] text-gray-500 dark:text-gray-400 mb-1">Remetente</label>
                     <input type="email" data-chave="SYSTEM_SENDER_EMAIL" value="@GetVal("SYSTEM_SENDER_EMAIL", "seguranca@corvuxiam.tech")" class="cfg-input w-full bg-gray-50 dark:bg-dark-bg border border-gray-200 dark:border-dark-border text-gray-900 dark:text-gray-100 text-[12px] rounded-[6px] px-2.5 py-1.5 outline-none font-mono" />
                 </div>
             </div>
         </div>
 
-        <!-- BENTO 6 (6 Cols): CLOUDFLARE TURNSTILE (ANTI-BOT) -->
-        <div class="lg:col-span-6 bento-card bg-white dark:bg-dark-card border border-gray-200 dark:border-dark-border rounded-[8px] overflow-hidden">
-            <div class="px-4 py-3 border-b border-gray-200 dark:border-dark-border bg-gray-50/50 dark:bg-dark-bg/40 flex items-center justify-between">
-                <div class="flex items-center gap-2.5">
-                    <div class="w-7 h-7 rounded-[6px] bg-orange-500/10 border border-orange-500/30 text-orange-500 flex items-center justify-center">
-                        <i class="ph ph-robot text-[16px]"></i>
-                    </div>
-                    <div>
-                        <h3 class="text-[13px] font-[600] text-gray-900 dark:text-white">Cloudflare Turnstile (Anti-Bot)</h3>
-                        <p class="text-[10px] text-gray-500 dark:text-gray-400">Desafio criptográfico contra força bruta no Login</p>
-                    </div>
-                </div>
-                <span class="text-[10px] font-mono px-2 py-0.5 rounded bg-orange-500/10 text-orange-500 border border-orange-500/20">Edge Captcha</span>
-            </div>
-            <div class="p-4 grid grid-cols-1 sm:grid-cols-2 gap-3">
+        <!-- BENTO 6 (6 Cols): CLOUDFLARE TURNSTILE -->
+        <div class="lg:col-span-6 bento-card bg-white dark:bg-dark-card border border-gray-200 dark:border-dark-border rounded-[8px] p-4">
+            <h3 class="text-[13px] font-[600] text-gray-900 dark:text-white flex items-center gap-2 mb-3 pb-2 border-b border-gray-100 dark:border-dark-border">
+                <i class="ph ph-robot text-orange-500 text-[16px]"></i> Cloudflare Turnstile (Anti-Bot)
+            </h3>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
                 <div>
-                    <label class="block text-[11px] font-[600] text-gray-700 dark:text-gray-300 mb-1">Turnstile SiteKey</label>
+                    <label class="block text-[11px] text-gray-500 dark:text-gray-400 mb-1">SiteKey Pública</label>
                     <input type="text" data-chave="TURNSTILE_SITEKEY" value="@GetVal("TURNSTILE_SITEKEY", "0x4AAAAAAFXK5J9F5V8zblrT")" class="cfg-input w-full bg-gray-50 dark:bg-dark-bg border border-gray-200 dark:border-dark-border text-gray-900 dark:text-gray-100 text-[12px] rounded-[6px] px-2.5 py-1.5 outline-none font-mono" />
                 </div>
                 <div>
-                    <label class="block text-[11px] font-[600] text-gray-700 dark:text-gray-300 mb-1">Modo de Desafio</label>
+                    <label class="block text-[11px] text-gray-500 dark:text-gray-400 mb-1">Modo do Widget</label>
                     <select data-chave="TURNSTILE_MODE" class="cfg-input dark-select w-full bg-gray-50 dark:bg-dark-bg border border-gray-200 dark:border-dark-border text-gray-900 dark:text-gray-100 text-[12px] rounded-[6px] px-2.5 py-1.5 outline-none">
                         <option value="Interactive" selected="@(GetVal("TURNSTILE_MODE", "Interactive") == "Interactive")">Interativo (Checkbox)</option>
                         <option value="Managed" selected="@(GetVal("TURNSTILE_MODE", "Interactive") == "Managed")">Gerenciado (Smart)</option>
@@ -355,83 +216,24 @@
             </div>
         </div>
 
-        <!-- BENTO 7 (12 Cols): MOTOR DE BANCO DE DADOS, STORED PROCEDURES, VIEWS & TRIGGERS -->
-        <div class="lg:col-span-12 bento-card bg-white dark:bg-dark-card border border-gray-200 dark:border-dark-border rounded-[8px] overflow-hidden">
-            <div class="px-4 py-3 border-b border-gray-200 dark:border-dark-border bg-gray-50/50 dark:bg-dark-bg/40 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+        <!-- BENTO 7 (12 Cols Compact Bar): BANCO DE DADOS & STORED PROCEDURES -->
+        <div class="lg:col-span-12 bento-card bg-white dark:bg-dark-card border border-gray-200 dark:border-dark-border rounded-[8px] px-4 py-3">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
                 <div class="flex items-center gap-2.5">
-                    <div class="w-7 h-7 rounded-[6px] bg-cyan-500/10 border border-cyan-500/30 text-cyan-500 flex items-center justify-center">
-                        <i class="ph ph-database text-[16px]"></i>
-                    </div>
-                    <div>
-                        <h3 class="text-[13px] font-[600] text-gray-900 dark:text-white">Motor SQL Server, Stored Procedures, Views &amp; Triggers Compatibilizados (EF Core OUTPUT INTO)</h3>
-                        <p class="text-[10px] text-gray-500 dark:text-gray-400">Objetos programáveis T-SQL, Triggers de auditoria SIEM e Índices Non-Clustered de alta performance</p>
-                    </div>
+                    <i class="ph ph-database text-cyan-500 text-[18px]"></i>
+                    <span class="text-[13px] font-[600] text-gray-900 dark:text-white">SQL Server Engine</span>
+                    <span class="text-[11px] text-gray-400">7 Procedures • 6 Views/Triggers • 8 Índices</span>
                 </div>
-                <div class="flex items-center gap-2">
+                <div class="flex flex-wrap items-center gap-2">
                     <button type="button" onclick="executarProcedureDb('sp_ObterMetricasSecOpsDashboard')" class="border border-cyan-500/30 bg-cyan-500/10 hover:bg-cyan-500/20 text-cyan-600 dark:text-cyan-400 text-[11px] font-medium px-2.5 py-1 rounded-[6px] transition-colors flex items-center gap-1 cursor-pointer">
-                        <i class="ph ph-play"></i> Executar sp_ObterMetricasSecOpsDashboard
+                        <i class="ph ph-play"></i> Telemetria SQL
                     </button>
                     <button type="button" onclick="executarProcedureDb('sp_ExecutarManutencaoLgpd')" class="border border-brand-500/30 bg-brand-500/10 hover:bg-brand-500/20 text-brand-600 dark:text-brand-400 text-[11px] font-medium px-2.5 py-1 rounded-[6px] transition-colors flex items-center gap-1 cursor-pointer">
-                        <i class="ph ph-broom"></i> Executar sp_ExecutarManutencaoLgpd
+                        <i class="ph ph-broom"></i> Rotina LGPD
                     </button>
-                </div>
-            </div>
-            <div class="p-4 grid grid-cols-1 md:grid-cols-3 gap-3 text-[11px]">
-                <div class="p-3 rounded-[6px] border border-gray-200 dark:border-dark-border bg-gray-50/60 dark:bg-dark-bg/50">
-                    <div class="font-semibold text-gray-900 dark:text-white mb-1.5 flex items-center justify-between">
-                        <span>Stored Procedures (7 Ativas)</span>
-                        <span class="text-[10px] font-mono text-emerald-500">T-SQL / ACID</span>
-                    </div>
-                    <ul class="space-y-1 text-[10px] font-mono text-gray-600 dark:text-gray-400">
-                        <li>• dbo.sp_RegistrarLogAuditoria</li>
-                        <li>• dbo.sp_BloquearIpFirewall</li>
-                        <li>• dbo.sp_AbrirChamadoSuporteComSla</li>
-                        <li>• dbo.sp_RevogarSessoesUsuario</li>
-                        <li>• dbo.sp_ProcessarFechamentoContabil</li>
-                        <li>• dbo.sp_ExecutarManutencaoLgpd</li>
-                        <li>• dbo.sp_ObterMetricasSecOpsDashboard</li>
-                    </ul>
-                </div>
-                <div class="p-3 rounded-[6px] border border-gray-200 dark:border-dark-border bg-gray-50/60 dark:bg-dark-bg/50">
-                    <div class="font-semibold text-gray-900 dark:text-white mb-1.5 flex items-center justify-between">
-                        <span>Views, Functions &amp; Triggers</span>
-                        <span class="text-[10px] font-mono text-blue-500">HasTrigger OK</span>
-                    </div>
-                    <ul class="space-y-1 text-[10px] font-mono text-gray-600 dark:text-gray-400">
-                        <li>• dbo.vw_MatrizRbacUsuarios</li>
-                        <li>• dbo.vw_ResumoSaudeEndpoints</li>
-                        <li>• dbo.vw_MonitoramentoSlaChamados</li>
-                        <li>• dbo.fn_CalcularScoreRiscoUsuario</li>
-                        <li>• dbo.trg_AuditoriaStatusUsuario</li>
-                        <li>• dbo.trg_AuditoriaFirewallWaf</li>
-                    </ul>
-                </div>
-                <div class="p-3 rounded-[6px] border border-gray-200 dark:border-dark-border bg-gray-50/60 dark:bg-dark-bg/50">
-                    <div class="font-semibold text-gray-900 dark:text-white mb-1.5 flex items-center justify-between">
-                        <span>Índices Non-Clustered (8 Ativos)</span>
-                        <span class="text-[10px] font-mono text-amber-500">Low Latency</span>
-                    </div>
-                    <ul class="space-y-1 text-[10px] font-mono text-gray-600 dark:text-gray-400">
-                        <li>• IX_Usuarios_Email (INCLUDE)</li>
-                        <li>• IX_LogsAuditoria_DataHora_Tipo</li>
-                        <li>• IX_ChamadosSuporte_Status_Prioridade</li>
-                        <li>• IX_FirewallRegras_Ip_Ativo</li>
-                        <li>• IX_DispositivosRede_Status_Tipo</li>
-                        <li>• IX_NotasFiscais_DataEmissao</li>
-                        <li>• IX_UsuarioPerfis_PerfilId</li>
-                    </ul>
                 </div>
             </div>
         </div>
-    </div>
-
-    <div class="flex items-center justify-between pt-4 mt-4 border-t border-gray-200 dark:border-dark-border">
-        <p class="text-[11px] text-gray-500 dark:text-gray-400">
-            <i class="ph ph-info"></i> As alterações são persistidas imediatamente para todos os módulos e portais.
-        </p>
-        <button type="submit" id="btnSalvarCfg" class="bg-brand-600 hover:bg-brand-500 text-white text-[12px] font-semibold px-5 py-2 rounded-[6px] shadow-xs transition-colors flex items-center gap-2 cursor-pointer">
-            <i class="ph ph-floppy-disk font-bold"></i> Salvar Configurações
-        </button>
     </div>
 </form>
 
@@ -449,29 +251,27 @@
                 });
                 const data = await res.json();
                 Swal.fire({
-                    title: 'Stored Procedure Executada',
-                    text: data.message || ('Rotina ' + procName + ' concluída com sucesso.'),
+                    title: 'Rotina SQL Executada',
+                    text: data.message || ('Procedure ' + procName + ' concluída.'),
                     icon: 'success',
                     background: '#0E0E12',
                     color: '#FAFAFA',
                     confirmButtonColor: '#3B82F6'
                 });
             } catch (err) {
-                Swal.fire({ title: 'Erro', text: 'Falha ao comunicar com o motor de banco de dados.', icon: 'error' });
+                Swal.fire({ title: 'Erro', text: 'Falha ao comunicar com o banco de dados.', icon: 'error' });
             }
         }
+
         async function salvarConfiguracoes(e) {
             e.preventDefault();
-            const btn = document.getElementById('btnSalvarCfg');
-            btn.disabled = true;
-            btn.innerHTML = '<i class="ph ph-spinner-gap animate-spin"></i> Salvando...';
+            const btn = document.getElementById('btnSalvarCfgTop');
+            if (btn) { btn.disabled = true; btn.innerHTML = '<i class="ph ph-spinner-gap animate-spin"></i> Salvando...'; }
 
             const configs = {};
             document.querySelectorAll('.cfg-input').forEach(inp => {
                 const chave = inp.getAttribute('data-chave');
-                if (chave) {
-                    configs[chave] = inp.value;
-                }
+                if (chave) configs[chave] = inp.value;
             });
 
             try {
@@ -486,78 +286,61 @@
 
                 if (res.ok) {
                     Swal.fire({
-                        title: 'Configurações Salvas!',
-                        text: 'Todos os parâmetros corporativos foram persistidos e sincronizados no banco de dados.',
+                        title: 'Salvo!',
+                        text: 'Parâmetros atualizados com sucesso.',
                         icon: 'success',
+                        timer: 1200,
+                        showConfirmButton: false,
                         background: '#121418',
-                        color: '#fff',
-                        confirmButtonColor: '#3B82F6'
+                        color: '#fff'
                     }).then(() => window.location.reload());
                 } else {
-                    Swal.fire({ title: 'Erro!', text: 'Falha ao salvar as configurações.', icon: 'error', background: '#121418', color: '#fff' });
-                    btn.disabled = false;
-                    btn.innerHTML = '<i class="ph ph-floppy-disk"></i> Salvar Configurações';
+                    Swal.fire({ title: 'Erro!', text: 'Falha ao salvar.', icon: 'error', background: '#121418', color: '#fff' });
+                    if (btn) { btn.disabled = false; btn.innerHTML = '<i class="ph ph-floppy-disk"></i> Salvar'; }
                 }
             } catch (err) {
                 Swal.fire({ title: 'Erro de Conexão', text: 'Não foi possível comunicar com o servidor.', icon: 'error', background: '#121418', color: '#fff' });
-                btn.disabled = false;
-                btn.innerHTML = '<i class="ph ph-floppy-disk"></i> Salvar Configurações';
+                if (btn) { btn.disabled = false; btn.innerHTML = '<i class="ph ph-floppy-disk"></i> Salvar'; }
             }
         }
 
         function restaurarPadroesSeguros() {
+            const baselines = {
+                'SESSION_TIMEOUT_MINUTES': '30',
+                'JWT_EXPIRATION_HOURS': '8',
+                'MAX_LOGIN_ATTEMPTS': '5',
+                'ACCOUNT_LOCKOUT_MINUTES': '15',
+                'MFA_ENFORCEMENT_ADMINS': 'true',
+                'LOCKDOWN_MODE': 'false',
+                'WAF_RATE_LIMIT_PER_MINUTE': '60',
+                'AUTO_ISOLATE_HIGH_RISK_ENDPOINTS': 'true',
+                'ENABLE_DEEP_PACKET_INSPECTION': 'true',
+                'LGPD_DATA_RETENTION_DAYS': '180',
+                'COOKIE_CONSENT_STRICT_MODE': 'true',
+                'AUDIT_LOG_ANONYMIZATION': 'true',
+                'SMTP_HOST': 'smtp.gmail.com',
+                'SMTP_PORT': '587',
+                'SYSTEM_SENDER_EMAIL': 'seguranca@corvuxiam.tech',
+                'TURNSTILE_SITEKEY': '0x4AAAAAAFXK5J9F5V8zblrT',
+                'TURNSTILE_MODE': 'Interactive',
+                'A11Y_TTS_PROVIDER': 'Hybrid_GCloud_WebSpeech',
+                'A11Y_STT_ENABLED': 'true',
+                'A11Y_VLIBRAS_ENABLED': 'true'
+            };
+
+            document.querySelectorAll('.cfg-input').forEach(inp => {
+                const chave = inp.getAttribute('data-chave');
+                if (baselines[chave] !== undefined) inp.value = baselines[chave];
+            });
+
             Swal.fire({
-                title: 'Restaurar Baseline de Segurança?',
-                text: 'Deseja carregar os valores recomendados pelo guia NIST / CIS Controls para o CorvuxIAM?',
-                icon: 'question',
-                showCancelButton: true,
-                confirmButtonText: 'Sim, Restaurar Baseline',
-                cancelButtonText: 'Cancelar',
-                confirmButtonColor: '#3B82F6',
-                cancelButtonColor: '#374151',
+                title: 'Padrão Restaurado',
+                text: 'Clique em Salvar para confirmar.',
+                icon: 'info',
+                timer: 1400,
+                showConfirmButton: false,
                 background: '#121418',
                 color: '#fff'
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    const baselines = {
-                        'SESSION_TIMEOUT_MINUTES': '30',
-                        'JWT_EXPIRATION_HOURS': '8',
-                        'MAX_LOGIN_ATTEMPTS': '5',
-                        'ACCOUNT_LOCKOUT_MINUTES': '15',
-                        'MFA_ENFORCEMENT_ADMINS': 'true',
-                        'LOCKDOWN_MODE': 'false',
-                        'WAF_RATE_LIMIT_PER_MINUTE': '60',
-                        'AUTO_ISOLATE_HIGH_RISK_ENDPOINTS': 'true',
-                        'ENABLE_DEEP_PACKET_INSPECTION': 'true',
-                        'LGPD_DATA_RETENTION_DAYS': '180',
-                        'COOKIE_CONSENT_STRICT_MODE': 'true',
-                        'AUDIT_LOG_ANONYMIZATION': 'true',
-                        'SMTP_HOST': 'smtp.gmail.com',
-                        'SMTP_PORT': '587',
-                        'SYSTEM_SENDER_EMAIL': 'seguranca@corvuxiam.tech',
-                        'TURNSTILE_SITEKEY': '0x4AAAAAAFXK5J9F5V8zblrT',
-                        'TURNSTILE_MODE': 'Interactive',
-                        'A11Y_TTS_PROVIDER': 'Hybrid_GCloud_WebSpeech',
-                        'A11Y_STT_ENABLED': 'true',
-                        'A11Y_VLIBRAS_ENABLED': 'true'
-                    };
-
-                    document.querySelectorAll('.cfg-input').forEach(inp => {
-                        const chave = inp.getAttribute('data-chave');
-                        if (baselines[chave] !== undefined) {
-                            inp.value = baselines[chave];
-                        }
-                    });
-
-                    Swal.fire({
-                        title: 'Baseline Carregado!',
-                        text: 'Clique em "Salvar Alterações" para gravar permanentemente.',
-                        icon: 'info',
-                        background: '#121418',
-                        color: '#fff',
-                        confirmButtonColor: '#3B82F6'
-                    });
-                }
             });
         }
     </script>

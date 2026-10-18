@@ -353,55 +353,49 @@
                     <img src="/icons/corvus-logo-dark.png?v=20261018" alt="Corvux Logo" class="w-7 h-7 rounded-md object-contain border border-dark-border hidden dark:block">
                 </div>
                 <h1 class="font-semibold text-slate-900 dark:text-white text-[14px] sm:text-[15px] tracking-tight truncate">@ViewData["Title"]</h1>
-                <div class="hidden sm:block h-3.5 w-px bg-slate-300 dark:bg-dark-border"></div>
-                <span class="hidden sm:flex text-[11px] font-medium text-emerald-700 dark:text-emerald-400 items-center gap-1.5 uppercase tracking-wider">
-                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span> Zero Trust Ativo
-                </span>
             </div>
 
-            <div class="flex items-center gap-1.5 sm:gap-2.5 flex-shrink-0">
+            <div class="flex items-center gap-1.5 sm:gap-2 flex-shrink-0">
                 <!-- Barra de Busca Global / Command Palette Funcional + Speech-to-Text -->
-                <div class="relative hidden lg:block w-72 h-8">
+                <div class="relative hidden lg:block w-64 h-8">
                     <i class="ph ph-magnifying-glass absolute left-2.5 top-1/2 -translate-y-1/2 text-slate-500 text-xs"></i>
-                    <input type="text" id="globalSearchInput" autocomplete="off" placeholder="Ir para módulo, IP ou voz (Ctrl+K)..." class="w-full h-full bg-[#E4EBF3] dark:bg-dark-bg border border-slate-300 dark:border-dark-border text-slate-900 dark:text-slate-100 text-[12px] rounded-[6px] pl-8 pr-7 focus:outline-none focus:border-brand-500 focus:bg-[#F5F7FA] transition-all">
-                    <button type="button" id="btnGlobalVoiceSearch" onclick="iniciarBuscaPorVoz()" class="absolute right-2 top-1/2 -translate-y-1/2 text-slate-500 hover:text-brand-600 dark:hover:text-brand-400 transition-colors cursor-pointer" title="Busca e Comandos por Voz (Google Cloud / Web Speech-to-Text)">
+                    <input type="text" id="globalSearchInput" autocomplete="off" placeholder="Buscar ou falar (Ctrl+K)..." class="w-full h-full bg-[#E4EBF3] dark:bg-dark-bg border border-slate-300 dark:border-dark-border text-slate-900 dark:text-slate-100 text-[12px] rounded-[6px] pl-8 pr-7 focus:outline-none focus:border-brand-500 focus:bg-[#F5F7FA] transition-all">
+                    <button type="button" id="btnGlobalVoiceSearch" onclick="iniciarBuscaPorVoz()" class="absolute right-2 top-1/2 -translate-y-1/2 text-slate-500 hover:text-brand-600 dark:hover:text-brand-400 transition-colors cursor-pointer" title="Busca por Voz (Speech-to-Text)">
                         <i class="ph ph-microphone text-[14px]"></i>
                     </button>
-                    <!-- Quick Jump Command Dropdown -->
                     <div id="globalCommandDropdown" class="hidden absolute left-0 right-0 top-9 bg-[#F5F7FA] dark:bg-dark-card border border-slate-300 dark:border-dark-border rounded-lg shadow-xl z-50 py-1.5 max-h-72 overflow-y-auto text-[12px]"></div>
                 </div>
                 
-                <!-- Controles de Acessibilidade (WCAG 2.2 / TTS / STT / Etapa 3 PIM IV) -->
-                <div class="hidden sm:flex items-center gap-0.5 bg-[#E4EBF3] dark:bg-dark-bg border border-slate-300 dark:border-dark-border rounded-[6px] p-0.5" title="Acessibilidade Assistiva (TTS, STT, Fonte e Contraste)">
-                    <button type="button" onclick="togglePainelVoz()" id="btnHeaderOuvirConteudo" class="px-2 h-7 flex items-center gap-1 rounded text-brand-700 dark:text-brand-400 hover:bg-slate-300/60 dark:hover:bg-dark-hover text-[11px] font-semibold transition-colors cursor-pointer" title="Ouvir Conteúdo da Página (Google Cloud / Web Text-to-Speech)">
-                        <i class="ph ph-speaker-high text-[14px]"></i>
-                        <span class="hidden xl:inline">Ouvir conteúdo</span>
+                <!-- Barra Minimalista de Acessibilidade (TTS, STT, Fonte e Contraste) -->
+                <div class="hidden sm:flex items-center gap-0.5 bg-[#E4EBF3] dark:bg-dark-bg border border-slate-300 dark:border-dark-border rounded-[6px] p-0.5">
+                    <button type="button" onclick="togglePainelVoz()" id="btnHeaderOuvirConteudo" class="w-7 h-7 flex items-center justify-center rounded text-brand-700 dark:text-brand-400 hover:bg-slate-300/60 dark:hover:bg-dark-hover transition-colors cursor-pointer" title="Ouvir Conteúdo (Text-to-Speech)">
+                        <i class="ph ph-speaker-high text-[15px]"></i>
                     </button>
-                    <button type="button" onclick="iniciarDitadoCampoAtivo()" id="btnHeaderDitadoVoz" class="w-7 h-7 flex items-center justify-center rounded text-slate-700 dark:text-slate-300 hover:bg-slate-300/60 dark:hover:bg-dark-hover text-xs transition-colors cursor-pointer" title="Preencher Campo por Ditado de Voz (Speech-to-Text)">
+                    <button type="button" onclick="iniciarDitadoCampoAtivo()" id="btnHeaderDitadoVoz" class="w-7 h-7 flex items-center justify-center rounded text-slate-700 dark:text-slate-300 hover:bg-slate-300/60 dark:hover:bg-dark-hover transition-colors cursor-pointer" title="Ditado por Voz no Campo Ativo (Speech-to-Text)">
                         <i class="ph ph-microphone text-[14px]"></i>
                     </button>
                     <div class="h-3.5 w-px bg-slate-300 dark:bg-dark-border mx-0.5"></div>
-                    <button type="button" onclick="alterarTamanhoFonte(1)" class="w-7 h-7 flex items-center justify-center rounded text-slate-700 dark:text-slate-300 hover:bg-slate-300/60 dark:hover:bg-dark-hover text-xs font-semibold transition-colors cursor-pointer" title="Aumentar Fonte (A+)">A+</button>
-                    <button type="button" onclick="alterarTamanhoFonte(-1)" class="w-7 h-7 flex items-center justify-center rounded text-slate-700 dark:text-slate-300 hover:bg-slate-300/60 dark:hover:bg-dark-hover text-xs font-semibold transition-colors cursor-pointer" title="Diminuir Fonte (A-)">A-</button>
-                    <button type="button" onclick="alternarAltoContraste()" class="w-7 h-7 flex items-center justify-center rounded text-slate-700 dark:text-slate-300 hover:bg-slate-300/60 dark:hover:bg-dark-hover text-xs transition-colors cursor-pointer" title="Alternar Modo Alto Contraste">
-                        <i class="ph ph-circle-half text-[15px]"></i>
+                    <button type="button" onclick="alterarTamanhoFonte(1)" class="w-7 h-7 flex items-center justify-center rounded text-slate-700 dark:text-slate-300 hover:bg-slate-300/60 dark:hover:bg-dark-hover text-[11px] font-semibold transition-colors cursor-pointer" title="Aumentar Fonte">A+</button>
+                    <button type="button" onclick="alterarTamanhoFonte(-1)" class="w-7 h-7 flex items-center justify-center rounded text-slate-700 dark:text-slate-300 hover:bg-slate-300/60 dark:hover:bg-dark-hover text-[11px] font-semibold transition-colors cursor-pointer" title="Diminuir Fonte">A-</button>
+                    <button type="button" onclick="alternarAltoContraste()" class="w-7 h-7 flex items-center justify-center rounded text-slate-700 dark:text-slate-300 hover:bg-slate-300/60 dark:hover:bg-dark-hover transition-colors cursor-pointer" title="Alto Contraste">
+                        <i class="ph ph-circle-half text-[14px]"></i>
                     </button>
                 </div>
                 
-                <!-- Botão Alternador de Tema -->
-                <button id="theme-toggle" class="w-8 h-8 flex items-center justify-center rounded-[6px] border border-slate-300 dark:border-dark-border bg-[#E4EBF3] dark:bg-dark-bg text-slate-700 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white transition-colors cursor-pointer" title="Alternar Tema Claro/Escuro">
+                <!-- Tema Claro/Escuro -->
+                <button id="theme-toggle" class="w-8 h-8 flex items-center justify-center rounded-[6px] border border-slate-300 dark:border-dark-border bg-[#E4EBF3] dark:bg-dark-bg text-slate-700 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white transition-colors cursor-pointer" title="Alternar Tema">
                     <i id="theme-toggle-dark-icon" class="ph ph-moon text-[15px] hidden"></i>
                     <i id="theme-toggle-light-icon" class="ph ph-sun text-[15px] hidden"></i>
                 </button>
 
-                <!-- Botão Guia do Sistema / Tour Interativo -->
-                <button type="button" onclick="iniciarTourInterativo()" class="border border-brand-500/30 bg-brand-500/10 hover:bg-brand-500/20 text-brand-700 dark:text-brand-400 text-[12px] font-medium px-2.5 sm:px-3 py-1.5 rounded-[6px] transition-colors flex items-center gap-1.5 cursor-pointer" title="Guia Passo a Passo do Sistema CorvuxIAM">
-                    <i class="ph ph-compass text-sm"></i> <span class="hidden sm:inline">Guia do Sistema</span>
+                <!-- Guia Interativo (Compacto) -->
+                <button type="button" onclick="iniciarTourInterativo()" class="w-8 h-8 flex items-center justify-center rounded-[6px] border border-brand-500/30 bg-brand-500/10 hover:bg-brand-500/20 text-brand-700 dark:text-brand-400 transition-colors cursor-pointer" title="Tour Guiado do Sistema">
+                    <i class="ph ph-compass text-[16px]"></i>
                 </button>
                 
-                <!-- Botão + Nova Issue / Chamado Totalmente Funcional -->
-                <button type="button" onclick="abrirModalNovaIssue()" class="bg-brand-600 hover:bg-brand-500 text-white text-[12px] font-medium px-2.5 sm:px-3.5 py-1.5 rounded-[6px] shadow-sm transition-colors flex items-center gap-1.5 cursor-pointer">
-                    <i class="ph ph-plus"></i> <span class="hidden sm:inline">Nova Issue</span>
+                <!-- + Chamado -->
+                <button type="button" onclick="abrirModalNovaIssue()" class="bg-brand-600 hover:bg-brand-500 text-white text-[12px] font-medium px-2.5 py-1.5 rounded-[6px] shadow-xs transition-colors flex items-center gap-1 cursor-pointer" title="Abrir Novo Chamado">
+                    <i class="ph ph-plus"></i> <span class="hidden sm:inline">Chamado</span>
                 </button>
             </div>
         </header>
@@ -1292,33 +1286,21 @@
             }
         });
 
-        // Chamado pelo botão "Guia do Sistema" no topo
+        // Chamado pelo botão de bússola no topo
         function iniciarTourInterativo() {
+            const widget = document.getElementById('corvuxGetStartedWidget');
+            if (widget) {
+                widget.classList.remove('hidden');
+                toggleChecklistWidget(true);
+            }
             iniciarSpotlightTour();
         }
 
-        // Inicialização do User Onboarding na carga da página
+        // Inicialização discreta (sem popups automáticos poluindo a tela)
         window.addEventListener('DOMContentLoaded', () => {
             carregarChecklistTasks();
-
-            // Gerencia visibilidade do widget Checklist
-            if (localStorage.getItem('corvux_checklist_closed') === 'true') {
-                const widget = document.getElementById('corvuxGetStartedWidget');
-                if (widget) widget.classList.add('hidden');
-            } else if (localStorage.getItem('corvux_checklist_minimized') === 'true') {
-                toggleChecklistWidget(false);
-            }
-
-            // Exibe Welcome Modal se for primeira visita no Dashboard
-            if (!localStorage.getItem('corvux_welcome_v2_dismissed') && window.location.pathname.includes('/Admin/Index')) {
-                setTimeout(() => {
-                    const m = document.getElementById('corvuxWelcomeModal');
-                    if (m) {
-                        m.classList.remove('hidden');
-                        m.classList.add('flex');
-                    }
-                }, 1200);
-            }
+            const widget = document.getElementById('corvuxGetStartedWidget');
+            if (widget) widget.classList.add('hidden');
         });
     </script>
 

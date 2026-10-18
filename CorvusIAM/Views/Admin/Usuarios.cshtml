@@ -1,7 +1,7 @@
 @model IEnumerable<CorvusIAM.Entities.Usuario>
 @{
     Layout = "_Layout";
-    ViewData["Title"] = "Diretório de Usuários, Cargos & Equidade Étnico-Racial";
+    ViewData["Title"] = "Colaboradores";
     var cargosCatalogo = ViewBag.Cargos as List<CorvusIAM.Controllers.AdminController.CargoItemDTO> ?? new List<CorvusIAM.Controllers.AdminController.CargoItemDTO>();
     var divMap = ViewBag.DiversidadeMap as Dictionary<int, CorvusIAM.Controllers.AdminController.DiversidadeInfoDTO> ?? new Dictionary<int, CorvusIAM.Controllers.AdminController.DiversidadeInfoDTO>();
 
@@ -53,113 +53,61 @@
     int percAfirmativa = totalColaboradores > 0 ? (int)Math.Round((double)totalAcoesAfirmativas * 100 / totalColaboradores) : 0;
 }
 
-<div class="mb-4 flex flex-col lg:flex-row lg:items-end justify-between gap-3">
-    <div>
-        <div class="flex items-center gap-2">
-            <h1 class="text-[16px] font-[600] text-gray-900 dark:text-white flex items-center gap-2">
-                <i class="ph ph-users text-brand-500"></i> Diretório Corporativo, Cargos & Diversidade
-            </h1>
-            <span class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20">
-                Lei 12.288/10 &amp; Lei 10.639/03
-            </span>
-        </div>
-        <p class="text-[12px] text-gray-500 dark:text-gray-400 mt-0.5">Gerenciamento de identidades IAM, catálogo de cargos RBAC e governança étnico-racial e afrodescendência</p>
-    </div>
-    <div class="flex flex-wrap items-center gap-2 w-full lg:w-auto">
-        <div class="relative flex-1 sm:flex-initial w-full sm:w-[210px]">
-            <i class="ph ph-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"></i>
-            <input type="text" id="searchInput" placeholder="Buscar nome, cargo, etnia..." class="bg-white dark:bg-dark-card border border-gray-200 dark:border-dark-border text-gray-900 dark:text-gray-100 text-[12px] rounded-[6px] pl-8 pr-7 py-1.5 outline-none focus:border-brand-500 transition-colors w-full shadow-xs" />
-            <button type="button" onclick="window.iniciarDitadoCampo && window.iniciarDitadoCampo('searchInput')" title="Buscar por comando de voz (Speech-to-Text)" class="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-brand-500 cursor-pointer">
+<div class="mb-3 flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
+    <h1 class="text-[15px] font-[600] text-gray-900 dark:text-white flex items-center gap-2">
+        <i class="ph ph-users text-brand-500"></i> Colaboradores &amp; Cargos
+    </h1>
+    <div class="flex flex-wrap items-center gap-1.5 w-full sm:w-auto">
+        <div class="relative flex-1 sm:flex-initial w-full sm:w-[190px]">
+            <i class="ph ph-magnifying-glass absolute left-2.5 top-1/2 -translate-y-1/2 text-gray-400 text-xs"></i>
+            <input type="text" id="searchInput" placeholder="Buscar..." class="bg-white dark:bg-dark-card border border-gray-200 dark:border-dark-border text-gray-900 dark:text-gray-100 text-[12px] rounded-[6px] pl-7 pr-7 py-1.5 outline-none focus:border-brand-500 transition-colors w-full" />
+            <button type="button" onclick="window.iniciarDitadoCampo && window.iniciarDitadoCampo('searchInput')" title="Buscar por Voz" class="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-brand-500 cursor-pointer">
                 <i class="ph ph-microphone text-[13px]"></i>
             </button>
         </div>
         <div class="flex items-center bg-gray-100 dark:bg-dark-card border border-gray-300 dark:border-dark-border rounded-[6px] p-0.5">
-            <button type="button" id="btnViewGrid" onclick="alternarVisualizacao('grid')" class="p-1.5 rounded-[4px] text-brand-600 dark:text-brand-400 bg-white dark:bg-dark-bg shadow-xs transition-all cursor-pointer" title="Visualização em Grade">
-                <i class="ph ph-squares-four text-[15px]"></i>
+            <button type="button" id="btnViewGrid" onclick="alternarVisualizacao('grid')" class="p-1 rounded-[4px] text-brand-600 dark:text-brand-400 bg-white dark:bg-dark-bg shadow-xs transition-all cursor-pointer" title="Grade">
+                <i class="ph ph-squares-four text-[14px]"></i>
             </button>
-            <button type="button" id="btnViewTable" onclick="alternarVisualizacao('table')" class="p-1.5 rounded-[4px] text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white transition-all cursor-pointer" title="Visualização em Tabela Compacta">
-                <i class="ph ph-list-dashes text-[15px]"></i>
+            <button type="button" id="btnViewTable" onclick="alternarVisualizacao('table')" class="p-1 rounded-[4px] text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white transition-all cursor-pointer" title="Lista">
+                <i class="ph ph-list-dashes text-[14px]"></i>
             </button>
         </div>
-        <button type="button" onclick="openModal('cargosModal')" class="bg-white hover:bg-gray-50 dark:bg-dark-card dark:hover:bg-dark-hover border border-gray-300 dark:border-dark-border text-gray-800 dark:text-gray-200 text-[12px] font-medium px-3 py-1.5 rounded-[6px] shadow-xs transition-colors flex items-center justify-center gap-1.5 cursor-pointer">
-            <i class="ph ph-briefcase text-[15px] text-brand-500"></i> Cargos <span class="px-1.5 py-0.2 rounded bg-brand-500/10 text-brand-600 dark:text-brand-400 text-[10px] font-bold">@cargosCatalogo.Count</span>
+        <button type="button" onclick="openModal('cargosModal')" class="bg-white hover:bg-gray-50 dark:bg-dark-card dark:hover:bg-dark-hover border border-gray-300 dark:border-dark-border text-gray-800 dark:text-gray-200 text-[12px] font-medium px-2.5 py-1.5 rounded-[6px] transition-colors flex items-center gap-1.5 cursor-pointer" title="Catálogo de Cargos">
+            <i class="ph ph-briefcase text-[14px] text-brand-500"></i> Cargos <span class="px-1.5 rounded bg-brand-500/10 text-brand-600 dark:text-brand-400 text-[10px] font-bold">@cargosCatalogo.Count</span>
         </button>
-        <a href="/Admin/ExportarUsuariosCsv" class="bg-white hover:bg-gray-50 dark:bg-dark-card dark:hover:bg-dark-hover border border-gray-300 dark:border-dark-border text-gray-800 dark:text-gray-200 text-[12px] font-medium px-3 py-1.5 rounded-[6px] shadow-xs transition-colors flex items-center justify-center gap-1.5">
-            <i class="ph ph-file-csv text-[15px] text-emerald-500"></i> CSV
+        <a href="/Admin/ExportarUsuariosCsv" class="bg-white hover:bg-gray-50 dark:bg-dark-card dark:hover:bg-dark-hover border border-gray-300 dark:border-dark-border text-gray-800 dark:text-gray-200 text-[12px] font-medium px-2.5 py-1.5 rounded-[6px] transition-colors flex items-center gap-1" title="Exportar CSV">
+            <i class="ph ph-file-csv text-[14px] text-emerald-500"></i> CSV
         </a>
-        <button type="button" onclick="openModal('newUserModal')" class="bg-brand-600 hover:bg-[#1D4ED8] text-white text-[12px] font-medium px-3 py-1.5 rounded-[6px] shadow-xs transition-colors flex items-center justify-center gap-1.5 cursor-pointer">
-            <i class="ph ph-user-plus text-[15px]"></i> Novo Colaborador
+        <button type="button" onclick="openModal('newUserModal')" class="bg-brand-600 hover:bg-[#1D4ED8] text-white text-[12px] font-medium px-3 py-1.5 rounded-[6px] transition-colors flex items-center gap-1 cursor-pointer">
+            <i class="ph ph-plus text-[14px]"></i> Novo
         </button>
     </div>
 </div>
 
-<!-- Painel Bento UI: Governança Étnico-Racial, Afrodescendência & Inclusão (Etapa 3 - PIM IV) -->
-<div class="grid grid-cols-1 lg:grid-cols-12 gap-3 mb-5">
-    <!-- Card 1: Indicador de Afrodescendência IBGE (Pretos e Pardos) -->
-    <div class="lg:col-span-4 bento-card bg-white dark:bg-dark-card border border-gray-200 dark:border-dark-border rounded-[8px] p-3.5 flex flex-col justify-between">
-        <div class="flex items-start justify-between gap-2">
-            <div>
-                <span class="text-[10px] font-semibold uppercase tracking-wider text-amber-600 dark:text-amber-400 flex items-center gap-1">
-                    <i class="ph ph-globe-hemisphere-west"></i> Representatividade Afrodescendente
-                </span>
-                <div class="flex items-baseline gap-2 mt-1">
-                    <span class="text-[22px] font-bold text-gray-900 dark:text-white leading-none">@percAfro%</span>
-                    <span class="text-[11px] text-gray-500 dark:text-gray-400">(@totalAfrodescendentes de @totalColaboradores colaboradores)</span>
-                </div>
-            </div>
-            <span class="px-2 py-0.5 rounded text-[10px] font-semibold bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
-                Meta ESG &ge; 50%
-            </span>
+<!-- Faixa Bento Compacta: Equidade Étnico-Racial & Afrodescendência (IBGE / Lei 12.288/10) -->
+<div class="bento-card bg-white dark:bg-dark-card border border-gray-200 dark:border-dark-border rounded-[8px] px-4 py-2.5 mb-4 flex flex-wrap items-center justify-between gap-3">
+    <div class="flex flex-wrap items-center gap-4 text-[11px]">
+        <div class="flex items-center gap-2">
+            <span class="w-2 h-2 rounded-full bg-amber-500"></span>
+            <span class="text-gray-500 dark:text-gray-400">Afrodescendentes (IBGE):</span>
+            <strong class="text-gray-900 dark:text-white text-[13px]">@percAfro%</strong>
+            <span class="text-gray-400">(@totalPretos Pretos • @totalPardos Pardos • @totalIndigenas Indígenas)</span>
         </div>
-        <div class="mt-2.5">
-            <div class="w-full h-1.5 bg-gray-100 dark:bg-dark-bg rounded-full overflow-hidden flex">
-                <div class="bg-amber-500 h-full transition-all" style="width: @(Math.Min(percAfro, 100))%"></div>
-            </div>
-            <div class="flex items-center justify-between text-[10px] text-gray-500 dark:text-gray-400 mt-1.5">
-                <span>Pretos (IBGE): <b class="text-gray-800 dark:text-gray-200">@totalPretos</b></span>
-                <span>Pardos (IBGE): <b class="text-gray-800 dark:text-gray-200">@totalPardos</b></span>
-                <span>Indígenas: <b class="text-gray-800 dark:text-gray-200">@totalIndigenas</b></span>
-            </div>
+        <div class="hidden md:block h-3.5 w-px bg-gray-200 dark:bg-dark-border"></div>
+        <div class="flex items-center gap-1.5">
+            <i class="ph ph-scales text-brand-500"></i>
+            <span class="text-gray-500 dark:text-gray-400">Ações Afirmativas:</span>
+            <strong class="text-gray-900 dark:text-white">@totalAcoesAfirmativas (@percAfirmativa%)</strong>
         </div>
     </div>
-
-    <!-- Card 2: Ações Afirmativas & Equidade de Cargos -->
-    <div class="lg:col-span-4 bento-card bg-white dark:bg-dark-card border border-gray-200 dark:border-dark-border rounded-[8px] p-3.5 flex flex-col justify-between">
-        <div class="flex items-start justify-between gap-2">
-            <div>
-                <span class="text-[10px] font-semibold uppercase tracking-wider text-brand-600 dark:text-brand-400 flex items-center gap-1">
-                    <i class="ph ph-scales"></i> Ações Afirmativas &amp; Liderança Negra
-                </span>
-                <div class="flex items-baseline gap-2 mt-1">
-                    <span class="text-[22px] font-bold text-gray-900 dark:text-white leading-none">@totalAcoesAfirmativas</span>
-                    <span class="text-[11px] text-gray-500 dark:text-gray-400">ingressos por programas afirmativos (@percAfirmativa%)</span>
-                </div>
-            </div>
-            <button type="button" onclick="filtrarPorAfrodescendencia()" class="text-[10px] font-medium px-2 py-1 rounded bg-brand-500/10 text-brand-600 dark:text-brand-400 hover:bg-brand-500/20 transition-colors cursor-pointer" title="Filtrar colaboradores afrodescendentes na listagem">
-                Filtrar Afro
-            </button>
-        </div>
-        <p class="text-[11px] text-gray-500 dark:text-gray-400 mt-2 leading-snug">
-            Monitoramento ativo de equidade salarial e progressão de carreira em TI conforme <strong class="text-gray-700 dark:text-gray-200">Lei nº 14.611/2023</strong> e <strong class="text-gray-700 dark:text-gray-200">Portaria MTE 3.714/23</strong>.
-        </p>
-    </div>
-
-    <!-- Card 3: Marco Legal Afro-Brasileiro & Direitos Humanos (Lei 10.639/03 e Lei 12.288/10) -->
-    <div class="lg:col-span-4 bento-card bg-white dark:bg-dark-card border border-gray-200 dark:border-dark-border rounded-[8px] p-3.5 flex flex-col justify-between">
-        <div class="flex items-start justify-between gap-2">
-            <div>
-                <span class="text-[10px] font-semibold uppercase tracking-wider text-purple-600 dark:text-purple-400 flex items-center gap-1">
-                    <i class="ph ph-book-open-text"></i> Educação Étnico-Racial &amp; LGPD Art. 11
-                </span>
-                <h2 class="text-[12px] font-semibold text-gray-900 dark:text-white mt-0.5">Estatuto da Igualdade Racial &amp; Cultura Afro</h2>
-            </div>
-            <button type="button" onclick="openModal('afroModal')" class="text-[10px] font-semibold px-2.5 py-1 rounded bg-purple-500/10 text-purple-600 dark:text-purple-300 border border-purple-500/20 hover:bg-purple-500/20 transition-colors cursor-pointer shrink-0">
-                Ver Diretrizes
-            </button>
-        </div>
-        <p class="text-[11px] text-gray-500 dark:text-gray-400 mt-1.5 leading-snug">
-            Coleta ética de autodeclaração IBGE protegida por anonimização LGPD para promoção de políticas afirmativas e combate ao racismo institucional.
-        </p>
+    <div class="flex items-center gap-1.5">
+        <button type="button" onclick="filtrarPorAfrodescendencia()" class="text-[11px] font-medium px-2.5 py-1 rounded bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20 hover:bg-amber-500/20 transition-colors cursor-pointer">
+            Filtrar Afro
+        </button>
+        <button type="button" onclick="openModal('afroModal')" class="text-[11px] font-medium px-2.5 py-1 rounded bg-gray-100 dark:bg-dark-bg text-gray-600 dark:text-gray-300 border border-gray-200 dark:border-dark-border hover:border-brand-500 transition-colors cursor-pointer" title="Estatuto da Igualdade Racial (Lei 12.288/10) e Lei 10.639/03">
+            <i class="ph ph-info"></i> Diretrizes
+        </button>
     </div>
 </div>
 
