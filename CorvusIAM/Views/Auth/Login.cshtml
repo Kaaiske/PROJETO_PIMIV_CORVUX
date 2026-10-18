@@ -447,7 +447,12 @@
             <div class="bento-item bento-span-2 bento-row-2">
                 <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px;">
                     <h2 style="margin: 0;">Autenticação Corporativa</h2>
-                    <span style="font-size: 10.5px; color: var(--text-muted); border: 1px solid var(--border-color); padding: 2px 8px; border-radius: 999px;">TLS 1.3</span>
+                    <div style="display: flex; align-items: center; gap: 6px;">
+                        <button type="button" onclick="ouvirInstrucoesLogin()" title="Ouvir instruções em voz natural (Text-to-Speech)" style="background: transparent; border: 1px solid var(--border-color); color: var(--text-secondary); padding: 2px 8px; border-radius: 999px; font-size: 10.5px; cursor: pointer; display: inline-flex; align-items: center; gap: 4px;">
+                            <i class="bi bi-volume-up"></i> Ouvir
+                        </button>
+                        <span style="font-size: 10.5px; color: var(--text-muted); border: 1px solid var(--border-color); padding: 2px 8px; border-radius: 999px;">TLS 1.3</span>
+                    </div>
                 </div>
                 
                 @if (ViewBag.Erro != null)
@@ -466,7 +471,12 @@
                 <form action="/Auth/Login" method="POST" id="loginForm">
                     @Html.AntiForgeryToken()
                     <div class="form-group">
-                        <label class="form-label">E-mail Corporativo</label>
+                        <div style="display: flex; justify-content: space-between; align-items: center; width: 100%; margin-bottom: 5px;">
+                            <label class="form-label" style="margin-bottom: 0;">E-mail Corporativo</label>
+                            <button type="button" onclick="ditarEmailLogin()" title="Ditar e-mail por voz (Speech-to-Text)" style="background: none; border: none; color: var(--accent-color); font-size: 11px; cursor: pointer; display: inline-flex; align-items: center; gap: 3px;">
+                                <i class="bi bi-mic"></i> Ditar
+                            </button>
+                        </div>
                         <input type="email" id="loginEmail" name="email" class="form-control" placeholder="nome@corvus.com" required>
                     </div>
                     
@@ -510,6 +520,15 @@
         </div>
     </div>
 
+    <!-- Widget Oficial VLibras (Governo Federal) -->
+    <div vw class="enabled">
+        <div vw-access-button class="active"></div>
+        <div vw-plugin-wrapper>
+            <div class="vw-plugin-top-wrapper"></div>
+        </div>
+    </div>
+    <script src="https://vlibras.gov.br/app/vlibras-plugin.js" async onload="if(window.VLibras){new window.VLibras.Widget('https://vlibras.gov.br/app');}"></script>
+
     <!-- BANNER PWA EXCLUSIVO MOBILE -->
     <div id="pwaMobileInstallBanner" class="pwa-mobile-banner">
         <div style="display: flex; align-items: center; gap: 10px;">
@@ -527,6 +546,28 @@
     </div>
 
     <script>
+        function ouvirInstrucoesLogin() {
+            if (!('speechSynthesis' in window)) return;
+            window.speechSynthesis.cancel();
+            const u = new SpeechSynthesisUtterance('Bem-vindo ao portal de autenticação corporativa Corvux I A M. Insira seu e-mail corporativo e sua senha de acesso, valide a proteção Cloudflare e clique em Acessar Plataforma.');
+            u.lang = 'pt-BR';
+            window.speechSynthesis.speak(u);
+        }
+
+        function ditarEmailLogin() {
+            const SpeechRec = window.SpeechRecognition || window.webkitSpeechRecognition;
+            if (!SpeechRec) return;
+            const rec = new SpeechRec();
+            rec.lang = 'pt-BR';
+            rec.onresult = (ev) => {
+                let txt = (ev.results?.[0]?.[0]?.transcript || '').toLowerCase()
+                    .replace(/\s+arroba\s+/g, '@@').replace(/\s+ponto\s+/g, '.').replace(/\s+/g, '');
+                const inp = document.getElementById('loginEmail');
+                if (inp && txt) inp.value = txt;
+            };
+            rec.start();
+        }
+
         function atualizarIconeTemaLogin() {
             const icon = document.getElementById('loginThemeIcon');
             if (!icon) return;

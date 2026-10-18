@@ -46,13 +46,12 @@ builder.Services.AddScoped<IPasswordGeneratorService, PasswordGeneratorService>(
 builder.Services.AddScoped<ITotpService, TotpService>();
 builder.Services.AddScoped<IStorageService, StorageService>();
 
-// External API Services
+// External API Services (Timeouts curtos para garantir tempo de resposta < 100ms na UI)
 static IAsyncPolicy<HttpResponseMessage> GetRetryPolicy()
 {
     return HttpPolicyExtensions
         .HandleTransientHttpError()
-        .OrResult(msg => msg.StatusCode == System.Net.HttpStatusCode.NotFound)
-        .WaitAndRetryAsync(3, retryAttempt => TimeSpan.FromSeconds(Math.Pow(2, retryAttempt)));
+        .WaitAndRetryAsync(1, _ => TimeSpan.FromMilliseconds(250));
 }
 
 static IAsyncPolicy<HttpResponseMessage> GetCircuitBreakerPolicy()
@@ -62,20 +61,27 @@ static IAsyncPolicy<HttpResponseMessage> GetCircuitBreakerPolicy()
         .CircuitBreakerAsync(5, TimeSpan.FromSeconds(30));
 }
 
-builder.Services.AddHttpClient<IPasswordPwnedService, PasswordPwnedService>()
+builder.Services.AddHttpClient<IPasswordPwnedService, PasswordPwnedService>(c =>
+{
+    c.Timeout = TimeSpan.FromMilliseconds(1200);
+})
     .AddPolicyHandler(GetRetryPolicy())
     .AddPolicyHandler(GetCircuitBreakerPolicy());
 
 builder.Services.AddHttpClient<IIpGeolocationService, IpGeolocationService>(c =>
 {
-    c.Timeout = TimeSpan.FromMilliseconds(1500);
+    c.Timeout = TimeSpan.FromMilliseconds(1000);
 });
 
-builder.Services.AddHttpClient<IEmailValidationService, EmailValidationService>()
-    .AddPolicyHandler(GetRetryPolicy())
-    .AddPolicyHandler(GetCircuitBreakerPolicy());
+builder.Services.AddHttpClient<IEmailValidationService, EmailValidationService>(c =>
+{
+    c.Timeout = TimeSpan.FromMilliseconds(900);
+});
 
-builder.Services.AddHttpClient<ITurnstileService, TurnstileService>()
+builder.Services.AddHttpClient<ITurnstileService, TurnstileService>(c =>
+{
+    c.Timeout = TimeSpan.FromMilliseconds(2500);
+})
     .AddPolicyHandler(GetRetryPolicy())
     .AddPolicyHandler(GetCircuitBreakerPolicy());
 

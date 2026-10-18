@@ -29,6 +29,12 @@ namespace CorvusIAM.Data
         {
             base.OnModelCreating(modelBuilder);
 
+            // Compatibilidade EF Core 8 com Triggers SQL Server (evita erro de cláusula OUTPUT sem INTO)
+            modelBuilder.Entity<Usuario>().ToTable(tb => tb.HasTrigger("trg_AuditoriaStatusUsuario"));
+            modelBuilder.Entity<FirewallRegra>().ToTable(tb => tb.HasTrigger("trg_AuditoriaFirewallWaf"));
+            modelBuilder.Entity<ChamadoSuporte>().ToTable(tb => tb.HasTrigger("trg_AuditoriaChamados"));
+            modelBuilder.Entity<ConfiguracaoSistema>().ToTable(tb => tb.HasTrigger("trg_AuditoriaConfig"));
+
             modelBuilder.Entity<UsuarioPerfil>()
                 .HasKey(up => new { up.UsuarioId, up.PerfilId });
 

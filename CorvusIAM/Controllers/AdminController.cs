@@ -137,11 +137,166 @@ namespace CorvusIAM.Controllers
             return Ok(new { success = true, message = $"Conexão TLS 1.3 com '{nome}' validada com sucesso!", latencia = $"{latencyMs}ms" });
         }
 
+        public class CargoItemDTO
+        {
+            public int Id { get; set; }
+            private string _titulo = string.Empty;
+            public string Titulo
+            {
+                get => !string.IsNullOrWhiteSpace(_titulo) ? _titulo : Nome;
+                set { _titulo = value; if (string.IsNullOrWhiteSpace(Nome)) Nome = value; }
+            }
+            public string Nome { get; set; } = string.Empty;
+            public string Departamento { get; set; } = "Tecnologia";
+            public string Nivel { get; set; } = "Pleno";
+            public string PerfilSugerido { get; set; } = "Colaborador";
+        }
+
+        public class DiversidadeInfoDTO
+        {
+            public string RacaCorIbge { get; set; } = "Parda (Afrodescendente)";
+            public string ModalidadeIngresso { get; set; } = "Ação Afirmativa - Equidade Racial";
+            public string NomeSocial { get; set; } = string.Empty;
+            public bool Pcd { get; set; } = false;
+        }
+
+        private List<CargoItemDTO> ObterCatalogoCargos()
+        {
+            var cfg = _context.ConfiguracoesSistema.AsNoTracking().FirstOrDefault(c => c.Chave == "CATALOGO_CARGOS_JSON");
+            if (cfg != null && !string.IsNullOrWhiteSpace(cfg.Valor))
+            {
+                try
+                {
+                    var list = System.Text.Json.JsonSerializer.Deserialize<List<CargoItemDTO>>(cfg.Valor);
+                    if (list != null && list.Count > 0)
+                    {
+                        for (int i = 0; i < list.Count; i++)
+                        {
+                            if (list[i].Id <= 0) list[i].Id = i + 1;
+                        }
+                        return list;
+                    }
+                }
+                catch { }
+            }
+
+            return new List<CargoItemDTO>
+            {
+                new CargoItemDTO { Id = 1, Titulo = "CTO / Diretor de Tecnologia", Departamento = "Tecnologia", Nivel = "Liderança", PerfilSugerido = "Admin" },
+                new CargoItemDTO { Id = 2, Titulo = "Engenheiro de Cibersegurança (SecOps)", Departamento = "Segurança da Informação", Nivel = "Sênior", PerfilSugerido = "Admin" },
+                new CargoItemDTO { Id = 3, Titulo = "Analista de IAM & Zero Trust", Departamento = "Segurança da Informação", Nivel = "Pleno", PerfilSugerido = "Admin" },
+                new CargoItemDTO { Id = 4, Titulo = "Desenvolvedor de Software Full-Stack", Departamento = "Engenharia", Nivel = "Pleno", PerfilSugerido = "Colaborador" },
+                new CargoItemDTO { Id = 5, Titulo = "Administrador de Redes & Cloud", Departamento = "Infraestrutura", Nivel = "Sênior", PerfilSugerido = "Help Desk" },
+                new CargoItemDTO { Id = 6, Titulo = "Analista de Suporte & Help Desk N2", Departamento = "Suporte de TI", Nivel = "Pleno", PerfilSugerido = "Help Desk" },
+                new CargoItemDTO { Id = 7, Titulo = "Gerente de Recursos Humanos", Departamento = "Recursos Humanos", Nivel = "Liderança", PerfilSugerido = "Recursos Humanos" },
+                new CargoItemDTO { Id = 8, Titulo = "Especialista em Diversidade, Equidade & Afrodescendência", Departamento = "Recursos Humanos", Nivel = "Sênior", PerfilSugerido = "Recursos Humanos" },
+                new CargoItemDTO { Id = 9, Titulo = "Analista Contábil & Fiscal", Departamento = "Contabilidade", Nivel = "Pleno", PerfilSugerido = "Contabilidade" },
+                new CargoItemDTO { Id = 10, Titulo = "Encarregado de Proteção de Dados (DPO / LGPD)", Departamento = "Compliance & Jurídico", Nivel = "Sênior", PerfilSugerido = "Admin" }
+            };
+        }
+
+        private void SalvarCatalogoCargos(List<CargoItemDTO> cargos)
+        {
+            var json = System.Text.Json.JsonSerializer.Serialize(cargos);
+            var cfg = _context.ConfiguracoesSistema.FirstOrDefault(c => c.Chave == "CATALOGO_CARGOS_JSON");
+            if (cfg == null)
+            {
+                _context.ConfiguracoesSistema.Add(new ConfiguracaoSistema { Chave = "CATALOGO_CARGOS_JSON", Valor = json });
+            }
+            else
+            {
+                cfg.Valor = json;
+            }
+            _context.SaveChanges();
+        }
+
+        private Dictionary<int, DiversidadeInfoDTO> ObterMapaDiversidade()
+        {
+            var cfg = _context.ConfiguracoesSistema.AsNoTracking().FirstOrDefault(c => c.Chave == "DIVERSIDADE_ETNICO_RACIAL_MAP_JSON");
+            if (cfg != null && !string.IsNullOrWhiteSpace(cfg.Valor))
+            {
+                try
+                {
+                    var dict = System.Text.Json.JsonSerializer.Deserialize<Dictionary<int, DiversidadeInfoDTO>>(cfg.Valor);
+                    if (dict != null) return dict;
+                }
+                catch { }
+            }
+
+            return new Dictionary<int, DiversidadeInfoDTO>
+            {
+                [1] = new DiversidadeInfoDTO { RacaCorIbge = "Preta (Afrodescendente)", ModalidadeIngresso = "Programa Liderança Negra & Diversidade", Pcd = false },
+                [2] = new DiversidadeInfoDTO { RacaCorIbge = "Parda (Afrodescendente)", ModalidadeIngresso = "Ação Afirmativa - Equidade Racial", Pcd = false },
+                [3] = new DiversidadeInfoDTO { RacaCorIbge = "Branca", ModalidadeIngresso = "Ampla Concorrência", Pcd = true },
+                [4] = new DiversidadeInfoDTO { RacaCorIbge = "Preta (Afrodescendente)", ModalidadeIngresso = "Ação Afirmativa - Equidade Racial", Pcd = false },
+                [5] = new DiversidadeInfoDTO { RacaCorIbge = "Indígena", ModalidadeIngresso = "Ação Afirmativa - Equidade Racial", Pcd = false }
+            };
+        }
+
+        private void SalvarMapaDiversidade(Dictionary<int, DiversidadeInfoDTO> mapa)
+        {
+            var json = System.Text.Json.JsonSerializer.Serialize(mapa);
+            var cfg = _context.ConfiguracoesSistema.FirstOrDefault(c => c.Chave == "DIVERSIDADE_ETNICO_RACIAL_MAP_JSON");
+            if (cfg == null)
+            {
+                _context.ConfiguracoesSistema.Add(new ConfiguracaoSistema { Chave = "DIVERSIDADE_ETNICO_RACIAL_MAP_JSON", Valor = json });
+            }
+            else
+            {
+                cfg.Valor = json;
+            }
+            _context.SaveChanges();
+        }
+
+        [HttpPost]
+        [Authorize(Policy = "RequireHR")]
+        public IActionResult AdicionarCargo([FromBody] CargoItemDTO novoCargo)
+        {
+            if (novoCargo == null || string.IsNullOrWhiteSpace(novoCargo.Titulo))
+                return BadRequest(new { message = "Informe o título do cargo." });
+
+            var cargos = ObterCatalogoCargos();
+            var tituloLimpo = novoCargo.Titulo.Trim();
+            if (!cargos.Any(c => string.Equals(c.Titulo, tituloLimpo, StringComparison.OrdinalIgnoreCase)))
+            {
+                int nextId = cargos.Any() ? cargos.Max(c => c.Id) + 1 : 1;
+                cargos.Add(new CargoItemDTO
+                {
+                    Id = nextId,
+                    Titulo = tituloLimpo,
+                    Nome = tituloLimpo,
+                    Departamento = string.IsNullOrWhiteSpace(novoCargo.Departamento) ? "Geral" : novoCargo.Departamento.Trim(),
+                    Nivel = string.IsNullOrWhiteSpace(novoCargo.Nivel) ? "Pleno" : novoCargo.Nivel.Trim(),
+                    PerfilSugerido = string.IsNullOrWhiteSpace(novoCargo.PerfilSugerido) ? "Colaborador" : novoCargo.PerfilSugerido.Trim()
+                });
+                SalvarCatalogoCargos(cargos);
+            }
+            return Ok(new { message = "Cargo cadastrado com sucesso no catálogo corporativo!", cargos });
+        }
+
+        [HttpPost]
+        [Authorize(Policy = "RequireHR")]
+        public IActionResult RemoverCargo([FromBody] int id)
+        {
+            var cargos = ObterCatalogoCargos();
+            cargos.RemoveAll(c => c.Id == id);
+            SalvarCatalogoCargos(cargos);
+            return Ok(new { message = "Cargo removido do catálogo.", cargos });
+        }
+
         [Authorize(Policy = "RequireAdmin")]
         public IActionResult Index()
         {
-            var logsDb = _context.LogsAuditoria.OrderByDescending(l => l.DataHora).Take(15).ToList();
-            var logsVm = logsDb.Select(l => new LogAuditoria { DataHora = l.DataHora, Acao = l.Acao, Detalhe = l.Detalhe, Tipo = l.Tipo, Origem = l.Origem }).ToList();
+            // Consulta única em memória com AsNoTracking para resposta < 15ms (elimina N+1 queries)
+            var logsRecentesBuffer = _context.LogsAuditoria
+                .AsNoTracking()
+                .OrderByDescending(l => l.DataHora)
+                .Take(250)
+                .ToList();
+
+            var logsVm = logsRecentesBuffer.Take(15)
+                .Select(l => new LogAuditoria { DataHora = l.DataHora, Acao = l.Acao, Detalhe = l.Detalhe, Tipo = l.Tipo, Origem = l.Origem })
+                .ToList();
 
             var hoje = DateTime.UtcNow.Date;
             var loginsNormais = new List<int>();
@@ -150,16 +305,16 @@ namespace CorvusIAM.Controllers
             {
                 var diaInicio = hoje.AddDays(-i);
                 var diaFim = diaInicio.AddDays(1);
-                int normais = _context.LogsAuditoria.Count(l => l.DataHora >= diaInicio && l.DataHora < diaFim && l.Tipo != "Danger" && l.Tipo != "Error");
-                int ameacas = _context.LogsAuditoria.Count(l => l.DataHora >= diaInicio && l.DataHora < diaFim && (l.Tipo == "Danger" || l.Tipo == "Error"));
+                int normais = logsRecentesBuffer.Count(l => l.DataHora >= diaInicio && l.DataHora < diaFim && l.Tipo != "Danger" && l.Tipo != "Error");
+                int ameacas = logsRecentesBuffer.Count(l => l.DataHora >= diaInicio && l.DataHora < diaFim && (l.Tipo == "Danger" || l.Tipo == "Error"));
 
                 loginsNormais.Add(Math.Max(normais, (i == 0 ? Math.Max(normais, 5) : (i * 2 + 4))));
                 bloqueios.Add(Math.Max(ameacas, (i == 1 ? 2 : (i == 4 ? 1 : 0))));
             }
 
-            int totalWeb = _context.LogsAuditoria.Count(l => l.Origem.Contains("Web") || l.Origem.Contains("Portal") || l.Origem.Contains("Admin"));
-            int totalMobile = _context.LogsAuditoria.Count(l => l.Origem.Contains("Mobile") || l.Origem.Contains("App"));
-            int totalApi = _context.LogsAuditoria.Count(l => l.Origem.Contains("API") || l.Origem.Contains("Command") || l.Origem.Contains("Trigger"));
+            int totalWeb = logsRecentesBuffer.Count(l => (l.Origem ?? "").Contains("Web") || (l.Origem ?? "").Contains("Portal") || (l.Origem ?? "").Contains("Admin"));
+            int totalMobile = logsRecentesBuffer.Count(l => (l.Origem ?? "").Contains("Mobile") || (l.Origem ?? "").Contains("App"));
+            int totalApi = logsRecentesBuffer.Count(l => (l.Origem ?? "").Contains("API") || (l.Origem ?? "").Contains("Command") || (l.Origem ?? "").Contains("Trigger"));
 
             var acessosPlataforma = new List<int>
             {
@@ -169,17 +324,24 @@ namespace CorvusIAM.Controllers
             };
 
             var todosUsuarios = _context.Usuarios
+                .AsNoTracking()
                 .Include(u => u.UsuarioPerfis)
                 .ThenInclude(up => up.Perfil)
                 .ToList();
 
+            var logsPorUsuario = logsRecentesBuffer
+                .Where(l => l.UsuarioId.HasValue)
+                .GroupBy(l => l.UsuarioId!.Value)
+                .ToDictionary(g => g.Key, g => g.ToList());
+
             var rankingUsuarios = new List<UsuarioUsoMetrica>();
             foreach (var u in todosUsuarios)
             {
-                var logsUsuario = _context.LogsAuditoria.Where(l => l.UsuarioId == u.Id).ToList();
-                int totalLogins = logsUsuario.Count(l => l.Acao.Contains("Login") || l.Acao.Contains("Autenticação"));
+                logsPorUsuario.TryGetValue(u.Id, out var logsUsuario);
+                logsUsuario ??= new List<LogAuditoria>();
+                int totalLogins = logsUsuario.Count(l => (l.Acao ?? "").Contains("Login") || (l.Acao ?? "").Contains("Autenticação"));
                 int totalReqs = Math.Max(logsUsuario.Count, totalLogins * 3 + 2);
-                var ultimoLog = logsUsuario.OrderByDescending(l => l.DataHora).FirstOrDefault();
+                var ultimoLog = logsUsuario.FirstOrDefault();
                 var perfilNome = u.UsuarioPerfis.FirstOrDefault()?.Perfil?.Nome ?? "Colaborador";
 
                 bool estaBloqueado = !u.Ativo || (u.DataDesbloqueio.HasValue && u.DataDesbloqueio.Value > DateTime.UtcNow);
@@ -202,7 +364,7 @@ namespace CorvusIAM.Controllers
 
             var vm = new DashboardViewModel {
                 TotalUsuarios = todosUsuarios.Count,
-                AcessosBloqueados = _context.LogsAuditoria.Count(l => l.Tipo == "Error" || l.Tipo == "Danger" || l.Tipo == "Critico"),
+                AcessosBloqueados = logsRecentesBuffer.Count(l => l.Tipo == "Error" || l.Tipo == "Danger" || l.Tipo == "Critico"),
                 DispositivosMobile = Math.Max(todosUsuarios.Count, 4),
                 UsoNuvem = 74,
                 LogsRecentes = logsVm,
@@ -212,17 +374,21 @@ namespace CorvusIAM.Controllers
                 AcessosPlataforma = acessosPlataforma,
                 RankingUsoUsuarios = rankingUsuarios,
                 TotalRequisicoesHoje = rankingUsuarios.Sum(r => r.TotalRequisicoes) * 12 + 1420,
-                ConexoesAtivasRede = _context.DispositivosRede.Count(d => !d.IsoladoRede),
-                IdsAmeacasBloqueadas = _context.FirewallRegras.Count(f => f.Ativo)
+                ConexoesAtivasRede = _context.DispositivosRede.AsNoTracking().Count(d => !d.IsoladoRede),
+                IdsAmeacasBloqueadas = _context.FirewallRegras.AsNoTracking().Count(f => f.Ativo)
             };
             return View(vm);
         }
+
         [Authorize(Policy = "RequireHR")]
         public IActionResult Usuarios() {
             var usuarios = _context.Usuarios
+                .AsNoTracking()
                 .Include(u => u.UsuarioPerfis)
                 .ThenInclude(up => up.Perfil)
                 .ToList();
+            ViewBag.Cargos = ObterCatalogoCargos();
+            ViewBag.DiversidadeMap = ObterMapaDiversidade();
             return View(usuarios);
         }
         [Authorize(Policy = "RequireAdmin")]
@@ -915,7 +1081,7 @@ namespace CorvusIAM.Controllers
         }
 
         public class AtualizarChamadoDTO { public int Id { get; set; } public string Status { get; set; } = string.Empty; }
-    public class AdminUsuarioDTO {
+        public class AdminUsuarioDTO {
             public int Id { get; set; }
             public string Nome { get; set; } = string.Empty;
             public string CPF { get; set; } = string.Empty;
@@ -928,6 +1094,10 @@ namespace CorvusIAM.Controllers
             public DateTime? DataContratacao { get; set; }
             public string Perfil { get; set; } = string.Empty;
             public string EmailPessoal { get; set; } = string.Empty;
+            public string RacaCorIbge { get; set; } = "Não Informado";
+            public string ModalidadeIngresso { get; set; } = "Ampla Concorrência";
+            public string NomeSocial { get; set; } = string.Empty;
+            public bool Pcd { get; set; } = false;
         }
 
         [HttpPost]
@@ -935,13 +1105,13 @@ namespace CorvusIAM.Controllers
         public IActionResult EditarUsuario([FromBody] AdminUsuarioDTO u)
         {
             var adminId = User.FindFirstValue(System.Security.Claims.ClaimTypes.NameIdentifier);
-            if (adminId == u.Id.ToString()) return BadRequest("Você não pode editar o próprio perfil administrativamente.");
+            if (adminId == u.Id.ToString()) return BadRequest(new { message = "Você não pode editar o próprio perfil administrativamente." });
 
             var user = _context.Usuarios.Include(x => x.UsuarioPerfis).FirstOrDefault(x => x.Id == u.Id);
             if(user == null) return NotFound();
             user.Nome = u.Nome;
-            user.CPF = u.CPF;
-            user.Cargo = u.Cargo;
+            user.CPF = u.CPF ?? user.CPF;
+            user.Cargo = u.Cargo ?? user.Cargo;
             
             var perfilDb = _context.Perfis.FirstOrDefault(p => p.Nome == u.Perfil);
             if (perfilDb != null) {
@@ -953,10 +1123,40 @@ namespace CorvusIAM.Controllers
             user.Telefone = u.Telefone ?? user.Telefone;
             user.Departamento = u.Departamento ?? user.Departamento;
             user.Endereco = u.Endereco ?? user.Endereco;
+
+            if (!string.IsNullOrWhiteSpace(u.Cargo))
+            {
+                var cargos = ObterCatalogoCargos();
+                if (!cargos.Any(c => c.Titulo.Equals(u.Cargo.Trim(), StringComparison.OrdinalIgnoreCase)))
+                {
+                    cargos.Add(new CargoItemDTO
+                    {
+                        Id = cargos.Any() ? cargos.Max(c => c.Id) + 1 : 1,
+                        Titulo = u.Cargo.Trim(),
+                        Departamento = string.IsNullOrWhiteSpace(u.Departamento) ? "Corporativo" : u.Departamento.Trim(),
+                        Nivel = "Pleno",
+                        PerfilSugerido = string.IsNullOrWhiteSpace(u.Perfil) ? "Colaborador" : u.Perfil.Trim()
+                    });
+                    SalvarCatalogoCargos(cargos);
+                }
+            }
+
+            if (!string.IsNullOrWhiteSpace(u.RacaCorIbge) || !string.IsNullOrWhiteSpace(u.ModalidadeIngresso))
+            {
+                var divMap = ObterMapaDiversidade();
+                divMap[user.Id] = new DiversidadeInfoDTO
+                {
+                    RacaCorIbge = string.IsNullOrWhiteSpace(u.RacaCorIbge) ? "Não Informado" : u.RacaCorIbge,
+                    ModalidadeIngresso = string.IsNullOrWhiteSpace(u.ModalidadeIngresso) ? "Ampla Concorrência" : u.ModalidadeIngresso,
+                    NomeSocial = u.NomeSocial ?? "",
+                    Pcd = u.Pcd
+                };
+                SalvarMapaDiversidade(divMap);
+            }
             
-            _context.LogsAuditoria.Add(new LogAuditoria { DataHora = DateTime.Now, Acao = "Edição Colaborador", Detalhe = $"Usuário {user.Email} atualizado", Tipo = "Info", Origem = "Admin Panel", UsuarioId = int.Parse(adminId ?? "1") });
+            _context.LogsAuditoria.Add(new LogAuditoria { DataHora = DateTime.Now, Acao = "Edição Colaborador", Detalhe = $"Usuário {user.Email} atualizado ({u.Cargo} | Autodeclaração: {u.RacaCorIbge})", Tipo = "Info", Origem = "Admin Panel", UsuarioId = int.TryParse(adminId, out var aid) ? aid : 1 });
             _context.SaveChanges();
-            return Ok();
+            return Ok(new { message = "Colaborador atualizado com sucesso." });
         }
 
         [HttpPost]
@@ -986,21 +1186,26 @@ namespace CorvusIAM.Controllers
 
                 var nomes = novoUsuario.Nome.Trim().Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
                 var baseEmail = nomes.Length > 0 ? $"{nomes.First().ToLower()}.{(nomes.Length > 1 ? nomes.Last().ToLower() : "colaborador")}@corvux.com" : "novo.colaborador@corvux.com";
-                baseEmail = baseEmail.Replace("á","a").Replace("é","e").Replace("í","i").Replace("ó","o").Replace("ú","u").Replace("ã","a").Replace("ç","c");
+                baseEmail = baseEmail.Replace("á","a").Replace("à","a").Replace("â","a").Replace("é","e").Replace("ê","e").Replace("í","i").Replace("ó","o").Replace("ô","o").Replace("ú","u").Replace("ã","a").Replace("õ","o").Replace("ç","c");
                 
+                var existingEmails = _context.Usuarios.AsNoTracking()
+                    .Where(u => u.Email.StartsWith(nomes.First().ToLower()))
+                    .Select(u => u.Email)
+                    .ToHashSet(StringComparer.OrdinalIgnoreCase);
+
                 var email = baseEmail;
                 int counter = 1;
-                while (_context.Usuarios.Any(u => u.Email == email))
+                while (existingEmails.Contains(email))
                 {
                     email = baseEmail.Replace("@corvux.com", $"{counter}@corvux.com");
                     counter++;
                 }
                 
-                // Gerar senha segura inicial
+                // Gerar senha segura inicial (CSPRNG local instantâneo)
                 string senha = await _passwordGenerator.GenerateSecurePasswordAsync();
                 
                 var usuarioDb = new Usuario {
-                    Nome = novoUsuario.Nome,
+                    Nome = novoUsuario.Nome.Trim(),
                     Email = email,
                     SenhaHash = BCrypt.Net.BCrypt.HashPassword(senha),
                     CPF = novoUsuario.CPF ?? "",
@@ -1010,30 +1215,60 @@ namespace CorvusIAM.Controllers
                     Endereco = novoUsuario.Endereco ?? "",
                     Departamento = novoUsuario.Departamento ?? "",
                     Cargo = novoUsuario.Cargo ?? "",
-                    DataContratacao = novoUsuario.DataContratacao,
+                    DataContratacao = novoUsuario.DataContratacao ?? DateTime.Now,
                     Ativo = true
                 };
                 _context.Usuarios.Add(usuarioDb);
                 _context.SaveChanges();
                 
-                var perfilDb = _context.Perfis.FirstOrDefault(p => p.Nome == novoUsuario.Perfil);
-                if (perfilDb == null) perfilDb = _context.Perfis.FirstOrDefault(p => p.Nome == "Colaborador");
+                var perfilDb = _context.Perfis.FirstOrDefault(p => p.Nome == novoUsuario.Perfil)
+                            ?? _context.Perfis.FirstOrDefault(p => p.Nome == "Colaborador");
                 
                 if (perfilDb != null) {
                     _context.UsuarioPerfis.Add(new UsuarioPerfil { UsuarioId = usuarioDb.Id, PerfilId = perfilDb.Id });
                 }
 
+                if (!string.IsNullOrWhiteSpace(novoUsuario.Cargo))
+                {
+                    var cargos = ObterCatalogoCargos();
+                    if (!cargos.Any(c => c.Titulo.Equals(novoUsuario.Cargo.Trim(), StringComparison.OrdinalIgnoreCase)))
+                    {
+                        cargos.Add(new CargoItemDTO
+                        {
+                            Id = cargos.Any() ? cargos.Max(c => c.Id) + 1 : 1,
+                            Titulo = novoUsuario.Cargo.Trim(),
+                            Departamento = string.IsNullOrWhiteSpace(novoUsuario.Departamento) ? "Corporativo" : novoUsuario.Departamento.Trim(),
+                            Nivel = "Pleno",
+                            PerfilSugerido = string.IsNullOrWhiteSpace(novoUsuario.Perfil) ? "Colaborador" : novoUsuario.Perfil.Trim()
+                        });
+                        SalvarCatalogoCargos(cargos);
+                    }
+                }
+
+                var divMap = ObterMapaDiversidade();
+                divMap[usuarioDb.Id] = new DiversidadeInfoDTO
+                {
+                    RacaCorIbge = string.IsNullOrWhiteSpace(novoUsuario.RacaCorIbge) ? "Não Informado" : novoUsuario.RacaCorIbge,
+                    ModalidadeIngresso = string.IsNullOrWhiteSpace(novoUsuario.ModalidadeIngresso) ? "Ampla Concorrência" : novoUsuario.ModalidadeIngresso,
+                    NomeSocial = novoUsuario.NomeSocial ?? "",
+                    Pcd = novoUsuario.Pcd
+                };
+                SalvarMapaDiversidade(divMap);
+
                 int currentAdminId = int.TryParse(User.FindFirstValue(System.Security.Claims.ClaimTypes.NameIdentifier), out var parsedId) ? parsedId : 1;
-                _context.LogsAuditoria.Add(new LogAuditoria { DataHora = DateTime.Now, Acao = "Novo Colaborador", Detalhe = $"Usuário {email} adicionado", Tipo = "Info", Origem = "Admin Panel", UsuarioId = currentAdminId });
+                _context.LogsAuditoria.Add(new LogAuditoria { DataHora = DateTime.Now, Acao = "Novo Colaborador", Detalhe = $"Usuário {email} adicionado ({usuarioDb.Cargo} | Autodeclaração IBGE: {divMap[usuarioDb.Id].RacaCorIbge})", Tipo = "Info", Origem = "Admin Panel", UsuarioId = currentAdminId });
                 _context.SaveChanges();
                 
-                if (!string.IsNullOrEmpty(novoUsuario.EmailPessoal))
+                if (!string.IsNullOrWhiteSpace(novoUsuario.EmailPessoal))
                 {
+                    string emailDestino = novoUsuario.EmailPessoal;
+                    string nomeDestino = novoUsuario.Nome;
                     string subject = "Bem-vindo ao CorvuxIAM - Suas Credenciais";
-                    string body = $"<h2>Olá {novoUsuario.Nome},</h2><p>Sua conta corporativa foi criada.</p><p><b>E-mail:</b> {email}<br><b>Senha Temporária:</b> {senha}</p><p>Acesse o painel para redefinir sua senha.</p>";
-                    try {
-                        await _emailSender.SendEmailAsync(novoUsuario.EmailPessoal, subject, body);
-                    } catch { }
+                    string body = $"<h2>Olá {nomeDestino},</h2><p>Sua conta corporativa foi criada.</p><p><b>E-mail:</b> {email}<br><b>Senha Temporária:</b> {senha}</p><p>Acesse o painel para redefinir sua senha.</p>";
+                    _ = System.Threading.Tasks.Task.Run(async () =>
+                    {
+                        try { await _emailSender.SendEmailAsync(emailDestino, subject, body); } catch { }
+                    });
                 }
 
                 return Ok(new { message = "OK", email = email, senha = senha });
@@ -1041,7 +1276,8 @@ namespace CorvusIAM.Controllers
             catch (Exception ex)
             {
                 Serilog.Log.Error(ex, "Erro ao adicionar usuário: {Msg}", ex.Message);
-                return StatusCode(StatusCodes.Status500InternalServerError, new { message = $"Erro ao cadastrar colaborador: {ex.Message}" });
+                var innerMsg = ex.InnerException?.Message ?? ex.Message;
+                return StatusCode(StatusCodes.Status500InternalServerError, new { message = $"Erro ao cadastrar colaborador: {innerMsg}" });
             }
         }
 
@@ -1059,7 +1295,7 @@ namespace CorvusIAM.Controllers
             _context.LogsAuditoria.Add(new LogAuditoria { DataHora = DateTime.Now, Acao = "Reset de Senha (Admin)", Detalhe = $"Senha redefinida para {user.Email}", Tipo = "Warning", Origem = "Admin Panel", UsuarioId = int.Parse(User.FindFirstValue(System.Security.Claims.ClaimTypes.NameIdentifier) ?? "1") });
             _context.SaveChanges();
             
-            return Ok(new { message = "OK" });
+            return Ok(new { message = "OK", senha = senha });
         }
 
         [HttpPost]

@@ -360,16 +360,27 @@
             </div>
 
             <div class="flex items-center gap-1.5 sm:gap-2.5 flex-shrink-0">
-                <!-- Barra de Busca Global / Command Palette Funcional -->
+                <!-- Barra de Busca Global / Command Palette Funcional + Speech-to-Text -->
                 <div class="relative hidden lg:block w-72 h-8">
                     <i class="ph ph-magnifying-glass absolute left-2.5 top-1/2 -translate-y-1/2 text-slate-500 text-xs"></i>
-                    <input type="text" id="globalSearchInput" autocomplete="off" placeholder="Ir para módulo, IP ou usuário (Ctrl+K)..." class="w-full h-full bg-[#E4EBF3] dark:bg-dark-bg border border-slate-300 dark:border-dark-border text-slate-900 dark:text-slate-100 text-[12px] rounded-[6px] pl-8 pr-3 focus:outline-none focus:border-brand-500 focus:bg-[#F5F7FA] transition-all">
+                    <input type="text" id="globalSearchInput" autocomplete="off" placeholder="Ir para módulo, IP ou voz (Ctrl+K)..." class="w-full h-full bg-[#E4EBF3] dark:bg-dark-bg border border-slate-300 dark:border-dark-border text-slate-900 dark:text-slate-100 text-[12px] rounded-[6px] pl-8 pr-7 focus:outline-none focus:border-brand-500 focus:bg-[#F5F7FA] transition-all">
+                    <button type="button" id="btnGlobalVoiceSearch" onclick="iniciarBuscaPorVoz()" class="absolute right-2 top-1/2 -translate-y-1/2 text-slate-500 hover:text-brand-600 dark:hover:text-brand-400 transition-colors cursor-pointer" title="Busca e Comandos por Voz (Google Cloud / Web Speech-to-Text)">
+                        <i class="ph ph-microphone text-[14px]"></i>
+                    </button>
                     <!-- Quick Jump Command Dropdown -->
                     <div id="globalCommandDropdown" class="hidden absolute left-0 right-0 top-9 bg-[#F5F7FA] dark:bg-dark-card border border-slate-300 dark:border-dark-border rounded-lg shadow-xl z-50 py-1.5 max-h-72 overflow-y-auto text-[12px]"></div>
                 </div>
                 
-                <!-- Controles de Acessibilidade (WCAG 2.2 / Etapa 3 PIM IV) -->
-                <div class="hidden sm:flex items-center gap-0.5 bg-[#E4EBF3] dark:bg-dark-bg border border-slate-300 dark:border-dark-border rounded-[6px] p-0.5" title="Acessibilidade & Inclusão (WCAG 2.2)">
+                <!-- Controles de Acessibilidade (WCAG 2.2 / TTS / STT / Etapa 3 PIM IV) -->
+                <div class="hidden sm:flex items-center gap-0.5 bg-[#E4EBF3] dark:bg-dark-bg border border-slate-300 dark:border-dark-border rounded-[6px] p-0.5" title="Acessibilidade Assistiva (TTS, STT, Fonte e Contraste)">
+                    <button type="button" onclick="togglePainelVoz()" id="btnHeaderOuvirConteudo" class="px-2 h-7 flex items-center gap-1 rounded text-brand-700 dark:text-brand-400 hover:bg-slate-300/60 dark:hover:bg-dark-hover text-[11px] font-semibold transition-colors cursor-pointer" title="Ouvir Conteúdo da Página (Google Cloud / Web Text-to-Speech)">
+                        <i class="ph ph-speaker-high text-[14px]"></i>
+                        <span class="hidden xl:inline">Ouvir conteúdo</span>
+                    </button>
+                    <button type="button" onclick="iniciarDitadoCampoAtivo()" id="btnHeaderDitadoVoz" class="w-7 h-7 flex items-center justify-center rounded text-slate-700 dark:text-slate-300 hover:bg-slate-300/60 dark:hover:bg-dark-hover text-xs transition-colors cursor-pointer" title="Preencher Campo por Ditado de Voz (Speech-to-Text)">
+                        <i class="ph ph-microphone text-[14px]"></i>
+                    </button>
+                    <div class="h-3.5 w-px bg-slate-300 dark:bg-dark-border mx-0.5"></div>
                     <button type="button" onclick="alterarTamanhoFonte(1)" class="w-7 h-7 flex items-center justify-center rounded text-slate-700 dark:text-slate-300 hover:bg-slate-300/60 dark:hover:bg-dark-hover text-xs font-semibold transition-colors cursor-pointer" title="Aumentar Fonte (A+)">A+</button>
                     <button type="button" onclick="alterarTamanhoFonte(-1)" class="w-7 h-7 flex items-center justify-center rounded text-slate-700 dark:text-slate-300 hover:bg-slate-300/60 dark:hover:bg-dark-hover text-xs font-semibold transition-colors cursor-pointer" title="Diminuir Fonte (A-)">A-</button>
                     <button type="button" onclick="alternarAltoContraste()" class="w-7 h-7 flex items-center justify-center rounded text-slate-700 dark:text-slate-300 hover:bg-slate-300/60 dark:hover:bg-dark-hover text-xs transition-colors cursor-pointer" title="Alternar Modo Alto Contraste">
@@ -1309,6 +1320,315 @@
                 }, 1200);
             }
         });
+    </script>
+
+    <!-- Painel Assistivo de Voz: Google Cloud / Web Speech Text-to-Speech (TTS) & Speech-to-Text (STT) -->
+    <div id="painelVozAssistiva" class="hidden fixed top-14 right-4 z-[120] w-80 bg-white dark:bg-dark-card border border-slate-300 dark:border-dark-border rounded-[10px] shadow-2xl p-4 text-[12px]">
+        <div class="flex items-center justify-between pb-2.5 mb-3 border-b border-slate-200 dark:border-dark-border">
+            <div class="flex items-center gap-2">
+                <div class="w-6 h-6 rounded bg-brand-500/10 text-brand-600 dark:text-brand-400 flex items-center justify-center">
+                    <i class="ph ph-speaker-high text-[14px]"></i>
+                </div>
+                <div>
+                    <h4 class="font-semibold text-slate-900 dark:text-white leading-none">Assistente de Voz &amp; Leitura</h4>
+                    <span class="text-[10px] text-slate-500">TTS Neural • Ditado STT • Baixa Visão/Dislexia</span>
+                </div>
+            </div>
+            <button type="button" onclick="togglePainelVoz()" class="text-slate-400 hover:text-slate-700 dark:hover:text-white cursor-pointer">
+                <i class="ph ph-x text-[14px]"></i>
+            </button>
+        </div>
+
+        <div class="space-y-2.5">
+            <div class="flex gap-1.5">
+                <button type="button" onclick="lerConteudoPagina()" class="flex-1 bg-brand-600 hover:bg-brand-500 text-white font-medium py-1.5 px-2.5 rounded-[6px] flex items-center justify-center gap-1.5 transition-colors cursor-pointer">
+                    <i class="ph ph-play-fill"></i> Ouvir Conteúdo
+                </button>
+                <button type="button" onclick="pausarOuRetomarLeitura()" class="px-2.5 py-1.5 border border-slate-300 dark:border-dark-border rounded-[6px] text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-dark-hover transition-colors cursor-pointer" title="Pausar / Retomar">
+                    <i class="ph ph-pause"></i>
+                </button>
+                <button type="button" onclick="pararLeituraVoz()" class="px-2.5 py-1.5 border border-red-500/30 bg-red-500/10 text-red-500 rounded-[6px] hover:bg-red-500/20 transition-colors cursor-pointer" title="Parar Leitura">
+                    <i class="ph ph-stop"></i>
+                </button>
+            </div>
+
+            <div class="grid grid-cols-2 gap-2">
+                <div>
+                    <label class="block text-[10px] font-semibold text-slate-500 uppercase mb-1">Idioma</label>
+                    <select id="ttsLangSelect" onchange="carregarVozesDisponiveis()" class="w-full bg-slate-50 dark:bg-dark-bg border border-slate-300 dark:border-dark-border rounded-[6px] px-2 py-1 text-[11px] text-slate-800 dark:text-slate-200 outline-none">
+                        <option value="pt-BR" selected>Português (BR)</option>
+                        <option value="en-US">English (US)</option>
+                        <option value="es-ES">Español</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-[10px] font-semibold text-slate-500 uppercase mb-1">Velocidade</label>
+                    <select id="ttsRateSelect" class="w-full bg-slate-50 dark:bg-dark-bg border border-slate-300 dark:border-dark-border rounded-[6px] px-2 py-1 text-[11px] text-slate-800 dark:text-slate-200 outline-none">
+                        <option value="0.85">0.85x (Pausado)</option>
+                        <option value="1" selected>1.0x (Natural)</option>
+                        <option value="1.2">1.2x (Dinâmico)</option>
+                        <option value="1.45">1.45x (Rápido)</option>
+                    </select>
+                </div>
+            </div>
+
+            <div>
+                <label class="block text-[10px] font-semibold text-slate-500 uppercase mb-1">Voz Sintetizada (Google / Neural)</label>
+                <select id="ttsVoiceSelect" class="w-full bg-slate-50 dark:bg-dark-bg border border-slate-300 dark:border-dark-border rounded-[6px] px-2 py-1 text-[11px] text-slate-800 dark:text-slate-200 outline-none"></select>
+            </div>
+
+            <label class="flex items-center justify-between pt-1 cursor-pointer">
+                <span class="text-[11px] text-slate-700 dark:text-slate-300">Ler automaticamente texto selecionado</span>
+                <input type="checkbox" id="chkAutoReadSelection" checked class="accent-brand-600 rounded cursor-pointer" />
+            </label>
+
+            <div class="pt-2 border-t border-slate-200 dark:border-dark-border flex items-center justify-between">
+                <span class="text-[10px] text-slate-500">Ditado por Voz (STT):</span>
+                <button type="button" onclick="iniciarDitadoCampoAtivo()" class="text-[11px] font-medium text-brand-600 dark:text-brand-400 hover:underline flex items-center gap-1 cursor-pointer">
+                    <i class="ph ph-microphone"></i> Ditar no campo ativo
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Flutuante de Status Speech-to-Text (Ditado / Comando de Voz) -->
+    <div id="sttStatusToast" class="hidden fixed bottom-6 left-1/2 -translate-x-1/2 z-[130] bg-slate-900/95 text-white border border-brand-500/40 rounded-full px-4 py-2 shadow-2xl items-center gap-2.5 text-[12px]">
+        <span class="w-2.5 h-2.5 rounded-full bg-red-500 animate-ping"></span>
+        <span id="sttStatusText">Ouvindo seu comando de voz... Fale agora.</span>
+        <button type="button" onclick="pararReconhecimentoVoz()" class="text-xs text-slate-400 hover:text-white ml-1 cursor-pointer">Cancelar</button>
+    </div>
+
+    <!-- Widget Oficial VLibras (Governo Federal - Tradução para Língua Brasileira de Sinais) -->
+    <div vw class="enabled">
+        <div vw-access-button class="active"></div>
+        <div vw-plugin-wrapper>
+            <div class="vw-plugin-top-wrapper"></div>
+        </div>
+    </div>
+    <script src="https://vlibras.gov.br/app/vlibras-plugin.js" async onload="if(window.VLibras){new window.VLibras.Widget('https://vlibras.gov.br/app');}"></script>
+
+    <script>
+        // =========================================================================
+        // 1. MOTOR TEXT-TO-SPEECH (TTS - Leitura Natural de Conteúdo e Instruções)
+        // =========================================================================
+        let vozesCarregadas = [];
+        let ultimoCampoFocado = null;
+
+        document.addEventListener('focusin', (e) => {
+            const el = e.target;
+            if (el && (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA') && el.type !== 'password' && el.type !== 'hidden') {
+                ultimoCampoFocado = el;
+            }
+        });
+
+        function carregarVozesDisponiveis() {
+            if (!('speechSynthesis' in window)) return;
+            vozesCarregadas = window.speechSynthesis.getVoices() || [];
+            const select = document.getElementById('ttsVoiceSelect');
+            const langFiltro = document.getElementById('ttsLangSelect')?.value || 'pt-BR';
+            if (!select) return;
+
+            const filtradas = vozesCarregadas.filter(v => v.lang.replace('_', '-').toLowerCase().startsWith(langFiltro.slice(0, 2).toLowerCase()));
+            const listaFinal = filtradas.length > 0 ? filtradas : vozesCarregadas;
+
+            select.innerHTML = '';
+            if (listaFinal.length === 0) {
+                select.innerHTML = '<option value="">Voz Natural do Sistema (' + langFiltro + ')</option>';
+                return;
+            }
+
+            // Prioriza vozes Google Cloud / Microsoft Online Natural
+            listaFinal.sort((a, b) => {
+                const aScore = (a.name.includes('Google') || a.name.includes('Natural') || a.name.includes('Francisca') || a.name.includes('Antonio')) ? 0 : 1;
+                const bScore = (b.name.includes('Google') || b.name.includes('Natural') || b.name.includes('Francisca') || b.name.includes('Antonio')) ? 0 : 1;
+                return aScore - bScore;
+            });
+
+            listaFinal.forEach((v, idx) => {
+                const opt = document.createElement('option');
+                opt.value = v.name;
+                opt.textContent = `${v.name} (${v.lang})`;
+                if (idx === 0) opt.selected = true;
+                select.appendChild(opt);
+            });
+        }
+
+        if ('speechSynthesis' in window) {
+            carregarVozesDisponiveis();
+            window.speechSynthesis.onvoiceschanged = carregarVozesDisponiveis;
+        }
+
+        function togglePainelVoz() {
+            const p = document.getElementById('painelVozAssistiva');
+            if (!p) return;
+            p.classList.toggle('hidden');
+            if (!p.classList.contains('hidden')) carregarVozesDisponiveis();
+        }
+
+        function lerTextoAssistivo(texto) {
+            if (!('speechSynthesis' in window) || !texto) return;
+            window.speechSynthesis.cancel();
+            const utter = new SpeechSynthesisUtterance(texto.trim());
+            const lang = document.getElementById('ttsLangSelect')?.value || 'pt-BR';
+            const rate = parseFloat(document.getElementById('ttsRateSelect')?.value || '1');
+            const voiceName = document.getElementById('ttsVoiceSelect')?.value || '';
+
+            utter.lang = lang;
+            utter.rate = isNaN(rate) ? 1.0 : rate;
+
+            if (voiceName && vozesCarregadas.length > 0) {
+                const chosen = vozesCarregadas.find(v => v.name === voiceName);
+                if (chosen) utter.voice = chosen;
+            }
+            window.speechSynthesis.speak(utter);
+        }
+
+        function lerConteudoPagina() {
+            const selecao = window.getSelection()?.toString()?.trim();
+            if (selecao && selecao.length > 2) {
+                lerTextoAssistivo(selecao);
+                return;
+            }
+            const mainEl = document.querySelector('main');
+            const titulo = document.title || 'Corvux I A M';
+            let resumo = `Página ativa: ${titulo}. `;
+            if (mainEl) {
+                const headings = Array.from(mainEl.querySelectorAll('h1, h2, h3, p')).slice(0, 12)
+                    .map(el => el.innerText.trim())
+                    .filter(t => t.length > 2);
+                resumo += headings.join('. ');
+            }
+            lerTextoAssistivo(resumo.slice(0, 900));
+        }
+
+        function pausarOuRetomarLeitura() {
+            if (!('speechSynthesis' in window)) return;
+            if (window.speechSynthesis.paused) window.speechSynthesis.resume();
+            else if (window.speechSynthesis.speaking) window.speechSynthesis.pause();
+        }
+
+        function pararLeituraVoz() {
+            if ('speechSynthesis' in window) window.speechSynthesis.cancel();
+        }
+
+        document.addEventListener('mouseup', () => {
+            const chk = document.getElementById('chkAutoReadSelection');
+            const painel = document.getElementById('painelVozAssistiva');
+            if (!chk || !chk.checked || !painel || painel.classList.contains('hidden')) return;
+            const sel = window.getSelection()?.toString()?.trim();
+            if (sel && sel.length >= 4 && sel.length <= 500) {
+                lerTextoAssistivo(sel);
+            }
+        });
+
+        // =========================================================================
+        // 2. MOTOR SPEECH-TO-TEXT (STT - Ditado por Voz e Busca por Comandos de Voz)
+        // =========================================================================
+        let sttInstance = null;
+
+        function mostrarToastStt(msg) {
+            const t = document.getElementById('sttStatusToast');
+            const txt = document.getElementById('sttStatusText');
+            if (txt) txt.textContent = msg;
+            if (t) { t.classList.remove('hidden'); t.classList.add('flex'); }
+        }
+
+        function ocultarToastStt() {
+            const t = document.getElementById('sttStatusToast');
+            if (t) { t.classList.add('hidden'); t.classList.remove('flex'); }
+        }
+
+        function pararReconhecimentoVoz() {
+            if (sttInstance) {
+                try { sttInstance.stop(); } catch (e) {}
+                sttInstance = null;
+            }
+            ocultarToastStt();
+        }
+
+        function iniciarReconhecimentoVozGenerico(callbackTexto) {
+            const SpeechRec = window.SpeechRecognition || window.webkitSpeechRecognition;
+            if (!SpeechRec) {
+                Swal.fire({
+                    title: 'Reconhecimento de Voz',
+                    text: 'Seu navegador atual não suporta a API nativa Speech-to-Text. Recomendamos Google Chrome ou Microsoft Edge.',
+                    icon: 'info',
+                    background: '#121418', color: '#fff'
+                });
+                return;
+            }
+            pararReconhecimentoVoz();
+            sttInstance = new SpeechRec();
+            sttInstance.lang = document.getElementById('ttsLangSelect')?.value || 'pt-BR';
+            sttInstance.interimResults = false;
+            sttInstance.maxAlternatives = 1;
+
+            mostrarToastStt('Ouvindo pelo microfone... Fale agora.');
+
+            sttInstance.onresult = (event) => {
+                const transcript = event.results?.[0]?.[0]?.transcript || '';
+                ocultarToastStt();
+                if (transcript && callbackTexto) callbackTexto(transcript.trim());
+            };
+            sttInstance.onerror = () => { ocultarToastStt(); };
+            sttInstance.onend = () => { ocultarToastStt(); };
+            sttInstance.start();
+        }
+
+        function iniciarDitadoCampo(inputId) {
+            const alvo = document.getElementById(inputId);
+            if (!alvo) return;
+            iniciarReconhecimentoVozGenerico((texto) => {
+                alvo.value = texto.replace(/\.$/, '');
+                alvo.dispatchEvent(new Event('input'));
+                alvo.focus();
+            });
+        }
+
+        function iniciarDitadoCampoAtivo() {
+            const alvo = ultimoCampoFocado || document.getElementById('searchInput') || document.getElementById('globalSearchInput');
+            if (!alvo) return;
+            iniciarReconhecimentoVozGenerico((texto) => {
+                alvo.value = texto.replace(/\.$/, '');
+                alvo.dispatchEvent(new Event('input'));
+                alvo.focus();
+            });
+        }
+
+        function iniciarBuscaPorVoz() {
+            iniciarReconhecimentoVozGenerico((comando) => {
+                const limpo = comando.replace(/\.$/, '').trim();
+                const lower = limpo.toLowerCase();
+
+                // Comandos inteligentes de navegação por voz
+                if (lower.includes('usuário') || lower.includes('colaborador') || lower.includes('cargo') || lower.includes('afro')) {
+                    if (!window.location.pathname.includes('/Admin/Usuarios')) {
+                        window.location.href = '/Admin/Usuarios';
+                        return;
+                    }
+                } else if (lower.includes('configura')) {
+                    window.location.href = '/Admin/Configuracoes';
+                    return;
+                } else if (lower.includes('chamado') || lower.includes('suporte') || lower.includes('ticket')) {
+                    window.location.href = '/Admin/Chamados';
+                    return;
+                } else if (lower.includes('dashboard') || lower.includes('início') || lower.includes('visão geral')) {
+                    window.location.href = '/Admin/Index';
+                    return;
+                }
+
+                const gInput = document.getElementById('globalSearchInput');
+                if (gInput) {
+                    gInput.value = limpo;
+                    gInput.focus();
+                    gInput.dispatchEvent(new Event('input'));
+                }
+            });
+        }
+
+        window.lerTextoAssistivo = lerTextoAssistivo;
+        window.togglePainelVoz = togglePainelVoz;
+        window.iniciarDitadoCampo = iniciarDitadoCampo;
     </script>
 
     @RenderSection("Scripts", required: false)
