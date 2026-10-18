@@ -362,11 +362,88 @@ namespace CorvusIAM.Data
             }
             else
             {
-                // SQLite (desenvolvimento / testes) com otimizações WAL, Índices, Views e Triggers
+                // SQLite (desenvolvimento / testes) com otimizações WAL, Índices, Tabelas, Views e Triggers
                 context.Database.EnsureCreated();
                 try
                 {
                     context.Database.ExecuteSqlRaw(@"
+                        CREATE TABLE IF NOT EXISTS FirewallRegras (
+                            Id INTEGER PRIMARY KEY AUTOINCREMENT,
+                            Ip TEXT NOT NULL,
+                            Motivo TEXT NOT NULL,
+                            PaisOrigem TEXT NULL,
+                            DataBloqueio TEXT NOT NULL,
+                            Ativo INTEGER NOT NULL DEFAULT 1,
+                            CriadoPor TEXT NULL
+                        );
+
+                        CREATE TABLE IF NOT EXISTS DispositivosRede (
+                            Id INTEGER PRIMARY KEY AUTOINCREMENT,
+                            Hostname TEXT NOT NULL,
+                            Ip TEXT NOT NULL,
+                            Vlan TEXT NULL,
+                            UsuarioResponsavel TEXT NULL,
+                            SistemaOperacional TEXT NULL,
+                            Tipo TEXT NOT NULL DEFAULT 'estacoes',
+                            CpuUsoPercentual INTEGER NOT NULL DEFAULT 15,
+                            RamUsoPercentual INTEGER NOT NULL DEFAULT 45,
+                            DiscoUsoPercentual INTEGER NOT NULL DEFAULT 35,
+                            EdrAtivo INTEGER NOT NULL DEFAULT 1,
+                            EdrStatus TEXT NULL,
+                            PatchesPendentes INTEGER NOT NULL DEFAULT 0,
+                            Status TEXT NOT NULL DEFAULT 'Saudavel',
+                            IsoladoRede INTEGER NOT NULL DEFAULT 0,
+                            UltimoScan TEXT NULL,
+                            UltimoHeartbeat TEXT NOT NULL
+                        );
+
+                        CREATE TABLE IF NOT EXISTS NotasFiscais (
+                            Id INTEGER PRIMARY KEY AUTOINCREMENT,
+                            Numero INTEGER NOT NULL,
+                            TomadorNome TEXT NOT NULL,
+                            TomadorCnpj TEXT NOT NULL,
+                            Valor REAL NOT NULL,
+                            Descricao TEXT NULL,
+                            DataEmissao TEXT NOT NULL,
+                            ProtocoloSefaz TEXT NULL,
+                            Status TEXT NOT NULL DEFAULT 'Autorizada',
+                            EmitidoPorUsuarioId INTEGER NULL
+                        );
+
+                        CREATE TABLE IF NOT EXISTS FechamentosMensais (
+                            Id INTEGER PRIMARY KEY AUTOINCREMENT,
+                            MesAno TEXT NOT NULL,
+                            ReceitaBruta REAL NOT NULL,
+                            DespesasOperacionais REAL NOT NULL,
+                            LucroLiquido REAL NOT NULL,
+                            DataFechamento TEXT NOT NULL,
+                            Status TEXT NOT NULL DEFAULT 'Fechado',
+                            FechadoPorUsuarioId INTEGER NULL
+                        );
+
+                        CREATE TABLE IF NOT EXISTS RegistrosFerias (
+                            Id INTEGER PRIMARY KEY AUTOINCREMENT,
+                            UsuarioId INTEGER NULL,
+                            ColaboradorNome TEXT NOT NULL,
+                            DataInicio TEXT NOT NULL,
+                            DataFim TEXT NOT NULL,
+                            Dias INTEGER NOT NULL DEFAULT 30,
+                            Status TEXT NOT NULL DEFAULT 'Aprovada',
+                            DataAprovacao TEXT NOT NULL
+                        );
+
+                        CREATE TABLE IF NOT EXISTS FolhasPagamento (
+                            Id INTEGER PRIMARY KEY AUTOINCREMENT,
+                            MesReferencia TEXT NOT NULL,
+                            TotalColaboradores INTEGER NOT NULL DEFAULT 18,
+                            ValorBrutoTotal REAL NOT NULL,
+                            ValorLiquidoTotal REAL NOT NULL,
+                            InssTotal REAL NOT NULL,
+                            FgtsTotal REAL NOT NULL,
+                            DataProcessamento TEXT NOT NULL,
+                            Status TEXT NOT NULL DEFAULT 'Processada'
+                        );
+
                         PRAGMA journal_mode = WAL;
                         PRAGMA synchronous = NORMAL;
                         PRAGMA temp_store = MEMORY;

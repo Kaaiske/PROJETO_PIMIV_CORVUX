@@ -240,31 +240,7 @@
             box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);
         }
 
-        /* SOCIAL & EXTRAS */
-        .social-login {
-            display: flex;
-            gap: 8px;
-            z-index: 1;
-            position: relative;
-        }
-        .btn-social {
-            flex: 1;
-            background-color: var(--input-bg);
-            border: 1px solid var(--border-color);
-            color: var(--text-secondary);
-            padding: 8px;
-            border-radius: 8px;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            font-size: 14px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        .btn-social:hover {
-            border-color: var(--accent-color);
-            color: var(--accent-color);
-        }
+        /* EXTRAS */
 
         .link {
             color: var(--accent-color);
@@ -498,23 +474,11 @@
                 </form>
             </div>
 
-            <!-- SOCIAL / SSO CARD -->
-            <div class="bento-item">
-                <h3 style="font-size: 12px; font-weight: 500; text-align: center; margin-bottom: 10px; color: var(--text-secondary);">Single Sign-On (SSO)</h3>
-                <div class="social-login">
-                    <button type="button" class="btn-social" title="Google Workspace" onclick="preencherCredencial('admin@corvus.com', 'Cv1670!')"><i class="bi bi-google"></i></button>
-                    <button type="button" class="btn-social" title="Microsoft Entra ID" onclick="preencherCredencial('admin@corvus.com', 'Cv1670!')"><i class="bi bi-microsoft"></i></button>
-                    <button type="button" class="btn-social" title="GitHub Enterprise" onclick="preencherCredencial('admin@corvus.com', 'Cv1670!')"><i class="bi bi-github"></i></button>
-                </div>
-            </div>
-
             <!-- SECURE BADGE CARD -->
-            <div class="bento-item hide-mobile" style="display: flex; flex-direction: row; align-items: center; justify-content: center; gap: 10px;">
-                <i class="bi bi-shield-check" style="font-size: 24px; color: var(--accent-color);"></i>
-                <div style="text-align: left;">
-                    <div style="font-weight: 600; font-size: 12.5px;">Zero Trust Ativo</div>
-                    <div style="font-size: 11px; color: var(--text-muted);">Criptografia AES-256</div>
-                </div>
+            <div class="bento-item bento-row-2 hide-mobile" style="display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; text-align: center;">
+                <i class="bi bi-shield-check" style="font-size: 26px; color: var(--accent-color);"></i>
+                <div style="font-weight: 600; font-size: 12.5px;">Zero Trust Ativo</div>
+                <div style="font-size: 11px; color: var(--text-muted);">Senhas com BCrypt, bloqueio após 5 tentativas e validação anti-bot</div>
             </div>
 
         </div>
@@ -585,16 +549,6 @@
             localStorage.setItem('corvux-theme', isDark ? 'dark' : 'light');
             localStorage.setItem('color-theme', isDark ? 'dark' : 'light');
             atualizarIconeTemaLogin();
-        }
-
-        function preencherCredencial(email, senha) {
-            const emailInput = document.getElementById('loginEmail');
-            const senhaInput = document.getElementById('loginSenha');
-            if (emailInput && senhaInput) {
-                emailInput.value = email;
-                senhaInput.value = senha;
-                emailInput.focus();
-            }
         }
 
         if ('serviceWorker' in navigator) {

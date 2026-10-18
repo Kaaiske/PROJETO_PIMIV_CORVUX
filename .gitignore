@@ -28,3 +28,7 @@ Thumbs.db
 .venv/
 _temp/
 .docx_extract/
+
+# Logs
+CorvusIAM/Logs/
+*.txt

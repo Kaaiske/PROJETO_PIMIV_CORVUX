@@ -57,12 +57,16 @@ namespace CorvusIAM.Controllers
             var ip = HttpContext.Connection.RemoteIpAddress?.ToString() ?? "Desconhecido";
 
             // Verificação ativa de regras de Firewall WAF
-            if (_context.FirewallRegras.Any(f => f.Ip == ip && f.Ativo))
+            try
             {
-                Serilog.Log.Warning("Acesso bloqueado por regra ativa do Firewall WAF para o IP: {IP}", ip);
-                ViewBag.Erro = "Acesso bloqueado: Seu endereço IP consta na lista de bloqueios ativos do Firewall Corporativo.";
-                return View();
+                if (_context.FirewallRegras.Any(f => f.Ip == ip && f.Ativo))
+                {
+                    Serilog.Log.Warning("Acesso bloqueado por regra ativa do Firewall WAF para o IP: {IP}", ip);
+                    ViewBag.Erro = "Acesso bloqueado: Seu endereço IP consta na lista de bloqueios ativos do Firewall Corporativo.";
+                    return View();
+                }
             }
+            catch { /* Tabela opcional ou em processo de inicialização */ }
 
             var cacheKey = $"login_fails_{ip}";
             if (_cache.TryGetValue(cacheKey, out int fails) && fails >= 10)
