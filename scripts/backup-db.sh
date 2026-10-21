@@ -22,7 +22,7 @@ echo " Arquivo: CorvusIAMDb_${TIMESTAMP}.bak"
 echo "=================================================="
 
 # 1. Executa o backup com compressão no SQL Server via docker exec
-docker compose exec -T sqlserver /opt/mssql-tools18/bin/sqlcmd -C -S localhost -U sa -P "${SQL_SA_PASSWORD:-CorvuxAdmin@2026!}" -Q "
+docker compose exec -T sqlserver /opt/mssql-tools18/bin/sqlcmd -C -S localhost -U sa -P "${SQL_SA_PASSWORD:?Variavel SQL_SA_PASSWORD obrigatoria}" -Q "
 BACKUP DATABASE [CorvusIAMDb] 
 TO DISK = N'${BACKUP_FILE_CONTAINER}' 
 WITH NOFORMAT, NOINIT, 
@@ -32,7 +32,7 @@ SKIP, NOREWIND, NOUNLOAD, COMPRESSION, STATS = 10;
 
 # 2. Valida a integridade do arquivo gerado
 echo "[CorvuxIAM] Validando integridade física do backup gerado..."
-docker compose exec -T sqlserver /opt/mssql-tools18/bin/sqlcmd -C -S localhost -U sa -P "${SQL_SA_PASSWORD:-CorvuxAdmin@2026!}" -Q "
+docker compose exec -T sqlserver /opt/mssql-tools18/bin/sqlcmd -C -S localhost -U sa -P "${SQL_SA_PASSWORD:?Variavel SQL_SA_PASSWORD obrigatoria}" -Q "
 RESTORE VERIFYONLY FROM DISK = N'${BACKUP_FILE_CONTAINER}';
 "
 

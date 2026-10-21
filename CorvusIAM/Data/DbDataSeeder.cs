@@ -531,7 +531,7 @@ namespace CorvusIAM.Data
                 }
             }
 
-            EnsureConfig("API_GATEWAY_TOKEN", "corvux_sec_live_9f83a218d47b0192e");
+            EnsureConfig("API_GATEWAY_TOKEN", Environment.GetEnvironmentVariable("API_GATEWAY_TOKEN") ?? ("corvux_gw_" + Guid.NewGuid().ToString("N")));
             EnsureConfig("LOCKDOWN_MODE", "false");
             EnsureConfig("SESSION_TIMEOUT_MINUTES", "30");
             EnsureConfig("JWT_EXPIRATION_HOURS", "8");

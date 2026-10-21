@@ -77,7 +77,7 @@
     </div>
     <div class="flex items-center gap-2">
         <div class="font-mono text-[11px] bg-white dark:bg-dark-card border border-gray-200 dark:border-dark-border px-2.5 py-1 rounded text-gray-700 dark:text-gray-300 select-all truncate">
-            corvux_sec_live_9f83a218d47b0192e
+            corvux_sec_SUA_CHAVE_API_AQUI
         </div>
         <button onclick="copiarTokenInbound()" class="px-2.5 py-1 bg-brand-600 hover:bg-brand-700 text-white rounded text-xs transition-colors cursor-pointer shrink-0 flex items-center gap-1" title="Copiar Token">
             <i class="ph ph-copy"></i> Copiar
@@ -356,12 +356,12 @@
         </div>
         <pre class="bg-[#090A0C] text-brand-300 p-4 rounded-b-lg font-mono text-xs overflow-x-auto leading-relaxed border border-gray-800 border-t-0"><code id="apiCodeDisplay"># 1. Buscar lista de colaboradores via REST
 curl -X GET "https://corvuxiam.tech/api/v1/users" \
-  -H "X-API-Key: corvux_sec_live_9f83a218d47b0192e" \
+  -H "X-API-Key: corvux_sec_SUA_CHAVE_API_AQUI" \
   -H "Accept: application/json"
 
 # 2. Provisionar novo colaborador a partir de ERP
 curl -X POST "https://corvuxiam.tech/api/v1/users" \
-  -H "X-API-Key: corvux_sec_live_9f83a218d47b0192e" \
+  -H "X-API-Key: corvux_sec_SUA_CHAVE_API_AQUI" \
   -H "Content-Type: application/json" \
   -d '{"nome":"Alice Silva","email":"alice@empresa.com","cargo":"Engenheira DevOps","perfilId":3}'</code></pre>
     </div>
@@ -616,7 +616,7 @@ curl -X POST "https://corvuxiam.tech/api/v1/users" \
         }
 
         function copiarTokenInbound() {
-            navigator.clipboard.writeText('corvux_sec_live_9f83a218d47b0192e');
+            navigator.clipboard.writeText('corvux_sec_SUA_CHAVE_API_AQUI');
             Swal.fire({
                 title: 'Token Copiado!',
                 text: 'A chave da API CorvuxIAM foi copiada para sua área de transferência.',
@@ -633,9 +633,9 @@ curl -X POST "https://corvuxiam.tech/api/v1/users" \
                 html: `
                     <div class="text-left text-xs text-gray-300 space-y-2">
                         <p>Utilize esta chave para fazer requisições seguras a partir de outros softwares:</p>
-                        <div class="p-2 bg-black rounded font-mono text-emerald-400 select-all">corvux_sec_live_9f83a218d47b0192e</div>
+                        <div class="p-2 bg-black rounded font-mono text-emerald-400 select-all">corvux_sec_SUA_CHAVE_API_AQUI</div>
                         <p class="text-gray-400"><b>Exemplo cURL:</b></p>
-                        <pre class="p-2 bg-black rounded font-mono text-gray-300 overflow-x-auto">curl -H "Authorization: Bearer corvux_sec_live_9f83a218d47b0192e" \\
+                        <pre class="p-2 bg-black rounded font-mono text-gray-300 overflow-x-auto">curl -H "Authorization: Bearer corvux_sec_SUA_CHAVE_API_AQUI" \\
 https://corvuxiam.tech/api/v1/users</pre>
                     </div>
                 `,
@@ -647,12 +647,12 @@ https://corvuxiam.tech/api/v1/users</pre>
                 title: "Snippet: Requisição HTTP cURL",
                 code: `# 1. Buscar lista de colaboradores via REST
 curl -X GET "https://corvuxiam.tech/api/v1/users" \\
-  -H "X-API-Key: corvux_sec_live_9f83a218d47b0192e" \\
+  -H "X-API-Key: corvux_sec_SUA_CHAVE_API_AQUI" \\
   -H "Accept: application/json"
 
 # 2. Provisionar novo colaborador a partir de ERP
 curl -X POST "https://corvuxiam.tech/api/v1/users" \\
-  -H "X-API-Key: corvux_sec_live_9f83a218d47b0192e" \\
+  -H "X-API-Key: corvux_sec_SUA_CHAVE_API_AQUI" \\
   -H "Content-Type: application/json" \\
   -d '{"nome":"Alice Silva","email":"alice@empresa.com","cargo":"Engenheira DevOps","perfilId":3}'`
             },
@@ -662,7 +662,7 @@ curl -X POST "https://corvuxiam.tech/api/v1/users" \\
 
 API_URL = "https://corvuxiam.tech/api/v1/users"
 HEADERS = {
-    "X-API-Key": "corvux_sec_live_9f83a218d47b0192e",
+    "X-API-Key": "corvux_sec_SUA_CHAVE_API_AQUI",
     "Content-Type": "application/json"
 }
 
@@ -687,7 +687,7 @@ print("Criado:", post_res.json())`
 const res = await fetch('https://corvuxiam.tech/api/v1/users', {
   method: 'GET',
   headers: {
-    'X-API-Key': 'corvux_sec_live_9f83a218d47b0192e',
+    'X-API-Key': 'corvux_sec_SUA_CHAVE_API_AQUI',
     'Accept': 'application/json'
   }
 });
@@ -698,7 +698,7 @@ console.log('Colaboradores:', usuarios);
 const novo = await fetch('https://corvuxiam.tech/api/v1/users', {
   method: 'POST',
   headers: {
-    'X-API-Key': 'corvux_sec_live_9f83a218d47b0192e',
+    'X-API-Key': 'corvux_sec_SUA_CHAVE_API_AQUI',
     'Content-Type': 'application/json'
   },
   body: JSON.stringify({
@@ -717,7 +717,7 @@ console.log('Resultado do provisionamento:', resultado);`
 
 using var client = new HttpClient();
 client.BaseAddress = new Uri("https://corvuxiam.tech");
-client.DefaultRequestHeaders.Add("X-API-Key", "corvux_sec_live_9f83a218d47b0192e");
+client.DefaultRequestHeaders.Add("X-API-Key", "corvux_sec_SUA_CHAVE_API_AQUI");
 
 // 1. Buscar colaboradores
 var usuarios = await client.GetFromJsonAsync<List<UsuarioDTO>>("/api/v1/users");

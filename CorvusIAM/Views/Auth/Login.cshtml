@@ -1,10 +1,10 @@
 @inject Microsoft.Extensions.Configuration.IConfiguration Configuration
 @{
     Layout = null;
-    var configuredKey = Configuration["Turnstile:SiteKey"];
+    var configuredKey = Configuration["Turnstile:SiteKey"] ?? Configuration["TURNSTILE_SITEKEY"];
     var turnstileSiteKey = !string.IsNullOrWhiteSpace(configuredKey)
         ? configuredKey
-        : "0x4AAAAAAFXK5J9F5V8zblrT";
+        : (Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") == "Development" ? "1x00000000000000000000AA" : "");
 }
 <!DOCTYPE html>
 <html lang="pt-BR">

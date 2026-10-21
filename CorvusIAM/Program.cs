@@ -18,6 +18,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Configure Serilog
 Log.Logger = new LoggerConfiguration()
+    .Enrich.With<CorvusIAM.Infrastructure.Logging.SerilogMaskingEnricher>()
     .WriteTo.Console()
     .WriteTo.File("Logs/corvusiam-.txt", rollingInterval: RollingInterval.Day)
     .CreateLogger();
@@ -93,15 +94,24 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowCorvuxDomain", policy =>
     {
-        policy.WithOrigins(
-            "https://corvuxiam.tech",
-            "http://corvuxiam.tech",
-            "http://localhost:5052",
-            "https://localhost:7052",
-            "http://localhost:8080")
-            .AllowAnyHeader()
-            .AllowAnyMethod()
-            .AllowCredentials();
+        if (builder.Environment.IsDevelopment())
+        {
+            policy.WithOrigins(
+                "https://corvuxiam.tech",
+                "http://localhost:5052",
+                "https://localhost:7052",
+                "http://localhost:8080")
+                .AllowAnyHeader()
+                .AllowAnyMethod()
+                .AllowCredentials();
+        }
+        else
+        {
+            policy.WithOrigins("https://corvuxiam.tech")
+                .AllowAnyHeader()
+                .AllowAnyMethod()
+                .AllowCredentials();
+        }
     });
 });
 
@@ -122,13 +132,16 @@ builder.Services.AddControllersWithViews(options =>
 
 builder.Services.AddRateLimiter(options =>
 {
-    options.AddFixedWindowLimiter("LoginPolicy", opt =>
-    {
-        opt.PermitLimit = 5;
-        opt.Window = TimeSpan.FromMinutes(1);
-        opt.QueueProcessingOrder = System.Threading.RateLimiting.QueueProcessingOrder.OldestFirst;
-        opt.QueueLimit = 0;
-    });
+    options.AddPolicy("LoginPolicy", httpContext =>
+        RateLimitPartition.GetFixedWindowLimiter(
+            partitionKey: httpContext.Connection.RemoteIpAddress?.ToString() ?? "anonymous",
+            factory: partition => new FixedWindowRateLimiterOptions
+            {
+                PermitLimit = 5,
+                Window = TimeSpan.FromMinutes(1),
+                QueueProcessingOrder = QueueProcessingOrder.OldestFirst,
+                QueueLimit = 0
+            }));
     options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
 });
 
@@ -240,8 +253,18 @@ builder.Services.AddHealthChecks();
 var keyStr = builder.Configuration["Jwt:Key"];
 if (string.IsNullOrEmpty(keyStr)) {
     keyStr = builder.Configuration["JWT_KEY"] 
-             ?? builder.Configuration["Jwt__Key"]
-             ?? "CorvuxIAM_SegurancaCorporativa_JWT_Secret_Key_2026_Producao!";
+             ?? builder.Configuration["Jwt__Key"];
+}
+if (string.IsNullOrEmpty(keyStr))
+{
+    if (builder.Environment.IsDevelopment())
+    {
+        keyStr = "CorvuxIAM_SegurancaCorporativa_JWT_Secret_Key_2026_DevLocal!";
+    }
+    else
+    {
+        throw new InvalidOperationException("Falha Crítica de Segurança: Variável de ambiente JWT_KEY não configurada em Produção.");
+    }
 }
 var key = Encoding.ASCII.GetBytes(keyStr);
 
@@ -305,6 +328,10 @@ var forwardedHeadersOptions = new ForwardedHeadersOptions
 };
 forwardedHeadersOptions.KnownNetworks.Clear();
 forwardedHeadersOptions.KnownProxies.Clear();
+forwardedHeadersOptions.KnownNetworks.Add(new Microsoft.AspNetCore.HttpOverrides.IPNetwork(System.Net.IPAddress.Loopback, 8));
+forwardedHeadersOptions.KnownNetworks.Add(new Microsoft.AspNetCore.HttpOverrides.IPNetwork(System.Net.IPAddress.IPv6Loopback, 128));
+forwardedHeadersOptions.KnownNetworks.Add(new Microsoft.AspNetCore.HttpOverrides.IPNetwork(System.Net.IPAddress.Parse("172.16.0.0"), 12));
+forwardedHeadersOptions.KnownNetworks.Add(new Microsoft.AspNetCore.HttpOverrides.IPNetwork(System.Net.IPAddress.Parse("10.0.0.0"), 8));
 app.UseForwardedHeaders(forwardedHeadersOptions);
 
 using (var scope = app.Services.CreateScope())
@@ -458,6 +485,54 @@ using (var scope = app.Services.CreateScope())
                         ");
 
                         context.Database.ExecuteSqlRaw("EXEC sp_ManutencaoSegurancaIAM;");
+                        context.Database.ExecuteSqlRaw(@"
+                            CREATE OR ALTER PROCEDURE sp_AnonimizarTitularLGPD
+                                @UsuarioId INT,
+                                @AdminId INT = NULL
+                            AS
+                            BEGIN
+                                SET NOCOUNT ON;
+                                BEGIN TRANSACTION;
+                                BEGIN TRY
+                                    UPDATE Usuarios
+                                    SET Nome = CONCAT('Titular Anonimizado #', Id),
+                                        Email = CONCAT('anonimizado_', Id, '@lgpd.corvuxiam.tech'),
+                                        CPF = '000.000.000-00',
+                                        RG = 'ANONIMIZADO',
+                                        Telefone = '00000000000',
+                                        Endereco = 'DADOS_ANONIMIZADOS_LGPD',
+                                        MfaSecretKey = '',
+                                        RefreshToken = '',
+                                        RefreshTokenExpiracao = NULL,
+                                        ResetSenhaToken = '',
+                                        ResetSenhaExpiracao = NULL,
+                                        Ativo = 0
+                                    WHERE Id = @UsuarioId;
+
+                                    INSERT INTO LogsAuditoria (UsuarioId, DataHora, Acao, Detalhe, Tipo, Origem)
+                                    VALUES (@AdminId, GETUTCDATE(), 'Anonimização de Titular (LGPD Art. 18)', CONCAT('Direito ao esquecimento aplicado ao Usuário ID ', @UsuarioId, ' em estrita conformidade com a LGPD.'), 'Warning', 'Stored Procedure [sp_AnonimizarTitularLGPD]');
+
+                                    COMMIT TRANSACTION;
+                                END TRY
+                                BEGIN CATCH
+                                    IF @@TRANCOUNT > 0 ROLLBACK TRANSACTION;
+                                    THROW;
+                                END CATCH;
+                            END;
+                        ");
+
+                        context.Database.ExecuteSqlRaw(@"
+                            CREATE OR ALTER TRIGGER trg_ProtegerLogsImutaveis
+                            ON LogsAuditoria
+                            INSTEAD OF UPDATE, DELETE
+                            AS
+                            BEGIN
+                                SET NOCOUNT ON;
+                                RAISERROR('Violação de Governança: Os registros da tabela LogsAuditoria são estritamente imutáveis para conformidade SOX e LGPD.', 16, 1);
+                                ROLLBACK TRANSACTION;
+                            END;
+                        ");
+
 
                         // Assegura criação/atualização dos Triggers (PIM IV)
                         context.Database.ExecuteSqlRaw(@"
@@ -549,17 +624,20 @@ if (!app.Environment.IsDevelopment())
     app.UseHsts();
 }
 
-app.UseSwagger();
-app.UseSwaggerUI(c =>
+if (app.Environment.IsDevelopment())
 {
-    c.SwaggerEndpoint("/swagger/v1/swagger.json", "CorvusIAM Enterprise API v1.0");
-    c.RoutePrefix = "swagger";
-    c.DocumentTitle = "CorvusIAM — Enterprise API & Security Specification";
-    c.InjectStylesheet("/css/swagger-dark.css");
-    c.DisplayRequestDuration();
-    c.EnableFilter();
-    c.DocExpansion(Swashbuckle.AspNetCore.SwaggerUI.DocExpansion.List);
-});
+    app.UseSwagger();
+    app.UseSwaggerUI(c =>
+    {
+        c.SwaggerEndpoint("/swagger/v1/swagger.json", "CorvusIAM Enterprise API v1.0");
+        c.RoutePrefix = "swagger";
+        c.DocumentTitle = "CorvusIAM — Enterprise API & Security Specification";
+        c.InjectStylesheet("/css/swagger-dark.css");
+        c.DisplayRequestDuration();
+        c.EnableFilter();
+        c.DocExpansion(Swashbuckle.AspNetCore.SwaggerUI.DocExpansion.List);
+    });
+}
 
 app.UseHttpsRedirection();
 var staticFileContentTypeProvider = new Microsoft.AspNetCore.StaticFiles.FileExtensionContentTypeProvider();
@@ -584,7 +662,7 @@ app.MapControllerRoute(
     pattern: "{controller=Auth}/{action=Login}/{id?}");
 
 app.MapHealthChecks("/health");
-app.MapMetrics();
+app.MapMetrics().RequireAuthorization("RequireAdmin");
 
 app.Run();
 public partial class Program { }

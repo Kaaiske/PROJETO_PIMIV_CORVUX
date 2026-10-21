@@ -109,6 +109,7 @@ document.getElementById('chamado-form').addEventListener('submit', async event =
     descricao: document.getElementById('descricao').value, 
     categoria: catEl ? catEl.value : 'Acesso',
     prioridade: prioEl ? prioEl.value : 'Normal',
+    clientIdempotencyKey: (window.crypto && crypto.randomUUID) ? crypto.randomUUID() : ('idmp-' + Date.now() + '-' + Math.random().toString(36).substring(2, 9)),
     timestamp: new Date().toISOString() 
   };
   
@@ -126,7 +127,7 @@ document.getElementById('chamado-form').addEventListener('submit', async event =
   try {
       const resposta = await fetch(api, { 
           method:'POST', 
-          headers:{'Content-Type':'application/json'}, 
+          headers:{'Content-Type':'application/json','X-Idempotency-Key':payload.clientIdempotencyKey}, 
           body:JSON.stringify(payload) 
       });
       
@@ -173,7 +174,7 @@ async function syncData() {
             try {
                 const resposta = await fetch(api, {
                     method: 'POST',
-                    headers:{'Content-Type':'application/json'},
+                    headers:{'Content-Type':'application/json','X-Idempotency-Key':payload.clientIdempotencyKey},
                     body: JSON.stringify(c)
                 });
                 

@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Linq;
 using CorvusIAM.Data;
@@ -18,6 +18,7 @@ namespace CorvusIAM.Controllers.Api
     /// </summary>
     [Authorize]
     [ApiController]
+    [IgnoreAntiforgeryToken]
     [Route("api/[controller]")]
     [Tags("Service Desk & Chamados")]
     public class ChamadosController : ControllerBase

@@ -1,34 +1,57 @@
+using System;
 using System.Collections.Generic;
 using System.Net.Http;
 using System.Text.Json;
 using System.Threading.Tasks;
 using CorvusIAM.Interfaces;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Hosting;
 
 namespace CorvusIAM.Services
 {
     public class TurnstileService : ITurnstileService
     {
         private readonly HttpClient _httpClient;
+        private readonly IWebHostEnvironment _environment;
         private readonly string _secretKey;
 
-        public TurnstileService(HttpClient httpClient, IConfiguration configuration)
+        public TurnstileService(HttpClient httpClient, IConfiguration configuration, IWebHostEnvironment environment)
         {
             _httpClient = httpClient;
+            _environment = environment;
             _secretKey = configuration["Turnstile:SecretKey"] 
-                ?? "0x4AAAAAAFXK5H5jTPKYIrdR2p0kwwYhL1Y";
+                ?? configuration["TURNSTILE_SECRETKEY"] 
+                ?? string.Empty;
         }
 
         public async Task<bool> VerifyTokenAsync(string token, string? remoteIp = null)
         {
-            // Em ambiente com chaves de teste Cloudflare (1x, 2x, 3x) ou sem token exigido, aprova
-            if (string.IsNullOrEmpty(token) || 
-                string.IsNullOrWhiteSpace(_secretKey) ||
-                _secretKey.StartsWith("1x") ||
-                _secretKey.StartsWith("2x") ||
-                _secretKey.StartsWith("3x"))
+            // Em ambiente de Desenvolvimento/Testes com chaves Cloudflare de teste (1x, 2x, 3x) ou sem token
+            if (_environment.IsDevelopment())
             {
-                return true;
+                if (string.IsNullOrEmpty(token) || 
+                    string.IsNullOrWhiteSpace(_secretKey) ||
+                    _secretKey.StartsWith("1x") ||
+                    _secretKey.StartsWith("2x") ||
+                    _secretKey.StartsWith("3x"))
+                {
+                    Serilog.Log.Information("Cloudflare Turnstile em modo de desenvolvimento (Bypass de teste autorizado).");
+                    return true;
+                }
+            }
+
+            // Em Produção: falha segura (Fail-Closed)
+            if (string.IsNullOrWhiteSpace(token))
+            {
+                Serilog.Log.Warning("Tentativa de validação Turnstile com token vazio ou ausente.");
+                return false;
+            }
+
+            if (string.IsNullOrWhiteSpace(_secretKey))
+            {
+                Serilog.Log.Error("Cloudflare Turnstile SecretKey não configurada em ambiente de produção!");
+                return false;
             }
 
             try
@@ -56,16 +79,19 @@ namespace CorvusIAM.Services
                         return successProp.GetBoolean();
                     }
                 }
+                else
+                {
+                    Serilog.Log.Warning("Falha na chamada Turnstile. Status Code: {StatusCode}", response.StatusCode);
+                }
             }
-            catch (System.Exception ex)
+            catch (Exception ex)
             {
-                Serilog.Log.Error(ex, "Erro de comunicação ao validar Cloudflare Turnstile");
-                // Resiliência de infraestrutura: não derrubar login se Cloudflare estiver temporariamente inacessível
-                return true;
+                Serilog.Log.Error(ex, "Erro de comunicação ao validar Cloudflare Turnstile. Falha segura aplicada.");
+                // Fail-Closed: Em produção, falha de comunicação bloqueia requisição não verificada
+                return false;
             }
 
             return false;
         }
     }
 }
-

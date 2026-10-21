@@ -10,13 +10,13 @@ services:
       - ASPNETCORE_ENVIRONMENT=Production
       - ASPNETCORE_HTTP_PORTS=8080
       - ASPNETCORE_URLS=http://+:8080
-      - "ConnectionStrings__SqlServerConnection=Server=sqlserver;Database=CorvusIAMDb;User Id=sa;Password=${SQL_SA_PASSWORD:-CorvusAdmin@2026!};TrustServerCertificate=True;"
+      - "ConnectionStrings__SqlServerConnection=Server=sqlserver;Database=CorvusIAMDb;User Id=sa;Password=${SQL_SA_PASSWORD:?Variavel de ambiente SQL_SA_PASSWORD obrigatoria};TrustServerCertificate=True;"
       - DatabaseProvider=SqlServer
-      - "Jwt__Key=${JWT_KEY:-CorvuxIAM_SegurancaCorporativa_JWT_Secret_Key_2026_Producao!}"
+      - "Jwt__Key=${JWT_KEY:?Variavel de ambiente JWT_KEY obrigatoria}"
       - Jwt__Issuer=CorvusIAM
       - Jwt__Audience=CorvusIAMUsers
-      - "Turnstile__SiteKey=${TURNSTILE_SITEKEY:-0x4AAAAAAFXK5J9F5V8zblrT}"
-      - "Turnstile__SecretKey=${TURNSTILE_SECRETKEY:-0x4AAAAAAFXK5H5jTPKYIrdR2p0kwwYhL1Y}"
+      - "Turnstile__SiteKey=${TURNSTILE_SITEKEY:-}"
+      - "Turnstile__SecretKey=${TURNSTILE_SECRETKEY:-}"
     restart: unless-stopped
     depends_on:
       sqlserver:
@@ -26,14 +26,9 @@ services:
 
   sqlserver:
     image: mcr.microsoft.com/mssql/server:2022-latest
-    user: root
-    ports:
-      # Blindagem de Rede: Porta restrita exclusivamente ao loopback local (127.0.0.1)
-      # Bloqueia qualquer tentativa de escaneamento externo ou forca bruta via Internet
-      - "127.0.0.1:1433:1433"
     environment:
       - ACCEPT_EULA=Y
-      - "SA_PASSWORD=${SQL_SA_PASSWORD:-CorvusAdmin@2026!}"
+      - "SA_PASSWORD=${SQL_SA_PASSWORD:?Variavel de ambiente SQL_SA_PASSWORD obrigatoria}"
     volumes:
       - sqlserver_data:/var/opt/mssql/data
       - ./backups:/var/opt/mssql/backup

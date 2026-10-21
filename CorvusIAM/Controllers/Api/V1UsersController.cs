@@ -1,5 +1,7 @@
-﻿using System;
+using System;
 using System.Linq;
+using System.Security.Cryptography;
+using System.Text;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -45,9 +47,14 @@ namespace CorvusIAM.Controllers.Api
             if (!string.IsNullOrEmpty(token))
             {
                 var expected = _context.ConfiguracoesSistema.FirstOrDefault(c => c.Chave == "API_GATEWAY_TOKEN")?.Valor;
-                if (!string.IsNullOrEmpty(expected) && token == expected)
+                if (!string.IsNullOrEmpty(expected))
                 {
-                    return true;
+                    var tokenBytes = Encoding.UTF8.GetBytes(token);
+                    var expectedBytes = Encoding.UTF8.GetBytes(expected);
+                    if (CryptographicOperations.FixedTimeEquals(tokenBytes, expectedBytes))
+                    {
+                        return true;
+                    }
                 }
             }
 

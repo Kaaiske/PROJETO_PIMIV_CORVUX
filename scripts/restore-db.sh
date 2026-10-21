@@ -38,7 +38,7 @@ fi
 
 # 1. Coloca o banco em SINGLE_USER para encerrar conexões ativas
 echo "[CorvuxIAM] Finalizando conexões ativas no banco de dados..."
-docker compose exec -T sqlserver /opt/mssql-tools18/bin/sqlcmd -C -S localhost -U sa -P "${SQL_SA_PASSWORD:-CorvuxAdmin@2026!}" -Q "
+docker compose exec -T sqlserver /opt/mssql-tools18/bin/sqlcmd -C -S localhost -U sa -P "${SQL_SA_PASSWORD:?Variavel SQL_SA_PASSWORD obrigatoria}" -Q "
 IF EXISTS (SELECT name FROM sys.databases WHERE name = N'CorvusIAMDb')
 BEGIN
     ALTER DATABASE [CorvusIAMDb] SET SINGLE_USER WITH ROLLBACK IMMEDIATE;
@@ -47,7 +47,7 @@ END
 
 # 2. Executa a restauração completa com substituição (REPLACE)
 echo "[CorvuxIAM] Restaurando banco de dados a partir do arquivo de backup..."
-docker compose exec -T sqlserver /opt/mssql-tools18/bin/sqlcmd -C -S localhost -U sa -P "${SQL_SA_PASSWORD:-CorvuxAdmin@2026!}" -Q "
+docker compose exec -T sqlserver /opt/mssql-tools18/bin/sqlcmd -C -S localhost -U sa -P "${SQL_SA_PASSWORD:?Variavel SQL_SA_PASSWORD obrigatoria}" -Q "
 RESTORE DATABASE [CorvusIAMDb] 
 FROM DISK = N'${CONTAINER_BAK_FILE}' 
 WITH REPLACE, STATS = 10;
@@ -55,7 +55,7 @@ WITH REPLACE, STATS = 10;
 
 # 3. Retorna o banco para MULTI_USER
 echo "[CorvuxIAM] Reativando modo multiusuário..."
-docker compose exec -T sqlserver /opt/mssql-tools18/bin/sqlcmd -C -S localhost -U sa -P "${SQL_SA_PASSWORD:-CorvuxAdmin@2026!}" -Q "
+docker compose exec -T sqlserver /opt/mssql-tools18/bin/sqlcmd -C -S localhost -U sa -P "${SQL_SA_PASSWORD:?Variavel SQL_SA_PASSWORD obrigatoria}" -Q "
 ALTER DATABASE [CorvusIAMDb] SET MULTI_USER;
 "
 
