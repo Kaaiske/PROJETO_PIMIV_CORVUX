@@ -30,3 +30,4 @@ namespace CorvusIAM.Infrastructure.Logging
         }
     }
 }
+
