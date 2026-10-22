@@ -31,6 +31,7 @@ services:
 
   sqlserver:
     image: mcr.microsoft.com/mssql/server:2022-latest
+    user: root
     environment:
       - ACCEPT_EULA=Y
       - "SA_PASSWORD=${SQL_SA_PASSWORD:?Variavel de ambiente SQL_SA_PASSWORD obrigatoria}"
