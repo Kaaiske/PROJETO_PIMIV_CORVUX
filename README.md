@@ -35,12 +35,12 @@
 
 ## 📖 Visão Geral da Plataforma
 
-O **CorvuxIAM** é um ecossistema corporativo completo de **Gestão de Identidades e Acessos (IAM - Identity & Access Management)** integrado a um **Centro de Operações de Segurança (SecOps)** com motor **IDS (Intrusion Detection System)** ativo em tempo real, **Firewall de Endpoints**, **DevOps Cloud Telemetry**, automação de **RH & Contabilidade**, **Aplicativo Móvel Nativo (React Native)** e **PWA Offline-First**.
+O **CorvuxIAM** é um ecossistema corporativo completo de **Gestão de Identidades e Acessos (IAM - Identity & Access Management)** integrado a um **Centro de Operações de Segurança (SecOps)** com motor **IDS / WAF L7** ativo em tempo real, **Firewall de Endpoints**, **DevOps Cloud Telemetry**, automação de **RH & Contabilidade**, **Aplicativo Móvel Nativo (React Native)** e **PWA Offline-First**.
 
 ### Desafios Corporativos Mitigados:
 1. **Dispersão e Vazamento de Credenciais:** Centralização do ciclo de vida dos colaboradores com autenticação multifator (MFA/TOTP RFC 6238) e verificação proativa de senhas vazadas em vazamentos mundiais (HaveIBeenPwned).
 2. **Privilégios Excessivos e Violações de Conformidade:** Implementação do modelo de menor privilégio (*Least Privilege*) e controle de acesso baseado em funções corporativas (**RBAC - Role-Based Access Control**).
-3. **Invasões e Exploração de Vulnerabilidades Web:** Arquitetura de Defesa em Profundidade com motor de **IDS com Deep Packet Inspection (DPI)** e consultas 100% parametrizadas via Entity Framework Core, blindando a aplicação contra SQL Injection, XSS, Path Traversal e força bruta.
+3. **Invasões e Exploração de Vulnerabilidades Web:** Arquitetura de Defesa em Profundidade com motor de **Inspeção de Aplicação L7 (WAF/IDS)** e consultas 100% parametrizadas via Entity Framework Core, blindando a aplicação contra SQL Injection, XSS, Path Traversal e força bruta.
 4. **Falta de Visibilidade em Endpoints:** Telemetria em tempo real de computadores corporativos (CPU, RAM, Disco, Patches, Antivírus/EDR) com monitoramento das conexões de rede ativas de cada colaborador e bloqueio direto de destinos perigosos no firewall.
 5. **Indisponibilidade em Campo:** Aplicativo corporativo mobile e PWA com fila de sincronização em banco local IndexedDB para operação contínua em áreas sem sinal de internet.
 6. **Conformidade Legal & Rastreabilidade:** Trilha de auditoria imutável com Triggers SQL Server e Stored Procedures que garantem o direito ao esquecimento da LGPD via *Soft Delete* com anonimização criptográfica irreversível.
@@ -130,7 +130,7 @@ Camada 1: Cloudflare Edge (WAF, SSL TLS 1.3, DDoS Shield, Turnstile Anti-Bot)
     ▼
 Camada 2: Rate Limiting por IP (Política 'LoginPolicy': máx 5 tentativas/minuto)
     ▼
-Camada 3: Motor IDS com Deep Packet Inspection (DPI em tempo real com auto-bloqueio)
+Camada 3: Motor IDS / WAF L7 (Inspeção de aplicação em tempo real com auto-bloqueio)
     ▼
 Camada 4: Blindagem SQL Parametrizada no EF Core (Consultas estritamente parametrizadas)
     ▼
@@ -150,7 +150,7 @@ Camada 9: Anonimização LGPD no Soft Delete (Direito ao esquecimento com deleç
 #### 1. Autenticação Robusta & MFA
 * **Armazenamento Seguro de Senhas:** Hashing com **BCrypt.Net-Next** (fator de custo 11/12 com salt criptográfico aleatório por usuário).
 * **Prevenção a Senhas Vazadas:** Integração com a API do **HaveIBeenPwned** utilizando k-Anonymity (apenas os 5 primeiros caracteres do hash SHA-1 são transmitidos, preservando o sigilo absoluto da senha).
-* **Segundo Fator (MFA/TOTP):** Implementação do padrão RFC 6238 compatível com Google Authenticator e Microsoft Authenticator, com chave secreta por colaborador e validação no servidor.
+* **Segundo Fator (MFA/TOTP):** Implementação do padrão RFC 6238 compatível com Google Authenticator e Microsoft Authenticator, com chave secreta por colaborador e validação fail-closed no servidor.
 
 #### 2. Autorização Validada no Servidor (Zero-Trust RBAC/ABAC)
 * Nenhuma verificação de segurança é delegada exclusivamente ao frontend. Todos os endpoints administrativos e sensíveis possuem atributos declarativos:
@@ -160,12 +160,13 @@ Camada 9: Anonimização LGPD no Soft Delete (Direito ao esquecimento com deleç
   * `[Authorize(Policy = "CanManageUsers")]`: Operações de criação, edição e anonimização de colaboradores.
 * Se um usuário comum tentar invocar manualmente requisições POST para endpoints administrativos, o pipeline do ASP.NET Core intercepta a requisição e retorna `403 Forbidden`.
 
-#### 3. Motor IDS Complementar & Proteção de Banco de Dados
+#### 3. Motor IDS / WAF L7 & Proteção de Banco de Dados
 * **Por que o banco não depende do IDS:** O Entity Framework Core utiliza consultas estritamente parametrizadas (`SELECT ... WHERE Email = @p0`). Parâmetros são tratados como literais de dados pelo SQL Server, impossibilitando a alteração da árvore sintática da consulta e eliminando vulnerabilidades de SQL Injection na raiz.
-* **O papel do IDS:** O motor IDS com Deep Packet Inspection atua como sensor pró-ativo de telemetria. Ao detectar padrões conhecidos de SQLi, XSS, Path Traversal ou RCE, ele:
+* **O papel do WAF/IDS na Aplicação (Camada 7):** O motor de detecção atua na camada de aplicação inspecionando cabeçalhos, rotas e payloads HTTP. Ao detectar padrões conhecidos de SQLi, XSS, Path Traversal ou força bruta, ele:
   1. Registra o incidente imediatamente nos `LogsAuditoria` com severidade `Critico`.
   2. Adiciona o IP do atacante na tabela `FirewallRegras`, bloqueando novas requisições no WAF.
   3. Alerta a equipe de SecOps no painel em tempo real.
+*(A inspeção de pacotes brutos em camadas 3 e 4 via DPI é delegada aos appliances de borda e NGFW na topologia perimetral da rede corporativa).*
 
 #### 4. Operações Administrativas sobre Endpoints (Cloud & DevOps)
 * Funções como `ReiniciarServicoApp`, `IsolarHost`, `LiberarHost`, `RemediarEndpoint` e `BatchRemediate`:
@@ -372,6 +373,27 @@ curl -X GET "https://corvuxiam.tech/api/v1/users?page=1&pageSize=50" \
   -H "X-API-Key: SUA_API_KEY_AQUI" \
   -H "Accept: application/json"
 ```
+
+---
+
+## 💰 Economia de Nuvem e Viabilidade Financeira (VPS vs Azure Enterprise)
+
+Para demonstrar viabilidade mercadológica ao PIM IV, a solução apresenta duas arquiteturas orçamentárias:
+
+| Dimensão / Modelo | Protótipo Funcional em Produção (Startup / MVP) | Arquitetura Enterprise Corporativa (Azure Multi-Zona) |
+| :--- | :--- | :--- |
+| **Infraestrutura** | Cloud VPS Linux (Ubuntu 24.04/26.04) | Microsoft Azure App Service (P1v3) + Azure SQL Business Critical |
+| **Recursos Computacionais** | 2 a 4 vCPU, 4 a 8 GB RAM, 80-160 GB NVMe | Cluster Multi-Região com Auto-Scale e SLA 99,99% |
+| **Segurança de Borda** | Cloudflare Edge (WAF, SSL TLS 1.3, Turnstile) | Azure Application Gateway v2 com WAF nativo + Cloudflare Enterprise |
+| **Custo Estimado Mensal** | **R$ 60,00 a R$ 90,00 / mês** | **R$ 4.250,00 / mês** |
+| **Público-Alvo** | Validação operacional, PIM IV acadêmico e pilotos | Grandes corporações bancárias, hospitais e órgãos públicos |
+
+---
+
+## 🚀 Roadmap Tecnológico & Ciclo de Vida (.NET 8 LTS ➔ .NET 10 LTS)
+
+* **Baseline Tecnológico:** A plataforma foi integralmente concebida e validada sob **.NET 8.0 LTS** (Long Term Support), assegurando estabilidade, suporte estendido de segurança e compatibilidade com containers de produção.
+* **Compatibilidade e Futuro:** O código-fonte adota recursos de C# 12 e arquitetura limpa em camadas sem dependências legadas, preparando a migração planejada para a próxima versão de suporte a longo prazo (**Microsoft .NET 10.0 LTS**).
 
 ---
 

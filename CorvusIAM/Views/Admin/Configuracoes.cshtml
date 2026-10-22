@@ -18,7 +18,7 @@
             <i class="ph ph-sliders-horizontal text-brand-500"></i> Parâmetros do Sistema
         </h1>
         <p class="text-[11px] text-gray-500 dark:text-gray-400 mt-0.5 leading-relaxed max-w-3xl">
-            Esta área centraliza as políticas globais de segurança do CorvuxIAM: tempos de expiração de sessão e tokens JWT, proteção contra força bruta, blindagem de borda Cloudflare WAF/Turnstile, motores de acessibilidade assistiva (Voz Neural / VLibras) e o catálogo corporativo de cargos.
+            Esta área centraliza as políticas globais de segurança do CorvuxIAM: tempos de expiração de sessão e tokens JWT, proteção contra força bruta, blindagem de borda Cloudflare WAF/Turnstile, motores de acessibilidade assistiva (Voz Neural / VLibras) e rotinas do banco de dados.
         </p>
     </div>
     <div class="flex items-center gap-2 shrink-0">
@@ -31,11 +31,39 @@
     </div>
 </div>
 
+<!-- Abas de Navegação das Configurações -->
+<div class="flex items-center gap-1.5 overflow-x-auto pb-2 mb-3 text-[12px] border-b border-gray-200 dark:border-dark-border scrollbar-none" id="cfgTabsContainer">
+    <button type="button" onclick="filtrarAbaConfig('todas', this)" class="cfg-tab-btn px-3 py-1.5 rounded-[6px] font-medium bg-brand-600 text-white transition-colors cursor-pointer flex items-center gap-1.5 shrink-0">
+        <i class="ph ph-squares-four"></i> Todas as Seções
+    </button>
+    <button type="button" onclick="filtrarAbaConfig('iam', this)" class="cfg-tab-btn px-3 py-1.5 rounded-[6px] font-medium text-gray-600 dark:text-gray-400 hover:bg-gray-200/60 dark:hover:bg-dark-hover hover:text-gray-900 dark:hover:text-white transition-colors cursor-pointer flex items-center gap-1.5 shrink-0">
+        <i class="ph ph-fingerprint text-blue-500"></i> Identidade &amp; IAM
+    </button>
+    <button type="button" onclick="filtrarAbaConfig('seguranca', this)" class="cfg-tab-btn px-3 py-1.5 rounded-[6px] font-medium text-gray-600 dark:text-gray-400 hover:bg-gray-200/60 dark:hover:bg-dark-hover hover:text-gray-900 dark:hover:text-white transition-colors cursor-pointer flex items-center gap-1.5 shrink-0">
+        <i class="ph ph-shield-check text-emerald-500"></i> Firewall &amp; WAF
+    </button>
+    <button type="button" onclick="filtrarAbaConfig('a11y', this)" class="cfg-tab-btn px-3 py-1.5 rounded-[6px] font-medium text-gray-600 dark:text-gray-400 hover:bg-gray-200/60 dark:hover:bg-dark-hover hover:text-gray-900 dark:hover:text-white transition-colors cursor-pointer flex items-center gap-1.5 shrink-0">
+        <i class="ph ph-speaker-high text-purple-500"></i> Acessibilidade &amp; Voz
+    </button>
+    <button type="button" onclick="filtrarAbaConfig('lgpd', this)" class="cfg-tab-btn px-3 py-1.5 rounded-[6px] font-medium text-gray-600 dark:text-gray-400 hover:bg-gray-200/60 dark:hover:bg-dark-hover hover:text-gray-900 dark:hover:text-white transition-colors cursor-pointer flex items-center gap-1.5 shrink-0">
+        <i class="ph ph-scales text-amber-500"></i> Privacidade &amp; LGPD
+    </button>
+    <button type="button" onclick="filtrarAbaConfig('smtp', this)" class="cfg-tab-btn px-3 py-1.5 rounded-[6px] font-medium text-gray-600 dark:text-gray-400 hover:bg-gray-200/60 dark:hover:bg-dark-hover hover:text-gray-900 dark:hover:text-white transition-colors cursor-pointer flex items-center gap-1.5 shrink-0">
+        <i class="ph ph-envelope-simple text-indigo-500"></i> E-mail SMTP
+    </button>
+    <button type="button" onclick="filtrarAbaConfig('borda', this)" class="cfg-tab-btn px-3 py-1.5 rounded-[6px] font-medium text-gray-600 dark:text-gray-400 hover:bg-gray-200/60 dark:hover:bg-dark-hover hover:text-gray-900 dark:hover:text-white transition-colors cursor-pointer flex items-center gap-1.5 shrink-0">
+        <i class="ph ph-robot text-orange-500"></i> Cloudflare Turnstile
+    </button>
+    <button type="button" onclick="filtrarAbaConfig('db', this)" class="cfg-tab-btn px-3 py-1.5 rounded-[6px] font-medium text-gray-600 dark:text-gray-400 hover:bg-gray-200/60 dark:hover:bg-dark-hover hover:text-gray-900 dark:hover:text-white transition-colors cursor-pointer flex items-center gap-1.5 shrink-0">
+        <i class="ph ph-database text-cyan-500"></i> Banco SQL
+    </button>
+</div>
+
 <form id="formConfiguracoes" onsubmit="salvarConfiguracoes(event)">
-    <div class="grid grid-cols-1 lg:grid-cols-12 gap-3.5">
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-3.5" id="cfgCardsGrid">
 
         <!-- BENTO 1 (7 Cols): IDENTIDADE & SESSÃO -->
-        <div class="lg:col-span-7 bento-card bg-white dark:bg-dark-card border border-gray-200 dark:border-dark-border rounded-[8px] p-4 flex flex-col justify-between">
+        <div data-tab="iam" class="cfg-card lg:col-span-7 bento-card bg-white dark:bg-dark-card border border-gray-200 dark:border-dark-border rounded-[8px] p-4 flex flex-col justify-between">
             <div>
                 <div class="flex items-center justify-between mb-3 pb-2 border-b border-gray-100 dark:border-dark-border">
                     <h3 class="text-[13px] font-[600] text-gray-900 dark:text-white flex items-center gap-2">
@@ -71,7 +99,7 @@
         </div>
 
         <!-- BENTO 2 (5 Cols): ACESSIBILIDADE & VOZ (TTS / STT / VLIBRAS) -->
-        <div class="lg:col-span-5 bento-card bg-white dark:bg-dark-card border border-gray-200 dark:border-dark-border rounded-[8px] p-4 flex flex-col justify-between">
+        <div data-tab="a11y" class="cfg-card lg:col-span-5 bento-card bg-white dark:bg-dark-card border border-gray-200 dark:border-dark-border rounded-[8px] p-4 flex flex-col justify-between">
             <div class="flex items-center justify-between mb-3 pb-2 border-b border-gray-100 dark:border-dark-border">
                 <h3 class="text-[13px] font-[600] text-gray-900 dark:text-white flex items-center gap-2">
                     <i class="ph ph-speaker-high text-purple-500 text-[16px]"></i> Acessibilidade &amp; Voz
@@ -111,7 +139,7 @@
         </div>
 
         <!-- BENTO 3 (7 Cols): DEFESA CIBERNÉTICA, WAF & ZERO-TRUST -->
-        <div class="lg:col-span-7 bento-card bg-white dark:bg-dark-card border border-gray-200 dark:border-dark-border rounded-[8px] p-4">
+        <div data-tab="seguranca" class="cfg-card lg:col-span-7 bento-card bg-white dark:bg-dark-card border border-gray-200 dark:border-dark-border rounded-[8px] p-4">
             <div class="flex items-center justify-between mb-3 pb-2 border-b border-gray-100 dark:border-dark-border">
                 <h3 class="text-[13px] font-[600] text-gray-900 dark:text-white flex items-center gap-2">
                     <i class="ph ph-shield-check text-emerald-500 text-[16px]"></i> Firewall WAF &amp; Zero-Trust
@@ -151,7 +179,7 @@
         </div>
 
         <!-- BENTO 4 (5 Cols): PRIVACIDADE & LGPD -->
-        <div class="lg:col-span-5 bento-card bg-white dark:bg-dark-card border border-gray-200 dark:border-dark-border rounded-[8px] p-4">
+        <div data-tab="lgpd" class="cfg-card lg:col-span-5 bento-card bg-white dark:bg-dark-card border border-gray-200 dark:border-dark-border rounded-[8px] p-4">
             <div class="flex items-center justify-between mb-3 pb-2 border-b border-gray-100 dark:border-dark-border">
                 <h3 class="text-[13px] font-[600] text-gray-900 dark:text-white flex items-center gap-2">
                     <i class="ph ph-scales text-amber-500 text-[16px]"></i> Privacidade &amp; LGPD
@@ -165,14 +193,14 @@
                 </div>
                 <div>
                     <label class="block text-[11px] text-gray-500 dark:text-gray-400 mb-1">Cookies</label>
-                    <select data-chave="COOKIE_CONSENT_STRICT_MODE" class="cfg-input dark-select w-full bg-gray-50 dark:bg-dark-bg border border-gray-200 dark:border-dark-border text-gray-900 dark:text-gray-100 text-[11px] rounded-[6px] px-2 py-1.5 outline-none">
+                    <select data-chave="COOKIE_CONSENT_STRICT_MODE" class="cfg-input dark-select w-full bg-gray-50 dark:bg-dark-bg border border-gray-200 dark:border-dark-border text-gray-900 dark:text-gray-100 text-[11px] rounded-[6px] px-2.5 py-1.5 outline-none">
                         <option value="true" selected="@(GetVal("COOKIE_CONSENT_STRICT_MODE", "true").ToLower() == "true")">Banner Ativo</option>
                         <option value="false" selected="@(GetVal("COOKIE_CONSENT_STRICT_MODE", "true").ToLower() == "false")">Oculto</option>
                     </select>
                 </div>
                 <div>
                     <label class="block text-[11px] text-gray-500 dark:text-gray-400 mb-1">Anonimizar CSV</label>
-                    <select data-chave="AUDIT_LOG_ANONYMIZATION" class="cfg-input dark-select w-full bg-gray-50 dark:bg-dark-bg border border-gray-200 dark:border-dark-border text-gray-900 dark:text-gray-100 text-[11px] rounded-[6px] px-2 py-1.5 outline-none">
+                    <select data-chave="AUDIT_LOG_ANONYMIZATION" class="cfg-input dark-select w-full bg-gray-50 dark:bg-dark-bg border border-gray-200 dark:border-dark-border text-gray-900 dark:text-gray-100 text-[11px] rounded-[6px] px-2.5 py-1.5 outline-none">
                         <option value="true" selected="@(GetVal("AUDIT_LOG_ANONYMIZATION", "true").ToLower() == "true")">Ativo</option>
                         <option value="false" selected="@(GetVal("AUDIT_LOG_ANONYMIZATION", "true").ToLower() == "false")">Bruto</option>
                     </select>
@@ -181,7 +209,7 @@
         </div>
 
         <!-- BENTO 5 (6 Cols): SERVIDOR SMTP -->
-        <div class="lg:col-span-6 bento-card bg-white dark:bg-dark-card border border-gray-200 dark:border-dark-border rounded-[8px] p-4">
+        <div data-tab="smtp" class="cfg-card lg:col-span-6 bento-card bg-white dark:bg-dark-card border border-gray-200 dark:border-dark-border rounded-[8px] p-4">
             <h3 class="text-[13px] font-[600] text-gray-900 dark:text-white flex items-center gap-2 mb-3 pb-2 border-b border-gray-100 dark:border-dark-border">
                 <i class="ph ph-envelope-simple text-indigo-500 text-[16px]"></i> E-mail &amp; Notificações (SMTP)
             </h3>
@@ -202,7 +230,7 @@
         </div>
 
         <!-- BENTO 6 (6 Cols): CLOUDFLARE TURNSTILE -->
-        <div class="lg:col-span-6 bento-card bg-white dark:bg-dark-card border border-gray-200 dark:border-dark-border rounded-[8px] p-4">
+        <div data-tab="borda" class="cfg-card lg:col-span-6 bento-card bg-white dark:bg-dark-card border border-gray-200 dark:border-dark-border rounded-[8px] p-4">
             <h3 class="text-[13px] font-[600] text-gray-900 dark:text-white flex items-center gap-2 mb-3 pb-2 border-b border-gray-100 dark:border-dark-border">
                 <i class="ph ph-robot text-orange-500 text-[16px]"></i> Cloudflare Turnstile (Anti-Bot)
             </h3>
@@ -222,7 +250,7 @@
         </div>
 
         <!-- BENTO 7 (12 Cols Compact Bar): BANCO DE DADOS & STORED PROCEDURES -->
-        <div class="lg:col-span-12 bento-card bg-white dark:bg-dark-card border border-gray-200 dark:border-dark-border rounded-[8px] px-4 py-3">
+        <div data-tab="db" class="cfg-card lg:col-span-12 bento-card bg-white dark:bg-dark-card border border-gray-200 dark:border-dark-border rounded-[8px] px-4 py-3">
             <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
                 <div class="flex items-center gap-2.5">
                     <i class="ph ph-database text-cyan-500 text-[18px]"></i>
@@ -244,6 +272,34 @@
 
 @section Scripts {
     <script>
+        function filtrarAbaConfig(tabName, btn) {
+            // Atualiza botões
+            document.querySelectorAll('.cfg-tab-btn').forEach(b => {
+                b.className = 'cfg-tab-btn px-3 py-1.5 rounded-[6px] font-medium text-gray-600 dark:text-gray-400 hover:bg-gray-200/60 dark:hover:bg-dark-hover hover:text-gray-900 dark:hover:text-white transition-colors cursor-pointer flex items-center gap-1.5 shrink-0';
+            });
+            btn.className = 'cfg-tab-btn px-3 py-1.5 rounded-[6px] font-medium bg-brand-600 text-white transition-colors cursor-pointer flex items-center gap-1.5 shrink-0';
+
+            const cards = document.querySelectorAll('.cfg-card');
+            cards.forEach(card => {
+                const cardTab = card.getAttribute('data-tab');
+                if (tabName === 'todas' || cardTab === tabName) {
+                    card.style.display = '';
+                    if (tabName !== 'todas') {
+                        card.classList.remove('lg:col-span-7', 'lg:col-span-5', 'lg:col-span-6');
+                        card.classList.add('lg:col-span-12');
+                    } else {
+                        card.classList.remove('lg:col-span-12');
+                        if (cardTab === 'iam' || cardTab === 'seguranca') card.classList.add('lg:col-span-7');
+                        else if (cardTab === 'a11y' || cardTab === 'lgpd') card.classList.add('lg:col-span-5');
+                        else if (cardTab === 'smtp' || cardTab === 'borda') card.classList.add('lg:col-span-6');
+                        else if (cardTab === 'db') card.classList.add('lg:col-span-12');
+                    }
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+        }
+
         async function executarProcedureDb(procName) {
             try {
                 const res = await fetch('/Admin/ExecutarProcedureBanco', {

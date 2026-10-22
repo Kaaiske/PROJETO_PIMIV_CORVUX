@@ -3,10 +3,12 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace CorvusIAM.Controllers;
 
-[Authorize]
+[Route("Mobile")]
 public class MobileController : Controller
 {
-    [HttpGet]
+    [HttpGet("")]
+    [HttpGet("Index")]
+    [Authorize]
     public IActionResult Index() => View();
 
     /// <summary>
@@ -14,7 +16,7 @@ public class MobileController : Controller
     /// Redireciona com segurança para a tela oficial de login corporativo preservando o retorno para a interface mobile.
     /// </summary>
     [AllowAnonymous]
-    [HttpGet("Mobile/Login")]
+    [HttpGet("Login")]
     public IActionResult Login(string? returnUrl = null)
     {
         if (User.Identity?.IsAuthenticated == true)
@@ -22,6 +24,6 @@ public class MobileController : Controller
             return RedirectToAction(nameof(Index));
         }
 
-        return RedirectToAction("Login", "Auth", new { returnUrl = returnUrl ?? "/Mobile/Index" });
+        return RedirectToAction("Login", "Auth", new { returnUrl = returnUrl ?? "/Mobile" });
     }
 }

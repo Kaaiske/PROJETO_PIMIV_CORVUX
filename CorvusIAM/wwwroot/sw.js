@@ -1,9 +1,12 @@
-const CACHE_NAME = 'corvux-iam-pwa-v15';
+const CACHE_NAME = 'corvux-iam-pwa-v16';
 const OFFLINE_URL = '/offline.html';
 
 const PRECACHE_ASSETS = [
   OFFLINE_URL,
   '/manifest.json?v=20261018',
+  '/mobile/manifest.webmanifest?v=20261021',
+  '/mobile/app.css?v=20261018',
+  '/mobile/app.js?v=20261018',
   '/icons/corvux-icon-192.png?v=20261018',
   '/icons/corvux-icon-512.png?v=20261018',
   '/icons/corvus-logo-light.png?v=20261018',
@@ -41,9 +44,9 @@ self.addEventListener('fetch', event => {
 
   const url = new URL(event.request.url);
 
+  // APIs transacionais, downloads de exportação e métricas do Prometheus
   if (
     url.pathname.startsWith('/api/') || 
-    url.pathname.startsWith('/Auth/') || 
     url.pathname.includes('Download') || 
     url.pathname.includes('Exportar') ||
     url.pathname.includes('/metrics')
@@ -51,7 +54,7 @@ self.addEventListener('fetch', event => {
     return;
   }
 
-  // Requisição de Navegação de Página (HTML)
+  // Requisição de Navegação de Página (HTML) — Network First com Fallback Seguro para Offline
   if (event.request.mode === 'navigate') {
     event.respondWith(
       fetch(event.request).catch(async () => {
@@ -63,7 +66,7 @@ self.addEventListener('fetch', event => {
     return;
   }
 
-  // Manifest e Ícones usam Network-First para sempre refletir a logo atualizada
+  // Manifest e Ícones usam Network-First para sempre refletir a identidade visual atualizada
   if (
     url.pathname.startsWith('/icons/') ||
     url.pathname.endsWith('manifest.json') ||
@@ -83,7 +86,7 @@ self.addEventListener('fetch', event => {
     return;
   }
 
-  // Demais Assets Estáticos (CSS, JS, Fontes)
+  // Demais Assets Estáticos (CSS, JS, Fontes) — Cache First com revalidação em segundo plano
   if (
     url.pathname.endsWith('.css') || 
     url.pathname.endsWith('.js') ||

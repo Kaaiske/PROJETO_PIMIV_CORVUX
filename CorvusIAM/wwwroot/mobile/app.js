@@ -174,7 +174,7 @@ async function syncData() {
             try {
                 const resposta = await fetch(api, {
                     method: 'POST',
-                    headers:{'Content-Type':'application/json','X-Idempotency-Key':payload.clientIdempotencyKey},
+                    headers:{'Content-Type':'application/json','X-Idempotency-Key':(c.clientIdempotencyKey || ('idmp-' + c.id))},
                     body: JSON.stringify(c)
                 });
                 

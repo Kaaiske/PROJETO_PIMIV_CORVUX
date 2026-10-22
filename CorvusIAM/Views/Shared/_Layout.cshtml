@@ -249,76 +249,99 @@
 
             <!-- Navegação -->
             <nav class="flex-1 py-3.5 px-3 space-y-1 overflow-y-auto">
-                <div class="text-[10px] font-semibold text-slate-500 dark:text-slate-500 uppercase tracking-[0.06em] px-2 mb-1 md:opacity-0 md:group-hover:opacity-100 transition-opacity">Dashboard</div>
+                <!-- PILAR 1: PAINEL & GOVERNANÇA -->
+                <div class="text-[10px] font-semibold text-slate-500 dark:text-slate-500 uppercase tracking-[0.06em] px-2 mb-1 md:opacity-0 md:group-hover:opacity-100 transition-opacity">Painel &amp; Governança</div>
                 @if(User.IsInRole("Admin")) { 
                 <a id="nav-visao-geral" href="/Admin/Index" onclick="if(window.innerWidth < 768) fecharMobileMenu()" class="flex items-center gap-3 px-2 py-1.5 rounded-md transition-colors group/item @(ViewContext.RouteData.Values["Action"]?.ToString() == "Index" && ViewContext.RouteData.Values["Controller"]?.ToString() == "Admin" ? "bg-brand-600/10 dark:bg-dark-hover text-brand-600 dark:text-white font-medium border border-brand-500/25 dark:border-dark-border" : "text-slate-600 dark:text-slate-400 hover:bg-slate-200/60 dark:hover:bg-dark-hover hover:text-slate-900 dark:hover:text-white")">
                     <i class="ph ph-squares-four text-[17px] flex-shrink-0 @(ViewContext.RouteData.Values["Action"]?.ToString() == "Index" ? "text-brand-600 dark:text-brand-400" : "")"></i>
-                    <span class="md:opacity-0 md:group-hover:opacity-100 transition-opacity whitespace-nowrap">Visão Geral</span>
+                    <span class="md:opacity-0 md:group-hover:opacity-100 transition-opacity whitespace-nowrap">Visão Geral &amp; KPIs</span>
+                </a> 
+                <a id="nav-politicas" href="/Admin/Politicas" onclick="if(window.innerWidth < 768) fecharMobileMenu()" class="flex items-center gap-3 px-2 py-1.5 rounded-md transition-colors group/item @(ViewContext.RouteData.Values["Action"]?.ToString() == "Politicas" ? "bg-brand-600/10 dark:bg-dark-hover text-brand-600 dark:text-white font-medium border border-brand-500/25 dark:border-dark-border" : "text-slate-600 dark:text-slate-400 hover:bg-slate-200/60 dark:hover:bg-dark-hover hover:text-slate-900 dark:hover:text-white")">
+                    <i class="ph ph-shield-check text-[17px] flex-shrink-0 @(ViewContext.RouteData.Values["Action"]?.ToString() == "Politicas" ? "text-brand-600 dark:text-brand-400" : "")"></i>
+                    <span class="md:opacity-0 md:group-hover:opacity-100 transition-opacity whitespace-nowrap">Políticas Zero-Trust</span>
                 </a> }
-                @if(User.IsInRole("Recursos Humanos") && !User.IsInRole("Admin")) {
-                <a id="nav-portal-rh" href="/Portal/RH" onclick="if(window.innerWidth < 768) fecharMobileMenu()" class="flex items-center gap-3 px-2 py-1.5 rounded-md transition-colors group/item @(ViewContext.RouteData.Values["Action"]?.ToString() == "RH" ? "bg-brand-600/10 dark:bg-dark-hover text-brand-600 dark:text-white font-medium border border-brand-500/25 dark:border-dark-border" : "text-slate-600 dark:text-slate-400 hover:bg-slate-200/60 dark:hover:bg-dark-hover hover:text-slate-900 dark:hover:text-white")">
-                    <i class="ph ph-briefcase text-[17px] flex-shrink-0 @(ViewContext.RouteData.Values["Action"]?.ToString() == "RH" ? "text-brand-600 dark:text-brand-400" : "")"></i>
-                    <span class="md:opacity-0 md:group-hover:opacity-100 transition-opacity whitespace-nowrap">Portal RH & Admissão</span>
-                </a> }
-                @if(User.IsInRole("Contabilidade") && !User.IsInRole("Admin")) {
-                <a id="nav-portal-contabil" href="/Portal/Contabilidade" onclick="if(window.innerWidth < 768) fecharMobileMenu()" class="flex items-center gap-3 px-2 py-1.5 rounded-md transition-colors group/item @(ViewContext.RouteData.Values["Action"]?.ToString() == "Contabilidade" ? "bg-brand-600/10 dark:bg-dark-hover text-brand-600 dark:text-white font-medium border border-brand-500/25 dark:border-dark-border" : "text-slate-600 dark:text-slate-400 hover:bg-slate-200/60 dark:hover:bg-dark-hover hover:text-slate-900 dark:hover:text-white")">
-                    <i class="ph ph-calculator text-[17px] flex-shrink-0 @(ViewContext.RouteData.Values["Action"]?.ToString() == "Contabilidade" ? "text-brand-600 dark:text-brand-400" : "")"></i>
-                    <span class="md:opacity-0 md:group-hover:opacity-100 transition-opacity whitespace-nowrap">Portal Contábil & Fiscal</span>
-                </a> }
-                @if(!User.IsInRole("Admin")) {
-                <a id="nav-portal-colab" href="/Portal/MinhaConta" onclick="if(window.innerWidth < 768) fecharMobileMenu()" class="flex items-center gap-3 px-2 py-1.5 rounded-md transition-colors group/item @(ViewContext.RouteData.Values["Action"]?.ToString() == "MinhaConta" ? "bg-brand-600/10 dark:bg-dark-hover text-brand-600 dark:text-white font-medium border border-brand-500/25 dark:border-dark-border" : "text-slate-600 dark:text-slate-400 hover:bg-slate-200/60 dark:hover:bg-dark-hover hover:text-slate-900 dark:hover:text-white")">
-                    <i class="ph ph-user-circle text-[17px] flex-shrink-0 @(ViewContext.RouteData.Values["Action"]?.ToString() == "MinhaConta" ? "text-brand-600 dark:text-brand-400" : "")"></i>
-                    <span class="md:opacity-0 md:group-hover:opacity-100 transition-opacity whitespace-nowrap">Minha Conta</span>
-                </a> }
-                
-                <div class="text-[10px] font-semibold text-slate-500 dark:text-slate-500 uppercase tracking-[0.06em] px-2 mb-1 mt-2.5 md:opacity-0 md:group-hover:opacity-100 transition-opacity">Gerenciamento</div>
+
+                <!-- PILAR 2: GESTÃO DE IDENTIDADES (IAM) -->
+                <div class="text-[10px] font-semibold text-slate-500 dark:text-slate-500 uppercase tracking-[0.06em] px-2 mb-1 mt-2.5 md:opacity-0 md:group-hover:opacity-100 transition-opacity">Gestão de Identidades (IAM)</div>
                 @if(User.IsInRole("Admin") || User.IsInRole("Recursos Humanos")) { 
                 <a id="nav-usuarios" href="/Admin/Usuarios" onclick="if(window.innerWidth < 768) fecharMobileMenu()" class="flex items-center gap-3 px-2 py-1.5 rounded-md transition-colors group/item @(ViewContext.RouteData.Values["Action"]?.ToString() == "Usuarios" ? "bg-brand-600/10 dark:bg-dark-hover text-brand-600 dark:text-white font-medium border border-brand-500/25 dark:border-dark-border" : "text-slate-600 dark:text-slate-400 hover:bg-slate-200/60 dark:hover:bg-dark-hover hover:text-slate-900 dark:hover:text-white")">
                     <i class="ph ph-users text-[17px] flex-shrink-0 @(ViewContext.RouteData.Values["Action"]?.ToString() == "Usuarios" ? "text-brand-600 dark:text-brand-400" : "")"></i>
                     <span class="md:opacity-0 md:group-hover:opacity-100 transition-opacity whitespace-nowrap">Diretório de Usuários</span>
                 </a> }
                 @if(User.IsInRole("Admin")) { 
-                <a id="nav-politicas" href="/Admin/Politicas" onclick="if(window.innerWidth < 768) fecharMobileMenu()" class="flex items-center gap-3 px-2 py-1.5 rounded-md transition-colors group/item @(ViewContext.RouteData.Values["Action"]?.ToString() == "Politicas" ? "bg-brand-600/10 dark:bg-dark-hover text-brand-600 dark:text-white font-medium border border-brand-500/25 dark:border-dark-border" : "text-slate-600 dark:text-slate-400 hover:bg-slate-200/60 dark:hover:bg-dark-hover hover:text-slate-900 dark:hover:text-white")">
-                    <i class="ph ph-shield-check text-[17px] flex-shrink-0 @(ViewContext.RouteData.Values["Action"]?.ToString() == "Politicas" ? "text-brand-600 dark:text-brand-400" : "")"></i>
-                    <span class="md:opacity-0 md:group-hover:opacity-100 transition-opacity whitespace-nowrap">Políticas de Acesso</span>
-                </a> 
                 <a id="nav-perfis" href="/Admin/Perfis" onclick="if(window.innerWidth < 768) fecharMobileMenu()" class="flex items-center gap-3 px-2 py-1.5 rounded-md transition-colors group/item @(ViewContext.RouteData.Values["Action"]?.ToString() == "Perfis" ? "bg-brand-600/10 dark:bg-dark-hover text-brand-600 dark:text-white font-medium border border-brand-500/25 dark:border-dark-border" : "text-slate-600 dark:text-slate-400 hover:bg-slate-200/60 dark:hover:bg-dark-hover hover:text-slate-900 dark:hover:text-white")">
                     <i class="ph ph-identification-card text-[17px] flex-shrink-0 @(ViewContext.RouteData.Values["Action"]?.ToString() == "Perfis" ? "text-brand-600 dark:text-brand-400" : "")"></i>
-                    <span class="md:opacity-0 md:group-hover:opacity-100 transition-opacity whitespace-nowrap">Perfis & Permissões</span>
+                    <span class="md:opacity-0 md:group-hover:opacity-100 transition-opacity whitespace-nowrap">Perfis &amp; Matriz RBAC</span>
                 </a> }
-                
-                <div class="text-[10px] font-semibold text-slate-500 dark:text-slate-500 uppercase tracking-[0.06em] px-2 mb-1 mt-2.5 md:opacity-0 md:group-hover:opacity-100 transition-opacity">Operações</div>
+
+                <!-- PILAR 3: SUPORTE & SERVICE DESK -->
+                <div class="text-[10px] font-semibold text-slate-500 dark:text-slate-500 uppercase tracking-[0.06em] px-2 mb-1 mt-2.5 md:opacity-0 md:group-hover:opacity-100 transition-opacity">Suporte &amp; Service Desk</div>
                 @if(User.IsInRole("Admin") || User.IsInRole("Help Desk")) { 
                 <a id="nav-chamados" href="/Admin/Chamados" onclick="if(window.innerWidth < 768) fecharMobileMenu()" class="flex items-center gap-3 px-2 py-1.5 rounded-md transition-colors group/item @(ViewContext.RouteData.Values["Action"]?.ToString() == "Chamados" ? "bg-brand-600/10 dark:bg-dark-hover text-brand-600 dark:text-white font-medium border border-brand-500/25 dark:border-dark-border" : "text-slate-600 dark:text-slate-400 hover:bg-slate-200/60 dark:hover:bg-dark-hover hover:text-slate-900 dark:hover:text-white")">
                     <div class="relative flex-shrink-0">
                         <i class="ph ph-headset text-[17px] @(ViewContext.RouteData.Values["Action"]?.ToString() == "Chamados" ? "text-brand-600 dark:text-brand-400" : "")"></i>
                         <div class="absolute -top-0.5 -right-0.5 w-1.5 h-1.5 bg-brand-500 rounded-full"></div>
                     </div>
-                    <span class="md:opacity-0 md:group-hover:opacity-100 transition-opacity whitespace-nowrap">Fila de Chamados</span>
+                    <span class="md:opacity-0 md:group-hover:opacity-100 transition-opacity whitespace-nowrap">Fila de Chamados &amp; SLA</span>
                 </a> }
+                <a id="nav-mobile-pwa" href="/Mobile" onclick="if(window.innerWidth < 768) fecharMobileMenu()" class="flex items-center gap-3 px-2 py-1.5 rounded-md transition-colors group/item @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Mobile" ? "bg-brand-600/10 dark:bg-dark-hover text-brand-600 dark:text-white font-medium border border-brand-500/25 dark:border-dark-border" : "text-slate-600 dark:text-slate-400 hover:bg-slate-200/60 dark:hover:bg-dark-hover hover:text-slate-900 dark:hover:text-white")">
+                    <i class="ph ph-device-mobile text-[17px] flex-shrink-0 text-cyan-600 dark:text-cyan-400"></i>
+                    <span class="md:opacity-0 md:group-hover:opacity-100 transition-opacity whitespace-nowrap flex items-center justify-between flex-1">
+                        Terminal Mobile
+                        <span class="text-[9px] bg-cyan-500/10 text-cyan-600 dark:text-cyan-400 border border-cyan-500/20 px-1 py-0.5 rounded font-mono ml-1.5">PWA</span>
+                    </span>
+                </a>
+
+                <!-- PILAR 4: INFRAESTRUTURA & NUVEM -->
                 @if(User.IsInRole("Admin")) { 
+                <div class="text-[10px] font-semibold text-slate-500 dark:text-slate-500 uppercase tracking-[0.06em] px-2 mb-1 mt-2.5 md:opacity-0 md:group-hover:opacity-100 transition-opacity">Infraestrutura &amp; Nuvem</div>
                 <a id="nav-cloud" href="/Admin/Cloud" onclick="if(window.innerWidth < 768) fecharMobileMenu()" class="flex items-center gap-3 px-2 py-1.5 rounded-md transition-colors group/item @(ViewContext.RouteData.Values["Action"]?.ToString() == "Cloud" ? "bg-brand-600/10 dark:bg-dark-hover text-brand-600 dark:text-white font-medium border border-brand-500/25 dark:border-dark-border" : "text-slate-600 dark:text-slate-400 hover:bg-slate-200/60 dark:hover:bg-dark-hover hover:text-slate-900 dark:hover:text-white")">
                     <i class="ph ph-desktop text-[17px] flex-shrink-0 @(ViewContext.RouteData.Values["Action"]?.ToString() == "Cloud" ? "text-brand-600 dark:text-brand-400" : "")"></i>
-                    <span class="md:opacity-0 md:group-hover:opacity-100 transition-opacity whitespace-nowrap">Infraestrutura & Endpoints</span>
+                    <span class="md:opacity-0 md:group-hover:opacity-100 transition-opacity whitespace-nowrap">Endpoints &amp; Nuvem</span>
                 </a> 
                 <a id="nav-integracoes" href="/Admin/Integracoes" onclick="if(window.innerWidth < 768) fecharMobileMenu()" class="flex items-center gap-3 px-2 py-1.5 rounded-md transition-colors group/item @(ViewContext.RouteData.Values["Action"]?.ToString() == "Integracoes" ? "bg-brand-600/10 dark:bg-dark-hover text-brand-600 dark:text-white font-medium border border-brand-500/25 dark:border-dark-border" : "text-slate-600 dark:text-slate-400 hover:bg-slate-200/60 dark:hover:bg-dark-hover hover:text-slate-900 dark:hover:text-white")">
                     <i class="ph ph-plugs-connected text-[17px] flex-shrink-0 @(ViewContext.RouteData.Values["Action"]?.ToString() == "Integracoes" ? "text-brand-600 dark:text-brand-400" : "")"></i>
-                    <span class="md:opacity-0 md:group-hover:opacity-100 transition-opacity whitespace-nowrap">Módulos & APIs</span>
+                    <span class="md:opacity-0 md:group-hover:opacity-100 transition-opacity whitespace-nowrap">Módulos &amp; APIs M2M</span>
                 </a> }
-                
-                <div class="text-[10px] font-semibold text-slate-500 dark:text-slate-500 uppercase tracking-[0.06em] px-2 mb-1 mt-2.5 md:opacity-0 md:group-hover:opacity-100 transition-opacity">Sistema</div>
+
+                <!-- PILAR 5: SECOPS & AUDITORIA -->
                 @if(User.IsInRole("Admin")) { 
-                <a id="nav-logs" href="/Admin/Logs" onclick="if(window.innerWidth < 768) fecharMobileMenu()" class="flex items-center gap-3 px-2 py-1.5 rounded-md transition-colors group/item @(ViewContext.RouteData.Values["Action"]?.ToString() == "Logs" ? "bg-brand-600/10 dark:bg-dark-hover text-brand-600 dark:text-white font-medium border border-brand-500/25 dark:border-dark-border" : "text-slate-600 dark:text-slate-400 hover:bg-slate-200/60 dark:hover:bg-dark-hover hover:text-slate-900 dark:hover:text-white")">
-                    <i class="ph ph-list-magnifying-glass text-[17px] flex-shrink-0 @(ViewContext.RouteData.Values["Action"]?.ToString() == "Logs" ? "text-brand-600 dark:text-brand-400" : "")"></i>
-                    <span class="md:opacity-0 md:group-hover:opacity-100 transition-opacity whitespace-nowrap">Audit Logs</span>
-                </a> 
+                <div class="text-[10px] font-semibold text-slate-500 dark:text-slate-500 uppercase tracking-[0.06em] px-2 mb-1 mt-2.5 md:opacity-0 md:group-hover:opacity-100 transition-opacity">Cibersegurança &amp; SecOps</div>
                 <a id="nav-secops" href="/Admin/Inteligencia" onclick="if(window.innerWidth < 768) fecharMobileMenu()" class="flex items-center gap-3 px-2 py-1.5 rounded-md transition-colors group/item @(ViewContext.RouteData.Values["Action"]?.ToString() == "Inteligencia" ? "bg-brand-600/10 dark:bg-dark-hover text-brand-600 dark:text-white font-medium border border-brand-500/25 dark:border-dark-border" : "text-slate-600 dark:text-slate-400 hover:bg-slate-200/60 dark:hover:bg-dark-hover hover:text-slate-900 dark:hover:text-white")">
                     <i class="ph ph-shield-warning text-[17px] flex-shrink-0 text-brand-600 dark:text-brand-400"></i>
-                    <span class="md:opacity-0 md:group-hover:opacity-100 transition-opacity whitespace-nowrap text-brand-600 dark:text-brand-400 font-medium">SecOps AI & Defesa</span>
+                    <span class="md:opacity-0 md:group-hover:opacity-100 transition-opacity whitespace-nowrap text-brand-600 dark:text-brand-400 font-medium">SecOps AI &amp; Defesa</span>
                 </a> 
+                <a id="nav-logs" href="/Admin/Logs" onclick="if(window.innerWidth < 768) fecharMobileMenu()" class="flex items-center gap-3 px-2 py-1.5 rounded-md transition-colors group/item @(ViewContext.RouteData.Values["Action"]?.ToString() == "Logs" ? "bg-brand-600/10 dark:bg-dark-hover text-brand-600 dark:text-white font-medium border border-brand-500/25 dark:border-dark-border" : "text-slate-600 dark:text-slate-400 hover:bg-slate-200/60 dark:hover:bg-dark-hover hover:text-slate-900 dark:hover:text-white")">
+                    <i class="ph ph-list-magnifying-glass text-[17px] flex-shrink-0 @(ViewContext.RouteData.Values["Action"]?.ToString() == "Logs" ? "text-brand-600 dark:text-brand-400" : "")"></i>
+                    <span class="md:opacity-0 md:group-hover:opacity-100 transition-opacity whitespace-nowrap">Audit Logs &amp; LGPD</span>
+                </a> }
+
+                <!-- PILAR 6: GOVERNANÇA & SISTEMA -->
+                @if(User.IsInRole("Admin")) { 
+                <div class="text-[10px] font-semibold text-slate-500 dark:text-slate-500 uppercase tracking-[0.06em] px-2 mb-1 mt-2.5 md:opacity-0 md:group-hover:opacity-100 transition-opacity">Governança &amp; Sistema</div>
                 <a id="nav-configuracoes" href="/Admin/Configuracoes" onclick="if(window.innerWidth < 768) fecharMobileMenu()" class="flex items-center gap-3 px-2 py-1.5 rounded-md transition-colors group/item @(ViewContext.RouteData.Values["Action"]?.ToString() == "Configuracoes" ? "bg-brand-600/10 dark:bg-dark-hover text-brand-600 dark:text-white font-medium border border-brand-500/25 dark:border-dark-border" : "text-slate-600 dark:text-slate-400 hover:bg-slate-200/60 dark:hover:bg-dark-hover hover:text-slate-900 dark:hover:text-white")">
-                    <i class="ph ph-gear text-[17px] flex-shrink-0 @(ViewContext.RouteData.Values["Action"]?.ToString() == "Configuracoes" ? "text-brand-600 dark:text-brand-400" : "")"></i>
-                    <span class="md:opacity-0 md:group-hover:opacity-100 transition-opacity whitespace-nowrap">Configurações</span>
+                    <i class="ph ph-sliders-horizontal text-[17px] flex-shrink-0 @(ViewContext.RouteData.Values["Action"]?.ToString() == "Configuracoes" ? "text-brand-600 dark:text-brand-400" : "")"></i>
+                    <span class="md:opacity-0 md:group-hover:opacity-100 transition-opacity whitespace-nowrap">Parâmetros do Sistema</span>
+                </a> }
+
+                <!-- PORTAIS ESPECÍFICOS -->
+                @if(User.IsInRole("Recursos Humanos") && !User.IsInRole("Admin")) {
+                <div class="text-[10px] font-semibold text-slate-500 dark:text-slate-500 uppercase tracking-[0.06em] px-2 mb-1 mt-2.5 md:opacity-0 md:group-hover:opacity-100 transition-opacity">Portal Departamental</div>
+                <a id="nav-portal-rh" href="/Portal/RH" onclick="if(window.innerWidth < 768) fecharMobileMenu()" class="flex items-center gap-3 px-2 py-1.5 rounded-md transition-colors group/item @(ViewContext.RouteData.Values["Action"]?.ToString() == "RH" ? "bg-brand-600/10 dark:bg-dark-hover text-brand-600 dark:text-white font-medium border border-brand-500/25 dark:border-dark-border" : "text-slate-600 dark:text-slate-400 hover:bg-slate-200/60 dark:hover:bg-dark-hover hover:text-slate-900 dark:hover:text-white")">
+                    <i class="ph ph-briefcase text-[17px] flex-shrink-0 @(ViewContext.RouteData.Values["Action"]?.ToString() == "RH" ? "text-brand-600 dark:text-brand-400" : "")"></i>
+                    <span class="md:opacity-0 md:group-hover:opacity-100 transition-opacity whitespace-nowrap">Portal RH &amp; Admissão</span>
+                </a> }
+                @if(User.IsInRole("Contabilidade") && !User.IsInRole("Admin")) {
+                <div class="text-[10px] font-semibold text-slate-500 dark:text-slate-500 uppercase tracking-[0.06em] px-2 mb-1 mt-2.5 md:opacity-0 md:group-hover:opacity-100 transition-opacity">Portal Departamental</div>
+                <a id="nav-portal-contabil" href="/Portal/Contabilidade" onclick="if(window.innerWidth < 768) fecharMobileMenu()" class="flex items-center gap-3 px-2 py-1.5 rounded-md transition-colors group/item @(ViewContext.RouteData.Values["Action"]?.ToString() == "Contabilidade" ? "bg-brand-600/10 dark:bg-dark-hover text-brand-600 dark:text-white font-medium border border-brand-500/25 dark:border-dark-border" : "text-slate-600 dark:text-slate-400 hover:bg-slate-200/60 dark:hover:bg-dark-hover hover:text-slate-900 dark:hover:text-white")">
+                    <i class="ph ph-calculator text-[17px] flex-shrink-0 @(ViewContext.RouteData.Values["Action"]?.ToString() == "Contabilidade" ? "text-brand-600 dark:text-brand-400" : "")"></i>
+                    <span class="md:opacity-0 md:group-hover:opacity-100 transition-opacity whitespace-nowrap">Portal Contábil &amp; Fiscal</span>
+                </a> }
+                @if(!User.IsInRole("Admin")) {
+                <div class="text-[10px] font-semibold text-slate-500 dark:text-slate-500 uppercase tracking-[0.06em] px-2 mb-1 mt-2.5 md:opacity-0 md:group-hover:opacity-100 transition-opacity">Área do Usuário</div>
+                <a id="nav-portal-colab" href="/Portal/MinhaConta" onclick="if(window.innerWidth < 768) fecharMobileMenu()" class="flex items-center gap-3 px-2 py-1.5 rounded-md transition-colors group/item @(ViewContext.RouteData.Values["Action"]?.ToString() == "MinhaConta" ? "bg-brand-600/10 dark:bg-dark-hover text-brand-600 dark:text-white font-medium border border-brand-500/25 dark:border-dark-border" : "text-slate-600 dark:text-slate-400 hover:bg-slate-200/60 dark:hover:bg-dark-hover hover:text-slate-900 dark:hover:text-white")">
+                    <i class="ph ph-user-circle text-[17px] flex-shrink-0 @(ViewContext.RouteData.Values["Action"]?.ToString() == "MinhaConta" ? "text-brand-600 dark:text-brand-400" : "")"></i>
+                    <span class="md:opacity-0 md:group-hover:opacity-100 transition-opacity whitespace-nowrap">Minha Conta</span>
                 </a> }
             </nav>
 

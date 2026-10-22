@@ -8,6 +8,9 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Serilog;
 using Microsoft.Extensions.Caching.Memory;
+using Microsoft.Extensions.Configuration;
+using System.Security.Cryptography;
+using System.Text;
 
 namespace CorvusIAM.Controllers
 {
@@ -17,16 +20,18 @@ namespace CorvusIAM.Controllers
         private readonly ITurnstileService _turnstileService;
         private readonly IIpGeolocationService _geoService;
         private readonly IEmailSenderService _emailSender;
-        private readonly Microsoft.Extensions.Caching.Memory.IMemoryCache _cache;
+        private readonly IMemoryCache _cache;
         private readonly ITotpService _totpService;
+        private readonly IConfiguration _configuration;
 
         public AuthController(
             ApplicationDbContext context, 
             ITurnstileService turnstileService, 
             IIpGeolocationService geoService,
             IEmailSenderService emailSender,
-            Microsoft.Extensions.Caching.Memory.IMemoryCache cache,
-            ITotpService totpService)
+            IMemoryCache cache,
+            ITotpService totpService,
+            IConfiguration configuration)
         {
             _context = context;
             _turnstileService = turnstileService;
@@ -34,6 +39,15 @@ namespace CorvusIAM.Controllers
             _emailSender = emailSender;
             _cache = cache;
             _totpService = totpService;
+            _configuration = configuration;
+        }
+
+        private static string HashToken(string token)
+        {
+            using var sha256 = SHA256.Create();
+            var bytes = Encoding.UTF8.GetBytes(token);
+            var hash = sha256.ComputeHash(bytes);
+            return Convert.ToHexString(hash);
         }
 
         [HttpGet]
@@ -61,7 +75,7 @@ namespace CorvusIAM.Controllers
             {
                 if (_context.FirewallRegras.Any(f => f.Ip == ip && f.Ativo))
                 {
-                    Serilog.Log.Warning("Acesso bloqueado por regra ativa do Firewall WAF para o IP: {IP}", ip);
+                    Log.Warning("Acesso bloqueado por regra ativa do Firewall WAF para o IP: {IP}", ip);
                     ViewBag.Erro = "Acesso bloqueado: Seu endereço IP consta na lista de bloqueios ativos do Firewall Corporativo.";
                     return View();
                 }
@@ -113,7 +127,6 @@ namespace CorvusIAM.Controllers
                 return View();
             }
 
-
             // Verifica senha
             if (BCrypt.Net.BCrypt.Verify(senha, user.SenhaHash))
             {
@@ -123,9 +136,16 @@ namespace CorvusIAM.Controllers
                 user.DataDesbloqueio = null;
                 await _context.SaveChangesAsync();
 
-                // Autenticação em Duas Etapas (MFA / 2FA com TOTP)
-                if (user.MfaHabilitado && !string.IsNullOrEmpty(user.MfaSecretKey))
+                // Autenticação em Duas Etapas (MFA / 2FA com TOTP) — Fail-Closed
+                if (user.MfaHabilitado)
                 {
+                    if (string.IsNullOrWhiteSpace(user.MfaSecretKey))
+                    {
+                        Log.Error("Usuário {Email} possui MFA habilitado, mas MfaSecretKey está vazia ou nula. Bloqueando acesso por segurança.", user.Email);
+                        ViewBag.Erro = "Configuração de autenticação de dois fatores inconsistente na conta. Contate o suporte/administrador.";
+                        return View();
+                    }
+
                     var mfaSessionToken = Guid.NewGuid().ToString("N");
                     _cache.Set($"mfa_user_{mfaSessionToken}", user.Id, TimeSpan.FromMinutes(5));
                     return RedirectToAction("ValidarMfa", "Auth", new { token = mfaSessionToken });
@@ -226,12 +246,22 @@ namespace CorvusIAM.Controllers
                 return View();
             }
         }
-            [HttpGet]
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
         public async System.Threading.Tasks.Task<IActionResult> Logout()
         {
             await HttpContext.SignOutAsync("Cookies");
             return RedirectToAction("Login", "Auth");
         }
+
+        [HttpGet]
+        public async System.Threading.Tasks.Task<IActionResult> Logout(string? redirect = null)
+        {
+            await HttpContext.SignOutAsync("Cookies");
+            return RedirectToAction("Login", "Auth");
+        }
+
         [HttpGet]
         public IActionResult EsqueciSenha()
         {
@@ -240,23 +270,38 @@ namespace CorvusIAM.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Microsoft.AspNetCore.RateLimiting.EnableRateLimiting("LoginPolicy")]
         public async System.Threading.Tasks.Task<IActionResult> EsqueciSenha(string email)
         {
             var user = await _context.Usuarios.FirstOrDefaultAsync(u => u.Email == email);
             if (user != null)
             {
-                var token = System.Guid.NewGuid().ToString();
-                user.ResetSenhaToken = token;
+                var rawToken = Guid.NewGuid().ToString("N") + Guid.NewGuid().ToString("N");
+                var hashedToken = HashToken(rawToken);
+
+                user.ResetSenhaToken = hashedToken;
                 user.ResetSenhaExpiracao = DateTime.UtcNow.AddHours(1);
                 await _context.SaveChangesAsync();
 
-                var resetLink = Url.Action("RedefinirSenha", "Auth", new { token, email }, Request.Scheme);
+                // Prevenção de Host Header Poisoning com domínio canônico configurado
+                var configuredDomain = _configuration["App:Domain"]?.TrimEnd('/');
+                string resetLink;
+                if (!string.IsNullOrEmpty(configuredDomain))
+                {
+                    resetLink = $"{configuredDomain}/Auth/RedefinirSenha?token={Uri.EscapeDataString(rawToken)}&email={Uri.EscapeDataString(user.Email)}";
+                }
+                else
+                {
+                    resetLink = Url.Action("RedefinirSenha", "Auth", new { token = rawToken, email = user.Email }, Request.Scheme) 
+                                ?? $"{Request.Scheme}://{Request.Host}/Auth/RedefinirSenha?token={rawToken}&email={user.Email}";
+                }
+
                 ViewBag.ResetLink = resetLink;
                 
                 await _emailSender.SendEmailAsync(
                     user.Email,
                     "Redefinição de Senha - Corvux IAM",
-                    $"Clique no link para redefinir sua senha: {resetLink}");
+                    $"Clique no link para redefinir sua senha com segurança (válido por 1 hora): {resetLink}");
             }
 
             ViewBag.Mensagem = "Se o e-mail existir em nossa base, um link de recuperação foi enviado.";
@@ -276,9 +321,11 @@ namespace CorvusIAM.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Microsoft.AspNetCore.RateLimiting.EnableRateLimiting("LoginPolicy")]
         public async System.Threading.Tasks.Task<IActionResult> RedefinirSenha(string token, string email, string novaSenha)
         {
-            var user = await _context.Usuarios.FirstOrDefaultAsync(u => u.Email == email && u.ResetSenhaToken == token);
+            var hashedToken = HashToken(token);
+            var user = await _context.Usuarios.FirstOrDefaultAsync(u => u.Email == email && u.ResetSenhaToken == hashedToken);
             
             if (user == null || !user.ResetSenhaExpiracao.HasValue || user.ResetSenhaExpiracao.Value < DateTime.UtcNow)
             {
@@ -300,11 +347,15 @@ namespace CorvusIAM.Controllers
             user.TentativasLogin = 0;
             user.DataDesbloqueio = null;
 
+            // Revoga RefreshTokens ativos para encerrar sessões comprometidas em APIs/Mobile
+            user.RefreshToken = string.Empty;
+            user.RefreshTokenExpiracao = null;
+
             _context.LogsAuditoria.Add(new Entities.LogAuditoria
             {
                 UsuarioId = user.Id,
                 Acao = "Redefinição de Senha",
-                Detalhe = "Senha redefinida via token de recuperação.",
+                Detalhe = "Senha redefinida com sucesso via token seguro com revogação de tokens de sessão.",
                 Tipo = "Segurança",
                 Origem = "Web WebApp"
             });
@@ -326,6 +377,8 @@ namespace CorvusIAM.Controllers
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
+        [Microsoft.AspNetCore.RateLimiting.EnableRateLimiting("LoginPolicy")]
         public async System.Threading.Tasks.Task<IActionResult> ValidarMfa(string token, string codigo)
         {
             if (string.IsNullOrEmpty(token) || !_cache.TryGetValue($"mfa_user_{token}", out int userId))
@@ -333,6 +386,25 @@ namespace CorvusIAM.Controllers
                 ViewBag.Erro = "Sessão de verificação expirada. Faça o login novamente.";
                 return View();
             }
+
+            // Limitador de tentativas de TOTP contra ataques de força bruta
+            var attemptsKey = $"mfa_attempts_{token}";
+            int attempts = _cache.GetOrCreate(attemptsKey, entry =>
+            {
+                entry.AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(5);
+                return 0;
+            });
+
+            if (attempts >= 5)
+            {
+                _cache.Remove($"mfa_user_{token}");
+                _cache.Remove(attemptsKey);
+                Log.Warning("MFA bloqueado por excesso de tentativas para a sessão {Token}. Usuário ID: {UserId}", token, userId);
+                ViewBag.Erro = "Número excessivo de tentativas de verificação. Sessão expirada por segurança. Faça o login novamente.";
+                return View();
+            }
+
+            _cache.Set(attemptsKey, attempts + 1, TimeSpan.FromMinutes(5));
 
             var user = _context.Usuarios
                 .Include(u => u.UsuarioPerfis)
@@ -347,12 +419,13 @@ namespace CorvusIAM.Controllers
             if (!valido)
             {
                 ViewBag.Token = token;
-                ViewBag.Erro = "Código de verificação incorreto ou expirado. Tente novamente.";
+                ViewBag.Erro = $"Código de verificação incorreto ou expirado. Tentativa {attempts + 1} de 5.";
                 return View();
             }
 
-            // Remove o token de MFA temporário
+            // Remove o token de MFA temporário e contador de tentativas
             _cache.Remove($"mfa_user_{token}");
+            _cache.Remove(attemptsKey);
 
             var role = user.UsuarioPerfis.FirstOrDefault()?.Perfil?.Nome ?? "Colaborador";
             var ip = HttpContext.Connection.RemoteIpAddress?.ToString() ?? "Desconhecido";
@@ -398,4 +471,3 @@ namespace CorvusIAM.Controllers
         }
     }
 }
-
