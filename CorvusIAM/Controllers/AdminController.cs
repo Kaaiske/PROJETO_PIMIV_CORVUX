@@ -551,6 +551,25 @@ namespace CorvusIAM.Controllers
             return File(bytes, "text/csv; charset=utf-8", $"CorvuxIAM_AuditLogs_{DateTime.UtcNow:yyyyMMdd_HHmm}.csv");
         }
         [Authorize(Policy = "RequireAdmin")]
+        public IActionResult Relatorios()
+        {
+            ViewBag.TotalUsuarios = _context.Usuarios.Count();
+            ViewBag.TotalMfa = _context.Usuarios.Count(u => u.MfaHabilitado);
+            ViewBag.TotalLogsHoje = _context.LogsAuditoria.Count(l => l.DataHora.Date == DateTime.Today);
+            ViewBag.TotalBloqueios = _context.FirewallRegras.Count(f => f.Ativo);
+            ViewBag.TotalChamados = _context.ChamadosSuporte.Count();
+            ViewBag.ChamadosResolvidos = _context.ChamadosSuporte.Count(c => c.Status == "Resolvido" || c.Status == "Fechado");
+
+            var logsRecentes = _context.LogsAuditoria
+                .Include(l => l.Usuario)
+                .OrderByDescending(l => l.DataHora)
+                .Take(50)
+                .ToList();
+
+            return View(logsRecentes);
+        }
+
+        [Authorize(Policy = "RequireAdmin")]
         public IActionResult Cloud() => View(_context.DispositivosRede.OrderBy(d => d.Hostname).ToList());
         [Authorize(Policy = "RequireAdmin")]
         public IActionResult Configuracoes()

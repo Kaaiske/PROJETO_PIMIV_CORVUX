@@ -13,6 +13,7 @@ namespace CorvusIAM.Services
         private readonly IWebHostEnvironment _environment;
         private readonly IConfiguration _configuration;
         private readonly string _uploadDirectory;
+        private const long MaxFileSizeBytes = 5 * 1024 * 1024; // Limite rigoroso de 5MB
         private static readonly string[] AllowedExtensions = { ".png", ".jpg", ".jpeg", ".pdf", ".txt", ".csv", ".log" };
 
         public StorageService(IWebHostEnvironment environment, IConfiguration configuration)
@@ -34,10 +35,37 @@ namespace CorvusIAM.Services
             if (stream == null || stream.Length == 0)
                 throw new ArgumentException("O fluxo do arquivo está vazio.");
 
+            if (stream.Length > MaxFileSizeBytes)
+                throw new InvalidOperationException($"O arquivo excede o limite máximo permitido de 5 MB ({stream.Length / (1024 * 1024)} MB enviado).");
+
             string extension = Path.GetExtension(fileName).ToLowerInvariant();
             if (!AllowedExtensions.Contains(extension))
             {
                 throw new InvalidOperationException($"Extensão de arquivo não permitida. Permitidas: {string.Join(", ", AllowedExtensions)}");
+            }
+
+            // Inspeção de Magic Bytes para bloquear executáveis binários (PE / MZ / ELF) e scripts disfarçados
+            if (stream.CanSeek)
+            {
+                stream.Position = 0;
+                var headerBytes = new byte[4];
+                int read = await stream.ReadAsync(headerBytes, 0, headerBytes.Length);
+                stream.Position = 0;
+
+                if (read >= 2)
+                {
+                    // Bloqueio de executáveis Windows (MZ / PE)
+                    if (headerBytes[0] == 0x4D && headerBytes[1] == 0x5A)
+                        throw new InvalidOperationException("Arquivos executáveis binários (MZ/PE) são estritamente proibidos.");
+
+                    // Bloqueio de binários Linux (ELF)
+                    if (read >= 4 && headerBytes[0] == 0x7F && headerBytes[1] == 0x45 && headerBytes[2] == 0x4C && headerBytes[3] == 0x46)
+                        throw new InvalidOperationException("Arquivos binários executáveis (ELF) são estritamente proibidos.");
+
+                    // Bloqueio de webshells PHP
+                    if (read >= 4 && headerBytes[0] == 0x3C && headerBytes[1] == 0x3F && headerBytes[2] == 0x70 && headerBytes[3] == 0x68) // <?ph
+                        throw new InvalidOperationException("Scripts executáveis são estritamente proibidos.");
+                }
             }
 
             // Sanitiza e gera nome único baseado em GUID
@@ -72,10 +100,29 @@ namespace CorvusIAM.Services
 
         public string GetFileUrl(string fileKey)
         {
-            if (string.IsNullOrWhiteSpace(fileKey)) return string.Empty;
-            if (fileKey.StartsWith("http://") || fileKey.StartsWith("https://")) return fileKey;
-            return fileKey.StartsWith("/") ? fileKey : $"/{fileKey}";
+            string cleanKey = Path.GetFileName(fileKey);
+            return $"/uploads/chamados/{cleanKey}";
+        }
+
+        public Task<bool> DeleteFileAsync(string fileKey)
+        {
+            string cleanKey = Path.GetFileName(fileKey);
+            string fullPath = Path.Combine(_uploadDirectory, cleanKey);
+
+            if (File.Exists(fullPath))
+            {
+                try
+                {
+                    File.Delete(fullPath);
+                    return Task.FromResult(true);
+                }
+                catch
+                {
+                    return Task.FromResult(false);
+                }
+            }
+
+            return Task.FromResult(false);
         }
     }
 }
-

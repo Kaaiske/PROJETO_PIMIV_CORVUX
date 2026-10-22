@@ -104,7 +104,7 @@ namespace CorvusIAM.Data
                 new PerfilPermissao { PerfilId = 5, PermissaoId = 1 }
             );
 
-            // Hash estável de "Cv1670!" para evitar alterações artificiais no modelo a cada migration.
+            // Hash pré-calculado Bcrypt para carga inicial e consistência das migrações do modelo.
             const string senhaHash = "$2a$11$y4AkJtTDlULmPEEKkqBLk.MM4ZKyMK8ExkIkfyAY5s/iEMDL1UvIS";
 
             modelBuilder.Entity<Usuario>().HasData(new Usuario {

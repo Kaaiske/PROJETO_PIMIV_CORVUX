@@ -13,8 +13,8 @@
             <a href="/Admin/Cloud" class="bg-white hover:bg-slate-50 dark:bg-dark-card dark:hover:bg-dark-hover border border-slate-200 dark:border-dark-border text-slate-700 dark:text-slate-200 text-[12px] font-medium px-2.5 py-1.5 rounded-[6px] transition-colors flex items-center gap-1.5">
                 <i class="ph ph-desktop text-blue-500"></i> Rede (18)
             </a>
-            <a href="/Admin/DownloadRelatorio" class="bg-brand-600 hover:bg-brand-500 text-white text-[12px] font-medium px-3 py-1.5 rounded-[6px] shadow-xs transition-colors flex items-center gap-1.5">
-                <i class="ph ph-download-simple"></i> Relatório
+            <a href="/Admin/Relatorios" class="bg-brand-600 hover:bg-brand-500 text-white text-[12px] font-medium px-3 py-1.5 rounded-[6px] shadow-xs transition-colors flex items-center gap-1.5" title="Central de Relatórios & Auditoria">
+                <i class="ph ph-file-text"></i> Relatórios
             </a>
         </div>
     </div>
@@ -30,9 +30,7 @@
         <button type="button" onclick="mudarAbaDashboard('infra')" id="tab-btn-infra" class="dashboard-tab-btn px-3 py-1.5 rounded-md transition-all text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white flex items-center gap-1.5 whitespace-nowrap cursor-pointer">
             <i class="ph ph-cpu"></i> Saúde &amp; SLA
         </button>
-        <button type="button" onclick="mudarAbaDashboard('todas')" id="tab-btn-todas" class="dashboard-tab-btn px-3 py-1.5 rounded-md transition-all text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white flex items-center gap-1.5 whitespace-nowrap cursor-pointer">
-            <i class="ph ph-squares-four"></i> Tudo
-        </button>
+
     </div>
 </div>
 
@@ -559,15 +557,7 @@
 
             if (!secMetricas || !secEngajamento || !secInfra) return;
 
-            if (aba === 'todas') {
-                secMetricas.style.display = 'block';
-                secEngajamento.style.display = 'block';
-                secInfra.style.display = 'block';
-            } else if (aba === 'visao-geral') {
-                secMetricas.style.display = 'block';
-                secEngajamento.style.display = 'none';
-                secInfra.style.display = 'none';
-            } else if (aba === 'engajamento') {
+            if (aba === 'engajamento') {
                 secMetricas.style.display = 'none';
                 secEngajamento.style.display = 'block';
                 secInfra.style.display = 'none';
@@ -575,9 +565,15 @@
                 secMetricas.style.display = 'none';
                 secEngajamento.style.display = 'none';
                 secInfra.style.display = 'block';
+            } else {
+                // Default: visao-geral (Resumo & Auditoria)
+                aba = 'visao-geral';
+                secMetricas.style.display = 'block';
+                secEngajamento.style.display = 'none';
+                secInfra.style.display = 'none';
             }
 
-            const btns = ['todas', 'visao-geral', 'engajamento', 'infra'];
+            const btns = ['visao-geral', 'engajamento', 'infra'];
             btns.forEach(b => {
                 const btn = document.getElementById('tab-btn-' + b);
                 if (!btn) return;

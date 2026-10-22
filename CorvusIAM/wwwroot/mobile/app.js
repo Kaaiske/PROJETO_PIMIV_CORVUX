@@ -1,71 +1,495 @@
-const api = '/api/Chamados';
-const lista = document.getElementById('lista');
-const mensagem = document.getElementById('mensagem');
+/**
+ * CORVUX IAM — PWA MOBILE NATIVE JAVASCRIPT
+ * Offline-First • IndexedDB Queue • Real-time Sync • Touch UI
+ */
 
-// IndexedDB Setup
+const api = '/api/Chamados';
+let chamadosData = [];
+let currentFilter = 'todos';
+let deferredPrompt = null;
+
+// IndexedDB Setup for Offline Resilience
 const dbName = 'CorvusOfflineDB';
 let db;
 const request = indexedDB.open(dbName, 1);
 request.onupgradeneeded = event => {
-  db = event.target.result;
-  if (!db.objectStoreNames.contains('syncQueue')) {
-    db.createObjectStore('syncQueue', { keyPath: 'id', autoIncrement: true });
-  }
+    db = event.target.result;
+    if (!db.objectStoreNames.contains('syncQueue')) {
+        db.createObjectStore('syncQueue', { keyPath: 'id', autoIncrement: true });
+    }
 };
 request.onsuccess = event => {
-  db = event.target.result;
-  if (navigator.onLine) syncData();
+    db = event.target.result;
+    if (navigator.onLine) syncData();
 };
 
-window.addEventListener('online', syncData);
-window.addEventListener('offline', () => mostrarMensagem('Você está offline. Os chamados serão salvos localmente.', 'info'));
+// ==========================================
+// NETWORK STATUS & ONLINE/OFFLINE LISTENERS
+// ==========================================
+function atualizarStatusRede() {
+    const netPill = document.getElementById('netStatusPill');
+    if (!netPill) return;
 
-async function carregar() {
-  try {
-    const resposta = await fetch(api);
-    if (resposta.status === 401) {
-        mostrarMensagem('Sessão expirada. Redirecionando para login...', 'erro');
-        setTimeout(() => window.location.href = '/Auth/Login', 2000);
+    if (navigator.onLine) {
+        netPill.className = 'net-pill online';
+        netPill.querySelector('.net-text').textContent = 'Online';
+    } else {
+        netPill.className = 'net-pill offline';
+        netPill.querySelector('.net-text').textContent = 'Offline';
+    }
+}
+
+window.addEventListener('online', () => {
+    atualizarStatusRede();
+    mostrarToast('Conexão restabelecida. Sincronizando chamados...', 'sucesso');
+    syncData();
+});
+
+window.addEventListener('offline', () => {
+    atualizarStatusRede();
+    mostrarToast('Você está offline. Novos chamados serão salvos no dispositivo.', 'info');
+});
+
+// ==========================================
+// TOAST NOTIFICATIONS
+// ==========================================
+let toastTimer = null;
+function mostrarToast(mensagem, tipo = 'info') {
+    const toast = document.getElementById('toast');
+    if (!toast) return;
+
+    clearTimeout(toastTimer);
+    toast.textContent = mensagem;
+    toast.className = `toast ${tipo}`;
+
+    toastTimer = setTimeout(() => {
+        toast.className = 'toast hidden';
+    }, 3200);
+}
+
+// ==========================================
+// TAB NAVIGATION (NATIVE BOTTOM DOCK)
+// ==========================================
+function mudarAbaMobile(aba) {
+    const views = ['home', 'new', 'tickets', 'profile'];
+    views.forEach(v => {
+        const viewEl = document.getElementById(`view-${v}`);
+        if (viewEl) {
+            if (v === aba) {
+                viewEl.classList.add('active');
+            } else {
+                viewEl.classList.remove('active');
+            }
+        }
+    });
+
+    const tabs = document.querySelectorAll('.app-bottom-nav .nav-tab');
+    tabs.forEach(t => {
+        if (t.getAttribute('data-tab') === aba) {
+            t.classList.add('active');
+        } else {
+            t.classList.remove('active');
+        }
+    });
+
+    // Scroll to top of viewport
+    const viewport = document.querySelector('.app-viewport');
+    if (viewport) viewport.scrollTo({ top: 0, behavior: 'smooth' });
+
+    try {
+        localStorage.setItem('corvux_mobile_last_tab', aba);
+    } catch (e) {}
+
+    // Feedback haptics if supported
+    if ('vibrate' in navigator) {
+        try { navigator.vibrate(10); } catch(e) {}
+    }
+}
+
+// ==========================================
+// TOUCH CHIPS FOR CATEGORY & PRIORITY
+// ==========================================
+function inicializarTouchChips() {
+    const catChips = document.querySelectorAll('#categoryChips .chip');
+    const catInput = document.getElementById('categoria');
+    catChips.forEach(chip => {
+        chip.addEventListener('click', () => {
+            catChips.forEach(c => c.classList.remove('active'));
+            chip.classList.add('active');
+            if (catInput) catInput.value = chip.getAttribute('data-cat');
+        });
+    });
+
+    const prioChips = document.querySelectorAll('#priorityChips .pill-chip');
+    const prioInput = document.getElementById('prioridade');
+    prioChips.forEach(chip => {
+        chip.addEventListener('click', () => {
+            prioChips.forEach(c => c.classList.remove('active'));
+            chip.classList.add('active');
+            if (prioInput) prioInput.value = chip.getAttribute('data-prio');
+        });
+    });
+
+    // Filter pills in Tickets view
+    const filterPills = document.querySelectorAll('#ticketFilterPills .filter-pill');
+    filterPills.forEach(pill => {
+        pill.addEventListener('click', () => {
+            filterPills.forEach(p => p.classList.remove('active'));
+            pill.classList.add('active');
+            currentFilter = pill.getAttribute('data-filter');
+            filtrarChamados();
+        });
+    });
+}
+
+function preencherCategoria(cat) {
+    const catChips = document.querySelectorAll('#categoryChips .chip');
+    const catInput = document.getElementById('categoria');
+    if (catInput) catInput.value = cat;
+    catChips.forEach(chip => {
+        if (chip.getAttribute('data-cat') === cat) {
+            chip.classList.add('active');
+        } else {
+            chip.classList.remove('active');
+        }
+    });
+}
+
+// ==========================================
+// VOICE DICTATION (SPEECH-TO-TEXT)
+// ==========================================
+function inicializarDitadoVoz() {
+    const btnVoice = document.getElementById('btnVoiceDictation');
+    const textarea = document.getElementById('descricao');
+    if (!btnVoice || !textarea) return;
+
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (!SpeechRecognition) {
+        btnVoice.style.display = 'none';
         return;
     }
-    if (!resposta.ok) throw new Error('API indisponível');
-    
-    const data = await resposta.json();
-    const chamados = data.dados || data;
-    localStorage.setItem('chamadosCache', JSON.stringify(chamados));
-    renderChamados(chamados);
-  } catch (err) {
-    const cache = localStorage.getItem('chamadosCache');
-    if (cache) {
-        mostrarMensagem('Modo offline: exibindo dados em cache.', 'info');
-        renderChamados(JSON.parse(cache));
-    } else {
-        mostrarMensagem('Não foi possível carregar os chamados (erro de rede).', 'erro');
+
+    const recognition = new SpeechRecognition();
+    recognition.lang = 'pt-BR';
+    recognition.continuous = false;
+    recognition.interimResults = false;
+
+    let isRecording = false;
+
+    btnVoice.addEventListener('click', () => {
+        if (isRecording) {
+            recognition.stop();
+            return;
+        }
+
+        try {
+            recognition.start();
+            isRecording = true;
+            btnVoice.classList.add('recording');
+            btnVoice.innerHTML = '<i class="ph ph-stop-circle"></i> Ouvindo...';
+            mostrarToast('Fale agora para ditar seu chamado...', 'info');
+        } catch (e) {
+            isRecording = false;
+            btnVoice.classList.remove('recording');
+            btnVoice.innerHTML = '<i class="ph ph-microphone"></i> Ditar';
+        }
+    });
+
+    recognition.onresult = event => {
+        const transcript = event.results[0][0].transcript;
+        if (transcript) {
+            textarea.value = textarea.value ? `${textarea.value} ${transcript}` : transcript;
+            mostrarToast('Texto ditado adicionado com sucesso.', 'sucesso');
+        }
+    };
+
+    recognition.onerror = () => {
+        mostrarToast('Não foi possível captar a voz. Tente novamente.', 'erro');
+    };
+
+    recognition.onend = () => {
+        isRecording = false;
+        btnVoice.classList.remove('recording');
+        btnVoice.innerHTML = '<i class="ph ph-microphone"></i> Ditar';
+    };
+}
+
+// ==========================================
+// FETCH & RENDER TICKETS
+// ==========================================
+async function carregarChamados() {
+    try {
+        const resposta = await fetch(api);
+        if (resposta.status === 401) {
+            mostrarToast('Sessão expirada. Redirecionando para login...', 'erro');
+            setTimeout(() => window.location.href = '/Auth/Login', 1500);
+            return;
+        }
+        if (!resposta.ok) throw new Error('API indisponível');
+
+        const data = await resposta.json();
+        chamadosData = data.dados || data || [];
+        localStorage.setItem('chamadosCache', JSON.stringify(chamadosData));
+        renderizarTelas();
+    } catch (err) {
+        const cache = localStorage.getItem('chamadosCache');
+        if (cache) {
+            chamadosData = JSON.parse(cache);
+            mostrarToast('Modo offline: exibindo chamados em cache.', 'info');
+            renderizarTelas();
+        } else {
+            const listEl = document.getElementById('lista');
+            if (listEl) {
+                listEl.innerHTML = `
+                    <div class="empty-state">
+                        <i class="ph ph-wifi-slash"></i>
+                        <p>Sem conexão de rede e sem dados locais armazenados.</p>
+                    </div>`;
+            }
+        }
     }
-  }
 }
 
-function renderChamados(chamados) {
-  lista.innerHTML = chamados.length 
-    ? chamados.map(c => `<article class="item"><strong>${escapeHtml(c.assunto)}</strong><p>${escapeHtml(c.descricao)}</p><span class="status">${escapeHtml(c.status)} • ${new Date(c.dataAbertura).toLocaleDateString('pt-BR')}</span></article>`).join('') 
-    : '<p>Nenhum chamado aberto.</p>';
+function renderizarTelas() {
+    // 1. Atualizar contadores no Início e na Tab bar
+    const total = chamadosData.length;
+    const abertos = chamadosData.filter(c => c.status !== 'Resolvido' && c.status !== 'Fechado').length;
+
+    const elTotal = document.getElementById('homeTotalTickets');
+    const elAtivos = document.getElementById('homeActiveTickets');
+    const elBadge = document.getElementById('navTicketsCount');
+
+    if (elTotal) elTotal.textContent = total;
+    if (elAtivos) elAtivos.textContent = abertos;
+
+    if (elBadge) {
+        if (abertos > 0) {
+            elBadge.textContent = abertos;
+            elBadge.classList.remove('hidden');
+        } else {
+            elBadge.classList.add('hidden');
+        }
+    }
+
+    // 2. Renderizar lista recente no Início (últimos 3)
+    const homeRecentEl = document.getElementById('homeRecentList');
+    if (homeRecentEl) {
+        const ultimos = chamadosData.slice(0, 3);
+        if (!ultimos.length) {
+            homeRecentEl.innerHTML = `
+                <div class="empty-state">
+                    <i class="ph ph-check-circle"></i>
+                    <p>Você não possui nenhum chamado registrado.</p>
+                </div>`;
+        } else {
+            homeRecentEl.innerHTML = ultimos.map(c => renderCardChamado(c)).join('');
+        }
+    }
+
+    // 3. Renderizar lista completa na aba Meus Chamados com filtros
+    filtrarChamados();
 }
 
-function escapeHtml(valor) { 
-  const el = document.createElement('div'); 
-  el.textContent = valor || ''; 
-  return el.innerHTML; 
+function filtrarChamados() {
+    const listEl = document.getElementById('lista');
+    if (!listEl) return;
+
+    const searchInput = document.getElementById('ticketSearchInput');
+    const termo = (searchInput ? searchInput.value : '').toLowerCase().trim();
+
+    let filtrados = chamadosData.filter(c => {
+        // Filtro por status
+        if (currentFilter === 'abertos') {
+            if (c.status === 'Resolvido' || c.status === 'Fechado') return false;
+        } else if (currentFilter === 'concluidos') {
+            if (c.status !== 'Resolvido' && c.status !== 'Fechado') return false;
+        }
+
+        // Filtro por texto
+        if (termo) {
+            const assunto = (c.assunto || '').toLowerCase();
+            const desc = (c.descricao || '').toLowerCase();
+            const cat = (c.categoria || '').toLowerCase();
+            return assunto.includes(termo) || desc.includes(termo) || cat.includes(termo);
+        }
+
+        return true;
+    });
+
+    if (!filtrados.length) {
+        listEl.innerHTML = `
+            <div class="empty-state">
+                <i class="ph ph-magnifying-glass"></i>
+                <p>Nenhum chamado encontrado com os filtros atuais.</p>
+            </div>`;
+    } else {
+        listEl.innerHTML = filtrados.map(c => renderCardChamado(c)).join('');
+    }
 }
 
-function mostrarMensagem(texto, tipo) {
-    mensagem.textContent = texto;
-    mensagem.style.color = tipo === 'erro' ? 'red' : tipo === 'sucesso' ? 'green' : 'orange';
+function renderCardChamado(c) {
+    const statusClass = c.status === 'Resolvido' ? 'status-resolvido' :
+                        c.status === 'Fechado' ? 'status-fechado' :
+                        c.status === 'Pendente (Offline)' ? 'status-pendente' : 'status-aberto';
+
+    const catIcon = c.categoria === 'Acesso' ? 'ph-lock-key' :
+                    c.categoria === 'Hardware' ? 'ph-cpu' :
+                    c.categoria === 'Software' ? 'ph-package' :
+                    c.categoria === 'Rede' ? 'ph-wifi-high' : 'ph-shield-warning';
+
+    const dataFormatada = c.dataAbertura ? new Date(c.dataAbertura).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' }) : '-';
+
+    return `
+        <article class="ticket-card">
+            <div class="ticket-top">
+                <h4 class="ticket-title">${escapeHtml(c.assunto)}</h4>
+                <span class="ticket-badge ${statusClass}">${escapeHtml(c.status || 'Aberto')}</span>
+            </div>
+            <p class="ticket-desc">${escapeHtml(c.descricao)}</p>
+            <div class="ticket-meta">
+                <span class="ticket-cat"><i class="ph ${catIcon}"></i> ${escapeHtml(c.categoria || 'Geral')} • Prio: ${escapeHtml(c.prioridade || 'Normal')}</span>
+                <span class="font-mono">${dataFormatada}</span>
+            </div>
+        </article>
+    `;
 }
 
-let deferredPrompt = null;
-const installBanner = document.getElementById('pwa-install-banner');
-const installBtn = document.getElementById('pwa-install-btn');
+function escapeHtml(valor) {
+    const el = document.createElement('div');
+    el.textContent = valor || '';
+    return el.innerHTML;
+}
 
+// ==========================================
+// SUBMIT FORM WITH OFFLINE QUEUE
+// ==========================================
+document.getElementById('chamado-form')?.addEventListener('submit', async event => {
+    event.preventDefault();
+
+    const btnSubmit = document.getElementById('btnSubmitTicket');
+    if (btnSubmit) {
+        btnSubmit.disabled = true;
+        btnSubmit.innerHTML = '<div class="spinner" style="width:18px;height:18px;border-width:2px;"></div> Enviando...';
+    }
+
+    const catEl = document.getElementById('categoria');
+    const prioEl = document.getElementById('prioridade');
+    const assuntoEl = document.getElementById('assunto');
+    const descEl = document.getElementById('descricao');
+
+    const payload = {
+        assunto: assuntoEl.value.trim(),
+        descricao: descEl.value.trim(),
+        categoria: catEl ? catEl.value : 'Acesso',
+        prioridade: prioEl ? prioEl.value : 'Normal',
+        clientIdempotencyKey: (window.crypto && crypto.randomUUID) ? crypto.randomUUID() : ('idmp-' + Date.now() + '-' + Math.random().toString(36).substring(2, 9)),
+        timestamp: new Date().toISOString()
+    };
+
+    if (!navigator.onLine) {
+        salvarNoIndexedDB(payload);
+        event.target.reset();
+        preencherCategoria('Acesso');
+        mostrarToast('Sem conexão. Chamado salvo localmente e será enviado ao reconectar.', 'info');
+
+        chamadosData.unshift({ ...payload, status: 'Pendente (Offline)', dataAbertura: payload.timestamp });
+        localStorage.setItem('chamadosCache', JSON.stringify(chamadosData));
+        renderizarTelas();
+        mudarAbaMobile('tickets');
+
+        if (btnSubmit) {
+            btnSubmit.disabled = false;
+            btnSubmit.innerHTML = '<i class="ph ph-paper-plane-tilt"></i> <span>Enviar Chamado</span>';
+        }
+        return;
+    }
+
+    try {
+        const resposta = await fetch(api, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-Idempotency-Key': payload.clientIdempotencyKey
+            },
+            body: JSON.stringify(payload)
+        });
+
+        if (resposta.status === 401) {
+            mostrarToast('Sessão expirada. Faça login novamente.', 'erro');
+            setTimeout(() => window.location.href = '/Auth/Login', 1500);
+            return;
+        }
+
+        if (!resposta.ok) {
+            const errData = await resposta.json().catch(() => ({}));
+            mostrarToast(errData.message || 'Erro ao processar chamado. Salvando offline...', 'erro');
+            salvarNoIndexedDB(payload);
+            return;
+        }
+
+        event.target.reset();
+        preencherCategoria('Acesso');
+        mostrarToast('Chamado registrado com sucesso!', 'sucesso');
+        await carregarChamados();
+        mudarAbaMobile('tickets');
+    } catch (e) {
+        salvarNoIndexedDB(payload);
+        mostrarToast('Falha na conexão. Chamado enfileirado para sincronização.', 'info');
+        chamadosData.unshift({ ...payload, status: 'Pendente (Offline)', dataAbertura: payload.timestamp });
+        localStorage.setItem('chamadosCache', JSON.stringify(chamadosData));
+        renderizarTelas();
+        mudarAbaMobile('tickets');
+    } finally {
+        if (btnSubmit) {
+            btnSubmit.disabled = false;
+            btnSubmit.innerHTML = '<i class="ph ph-paper-plane-tilt"></i> <span>Enviar Chamado</span>';
+        }
+    }
+});
+
+function salvarNoIndexedDB(item) {
+    if (!db) return;
+    const tx = db.transaction('syncQueue', 'readwrite');
+    tx.objectStore('syncQueue').add(item);
+}
+
+function syncData() {
+    if (!db) return;
+    const tx = db.transaction('syncQueue', 'readwrite');
+    const store = tx.objectStore('syncQueue');
+    const getAll = store.getAll();
+
+    getAll.onsuccess = async () => {
+        const chamadosPendentes = getAll.result;
+        if (!chamadosPendentes.length) return;
+
+        mostrarToast(`Sincronizando ${chamadosPendentes.length} chamado(s) salvo(s) offline...`, 'info');
+
+        for (const c of chamadosPendentes) {
+            try {
+                const res = await fetch(api, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-Idempotency-Key': c.clientIdempotencyKey
+                    },
+                    body: JSON.stringify(c)
+                });
+                if (res.ok || res.status === 409) {
+                    const deleteTx = db.transaction('syncQueue', 'readwrite');
+                    deleteTx.objectStore('syncQueue').delete(c.id);
+                }
+            } catch (err) {
+                break;
+            }
+        }
+        await carregarChamados();
+    };
+}
+
+// ==========================================
+// PWA INSTALL BANNER
+// ==========================================
 function checkIsMobileDevice() {
     const ua = navigator.userAgent || navigator.vendor || window.opera;
     const isMobileUA = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini|Mobile/i.test(ua);
@@ -74,132 +498,79 @@ function checkIsMobileDevice() {
     return isMobileUA || (isTouch && isNarrow);
 }
 
-window.addEventListener('beforeinstallprompt', (e) => {
+window.addEventListener('beforeinstallprompt', e => {
     e.preventDefault();
     deferredPrompt = e;
-    if (checkIsMobileDevice() && installBanner) installBanner.style.display = 'flex';
+    const banner = document.getElementById('pwa-install-banner');
+    if (checkIsMobileDevice() && banner && localStorage.getItem('corvux_pwa_banner_closed') !== 'true') {
+        banner.style.display = 'flex';
+    }
 });
 
-if (installBtn) {
-    installBtn.addEventListener('click', async () => {
-        if (!deferredPrompt) return;
-        deferredPrompt.prompt();
-        const { outcome } = await deferredPrompt.userChoice;
-        if (outcome === 'accepted') {
-            if (installBanner) installBanner.style.display = 'none';
-        }
-        deferredPrompt = null;
-    });
-}
-
-window.addEventListener('appinstalled', () => {
-    if (installBanner) installBanner.style.display = 'none';
+document.getElementById('pwa-install-btn')?.addEventListener('click', async () => {
+    if (!deferredPrompt) return;
+    deferredPrompt.prompt();
+    const { outcome } = await deferredPrompt.userChoice;
+    if (outcome === 'accepted') {
+        const banner = document.getElementById('pwa-install-banner');
+        if (banner) banner.style.display = 'none';
+    }
     deferredPrompt = null;
 });
 
-document.getElementById('chamado-form').addEventListener('submit', async event => {
-  event.preventDefault(); 
-  mensagem.textContent = '';
-  
-  const catEl = document.getElementById('categoria');
-  const prioEl = document.getElementById('prioridade');
+function fecharBannerPwa() {
+    const banner = document.getElementById('pwa-install-banner');
+    if (banner) banner.style.display = 'none';
+    localStorage.setItem('corvux_pwa_banner_closed', 'true');
+}
 
-  const payload = { 
-    assunto: document.getElementById('assunto').value, 
-    descricao: document.getElementById('descricao').value, 
-    categoria: catEl ? catEl.value : 'Acesso',
-    prioridade: prioEl ? prioEl.value : 'Normal',
-    clientIdempotencyKey: (window.crypto && crypto.randomUUID) ? crypto.randomUUID() : ('idmp-' + Date.now() + '-' + Math.random().toString(36).substring(2, 9)),
-    timestamp: new Date().toISOString() 
-  };
-  
-  if (!navigator.onLine) {
-      salvarNoIndexedDB(payload);
-      event.target.reset();
-      mostrarMensagem('Sem conexão. Chamado salvo localmente e será enviado quando houver internet.', 'info');
-      
-      const cache = JSON.parse(localStorage.getItem('chamadosCache') || '[]');
-      cache.unshift({ ...payload, status: 'Pendente (Offline)', dataAbertura: payload.timestamp });
-      renderChamados(cache);
-      return;
-  }
-
-  try {
-      const resposta = await fetch(api, { 
-          method:'POST', 
-          headers:{'Content-Type':'application/json','X-Idempotency-Key':payload.clientIdempotencyKey}, 
-          body:JSON.stringify(payload) 
-      });
-      
-      if (resposta.status === 401) {
-          mostrarMensagem('Sessão expirada. Faça login novamente.', 'erro');
-          setTimeout(() => window.location.href = '/Auth/Login', 2000);
-          return;
-      }
-      if (!resposta.ok) {
-          const errData = await resposta.json().catch(() => ({}));
-          mostrarMensagem(errData.message || 'Erro ao processar chamado. Salvando localmente...', 'erro');
-          salvarNoIndexedDB(payload);
-          return;
-      }
-      
-      event.target.reset(); 
-      mostrarMensagem('Chamado enviado com sucesso.', 'sucesso'); 
-      carregar();
-  } catch(e) {
-      salvarNoIndexedDB(payload);
-      mostrarMensagem('Erro de rede. Chamado salvo localmente.', 'info');
-  }
+// ==========================================
+// THEME & SETTINGS
+// ==========================================
+document.getElementById('btnThemeToggle')?.addEventListener('click', () => {
+    const isDark = document.documentElement.classList.toggle('dark');
+    localStorage.setItem('corvux-theme', isDark ? 'dark' : 'light');
+    atualizarIconeTema();
 });
 
-function salvarNoIndexedDB(payload) {
-    if(!db) return;
-    const tx = db.transaction('syncQueue', 'readwrite');
-    tx.objectStore('syncQueue').add(payload);
+function atualizarIconeTema() {
+    const icon = document.getElementById('themeIcon');
+    if (!icon) return;
+    if (document.documentElement.classList.contains('dark')) {
+        icon.className = 'ph ph-sun text-lg text-amber-400';
+    } else {
+        icon.className = 'ph ph-moon text-lg text-slate-700';
+    }
 }
 
-async function syncData() {
-    if (!db) return;
-    const tx = db.transaction('syncQueue', 'readonly');
-    const request = tx.objectStore('syncQueue').getAll();
-    request.onsuccess = async () => {
-        const chamados = request.result;
-        if(chamados.length === 0) {
-            carregar();
-            return;
+function limparCacheOffline() {
+    if (confirm('Deseja limpar todos os dados locais e sincronizar novamente da nuvem?')) {
+        localStorage.removeItem('chamadosCache');
+        if (db) {
+            const tx = db.transaction('syncQueue', 'readwrite');
+            tx.objectStore('syncQueue').clear();
         }
-        
-        mostrarMensagem('Sincronizando dados offline...', 'info');
-        for (const c of chamados) {
-            try {
-                const resposta = await fetch(api, {
-                    method: 'POST',
-                    headers:{'Content-Type':'application/json','X-Idempotency-Key':(c.clientIdempotencyKey || ('idmp-' + c.id))},
-                    body: JSON.stringify(c)
-                });
-                
-                if (resposta.status === 409 || resposta.ok) {
-                    removerDoIndexedDB(c.id);
-                } else if (resposta.status === 401) {
-                    mostrarMensagem('Sessão expirada. Faça login para continuar a sincronização.', 'erro');
-                    return; 
-                }
-            } catch(e) {
-                return;
-            }
-        }
-        mostrarMensagem('Sincronização concluída!', 'sucesso');
-        setTimeout(() => mostrarMensagem('', ''), 3000);
-        carregar();
-    };
+        mostrarToast('Cache local limpo com sucesso!', 'sucesso');
+        carregarChamados();
+    }
 }
 
-function removerDoIndexedDB(id) {
-    db.transaction('syncQueue', 'readwrite').objectStore('syncQueue').delete(id);
+function limparSessaoLogout() {
+    localStorage.removeItem('chamadosCache');
+    localStorage.removeItem('corvux_mobile_last_tab');
 }
 
-if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('/sw.js', { scope: '/' }).catch(() => {
-        navigator.serviceWorker.register('/mobile/service-worker.js');
-    });
-}
+// ==========================================
+// INITIALIZATION
+// ==========================================
+window.addEventListener('DOMContentLoaded', () => {
+    atualizarStatusRede();
+    atualizarIconeTema();
+    inicializarTouchChips();
+    inicializarDitadoVoz();
+
+    const lastTab = localStorage.getItem('corvux_mobile_last_tab') || 'home';
+    mudarAbaMobile(lastTab);
+
+    carregarChamados();
+});

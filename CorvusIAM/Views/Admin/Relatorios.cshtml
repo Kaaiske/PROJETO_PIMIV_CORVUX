@@ -1,0 +1,208 @@
+@model List<CorvusIAM.Entities.LogAuditoria>
+@{
+    Layout = "_Layout";
+    ViewData["Title"] = "Relatórios & Auditoria";
+}
+
+<div class="mb-5 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+    <div>
+        <h1 class="text-[17px] font-bold text-slate-900 dark:text-white flex items-center gap-2 tracking-tight m-0">
+            <i class="ph ph-file-text text-brand-500"></i> Central de Relatórios &amp; Conformidade LGPD
+        </h1>
+        <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">
+            Geração de relatórios executivos de conformidade, trilha de auditoria Zero Trust e extração de dados para auditorias externas.
+        </p>
+    </div>
+    <div class="flex items-center gap-2">
+        <button type="button" onclick="window.print()" class="px-3 py-1.5 rounded-md border border-slate-200 dark:border-dark-border bg-white dark:bg-dark-card hover:bg-slate-50 dark:hover:bg-dark-hover text-slate-700 dark:text-slate-200 text-xs font-medium flex items-center gap-1.5 shadow-xs cursor-pointer transition-colors">
+            <i class="ph ph-printer"></i> Imprimir / PDF
+        </button>
+        <a href="/Admin/DownloadRelatorio" class="px-3.5 py-1.5 rounded-md bg-brand-600 hover:bg-brand-500 text-white text-xs font-semibold flex items-center gap-1.5 shadow-xs transition-colors cursor-pointer">
+            <i class="ph ph-download-simple"></i> Baixar Relatório Executivo (CSV)
+        </a>
+    </div>
+</div>
+
+<!-- CARDS DE CONFORMIDADE & RESUMO -->
+<div class="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-5">
+    <div class="bento-card bg-white dark:bg-dark-card border border-slate-200 dark:border-dark-border rounded-xl p-4 shadow-xs">
+        <div class="text-[10px] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider flex justify-between items-center mb-1.5">
+            <span>Diretório IAM</span>
+            <i class="ph ph-users text-brand-500 text-base"></i>
+        </div>
+        <div class="text-2xl font-bold text-slate-900 dark:text-white leading-none">@(ViewBag.TotalUsuarios ?? 0)</div>
+        <div class="text-[10px] text-slate-400 mt-1 font-mono">Colaboradores Cadastrados</div>
+    </div>
+
+    <div class="bento-card bg-white dark:bg-dark-card border border-slate-200 dark:border-dark-border rounded-xl p-4 shadow-xs">
+        <div class="text-[10px] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider flex justify-between items-center mb-1.5">
+            <span>Adoção MFA/TOTP</span>
+            <i class="ph ph-shield-check text-emerald-500 text-base"></i>
+        </div>
+        <div class="text-2xl font-bold text-emerald-600 dark:text-emerald-400 leading-none">@(ViewBag.TotalMfa ?? 0)</div>
+        <div class="text-[10px] text-slate-400 mt-1 font-mono">Autenticação 2FA Ativa</div>
+    </div>
+
+    <div class="bento-card bg-white dark:bg-dark-card border border-slate-200 dark:border-dark-border rounded-xl p-4 shadow-xs">
+        <div class="text-[10px] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider flex justify-between items-center mb-1.5">
+            <span>Eventos Hoje (24h)</span>
+            <i class="ph ph-clock-counter-clockwise text-blue-500 text-base"></i>
+        </div>
+        <div class="text-2xl font-bold text-slate-900 dark:text-white leading-none">@(ViewBag.TotalLogsHoje ?? 0)</div>
+        <div class="text-[10px] text-slate-400 mt-1 font-mono">Trilhas Auditadas</div>
+    </div>
+
+    <div class="bento-card bg-white dark:bg-dark-card border border-slate-200 dark:border-dark-border rounded-xl p-4 shadow-xs">
+        <div class="text-[10px] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider flex justify-between items-center mb-1.5">
+            <span>Defesa &amp; Mitigação</span>
+            <i class="ph ph-shield-slash text-orange-500 text-base"></i>
+        </div>
+        <div class="text-2xl font-bold text-orange-500 leading-none">@(ViewBag.TotalBloqueios ?? 0)</div>
+        <div class="text-[10px] text-slate-400 mt-1 font-mono">IPs Bloqueados pelo WAF</div>
+    </div>
+</div>
+
+<!-- CANAIS DE EXPORTAÇÃO RÁPIDA -->
+<div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-5">
+    <div class="bg-white dark:bg-dark-card border border-slate-200 dark:border-dark-border rounded-xl p-4 flex flex-col justify-between shadow-xs">
+        <div class="flex items-start gap-3 mb-3">
+            <div class="w-9 h-9 rounded-lg bg-brand-500/10 text-brand-500 flex items-center justify-center flex-shrink-0 text-lg">
+                <i class="ph ph-file-csv"></i>
+            </div>
+            <div>
+                <h4 class="text-xs font-bold text-slate-900 dark:text-white">Auditoria Completa (CSV)</h4>
+                <p class="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">Logs detalhados de logins, ações administrativas e alterações de permissões.</p>
+            </div>
+        </div>
+        <a href="/Admin/ExportarLogsAuditoriaCsv" class="w-full text-center py-2 px-3 rounded-lg border border-brand-500/30 bg-brand-500/10 hover:bg-brand-500/20 text-brand-600 dark:text-brand-400 text-xs font-semibold transition-colors">
+            Baixar Audit Logs (.csv)
+        </a>
+    </div>
+
+    <div class="bg-white dark:bg-dark-card border border-slate-200 dark:border-dark-border rounded-xl p-4 flex flex-col justify-between shadow-xs">
+        <div class="flex items-start gap-3 mb-3">
+            <div class="w-9 h-9 rounded-lg bg-emerald-500/10 text-emerald-500 flex items-center justify-center flex-shrink-0 text-lg">
+                <i class="ph ph-identification-card"></i>
+            </div>
+            <div>
+                <h4 class="text-xs font-bold text-slate-900 dark:text-white">Diretório de Usuários (CSV)</h4>
+                <p class="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">Relação completa de colaboradores, cargos, departamentos e status para RH/DP.</p>
+            </div>
+        </div>
+        <a href="/Admin/ExportarUsuariosCsv" class="w-full text-center py-2 px-3 rounded-lg border border-emerald-500/30 bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 text-xs font-semibold transition-colors">
+            Baixar Colaboradores (.csv)
+        </a>
+    </div>
+
+    <div class="bg-white dark:bg-dark-card border border-slate-200 dark:border-dark-border rounded-xl p-4 flex flex-col justify-between shadow-xs">
+        <div class="flex items-start gap-3 mb-3">
+            <div class="w-9 h-9 rounded-lg bg-purple-500/10 text-purple-500 flex items-center justify-center flex-shrink-0 text-lg">
+                <i class="ph ph-chart-donut"></i>
+            </div>
+            <div>
+                <h4 class="text-xs font-bold text-slate-900 dark:text-white">Relatório Integrado de Governança</h4>
+                <p class="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">Relatório consolidado com métricas de SLA, conformidade e tráfego corporativo.</p>
+            </div>
+        </div>
+        <a href="/Admin/DownloadRelatorio" class="w-full text-center py-2 px-3 rounded-lg border border-purple-500/30 bg-purple-500/10 hover:bg-purple-500/20 text-purple-600 dark:text-purple-400 text-xs font-semibold transition-colors">
+            Baixar Relatório Executivo (.csv)
+        </a>
+    </div>
+</div>
+
+<!-- TRILHA DE AUDITORIA AO VIVO -->
+<div class="bg-white dark:bg-dark-card border border-slate-200 dark:border-dark-border rounded-xl shadow-xs overflow-hidden">
+    <div class="p-4 border-b border-slate-100 dark:border-dark-border flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-slate-50/50 dark:bg-dark-bg/40">
+        <div>
+            <h3 class="text-xs font-bold uppercase tracking-wider text-slate-800 dark:text-white m-0 flex items-center gap-1.5">
+                <i class="ph ph-list-magnifying-glass text-brand-500"></i> Trilha de Eventos Recentes de Auditoria
+            </h3>
+            <span class="text-[11px] text-slate-500 dark:text-slate-400">Exibindo os 50 eventos mais recentes capturados pelo mecanismo de governança.</span>
+        </div>
+        <div class="relative w-full sm:w-64">
+            <input type="text" id="filtroLogs" onkeyup="filtrarTabelaLogs()" placeholder="Buscar ação, usuário ou IP..." class="w-full pl-8 pr-3 py-1.5 text-xs rounded-lg border border-slate-200 dark:border-dark-border bg-white dark:bg-dark-card text-slate-900 dark:text-white focus:outline-none focus:border-brand-500">
+            <i class="ph ph-magnifying-glass absolute left-2.5 top-2.5 text-slate-400 text-xs"></i>
+        </div>
+    </div>
+
+    <div class="overflow-x-auto">
+        <table class="w-full text-left border-collapse" id="tabelaLogs">
+            <thead class="bg-slate-50 dark:bg-dark-bg text-slate-500 dark:text-slate-400 text-[10px] uppercase font-semibold border-b border-slate-200 dark:border-dark-border">
+                <tr>
+                    <th class="px-4 py-2.5">Data / Hora (UTC)</th>
+                    <th class="px-4 py-2.5">Usuário / Agente</th>
+                    <th class="px-4 py-2.5">Ação Executada</th>
+                    <th class="px-4 py-2.5">Detalhe do Evento</th>
+                    <th class="px-4 py-2.5">Tipo</th>
+                    <th class="px-4 py-2.5">Origem</th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-100 dark:divide-dark-border text-xs">
+                @if(Model != null && Model.Any())
+                {
+                    @foreach (var log in Model)
+                    {
+                        var corBadge = log.Tipo switch
+                        {
+                            "Autenticação" => "bg-blue-500/10 text-blue-600 dark:text-blue-400 border-blue-500/20",
+                            "Segurança" => "bg-purple-500/10 text-purple-600 dark:text-purple-400 border-purple-500/20",
+                            "Warning" => "bg-orange-500/10 text-orange-600 dark:text-orange-400 border-orange-500/20",
+                            "Bloqueio" => "bg-red-500/10 text-red-600 dark:text-red-400 border-red-500/20",
+                            _ => "bg-slate-500/10 text-slate-600 dark:text-slate-400 border-slate-500/20"
+                        };
+
+                        <tr class="hover:bg-slate-50/60 dark:hover:bg-dark-hover transition-colors">
+                            <td class="px-4 py-2.5 font-mono text-[11px] text-slate-500 whitespace-nowrap">
+                                @log.DataHora.ToString("dd/MM/yyyy HH:mm:ss")
+                            </td>
+                            <td class="px-4 py-2.5 font-medium text-slate-900 dark:text-white whitespace-nowrap">
+                                @(log.Usuario != null ? log.Usuario.Nome : (log.UsuarioId.HasValue ? $"ID: {log.UsuarioId}" : "Sistema"))
+                            </td>
+                            <td class="px-4 py-2.5 font-semibold text-slate-800 dark:text-slate-200">
+                                @log.Acao
+                            </td>
+                            <td class="px-4 py-2.5 text-slate-600 dark:text-slate-300 max-w-xs truncate" title="@log.Detalhe">
+                                @log.Detalhe
+                            </td>
+                            <td class="px-4 py-2.5">
+                                <span class="px-2 py-0.5 rounded text-[10px] font-semibold border @corBadge">
+                                    @log.Tipo
+                                </span>
+                            </td>
+                            <td class="px-4 py-2.5 font-mono text-[11px] text-slate-500">
+                                @log.Origem
+                            </td>
+                        </tr>
+                    }
+                }
+                else
+                {
+                    <tr>
+                        <td colspan="6" class="px-4 py-8 text-center text-slate-400">
+                            Nenhum log de auditoria encontrado.
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<script>
+    function filtrarTabelaLogs() {
+        const input = document.getElementById('filtroLogs');
+        const filtro = input.value.toLowerCase();
+        const tabela = document.getElementById('tabelaLogs');
+        const linhas = tabela.getElementsByTagName('tbody')[0].getElementsByTagName('tr');
+
+        for (let i = 0; i < linhas.length; i++) {
+            const linha = linhas[i];
+            const texto = linha.textContent || linha.innerText;
+            if (texto.toLowerCase().indexOf(filtro) > -1) {
+                linha.style.display = '';
+            } else {
+                linha.style.display = 'none';
+            }
+        }
+    }
+</script>

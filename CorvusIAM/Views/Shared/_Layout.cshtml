@@ -259,6 +259,10 @@
                 <a id="nav-politicas" href="/Admin/Politicas" onclick="if(window.innerWidth < 768) fecharMobileMenu()" class="flex items-center gap-3 px-2 py-1.5 rounded-md transition-colors group/item @(ViewContext.RouteData.Values["Action"]?.ToString() == "Politicas" ? "bg-brand-600/10 dark:bg-dark-hover text-brand-600 dark:text-white font-medium border border-brand-500/25 dark:border-dark-border" : "text-slate-600 dark:text-slate-400 hover:bg-slate-200/60 dark:hover:bg-dark-hover hover:text-slate-900 dark:hover:text-white")">
                     <i class="ph ph-shield-check text-[17px] flex-shrink-0 @(ViewContext.RouteData.Values["Action"]?.ToString() == "Politicas" ? "text-brand-600 dark:text-brand-400" : "")"></i>
                     <span class="md:opacity-0 md:group-hover:opacity-100 transition-opacity whitespace-nowrap">Políticas Zero-Trust</span>
+                </a>
+                <a id="nav-relatorios" href="/Admin/Relatorios" onclick="if(window.innerWidth < 768) fecharMobileMenu()" class="flex items-center gap-3 px-2 py-1.5 rounded-md transition-colors group/item @(ViewContext.RouteData.Values["Action"]?.ToString() == "Relatorios" ? "bg-brand-600/10 dark:bg-dark-hover text-brand-600 dark:text-white font-medium border border-brand-500/25 dark:border-dark-border" : "text-slate-600 dark:text-slate-400 hover:bg-slate-200/60 dark:hover:bg-dark-hover hover:text-slate-900 dark:hover:text-white")">
+                    <i class="ph ph-file-text text-[17px] flex-shrink-0 @(ViewContext.RouteData.Values["Action"]?.ToString() == "Relatorios" ? "text-brand-600 dark:text-brand-400" : "")"></i>
+                    <span class="md:opacity-0 md:group-hover:opacity-100 transition-opacity whitespace-nowrap">Relatórios &amp; Auditoria</span>
                 </a> }
 
                 <!-- PILAR 2: GESTÃO DE IDENTIDADES (IAM) -->
@@ -917,7 +921,7 @@
     <!-- ========================================== -->
     <!-- USER ONBOARDING: GET STARTED CHECKLIST     -->
     <!-- ========================================== -->
-    <div id="corvuxGetStartedWidget" class="fixed bottom-4 right-4 z-[90] transition-all duration-300 max-w-[340px] w-full">
+    <div id="corvuxGetStartedWidget" class="fixed bottom-4 right-4 z-[90] transition-all duration-300 max-w-[calc(100vw-24px)] sm:max-w-[340px] w-full">
         <!-- Botão Minimizado (Pill Flutuante) -->
         <button id="corvuxChecklistPill" onclick="toggleChecklistWidget(true)" class="hidden ml-auto shadow-xl bg-white dark:bg-dark-card border border-slate-200 dark:border-brand-500/40 text-slate-800 dark:text-white rounded-full px-4 py-2.5 text-xs font-medium flex items-center gap-2 hover:border-brand-500 transition-all cursor-pointer backdrop-blur-md">
             <i class="ph ph-check-square-offset text-brand-500 text-base"></i>
@@ -1204,6 +1208,9 @@
 
         function iniciarSpotlightTour() {
             currentSpotlightIndex = 0;
+            // Oculta widget de Primeiros Passos para evitar colisao
+            const widget = document.getElementById('corvuxGetStartedWidget');
+            if (widget) widget.classList.add('hidden');
             const sidebar = document.getElementById('appSidebar');
             if (sidebar && window.innerWidth >= 768) {
                 sidebar.classList.add('md:!w-64');
@@ -1230,6 +1237,16 @@
             if (window.innerWidth < 768) fecharMobileMenu();
 
             localStorage.setItem('corvux_tour_v2_completed', 'true');
+
+            // Restaura widget caso nao tenha sido fechado definitivamente pelo usuario
+            const checklistClosed = localStorage.getItem('corvux_checklist_closed') === 'true';
+            const widget = document.getElementById('corvuxGetStartedWidget');
+            if (widget && !checklistClosed) {
+                widget.classList.remove('hidden');
+                if (window.innerWidth < 768) {
+                    toggleChecklistWidget(false);
+                }
+            }
         }
 
         function renderizarPassoSpotlight() {
@@ -1268,15 +1285,22 @@
             hole.style.width = (rect.width + (pad * 2)) + 'px';
             hole.style.height = (rect.height + (pad * 2)) + 'px';
 
-            const popWidth = 320;
-            const popHeight = 160;
+            const popWidth = Math.min(320, window.innerWidth - 24);
+            popover.style.width = popWidth + 'px';
+            const popHeight = 175;
             let top = rect.top;
             let left = rect.right + 14;
 
             if (window.innerWidth < 768) {
-                // Em telas mobile posiciona no centro inferior
+                // Em telas mobile centraliza e posiciona acima ou abaixo sem estourar
                 left = Math.max(12, (window.innerWidth - popWidth) / 2);
-                top = Math.min(window.innerHeight - popHeight - 20, rect.bottom + 12);
+                if (rect.bottom + popHeight + 20 < window.innerHeight) {
+                    top = rect.bottom + 10;
+                } else if (rect.top - popHeight - 20 > 0) {
+                    top = rect.top - popHeight - 10;
+                } else {
+                    top = Math.max(20, (window.innerHeight - popHeight) / 2);
+                }
             } else {
                 if (left + popWidth > window.innerWidth) {
                     left = Math.max(16, rect.left - popWidth - 14);
@@ -1311,11 +1335,6 @@
 
         // Chamado pelo botão de bússola no topo
         function iniciarTourInterativo() {
-            const widget = document.getElementById('corvuxGetStartedWidget');
-            if (widget) {
-                widget.classList.remove('hidden');
-                toggleChecklistWidget(true);
-            }
             iniciarSpotlightTour();
         }
 
@@ -1323,7 +1342,20 @@
         window.addEventListener('DOMContentLoaded', () => {
             carregarChecklistTasks();
             const widget = document.getElementById('corvuxGetStartedWidget');
-            if (widget) widget.classList.add('hidden');
+            if (widget) {
+                const checklistClosed = localStorage.getItem('corvux_checklist_closed') === 'true';
+                if (checklistClosed) {
+                    widget.classList.add('hidden');
+                } else {
+                    widget.classList.remove('hidden');
+                    if (window.innerWidth < 768) {
+                        toggleChecklistWidget(false);
+                    } else {
+                        const isMin = localStorage.getItem('corvux_checklist_minimized') === 'true';
+                        toggleChecklistWidget(!isMin);
+                    }
+                }
+            }
         });
     </script>
 

@@ -1,94 +1,418 @@
+@using System.Security.Claims
 @{
     Layout = null;
     ViewData["Title"] = "CorvuxIAM Mobile";
+    var userName = User.Identity?.Name ?? "Colaborador";
+    var userEmail = User.FindFirst(ClaimTypes.Email)?.Value ?? "usuario@empresa.com";
+    var isAdmin = User.IsInRole("Admin");
+    var isHelpDesk = User.IsInRole("Help Desk");
 }
 <!doctype html>
 <html lang="pt-BR">
 <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-    <meta name="theme-color" content="#070709" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no" />
+    <meta name="theme-color" content="#0F172A" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
-    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="CorvuxIAM" />
     <link rel="icon" type="image/png" sizes="32x32" href="/icons/favicon-32x32.png?v=20261018" />
     <link rel="icon" type="image/png" sizes="192x192" href="/icons/corvux-icon-192.png?v=20261018" />
     <link rel="apple-touch-icon" sizes="180x180" href="/icons/corvux-icon-192.png?v=20261018" />
     <link rel="shortcut icon" href="/favicon.ico?v=20261018" type="image/x-icon" />
     <link rel="manifest" href="/mobile/manifest.webmanifest?v=20261021" />
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="~/mobile/app.css?v=20261018" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/@@phosphor-icons/web"></script>
+    <link rel="stylesheet" href="~/mobile/app.css?v=20261022" />
     <title>CorvuxIAM Mobile</title>
     <script>
-        if (localStorage.getItem('corvux-theme') === 'dark') {
+        if (localStorage.getItem('corvux-theme') === 'dark' || (!localStorage.getItem('corvux-theme') && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
             document.documentElement.classList.add('dark');
         }
     </script>
 </head>
 <body>
-    <main class="app" aria-labelledby="titulo">
-        <header>
-            <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:12px;">
-                <div style="display:flex; align-items:center; gap:10px;">
-                    <img src="/icons/corvus-logo-light.png?v=20261018" alt="Corvux Logo" class="logo-light" style="width:36px; height:36px; border-radius:8px; border:1px solid var(--border-color); object-fit:cover;">
-                    <img src="/icons/corvus-logo-dark.png?v=20261018" alt="Corvux Logo" class="logo-dark" style="width:36px; height:36px; border-radius:8px; border:1px solid var(--border-color); object-fit:cover;">
-                    <p class="marca" style="margin:0; font-size:0.95rem; letter-spacing:0.04em;">CORVUX IAM</p>
+    <div id="app-root">
+        <!-- TOP APP BAR (NATIVE MOBILE HEADER) -->
+        <header class="app-topbar">
+            <div class="topbar-left">
+                <div class="brand-avatar">
+                    <img src="/icons/corvus-logo-light.png?v=20261018" alt="Corvux" class="logo-light">
+                    <img src="/icons/corvus-logo-dark.png?v=20261018" alt="Corvux" class="logo-dark">
                 </div>
-                <a href="/Admin/Index" style="font-size:0.78rem; color:var(--accent); text-decoration:none; border:1px solid var(--border-color); padding:5px 10px; border-radius:6px;">Voltar ao Painel</a>
+                <div class="topbar-title-wrap">
+                    <span class="topbar-badge">Zero Trust IAM</span>
+                    <h1 class="topbar-title">CorvuxIAM</h1>
+                </div>
             </div>
-            <h1 id="titulo">Olá, @(User.Identity?.Name ?? "Colaborador")</h1>
-            <p style="margin:0; font-size:0.84rem; color:var(--text-muted);">Central de suporte corporativo e abertura rápida de chamados</p>
+            <div class="topbar-right">
+                <div id="netStatusPill" class="net-pill online" title="Status de Conexão">
+                    <span class="dot"></span>
+                    <span class="net-text">Online</span>
+                </div>
+                <button type="button" id="btnThemeToggle" class="icon-btn" title="Alternar Tema" aria-label="Alternar Tema">
+                    <i class="ph ph-moon text-lg" id="themeIcon"></i>
+                </button>
+            </div>
         </header>
 
-        <!-- Banner de Instalação PWA -->
-        <div id="pwa-install-banner" class="install-banner" style="display:none; align-items:center; gap:12px;">
-            <img src="/icons/corvus-logo-light.png?v=20261018" alt="CorvuxIAM" class="logo-light" style="width:38px; height:38px; border-radius:8px; border:1px solid var(--border-color); object-fit:cover;">
-            <img src="/icons/corvus-logo-dark.png?v=20261018" alt="CorvuxIAM" class="logo-dark" style="width:38px; height:38px; border-radius:8px; border:1px solid var(--border-color); object-fit:cover;">
-            <div style="flex:1;">
-                <strong style="font-size:0.85rem;">Instalar Aplicativo CorvuxIAM</strong>
-                <p style="margin:2px 0 0 0; font-size:0.76rem; color:var(--text-muted);">Instale no seu smartphone para acesso rápido e suporte offline.</p>
+        <!-- PWA INSTALL PROMPT BANNER (TOUCH FRIENDLY) -->
+        <aside id="pwa-install-banner" class="install-banner" style="display:none;" aria-label="Instalar App">
+            <div class="install-icon">
+                <i class="ph ph-device-mobile"></i>
+            </div>
+            <div class="install-text">
+                <strong>Instalar Aplicativo</strong>
+                <p>Acesse chamados e credenciais offline direto da tela inicial.</p>
             </div>
             <button id="pwa-install-btn" class="install-btn">Instalar</button>
-        </div>
+            <button type="button" onclick="fecharBannerPwa()" class="install-close" aria-label="Fechar">
+                <i class="ph ph-x"></i>
+            </button>
+        </aside>
 
-        <section aria-labelledby="novo-chamado">
-            <h2 id="novo-chamado">Abrir chamado de suporte</h2>
-            <form id="chamado-form">
-                <label>Assunto
-                    <input id="assunto" required maxlength="100" autocomplete="off" placeholder="Ex: Solicitação de acesso VPN" />
-                </label>
-                <label>Categoria
-                    <select id="categoria">
-                        <option value="Acesso" selected>Acesso e Permissões</option>
-                        <option value="Hardware">Hardware / Equipamento</option>
-                        <option value="Software">Software / Licença</option>
-                        <option value="Rede">Rede / Conectividade</option>
-                        <option value="Segurança">Segurança / Alerta</option>
-                    </select>
-                </label>
-                <label>Prioridade
-                    <select id="prioridade">
-                        <option value="Baixa">Baixa</option>
-                        <option value="Normal" selected>Normal</option>
-                        <option value="Alta">Alta</option>
-                        <option value="Critica">Crítica</option>
-                    </select>
-                </label>
-                <label>Descrição
-                    <textarea id="descricao" required maxlength="1000" placeholder="Descreva detalhadamente o problema ou solicitação..."></textarea>
-                </label>
-                <button type="submit">Enviar chamado</button>
-            </form>
-            <p id="mensagem" role="status"></p>
-        </section>
-        <section aria-labelledby="meus-chamados">
-            <h2 id="meus-chamados">Meus chamados recentes</h2>
-            <div id="lista" aria-live="polite" style="font-size:0.85rem; color:var(--text-muted);">Carregando…</div>
-        </section>
-        <div style="display:flex; justify-content:space-between; align-items:center; margin-top:12px;">
-            <a class="sair" href="/Portal/MinhaConta">Minha Conta</a>
-            <a class="sair" href="/Auth/Logout" style="color:#EF4444;">Encerrar Sessão</a>
-        </div>
-    </main>
-    <script src="~/mobile/app.js?v=20261018"></script>
+        <!-- TOAST / NOTIFICATION SNACKBAR -->
+        <div id="toast" class="toast hidden" role="status" aria-live="polite"></div>
+
+        <!-- MAIN SCROLLABLE CONTAINER -->
+        <main class="app-viewport">
+            
+            <!-- ============================================== -->
+            <!-- ABA 1: INÍCIO (DASHBOARD & ATALHOS RÁPIDOS)     -->
+            <!-- ============================================== -->
+            <section id="view-home" class="app-view active" aria-labelledby="home-heading">
+                <!-- User Welcome Card -->
+                <div class="card user-hero-card">
+                    <div class="user-hero-top">
+                        <div class="user-avatar-circle">
+                            <span>@(userName.Substring(0, Math.Min(2, userName.Length)).ToUpperInvariant())</span>
+                        </div>
+                        <div class="user-hero-info">
+                            <span class="user-greeting">Bem-vindo(a),</span>
+                            <h2 id="home-heading" class="user-name">@userName</h2>
+                            <span class="user-email font-mono">@userEmail</span>
+                        </div>
+                    </div>
+                    <div class="zero-trust-strip">
+                        <div class="zt-item">
+                            <i class="ph ph-shield-check text-emerald-500"></i>
+                            <span>Postura E2E Conforme</span>
+                        </div>
+                        <div class="zt-item">
+                            <i class="ph ph-lock-key text-blue-500"></i>
+                            <span>TLS 1.3 / JWT</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Ticket Quick Summary Counter -->
+                <div class="stats-row">
+                    <div class="stat-pill" onclick="mudarAbaMobile('tickets')">
+                        <span class="stat-val" id="homeTotalTickets">-</span>
+                        <span class="stat-label">Total Chamados</span>
+                    </div>
+                    <div class="stat-pill stat-accent" onclick="mudarAbaMobile('tickets')">
+                        <span class="stat-val" id="homeActiveTickets">-</span>
+                        <span class="stat-label">Em Aberto</span>
+                    </div>
+                    <div class="stat-pill" onclick="mudarAbaMobile('new')">
+                        <i class="ph ph-plus-circle text-2xl text-blue-500"></i>
+                        <span class="stat-label">Novo Chamado</span>
+                    </div>
+                </div>
+
+                <!-- Quick Action Bento -->
+                <div class="section-title">
+                    <h3>Ações Rápidas</h3>
+                </div>
+                <div class="quick-actions-grid">
+                    <button type="button" class="action-card" onclick="mudarAbaMobile('new'); preencherCategoria('Acesso')">
+                        <div class="action-icon bg-blue-500/10 text-blue-500">
+                            <i class="ph ph-key"></i>
+                        </div>
+                        <div class="action-meta">
+                            <strong>Acesso &amp; VPN</strong>
+                            <span>Pedir permissões</span>
+                        </div>
+                    </button>
+
+                    <button type="button" class="action-card" onclick="mudarAbaMobile('new'); preencherCategoria('Hardware')">
+                        <div class="action-icon bg-purple-500/10 text-purple-500">
+                            <i class="ph ph-desktop"></i>
+                        </div>
+                        <div class="action-meta">
+                            <strong>Equipamento</strong>
+                            <span>Manutenção/Troca</span>
+                        </div>
+                    </button>
+
+                    <button type="button" class="action-card" onclick="mudarAbaMobile('new'); preencherCategoria('Software')">
+                        <div class="action-icon bg-emerald-500/10 text-emerald-500">
+                            <i class="ph ph-app-window"></i>
+                        </div>
+                        <div class="action-meta">
+                            <strong>Softwares</strong>
+                            <span>Licenças e programas</span>
+                        </div>
+                    </button>
+
+                    <button type="button" class="action-card" onclick="mudarAbaMobile('new'); preencherCategoria('Segurança')">
+                        <div class="action-icon bg-orange-500/10 text-orange-500">
+                            <i class="ph ph-warning-octagon"></i>
+                        </div>
+                        <div class="action-meta">
+                            <strong>Alerta SecOps</strong>
+                            <span>Incidente / Phishing</span>
+                        </div>
+                    </button>
+                </div>
+
+                <!-- Recent Tickets Preview Section -->
+                <div class="section-header-flex">
+                    <div class="section-title">
+                        <h3>Chamados Recentes</h3>
+                    </div>
+                    <button type="button" onclick="mudarAbaMobile('tickets')" class="link-btn">Ver todos <i class="ph ph-arrow-right"></i></button>
+                </div>
+                <div id="homeRecentList" class="tickets-container">
+                    <div class="loading-state">
+                        <div class="spinner"></div>
+                        <span>Carregando dados sincronizados...</span>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ============================================== -->
+            <!-- ABA 2: NOVO CHAMADO (TOUCH FIRST)              -->
+            <!-- ============================================== -->
+            <section id="view-new" class="app-view" aria-labelledby="new-heading">
+                <div class="view-header">
+                    <h2 id="new-heading">Abertura de Chamado</h2>
+                    <p>Envie sua solicitação direto para a fila do Service Desk corporativo.</p>
+                </div>
+
+                <form id="chamado-form" class="mobile-form">
+                    <!-- Touch Category Selector -->
+                    <div class="form-group">
+                        <label class="form-label">Categoria da Solicitação</label>
+                        <div class="touch-chips-grid" id="categoryChips">
+                            <button type="button" class="chip active" data-cat="Acesso">
+                                <i class="ph ph-lock-key"></i> Acesso / VPN
+                            </button>
+                            <button type="button" class="chip" data-cat="Hardware">
+                                <i class="ph ph-cpu"></i> Hardware
+                            </button>
+                            <button type="button" class="chip" data-cat="Software">
+                                <i class="ph ph-package"></i> Software
+                            </button>
+                            <button type="button" class="chip" data-cat="Rede">
+                                <i class="ph ph-wifi-high"></i> Conexão / Rede
+                            </button>
+                            <button type="button" class="chip" data-cat="Segurança">
+                                <i class="ph ph-shield-warning"></i> Segurança
+                            </button>
+                        </div>
+                        <input type="hidden" id="categoria" value="Acesso">
+                    </div>
+
+                    <!-- Touch Priority Selector -->
+                    <div class="form-group">
+                        <label class="form-label">Prioridade de Atendimento</label>
+                        <div class="touch-chips-pills" id="priorityChips">
+                            <button type="button" class="pill-chip" data-prio="Baixa">Baixa</button>
+                            <button type="button" class="pill-chip active" data-prio="Normal">Normal</button>
+                            <button type="button" class="pill-chip" data-prio="Alta">Alta</button>
+                            <button type="button" class="pill-chip prio-critica" data-prio="Critica">Crítica</button>
+                        </div>
+                        <input type="hidden" id="prioridade" value="Normal">
+                    </div>
+
+                    <!-- Subject -->
+                    <div class="form-group">
+                        <label for="assunto" class="form-label">Assunto</label>
+                        <input id="assunto" required maxlength="100" autocomplete="off" placeholder="Ex: Liberação de acesso ao ERP Totvs" class="mobile-input" />
+                    </div>
+
+                    <!-- Description with Voice Dictation Button -->
+                    <div class="form-group">
+                        <div class="label-with-action">
+                            <label for="descricao" class="form-label">Descrição Detalhada</label>
+                            <button type="button" id="btnVoiceDictation" class="voice-btn" title="Ditar por voz">
+                                <i class="ph ph-microphone"></i> Ditar
+                            </button>
+                        </div>
+                        <textarea id="descricao" required maxlength="1000" rows="4" placeholder="Descreva o problema, mensagem de erro ou software solicitado..." class="mobile-textarea"></textarea>
+                    </div>
+
+                    <!-- Submit Button -->
+                    <button type="submit" id="btnSubmitTicket" class="submit-touch-btn">
+                        <i class="ph ph-paper-plane-tilt"></i>
+                        <span>Enviar Chamado</span>
+                    </button>
+                </form>
+            </section>
+
+            <!-- ============================================== -->
+            <!-- ABA 3: MEUS CHAMADOS (LISTA & FILTRO)          -->
+            <!-- ============================================== -->
+            <section id="view-tickets" class="app-view" aria-labelledby="tickets-heading">
+                <div class="view-header">
+                    <h2 id="tickets-heading">Meus Chamados</h2>
+                    <p>Acompanhe o andamento de suas solicitações em tempo real.</p>
+                </div>
+
+                <!-- Search & Filters -->
+                <div class="search-filter-box">
+                    <div class="mobile-search-bar">
+                        <i class="ph ph-magnifying-glass"></i>
+                        <input type="text" id="ticketSearchInput" oninput="filtrarChamados()" placeholder="Pesquisar por assunto ou código..." />
+                    </div>
+                    <div class="filter-pills-row" id="ticketFilterPills">
+                        <button type="button" class="filter-pill active" data-filter="todos">Todos</button>
+                        <button type="button" class="filter-pill" data-filter="abertos">Em Aberto</button>
+                        <button type="button" class="filter-pill" data-filter="concluidos">Resolvidos</button>
+                    </div>
+                </div>
+
+                <div id="lista" class="tickets-container" aria-live="polite">
+                    <div class="loading-state">
+                        <div class="spinner"></div>
+                        <span>Carregando chamados...</span>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ============================================== -->
+            <!-- ABA 4: PERFIL & SEGURANÇA                      -->
+            <!-- ============================================== -->
+            <section id="view-profile" class="app-view" aria-labelledby="profile-heading">
+                <div class="view-header">
+                    <h2 id="profile-heading">Meu Perfil Corporativo</h2>
+                    <p>Credenciais, postura de segurança e configurações locais.</p>
+                </div>
+
+                <div class="card profile-card">
+                    <div class="profile-header-row">
+                        <div class="profile-avatar-lg">
+                            <span>@(userName.Substring(0, Math.Min(2, userName.Length)).ToUpperInvariant())</span>
+                        </div>
+                        <div class="profile-info-block">
+                            <h3>@userName</h3>
+                            <span class="font-mono text-xs">@userEmail</span>
+                            <div class="profile-roles-wrap">
+                                @if (isAdmin)
+                                {
+                                    <span class="role-tag role-admin">Administrador</span>
+                                }
+                                else if (isHelpDesk)
+                                {
+                                    <span class="role-tag role-helpdesk">Help Desk</span>
+                                }
+                                else
+                                {
+                                    <span class="role-tag">Colaborador</span>
+                                }
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Segurança & Identidade -->
+                <div class="section-title">
+                    <h3>Segurança Zero Trust</h3>
+                </div>
+                <div class="card settings-card">
+                    <div class="setting-item">
+                        <div class="setting-left">
+                            <i class="ph ph-shield-check text-emerald-500 text-xl"></i>
+                            <div>
+                                <strong>Autenticação de 2 Fatores (MFA)</strong>
+                                <span class="setting-desc">Proteção ativa por código TOTP</span>
+                            </div>
+                        </div>
+                        <span class="badge-active">Ativo</span>
+                    </div>
+
+                    <div class="setting-item">
+                        <div class="setting-left">
+                            <i class="ph ph-fingerprint text-blue-500 text-xl"></i>
+                            <div>
+                                <strong>Sessão Criptografada</strong>
+                                <span class="setting-desc">Token JWT com validação contínua</span>
+                            </div>
+                        </div>
+                        <span class="badge-active">Seguro</span>
+                    </div>
+                </div>
+
+                <!-- Gestão Local & Cache -->
+                <div class="section-title">
+                    <h3>Armazenamento &amp; Offline</h3>
+                </div>
+                <div class="card settings-card">
+                    <button type="button" class="setting-item-btn" onclick="limparCacheOffline()">
+                        <div class="setting-left">
+                            <i class="ph ph-trash text-orange-500 text-xl"></i>
+                            <div>
+                                <strong>Limpar Cache &amp; Sincronização</strong>
+                                <span class="setting-desc">Remove dados locais do IndexedDB e recarrega da nuvem</span>
+                            </div>
+                        </div>
+                        <i class="ph ph-caret-right text-gray-400"></i>
+                    </button>
+                </div>
+
+                <!-- Desktop / Portal Links -->
+                @if (isAdmin || isHelpDesk)
+                {
+                    <div class="desktop-switch-box">
+                        <a href="/Admin/Index" class="btn-desktop-link">
+                            <i class="ph ph-desktop"></i>
+                            <span>Acessar Painel Web Administrativo</span>
+                        </a>
+                    </div>
+                }
+
+                <div class="logout-box">
+                    <a href="/Auth/Logout" class="btn-logout" onclick="limparSessaoLogout()">
+                        <i class="ph ph-sign-out"></i>
+                        <span>Encerrar Sessão Segura</span>
+                    </a>
+                </div>
+            </section>
+        </main>
+
+        <!-- NATIVE MOBILE BOTTOM NAVIGATION BAR -->
+        <nav class="app-bottom-nav" aria-label="Navegação Principal Mobile">
+            <button type="button" class="nav-tab active" data-tab="home" onclick="mudarAbaMobile('home')">
+                <i class="ph ph-house"></i>
+                <span>Início</span>
+            </button>
+
+            <button type="button" class="nav-tab nav-tab-highlight" data-tab="new" onclick="mudarAbaMobile('new')">
+                <div class="highlight-circle">
+                    <i class="ph ph-plus"></i>
+                </div>
+                <span>Novo</span>
+            </button>
+
+            <button type="button" class="nav-tab" data-tab="tickets" onclick="mudarAbaMobile('tickets')">
+                <div class="tab-badge-wrap">
+                    <i class="ph ph-ticket"></i>
+                    <span id="navTicketsCount" class="tab-badge hidden">0</span>
+                </div>
+                <span>Chamados</span>
+            </button>
+
+            <button type="button" class="nav-tab" data-tab="profile" onclick="mudarAbaMobile('profile')">
+                <i class="ph ph-user"></i>
+                <span>Perfil</span>
+            </button>
+        </nav>
+    </div>
+
+    <script src="~/mobile/app.js?v=20261022"></script>
 </body>
 </html>

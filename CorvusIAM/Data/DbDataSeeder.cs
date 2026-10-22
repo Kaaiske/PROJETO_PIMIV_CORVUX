@@ -480,7 +480,10 @@ namespace CorvusIAM.Data
             }
 
             // 0. Usuários de Demonstração por Perfil Departamental (Fluxo Completo RBAC)
-            const string defaultHash = "$2a$11$y4AkJtTDlULmPEEKkqBLk.MM4ZKyMK8ExkIkfyAY5s/iEMDL1UvIS"; // Cv1670!
+            var customAdminPassword = Environment.GetEnvironmentVariable("ADMIN_INITIAL_PASSWORD");
+            string defaultHash = !string.IsNullOrWhiteSpace(customAdminPassword)
+                ? BCrypt.Net.BCrypt.HashPassword(customAdminPassword)
+                : "$2a$11$y4AkJtTDlULmPEEKkqBLk.MM4ZKyMK8ExkIkfyAY5s/iEMDL1UvIS";
             void EnsureDemoUser(string email, string nome, string cargo, string depto, string cpf, int perfilId)
             {
                 var user = context.Usuarios.FirstOrDefault(u => u.Email == email);
