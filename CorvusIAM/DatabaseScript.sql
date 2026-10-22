@@ -447,46 +447,9 @@ BEGIN
 END;
 GO
 
--- Usuário Administrador Padrão (admin@corvus.com / Cv1670!)
-IF NOT EXISTS (SELECT 1 FROM Usuarios WHERE Id = 1)
-BEGIN
-    SET IDENTITY_INSERT Usuarios ON;
-    INSERT INTO Usuarios (
-        Id, Nome, Email, SenhaHash, Ativo, TentativasLogin, DataDesbloqueio,
-        ResetSenhaToken, MfaHabilitado, MfaSecretKey, CPF, Cargo, DataNascimento,
-        DataContratacao, RG, Telefone, Departamento, Endereco, RefreshToken
-    ) VALUES (
-        1,
-        'Administrador TI',
-        'admin@corvus.com',
-        '$2a$11$y4AkJtTDlULmPEEKkqBLk.MM4ZKyMK8ExkIkfyAY5s/iEMDL1UvIS',
-        1,
-        0,
-        NULL,
-        '',
-        0,
-        '',
-        '000.000.000-00',
-        'CTO',
-        '1990-01-01',
-        '2023-01-01',
-        '00.000.000-0',
-        '(11) 99999-9999',
-        'Tecnologia',
-        'Av. Paulista, 1000 - SP',
-        ''
-    );
-    SET IDENTITY_INSERT Usuarios OFF;
-END;
-GO
-
--- Associação do Administrador ao Perfil Admin
-IF NOT EXISTS (SELECT 1 FROM UsuarioPerfis WHERE UsuarioId = 1 AND PerfilId = 1)
-BEGIN
-    INSERT INTO UsuarioPerfis (UsuarioId, PerfilId) VALUES (1, 1);
-END;
-GO
-
+-- O administrador inicial e configurado somente por ADMIN_INITIAL_PASSWORD.
+-- Nenhuma credencial padrao e inserida neste script.
+-- A conta administrativa e sua associacao RBAC sao provisionadas pelo seeding da aplicacao.
 -- 8. Novas Tabelas Corporativas: Firewall, Endpoints DevOps, Contabilidade e RH
 IF OBJECT_ID(N'[FirewallRegras]') IS NULL
 BEGIN

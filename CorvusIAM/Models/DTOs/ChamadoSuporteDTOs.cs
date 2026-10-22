@@ -43,6 +43,10 @@ namespace CorvusIAM.Models.DTOs
     /// </summary>
     public class ChamadoCreateDTO
     {
+        /// <summary>Chave opcional para tornar retries da mesma solicitação idempotentes.</summary>
+        [StringLength(100)]
+        public string? ClientIdempotencyKey { get; set; }
+
         /// <summary>Título breve da solicitação (até 100 caracteres).</summary>
         [Required(ErrorMessage = "O assunto é obrigatório."), StringLength(100)]
         public string Assunto { get; set; } = string.Empty;

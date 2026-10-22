@@ -21,8 +21,12 @@ namespace CorvusIAM.Services
             _environment = environment;
             _configuration = configuration;
             
-            string webRoot = _environment.WebRootPath ?? Path.Combine(Directory.GetCurrentDirectory(), "wwwroot");
-            _uploadDirectory = Path.Combine(webRoot, "uploads", "chamados");
+            // Keep attachments outside wwwroot so they are never publicly downloadable
+            // without the authorization check in AnexosController.
+            var contentRoot = _environment.ContentRootPath
+                ?? _environment.WebRootPath
+                ?? Directory.GetCurrentDirectory();
+            _uploadDirectory = Path.Combine(contentRoot, "uploads", "chamados");
             
             if (!Directory.Exists(_uploadDirectory))
             {
@@ -81,7 +85,7 @@ namespace CorvusIAM.Services
                 await stream.CopyToAsync(fileStream);
             }
 
-            return $"/uploads/chamados/{safeFileName}";
+            return safeFileName;
         }
 
         public Task<Stream?> DownloadFileAsync(string fileKey)
@@ -101,7 +105,7 @@ namespace CorvusIAM.Services
         public string GetFileUrl(string fileKey)
         {
             string cleanKey = Path.GetFileName(fileKey);
-            return $"/uploads/chamados/{cleanKey}";
+            return $"/api/chamados/anexos/{Uri.EscapeDataString(cleanKey)}";
         }
 
         public Task<bool> DeleteFileAsync(string fileKey)

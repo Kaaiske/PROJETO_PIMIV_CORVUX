@@ -73,6 +73,11 @@ namespace CorvusIAM.Data
                 .HasForeignKey(c => c.ResponsavelId)
                 .OnDelete(DeleteBehavior.NoAction);
 
+            modelBuilder.Entity<ChamadoSuporte>()
+                .HasIndex(c => new { c.UsuarioId, c.ClientIdempotencyKey })
+                .IsUnique()
+                .HasFilter("ClientIdempotencyKey IS NOT NULL");
+
             // Seed Data
             modelBuilder.Entity<Perfil>().HasData(
                 new Perfil { Id = 1, Nome = "Admin", Descricao = "Administrador do Sistema", Ativo = true },

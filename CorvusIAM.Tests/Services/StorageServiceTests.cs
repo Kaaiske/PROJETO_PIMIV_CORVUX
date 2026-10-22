@@ -22,6 +22,7 @@ namespace CorvusIAM.Tests.Services
 
             var mockEnv = new Mock<IWebHostEnvironment>();
             mockEnv.Setup(e => e.WebRootPath).Returns(_tempDir);
+            mockEnv.Setup(e => e.ContentRootPath).Returns(_tempDir);
 
             var mockConfig = new Mock<IConfiguration>();
 
@@ -35,11 +36,11 @@ namespace CorvusIAM.Tests.Services
             var bytes = Encoding.UTF8.GetBytes(content);
             using var stream = new MemoryStream(bytes);
 
-            string fileUrl = await _storageService.UploadFileAsync(stream, "teste.pdf", "application/pdf");
+            string fileKey = await _storageService.UploadFileAsync(stream, "teste.pdf", "application/pdf");
 
-            Assert.NotNull(fileUrl);
-            Assert.StartsWith("/uploads/chamados/", fileUrl);
-            Assert.EndsWith(".pdf", fileUrl);
+            Assert.NotNull(fileKey);
+            Assert.EndsWith(".pdf", fileKey);
+            Assert.StartsWith("/api/chamados/anexos/", _storageService.GetFileUrl(fileKey));
         }
 
         [Fact]

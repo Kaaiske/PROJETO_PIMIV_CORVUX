@@ -14,6 +14,10 @@ obj/
 # Database
 *.db
 *.sqlite
+*.db-shm
+*.db-wal
+CorvusIAM/keys/
+CorvusIAM/uploads/
 
 # Environment variables
 .env

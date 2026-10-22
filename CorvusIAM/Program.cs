@@ -5,6 +5,7 @@ using CorvusIAM.Interfaces;
 using CorvusIAM.Repositories;
 using CorvusIAM.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.DataProtection;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
@@ -15,6 +16,12 @@ using Microsoft.AspNetCore.RateLimiting;
 using System.Threading.RateLimiting;
 
 var builder = WebApplication.CreateBuilder(args);
+
+// Persist cookie encryption keys so restarts/redeploys do not invalidate every
+// authenticated browser session. Docker mounts /app/keys as a durable volume.
+builder.Services.AddDataProtection()
+    .SetApplicationName("CorvusIAM")
+    .PersistKeysToFileSystem(new DirectoryInfo(Path.Combine(builder.Environment.ContentRootPath, "keys")));
 
 // Configure Serilog
 Log.Logger = new LoggerConfiguration()

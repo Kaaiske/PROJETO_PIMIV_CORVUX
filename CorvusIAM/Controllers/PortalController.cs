@@ -135,7 +135,8 @@ namespace CorvusIAM.Controllers {
                 try
                 {
                     using var stream = form.Anexo.OpenReadStream();
-                    anexoUrl = await _storageService.UploadFileAsync(stream, form.Anexo.FileName, form.Anexo.ContentType);
+                    var fileKey = await _storageService.UploadFileAsync(stream, form.Anexo.FileName, form.Anexo.ContentType);
+                    anexoUrl = _storageService.GetFileUrl(fileKey);
                     anexoNome = form.Anexo.FileName;
                 }
                 catch (Exception ex)

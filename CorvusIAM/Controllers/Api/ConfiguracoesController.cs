@@ -18,7 +18,7 @@ namespace CorvusIAM.Controllers.Api
     [ApiController]
     [IgnoreAntiforgeryToken]
     [Route("api/[controller]")]
-    [Authorize]
+    [Authorize(Policy = "RequireAdmin")]
     [Tags("Configurações do Sistema & Gateway")]
     public class ConfiguracoesController : ControllerBase
     {

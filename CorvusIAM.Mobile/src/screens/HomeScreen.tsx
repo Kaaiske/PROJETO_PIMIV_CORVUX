@@ -11,6 +11,8 @@ type Props = {
 export default function HomeScreen({ navigation }: Props) {
   const handleLogout = async () => {
     await SecureStore.deleteItemAsync('userToken');
+    await SecureStore.deleteItemAsync('refreshToken');
+    await SecureStore.deleteItemAsync('userEmail');
     navigation.replace('Login');
   };
 

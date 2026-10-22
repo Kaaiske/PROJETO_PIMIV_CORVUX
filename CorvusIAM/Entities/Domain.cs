@@ -128,6 +128,10 @@ namespace CorvusIAM.Entities
         
         [Timestamp]
         public byte[] RowVersion { get; set; } = Array.Empty<byte>();
+
+        // Chave fornecida pelo cliente para impedir duplicidade em retries offline.
+        [MaxLength(100)]
+        public string? ClientIdempotencyKey { get; set; }
     }
 
     public class ConfiguracaoSistema

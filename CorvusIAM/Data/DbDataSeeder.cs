@@ -480,10 +480,26 @@ namespace CorvusIAM.Data
             }
 
             // 0. Usuários de Demonstração por Perfil Departamental (Fluxo Completo RBAC)
+            const string knownLegacyAdminHash = "$2a$11$y4AkJtTDlULmPEEKkqBLk.MM4ZKyMK8ExkIkfyAY5s/iEMDL1UvIS";
             var customAdminPassword = Environment.GetEnvironmentVariable("ADMIN_INITIAL_PASSWORD");
             string defaultHash = !string.IsNullOrWhiteSpace(customAdminPassword)
                 ? BCrypt.Net.BCrypt.HashPassword(customAdminPassword)
-                : "$2a$11$y4AkJtTDlULmPEEKkqBLk.MM4ZKyMK8ExkIkfyAY5s/iEMDL1UvIS";
+                : BCrypt.Net.BCrypt.HashPassword(Guid.NewGuid().ToString("N"));
+
+            // Never leave the historical demo administrator credential active.
+            // A production deployment must provide ADMIN_INITIAL_PASSWORD explicitly.
+            var seededAdminUser = context.Usuarios.FirstOrDefault(u => u.Email == "admin@corvus.com");
+            if (seededAdminUser != null &&
+                string.Equals(seededAdminUser.SenhaHash, knownLegacyAdminHash, StringComparison.Ordinal))
+            {
+                seededAdminUser.SenhaHash = !string.IsNullOrWhiteSpace(customAdminPassword)
+                    ? BCrypt.Net.BCrypt.HashPassword(customAdminPassword)
+                    : BCrypt.Net.BCrypt.HashPassword(Guid.NewGuid().ToString("N"));
+                seededAdminUser.Ativo = !string.IsNullOrWhiteSpace(customAdminPassword);
+                seededAdminUser.RefreshToken = string.Empty;
+                seededAdminUser.RefreshTokenExpiracao = null;
+                context.SaveChanges();
+            }
             void EnsureDemoUser(string email, string nome, string cargo, string depto, string cpf, int perfilId)
             {
                 var user = context.Usuarios.FirstOrDefault(u => u.Email == email);

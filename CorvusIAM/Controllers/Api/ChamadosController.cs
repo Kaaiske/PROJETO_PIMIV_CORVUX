@@ -139,6 +139,19 @@ namespace CorvusIAM.Controllers.Api
             if (string.IsNullOrEmpty(userIdStr) || !int.TryParse(userIdStr, out int userId))
                 return Unauthorized();
 
+            var idempotencyKey = (Request.Headers["X-Idempotency-Key"].FirstOrDefault() ?? dto.ClientIdempotencyKey)?.Trim();
+            if (!string.IsNullOrEmpty(idempotencyKey))
+            {
+                if (idempotencyKey.Length > 100)
+                    return BadRequest(new { message = "A chave de idempotência excede 100 caracteres." });
+
+                var existing = await _context.ChamadosSuporte
+                    .AsNoTracking()
+                    .FirstOrDefaultAsync(c => c.UsuarioId == userId && c.ClientIdempotencyKey == idempotencyKey);
+                if (existing != null)
+                    return Ok(new { message = "Chamado já registrado anteriormente.", id = existing.Id, duplicate = true });
+            }
+
             var categoria = string.IsNullOrWhiteSpace(dto.Categoria) ? "Acesso" : dto.Categoria.Trim();
             var prioridade = string.IsNullOrWhiteSpace(dto.Prioridade) ? "Normal" : dto.Prioridade.Trim();
             if (prioridade != "Baixa" && prioridade != "Normal" && prioridade != "Alta" && prioridade != "Critica")
@@ -154,7 +167,8 @@ namespace CorvusIAM.Controllers.Api
                 Status = "Aberto",
                 DataAbertura = DateTime.UtcNow,
                 DataAtualizacao = DateTime.UtcNow,
-                PrazoSla = DateTime.UtcNow.AddHours(prioridade == "Critica" ? 4 : prioridade == "Alta" ? 8 : 24)
+                PrazoSla = DateTime.UtcNow.AddHours(prioridade == "Critica" ? 4 : prioridade == "Alta" ? 8 : 24),
+                ClientIdempotencyKey = idempotencyKey
             };
 
             _context.ChamadosSuporte.Add(chamado);

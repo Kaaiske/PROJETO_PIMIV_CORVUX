@@ -28,7 +28,13 @@ namespace CorvusIAM.Controllers.Api
 
         private bool IsAuthorized()
         {
-            if (User?.Identity?.IsAuthenticated == true) return true;
+            // JWT/Cookie authentication alone is insufficient for directory export.
+            // Only administrators or users with the explicit directory permission
+            // may use the gateway with their bearer/cookie identity.
+            if (User?.Identity?.IsAuthenticated == true)
+            {
+                return User.IsInRole("Admin") || User.HasClaim("permission", "usuarios.visualizar");
+            }
 
             string? token = null;
             if (Request.Headers.TryGetValue("X-API-Key", out var headerKey))

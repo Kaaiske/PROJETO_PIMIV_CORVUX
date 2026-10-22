@@ -23,6 +23,9 @@ services:
       - "Smtp__Email=${SMTP_EMAIL:-seguranca@corvuxiam.tech}"
       - "Smtp__Password=${SMTP_PASSWORD:-}"
     restart: unless-stopped
+    volumes:
+      - ./uploads:/app/uploads
+      - ./data-protection-keys:/app/keys
     depends_on:
       sqlserver:
         condition: service_healthy
