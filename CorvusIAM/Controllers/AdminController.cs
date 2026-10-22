@@ -270,10 +270,10 @@ namespace CorvusIAM.Controllers
 
             return new Dictionary<int, DiversidadeInfoDTO>
             {
-                [1] = new DiversidadeInfoDTO { RacaCorIbge = "Preta (Afrodescendente)", ModalidadeIngresso = "Programa Liderança Negra & Diversidade", Pcd = false },
-                [2] = new DiversidadeInfoDTO { RacaCorIbge = "Parda (Afrodescendente)", ModalidadeIngresso = "Ação Afirmativa - Equidade Racial", Pcd = false },
+                [1] = new DiversidadeInfoDTO { RacaCorIbge = "Preta", ModalidadeIngresso = "Ação Afirmativa - Equidade Racial", Pcd = false },
+                [2] = new DiversidadeInfoDTO { RacaCorIbge = "Parda", ModalidadeIngresso = "Ação Afirmativa - Equidade Racial", Pcd = false },
                 [3] = new DiversidadeInfoDTO { RacaCorIbge = "Branca", ModalidadeIngresso = "Ampla Concorrência", Pcd = true },
-                [4] = new DiversidadeInfoDTO { RacaCorIbge = "Preta (Afrodescendente)", ModalidadeIngresso = "Ação Afirmativa - Equidade Racial", Pcd = false },
+                [4] = new DiversidadeInfoDTO { RacaCorIbge = "Preta", ModalidadeIngresso = "Ação Afirmativa - Equidade Racial", Pcd = false },
                 [5] = new DiversidadeInfoDTO { RacaCorIbge = "Indígena", ModalidadeIngresso = "Ação Afirmativa - Equidade Racial", Pcd = false }
             };
         }
@@ -1209,7 +1209,7 @@ namespace CorvusIAM.Controllers
             user.Departamento = u.Departamento ?? user.Departamento;
             user.Endereco = u.Endereco ?? user.Endereco;
 
-            _context.LogsAuditoria.Add(new LogAuditoria { DataHora = DateTime.Now, Acao = "Edição Colaborador", Detalhe = $"Usuário {user.Email} atualizado ({u.Cargo} | Autodeclaração: {u.RacaCorIbge})", Tipo = "Info", Origem = "Admin Panel", UsuarioId = int.TryParse(adminId, out var aid) ? aid : 1 });
+            _context.LogsAuditoria.Add(new LogAuditoria { DataHora = DateTime.UtcNow, Acao = "Edição Colaborador", Detalhe = $"Colaborador {user.Email} atualizado ({u.Cargo} | Registro de Diversidade Atualizado)", Tipo = "Info", Origem = "Admin Panel", UsuarioId = int.TryParse(adminId, out var aid) ? aid : 1 });
             _context.SaveChanges();
 
             if (!string.IsNullOrWhiteSpace(u.Cargo))
@@ -1316,7 +1316,7 @@ namespace CorvusIAM.Controllers
 
                 var racaInfo = string.IsNullOrWhiteSpace(novoUsuario.RacaCorIbge) ? "Não Informado" : novoUsuario.RacaCorIbge;
                 int currentAdminId = int.TryParse(User.FindFirstValue(System.Security.Claims.ClaimTypes.NameIdentifier), out var parsedId) ? parsedId : 1;
-                _context.LogsAuditoria.Add(new LogAuditoria { DataHora = DateTime.Now, Acao = "Novo Colaborador", Detalhe = $"Usuário {email} adicionado ({usuarioDb.Cargo} | Autodeclaração IBGE: {racaInfo})", Tipo = "Info", Origem = "Admin Panel", UsuarioId = currentAdminId });
+                _context.LogsAuditoria.Add(new LogAuditoria { DataHora = DateTime.UtcNow, Acao = "Novo Colaborador", Detalhe = $"Colaborador {email} adicionado ({usuarioDb.Cargo} | Registro de Diversidade Preenchido)", Tipo = "Info", Origem = "Admin Panel", UsuarioId = currentAdminId });
                 _context.SaveChanges();
 
                 if (!string.IsNullOrWhiteSpace(novoUsuario.Cargo))

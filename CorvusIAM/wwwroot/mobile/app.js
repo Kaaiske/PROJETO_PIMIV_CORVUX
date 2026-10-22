@@ -574,3 +574,55 @@ window.addEventListener('DOMContentLoaded', () => {
 
     carregarChamados();
 });
+
+// ==========================================
+// THEME & SETTINGS
+// ==========================================
+document.getElementById('btnThemeToggle')?.addEventListener('click', () => {
+    const isDark = document.documentElement.classList.toggle('dark');
+    localStorage.setItem('corvux-theme', isDark ? 'dark' : 'light');
+    atualizarIconeTema();
+});
+
+function atualizarIconeTema() {
+    const icon = document.getElementById('themeIcon');
+    if (!icon) return;
+    if (document.documentElement.classList.contains('dark')) {
+        icon.className = 'ph ph-sun text-lg text-amber-400';
+    } else {
+        icon.className = 'ph ph-moon text-lg text-slate-700';
+    }
+}
+
+function limparCacheOffline() {
+    if (confirm('Deseja limpar todos os dados locais e sincronizar novamente da nuvem?')) {
+        localStorage.removeItem('chamadosCache');
+        if (db) {
+            const tx = db.transaction('syncQueue', 'readwrite');
+            tx.objectStore('syncQueue').clear();
+        }
+        mostrarToast('Cache local limpo com sucesso!', 'sucesso');
+        carregarChamados();
+    }
+}
+
+function limparSessaoLogout() {
+    localStorage.removeItem('chamadosCache');
+    localStorage.removeItem('corvux_mobile_last_tab');
+}
+
+// ==========================================
+// INITIALIZATION
+// ==========================================
+window.addEventListener('DOMContentLoaded', () => {
+    atualizarStatusRede();
+    atualizarIconeTema();
+    inicializarTouchChips();
+    inicializarDitadoVoz();
+
+    const lastTab = localStorage.getItem('corvux_mobile_last_tab') || 'home';
+    mudarAbaMobile(lastTab);
+
+    carregarChamados();
+});
+

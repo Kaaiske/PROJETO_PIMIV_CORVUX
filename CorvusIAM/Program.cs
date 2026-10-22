@@ -212,6 +212,7 @@ A **CorvusIAM API** fornece controle unificado de Identidade, Autenticação Cor
         Type = SecuritySchemeType.ApiKey
     });
 
+    // Requisitos de segurança OpenAPI independentes (Bearer JWT OU X-API-Key)
     c.AddSecurityRequirement(new OpenApiSecurityRequirement
     {
         {
@@ -224,7 +225,11 @@ A **CorvusIAM API** fornece controle unificado de Identidade, Autenticação Cor
                 }
             },
             Array.Empty<string>()
-        },
+        }
+    });
+
+    c.AddSecurityRequirement(new OpenApiSecurityRequirement
+    {
         {
             new OpenApiSecurityScheme
             {
