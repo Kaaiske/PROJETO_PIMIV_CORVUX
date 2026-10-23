@@ -14,6 +14,11 @@ namespace CorvusIAM.Tests.Integration
     {
         protected override void ConfigureWebHost(Microsoft.AspNetCore.Hosting.IWebHostBuilder builder)
         {
+            builder.UseSetting("Jwt:Key", "TestJwtKey_SuperSecret1234567890_TestOnly!");
+            builder.UseSetting("JWT_KEY", "TestJwtKey_SuperSecret1234567890_TestOnly!");
+            builder.UseSetting("ADMIN_INITIAL_PASSWORD", "TestAdminPassword123!");
+            builder.UseSetting("Environment", "Development");
+
             builder.ConfigureServices(services =>
             {
                 var descriptor = services.SingleOrDefault(

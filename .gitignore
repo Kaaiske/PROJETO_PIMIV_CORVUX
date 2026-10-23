@@ -18,6 +18,9 @@ obj/
 *.db-wal
 CorvusIAM/keys/
 CorvusIAM/uploads/
+data-protection-keys/
+uploads/
+backups/
 
 # Environment variables
 .env

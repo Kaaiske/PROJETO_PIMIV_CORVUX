@@ -3,6 +3,7 @@ using CorvusIAM.Interfaces;
 using MailKit.Net.Smtp;
 using MailKit.Security;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
 using MimeKit;
 using MimeKit.Text;
 
@@ -11,10 +12,12 @@ namespace CorvusIAM.Services
     public class EmailSenderService : IEmailSenderService
     {
         private readonly IConfiguration _configuration;
+        private readonly ILogger<EmailSenderService> _logger;
 
-        public EmailSenderService(IConfiguration configuration)
+        public EmailSenderService(IConfiguration configuration, ILogger<EmailSenderService> logger)
         {
             _configuration = configuration;
+            _logger = logger;
         }
 
         public async Task SendEmailAsync(string to, string subject, string body)
@@ -26,7 +29,10 @@ namespace CorvusIAM.Services
             var password = _configuration["Smtp:Password"];
 
             if (string.IsNullOrEmpty(email) || string.IsNullOrEmpty(password))
-                return; // Skip if not configured
+            {
+                _logger.LogWarning("SMTP não configurado; e-mail para {Recipient} não foi enviado.", to);
+                throw new InvalidOperationException("SMTP não configurado.");
+            }
 
             var mimeMessage = new MimeMessage();
             mimeMessage.From.Add(MailboxAddress.Parse(email));

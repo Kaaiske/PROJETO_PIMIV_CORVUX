@@ -23,6 +23,7 @@ namespace CorvusIAM.Controllers
         private readonly IMemoryCache _cache;
         private readonly ITotpService _totpService;
         private readonly IConfiguration _configuration;
+        private readonly IMfaSecretProtector _mfaSecretProtector;
 
         public AuthController(
             ApplicationDbContext context, 
@@ -31,7 +32,8 @@ namespace CorvusIAM.Controllers
             IEmailSenderService emailSender,
             IMemoryCache cache,
             ITotpService totpService,
-            IConfiguration configuration)
+            IConfiguration configuration,
+            IMfaSecretProtector mfaSecretProtector)
         {
             _context = context;
             _turnstileService = turnstileService;
@@ -40,6 +42,7 @@ namespace CorvusIAM.Controllers
             _cache = cache;
             _totpService = totpService;
             _configuration = configuration;
+            _mfaSecretProtector = mfaSecretProtector;
         }
 
         private static string HashToken(string token)
@@ -68,6 +71,7 @@ namespace CorvusIAM.Controllers
         [Microsoft.AspNetCore.RateLimiting.EnableRateLimiting("LoginPolicy")]
         public async System.Threading.Tasks.Task<IActionResult> Login(string email, string senha)
         {
+            email = email.Trim().ToLowerInvariant();
             var ip = HttpContext.Connection.RemoteIpAddress?.ToString() ?? "Desconhecido";
 
             // Verificação ativa de regras de Firewall WAF
@@ -139,7 +143,7 @@ namespace CorvusIAM.Controllers
                 // Autenticação em Duas Etapas (MFA / 2FA com TOTP) — Fail-Closed
                 if (user.MfaHabilitado)
                 {
-                    if (string.IsNullOrWhiteSpace(user.MfaSecretKey))
+                    if (string.IsNullOrWhiteSpace(_mfaSecretProtector.Unprotect(user.MfaSecretKey)))
                     {
                         Log.Error("Usuário {Email} possui MFA habilitado, mas MfaSecretKey está vazia ou nula. Bloqueando acesso por segurança.", user.Email);
                         ViewBag.Erro = "Configuração de autenticação de dois fatores inconsistente na conta. Contate o suporte/administrador.";
@@ -147,7 +151,15 @@ namespace CorvusIAM.Controllers
                     }
 
                     var mfaSessionToken = Guid.NewGuid().ToString("N");
-                    _cache.Set($"mfa_user_{mfaSessionToken}", user.Id, TimeSpan.FromMinutes(5));
+                    _context.MfaSessoes.Add(new Entities.MfaSession
+                    {
+                        TokenHash = HashToken(mfaSessionToken),
+                        UsuarioId = user.Id,
+                        Email = user.Email,
+                        ExpiraEm = DateTime.UtcNow.AddMinutes(5),
+                        Canal = "WEB"
+                    });
+                    await _context.SaveChangesAsync();
                     return RedirectToAction("ValidarMfa", "Auth", new { token = mfaSessionToken });
                 }
 
@@ -273,6 +285,7 @@ namespace CorvusIAM.Controllers
         [Microsoft.AspNetCore.RateLimiting.EnableRateLimiting("LoginPolicy")]
         public async System.Threading.Tasks.Task<IActionResult> EsqueciSenha(string email)
         {
+            email = email.Trim().ToLowerInvariant();
             var user = await _context.Usuarios.FirstOrDefaultAsync(u => u.Email == email);
             if (user != null)
             {
@@ -296,15 +309,34 @@ namespace CorvusIAM.Controllers
                                 ?? $"{Request.Scheme}://{Request.Host}/Auth/RedefinirSenha?token={rawToken}&email={user.Email}";
                 }
 
-                ViewBag.ResetLink = resetLink;
+                if (HttpContext.RequestServices.GetRequiredService<IWebHostEnvironment>().IsDevelopment())
+                    ViewBag.ResetLink = resetLink;
                 
-                await _emailSender.SendEmailAsync(
-                    user.Email,
-                    "Redefinição de Senha - Corvux IAM",
-                    $"Clique no link para redefinir sua senha com segurança (válido por 1 hora): {resetLink}");
+                bool emailEnviado = false;
+                try
+                {
+                    await _emailSender.SendEmailAsync(
+                        user.Email,
+                        "Redefinição de Senha - Corvux IAM",
+                        $"Clique no link para redefinir sua senha com segurança (válido por 1 hora): {resetLink}");
+                    emailEnviado = true;
+                }
+                catch (Exception ex)
+                {
+                    Log.Error(ex, "Falha ao enviar e-mail de redefinição para {Email}.", user.Email);
+                    ViewBag.Erro = "O serviço de envio de e-mails corporativos (SMTP) está temporariamente indisponível. Entre em contato com o suporte ou utilize o link de contingência (em desenvolvimento).";
+                }
+
+                if (emailEnviado)
+                {
+                    ViewBag.Mensagem = "Se o e-mail existir em nossa base, um link de recuperação foi enviado.";
+                }
+            }
+            else
+            {
+                ViewBag.Mensagem = "Se o e-mail existir em nossa base, um link de recuperação foi enviado.";
             }
 
-            ViewBag.Mensagem = "Se o e-mail existir em nossa base, um link de recuperação foi enviado.";
             return View();
         }
 
@@ -368,7 +400,10 @@ namespace CorvusIAM.Controllers
         [HttpGet]
         public IActionResult ValidarMfa(string token)
         {
-            if (string.IsNullOrEmpty(token) || !_cache.TryGetValue($"mfa_user_{token}", out int _))
+            var session = string.IsNullOrWhiteSpace(token)
+                ? null
+                : _context.MfaSessoes.FirstOrDefault(s => s.TokenHash == HashToken(token) && s.Canal == "WEB" && s.ExpiraEm > DateTime.UtcNow);
+            if (session == null)
             {
                 return RedirectToAction("Login", "Auth");
             }
@@ -381,30 +416,30 @@ namespace CorvusIAM.Controllers
         [Microsoft.AspNetCore.RateLimiting.EnableRateLimiting("LoginPolicy")]
         public async System.Threading.Tasks.Task<IActionResult> ValidarMfa(string token, string codigo)
         {
-            if (string.IsNullOrEmpty(token) || !_cache.TryGetValue($"mfa_user_{token}", out int userId))
+            var mfaSession = string.IsNullOrWhiteSpace(token)
+                ? null
+                : _context.MfaSessoes.FirstOrDefault(s => s.TokenHash == HashToken(token) && s.Canal == "WEB" && s.ExpiraEm > DateTime.UtcNow);
+            if (mfaSession == null)
             {
                 ViewBag.Erro = "Sessão de verificação expirada. Faça o login novamente.";
                 return View();
             }
 
             // Limitador de tentativas de TOTP contra ataques de força bruta
-            var attemptsKey = $"mfa_attempts_{token}";
-            int attempts = _cache.GetOrCreate(attemptsKey, entry =>
-            {
-                entry.AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(5);
-                return 0;
-            });
+            var userId = mfaSession.UsuarioId;
+            int attempts = mfaSession.Tentativas;
 
             if (attempts >= 5)
             {
-                _cache.Remove($"mfa_user_{token}");
-                _cache.Remove(attemptsKey);
+                _context.MfaSessoes.Remove(mfaSession);
+                await _context.SaveChangesAsync();
                 Log.Warning("MFA bloqueado por excesso de tentativas para a sessão {Token}. Usuário ID: {UserId}", token, userId);
                 ViewBag.Erro = "Número excessivo de tentativas de verificação. Sessão expirada por segurança. Faça o login novamente.";
                 return View();
             }
 
-            _cache.Set(attemptsKey, attempts + 1, TimeSpan.FromMinutes(5));
+            mfaSession.Tentativas++;
+            await _context.SaveChangesAsync();
 
             var user = _context.Usuarios
                 .Include(u => u.UsuarioPerfis)
@@ -415,7 +450,7 @@ namespace CorvusIAM.Controllers
 
             if (user == null) return RedirectToAction("Login", "Auth");
 
-            bool valido = _totpService.ValidateCode(user.MfaSecretKey, codigo);
+            bool valido = _totpService.ValidateCode(_mfaSecretProtector.Unprotect(user.MfaSecretKey), codigo);
             if (!valido)
             {
                 ViewBag.Token = token;
@@ -424,8 +459,7 @@ namespace CorvusIAM.Controllers
             }
 
             // Remove o token de MFA temporário e contador de tentativas
-            _cache.Remove($"mfa_user_{token}");
-            _cache.Remove(attemptsKey);
+            _context.MfaSessoes.Remove(mfaSession);
 
             var role = user.UsuarioPerfis.FirstOrDefault()?.Perfil?.Nome ?? "Colaborador";
             var ip = HttpContext.Connection.RemoteIpAddress?.ToString() ?? "Desconhecido";

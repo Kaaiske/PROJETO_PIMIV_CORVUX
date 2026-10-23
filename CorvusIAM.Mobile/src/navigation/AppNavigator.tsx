@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react';
-import { NavigationContainer } from '@react-navigation/native';
+import { NavigationContainer, createNavigationContainerRef } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import * as SecureStore from 'expo-secure-store';
+import { DeviceEventEmitter } from 'react-native';
 
 import LoginScreen from '../screens/LoginScreen';
 import HomeScreen from '../screens/HomeScreen';
@@ -20,6 +21,7 @@ export type RootStackParamList = {
 };
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
+export const navigationRef = createNavigationContainerRef<RootStackParamList>();
 
 export default function AppNavigator() {
   const [initialRoute, setInitialRoute] = useState<keyof RootStackParamList | null>(null);
@@ -30,12 +32,18 @@ export default function AppNavigator() {
       setInitialRoute(token ? 'Home' : 'Login');
     };
     checkToken();
+    const subscription = DeviceEventEmitter.addListener('corvusiam:logout', () => {
+      if (navigationRef.isReady()) {
+        navigationRef.resetRoot({ index: 0, routes: [{ name: 'Login' }] });
+      }
+    });
+    return () => subscription.remove();
   }, []);
 
   if (!initialRoute) return null; // loading
 
   return (
-    <NavigationContainer>
+    <NavigationContainer ref={navigationRef}>
       <Stack.Navigator initialRouteName={initialRoute}>
         <Stack.Screen name="Login" component={LoginScreen} options={{ headerShown: false }} />
         <Stack.Screen name="Home" component={HomeScreen} options={{ title: 'Página inicial' }} />

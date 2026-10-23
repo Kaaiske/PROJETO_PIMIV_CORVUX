@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -20,7 +20,7 @@ namespace CorvusIAM.Controllers.Api
     [ApiController]
     [IgnoreAntiforgeryToken]
     [Route("api/[controller]")]
-    [Authorize]
+    [Authorize(Policy = "RequireJwt")]
     [Tags("Gestão de Usuários (IAM Core)")]
     public class UsuariosController : ControllerBase
     {
@@ -53,14 +53,9 @@ namespace CorvusIAM.Controllers.Api
                     Nome = u.Nome,
                     Email = u.Email,
                     Ativo = u.Ativo,
-                    CPF = u.CPF,
-                    DataNascimento = u.DataNascimento,
                     Cargo = u.Cargo,
                     DataContratacao = u.DataContratacao,
-                    RG = u.RG,
-                    Telefone = u.Telefone,
-                    Departamento = u.Departamento,
-                    Endereco = u.Endereco
+                    Departamento = u.Departamento
                 })
                 .ToListAsync();
             
@@ -126,20 +121,23 @@ namespace CorvusIAM.Controllers.Api
             var usuario = await _context.Usuarios.FindAsync(id);
             if (usuario == null) return NotFound();
             
+            var currentUserId = UsuarioAtualId();
+            var isPrivileged = User.IsInRole("Admin") || User.IsInRole("RH") || (currentUserId > 0 && currentUserId == id);
+
             var response = new UsuarioResponseDTO
             {
                 Id = usuario.Id,
                 Nome = usuario.Nome,
                 Email = usuario.Email,
                 Ativo = usuario.Ativo,
-                CPF = usuario.CPF,
-                DataNascimento = usuario.DataNascimento,
+                CPF = isPrivileged ? usuario.CPF : null,
+                DataNascimento = isPrivileged ? usuario.DataNascimento : null,
                 Cargo = usuario.Cargo,
                 DataContratacao = usuario.DataContratacao,
-                RG = usuario.RG,
-                Telefone = usuario.Telefone,
+                RG = isPrivileged ? usuario.RG : null,
+                Telefone = isPrivileged ? usuario.Telefone : null,
                 Departamento = usuario.Departamento,
-                Endereco = usuario.Endereco
+                Endereco = isPrivileged ? usuario.Endereco : null
             };
             return Ok(response);
         }
@@ -167,7 +165,7 @@ namespace CorvusIAM.Controllers.Api
             var usuario = new Usuario
             {
                 Nome = dto.Nome,
-                Email = dto.Email,
+                Email = dto.Email.Trim().ToLowerInvariant(),
                 SenhaHash = BCrypt.Net.BCrypt.HashPassword(dto.Senha),
                 Ativo = dto.Ativo,
                 CPF = dto.CPF,
@@ -235,7 +233,7 @@ namespace CorvusIAM.Controllers.Api
                 return BadRequest(new { message = "A senha deve conter 8 caracteres, maiúscula, minúscula, número e símbolo." });
             
             usuario.Nome = dto.Nome;
-            usuario.Email = dto.Email;
+            usuario.Email = dto.Email.Trim().ToLowerInvariant();
             if (!string.IsNullOrEmpty(dto.Senha))
                 usuario.SenhaHash = BCrypt.Net.BCrypt.HashPassword(dto.Senha);
             usuario.Ativo = dto.Ativo;

@@ -11,7 +11,7 @@ namespace CorvusIAM.Controllers.Api
     /// <summary>
     /// Consulta de Permissões e Privilégios Efetivos do Colaborador Autenticado.
     /// </summary>
-    [Authorize]
+    [Authorize(Policy = "RequireJwt")]
     [ApiController]
     [IgnoreAntiforgeryToken]
     [Route("api/[controller]")]

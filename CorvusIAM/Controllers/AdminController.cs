@@ -20,19 +20,25 @@ namespace CorvusIAM.Controllers
         private readonly CorvusIAM.Interfaces.IEmailValidationService _emailValidator;
         private readonly CorvusIAM.Interfaces.IEmailSenderService _emailSender;
         private readonly CorvusIAM.Interfaces.IPasswordGeneratorService _passwordGenerator;
+        private readonly bool _allowSimulation;
+        private readonly Microsoft.AspNetCore.DataProtection.IDataProtector? _integrationProtector;
 
         public AdminController(
             ApplicationDbContext context,
             CorvusIAM.Interfaces.IPasswordPwnedService passwordPwned,
             CorvusIAM.Interfaces.IEmailValidationService emailValidator,
             CorvusIAM.Interfaces.IEmailSenderService emailSender,
-            CorvusIAM.Interfaces.IPasswordGeneratorService passwordGenerator) 
+            CorvusIAM.Interfaces.IPasswordGeneratorService passwordGenerator,
+            Microsoft.AspNetCore.Hosting.IWebHostEnvironment? environment = null,
+            Microsoft.AspNetCore.DataProtection.IDataProtectionProvider? dataProtectionProvider = null)
         { 
             _context = context; 
             _passwordPwned = passwordPwned;
             _emailValidator = emailValidator;
             _emailSender = emailSender;
             _passwordGenerator = passwordGenerator;
+            _allowSimulation = environment?.IsDevelopment() ?? true;
+            _integrationProtector = dataProtectionProvider?.CreateProtector("CorvusIAM.Integrations.ApiKey.v1");
         }
 
         private static readonly string _integracoesFilePath = "integracoes.json";
@@ -47,6 +53,20 @@ namespace CorvusIAM.Controllers
                     var items = System.Text.Json.JsonSerializer.Deserialize<List<ModuloStatus>>(json);
                     if (items != null && items.Count > 0)
                     {
+                            var migratedSecrets = false;
+                            foreach (var item in items)
+                            {
+                                if (!string.IsNullOrWhiteSpace(item.ApiKey) && _integrationProtector != null && item.ApiKey.StartsWith("v1:", StringComparison.Ordinal))
+                                {
+                                    try { item.ApiKey = System.Text.Encoding.UTF8.GetString(_integrationProtector.Unprotect(Convert.FromBase64String(item.ApiKey[3..]))); }
+                                    catch (System.Security.Cryptography.CryptographicException) { item.ApiKey = string.Empty; }
+                                }
+                                else if (!string.IsNullOrWhiteSpace(item.ApiKey) && _integrationProtector != null)
+                                {
+                                    migratedSecrets = true;
+                                }
+                            }
+                            if (migratedSecrets) SaveIntegracoes(items);
                         if (!items.Any(i => i.Nome.Contains("Cloudflare")))
                         {
                             items.Add(new ModuloStatus { Nome = "Cloudflare Zero Trust / WAF", Versao = "v5.0", Status = "ONLINE", Latencia = "8ms", Icone = "ph-shield-check", Cor = "emerald", Detalhe = "Proteção Edge, DDoS Shield & DNS Filtrado" });
@@ -73,6 +93,14 @@ namespace CorvusIAM.Controllers
 
         private void SaveIntegracoes(List<ModuloStatus> integracoes)
         {
+            if (_integrationProtector != null)
+            {
+                foreach (var item in integracoes)
+                {
+                    if (!string.IsNullOrWhiteSpace(item.ApiKey) && !item.ApiKey.StartsWith("v1:", StringComparison.Ordinal))
+                        item.ApiKey = "v1:" + Convert.ToBase64String(_integrationProtector.Protect(System.Text.Encoding.UTF8.GetBytes(item.ApiKey)));
+                }
+            }
             var json = System.Text.Json.JsonSerializer.Serialize(integracoes);
             System.IO.File.WriteAllText(_integracoesFilePath, json);
         }
@@ -576,7 +604,7 @@ namespace CorvusIAM.Controllers
         {
             var defaultConfigs = new Dictionary<string, string>
             {
-                { "API_GATEWAY_TOKEN", Environment.GetEnvironmentVariable("API_GATEWAY_TOKEN") ?? ("corvux_gw_" + Guid.NewGuid().ToString("N")) },
+                { "API_GATEWAY_TOKEN", "CONFIGURED_IN_ENVIRONMENT" },
                 { "LOCKDOWN_MODE", "false" },
                 { "SESSION_TIMEOUT_MINUTES", "30" },
                 { "JWT_EXPIRATION_HOURS", "8" },
@@ -667,10 +695,17 @@ namespace CorvusIAM.Controllers
         [Authorize(Policy = "RequireAdmin")]
         public IActionResult SalvarConfiguracoes([FromBody] SalvarConfiguracoesDTO dto)
         {
+            var secretKeys = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+            {
+                "API_GATEWAY_TOKEN", "JWT_KEY", "SMTP_PASSWORD", "TURNSTILE_SECRETKEY", "TURNSTILE_SECRET_KEY"
+            };
             if (dto?.Configs != null)
             {
                 foreach (var item in dto.Configs)
                 {
+                    if (secretKeys.Contains(item.Key))
+                        continue;
+
                     var conf = _context.ConfiguracoesSistema.FirstOrDefault(c => c.Chave == item.Key);
                     if (conf != null)
                     {
@@ -700,6 +735,9 @@ namespace CorvusIAM.Controllers
         [Authorize(Policy = "RequireAdmin")]
         public IActionResult ExecutarAcaoEndpoint([FromBody] EndpointAcaoDTO dto)
         {
+            if (!_allowSimulation)
+                return StatusCode(StatusCodes.Status501NotImplemented, new { message = "Nenhum agente de endpoint está conectado para executar este comando em produção." });
+
             int.TryParse(User.FindFirstValue(System.Security.Claims.ClaimTypes.NameIdentifier), out int currentAdminId);
 
             if (dto.Acao == "BatchRemediate")
@@ -917,6 +955,9 @@ namespace CorvusIAM.Controllers
         [Authorize(Policy = "RequireAdmin")]
         public async Task<IActionResult> ReiniciarServicoApp()
         {
+            if (!_allowSimulation)
+                return StatusCode(StatusCodes.Status501NotImplemented, new { message = "Reinício deve ser executado pelo orquestrador de produção, não pelo painel." });
+
             int.TryParse(User.FindFirstValue(ClaimTypes.NameIdentifier), out int currentAdminId);
             _context.LogsAuditoria.Add(new LogAuditoria
             {
@@ -952,6 +993,9 @@ namespace CorvusIAM.Controllers
         [Authorize(Policy = "RequireAdmin")]
         public IActionResult ObterConexoesEndpoint(string hostname)
         {
+            if (!_allowSimulation)
+                return StatusCode(StatusCodes.Status501NotImplemented, new { message = "Telemetria de conexões depende do agente instalado no endpoint." });
+
             var dev = _context.DispositivosRede.FirstOrDefault(d => d.Hostname == hostname);
             if (dev == null) return NotFound(new { message = "Dispositivo não encontrado." });
 
@@ -986,6 +1030,9 @@ namespace CorvusIAM.Controllers
         [Authorize(Policy = "RequireAdmin")]
         public async Task<IActionResult> BloquearConexaoEndpoint([FromBody] BloqueioConexaoDTO dto)
         {
+            if (!_allowSimulation)
+                return StatusCode(StatusCodes.Status501NotImplemented, new { message = "Bloqueio por processo/porta depende do agente de endpoint." });
+
             int.TryParse(User.FindFirstValue(ClaimTypes.NameIdentifier), out int currentAdminId);
 
             var regraExistente = _context.FirewallRegras.FirstOrDefault(f => f.Ip == dto.DestinoIp);
@@ -1159,7 +1206,7 @@ namespace CorvusIAM.Controllers
             {
                 status = "Ativo e Monitorando",
                 motor = "Corvus IDS Stateful DPI Engine v2.4",
-                regrasAtivas = 38,
+                regrasAtivas = _context.LogsAuditoria.Count(l => l.Origem.Contains("IDS") || l.Tipo == "Critico" || l.Tipo == "Danger"),
                 totalBloqueados,
                 ultimosIncidentes = logsIds
             });
@@ -1430,6 +1477,11 @@ namespace CorvusIAM.Controllers
         [Authorize(Policy = "RequireAdmin")]
         public IActionResult DownloadRelatorio([FromQuery] int page = 1, [FromQuery] int pageSize = 5000)
         {
+            if (page < 1 || page > 100_000 || pageSize < 1)
+                return BadRequest(new { message = "page e pageSize devem ser positivos." });
+
+            pageSize = Math.Min(pageSize, 1000);
+
             // Paginação para evitar OutOfMemoryException
             var logs = _context.LogsAuditoria
                 .OrderByDescending(l => l.DataHora)

@@ -16,17 +16,20 @@ namespace CorvusIAM.Controllers {
         private readonly IPasswordPwnedService _passwordPwned;
         private readonly ITotpService _totpService;
         private readonly IStorageService _storageService;
+        private readonly IMfaSecretProtector? _mfaSecretProtector;
 
         public PortalController(
             ApplicationDbContext context, 
             IPasswordPwnedService passwordPwned,
             ITotpService totpService,
-            IStorageService storageService)
+            IStorageService storageService,
+            IMfaSecretProtector? mfaSecretProtector = null)
         {
             _context = context;
             _passwordPwned = passwordPwned;
             _totpService = totpService;
             _storageService = storageService;
+            _mfaSecretProtector = mfaSecretProtector;
         }
 
         [Authorize(Policy = "RequireHR")]
@@ -117,6 +120,8 @@ namespace CorvusIAM.Controllers {
         }
 
         [HttpPost]
+        [RequestSizeLimit(5 * 1024 * 1024)]
+        [RequestFormLimits(MultipartBodyLengthLimit = 5 * 1024 * 1024)]
         public async Task<IActionResult> AbrirChamado([FromForm] NovoChamadoFormDTO form)
         {
             var userIdClaim = User.FindFirstValue(ClaimTypes.NameIdentifier);
@@ -173,20 +178,20 @@ namespace CorvusIAM.Controllers {
 
             string secret = string.IsNullOrEmpty(user.MfaSecretKey) 
                 ? _totpService.GenerateSecretKey() 
-                : user.MfaSecretKey;
+                : (_mfaSecretProtector?.Unprotect(user.MfaSecretKey) ?? user.MfaSecretKey ?? string.Empty);
 
-            if (string.IsNullOrEmpty(user.MfaSecretKey))
+            if (_mfaSecretProtector != null && (string.IsNullOrEmpty(user.MfaSecretKey) || !_mfaSecretProtector.IsProtected(user.MfaSecretKey)))
             {
-                user.MfaSecretKey = secret;
+                user.MfaSecretKey = _mfaSecretProtector.Protect(secret);
                 _context.SaveChanges();
             }
 
-            string qrCodeUrl = _totpService.GenerateQrCodeImageUrl(user.Email, secret);
-            string setupUri = _totpService.GenerateQrCodeUri(user.Email, secret);
+            string? qrCodeUrl = user.MfaHabilitado ? null : _totpService.GenerateQrCodeImageUrl(user.Email, secret);
+            string? setupUri = user.MfaHabilitado ? null : _totpService.GenerateQrCodeUri(user.Email, secret);
 
             return Ok(new {
                 habilitado = user.MfaHabilitado,
-                secretKey = secret,
+                secretKey = user.MfaHabilitado ? null : secret,
                 qrCodeUrl = qrCodeUrl,
                 setupUri = setupUri
             });
@@ -201,7 +206,7 @@ namespace CorvusIAM.Controllers {
             var user = _context.Usuarios.Find(int.Parse(userIdClaim));
             if (user == null) return NotFound();
 
-            bool valido = _totpService.ValidateCode(user.MfaSecretKey, dto.Codigo);
+            bool valido = _totpService.ValidateCode(_mfaSecretProtector?.Unprotect(user.MfaSecretKey) ?? user.MfaSecretKey, dto.Codigo);
             if (!valido)
             {
                 return BadRequest(new { message = "Código de verificação incorreto ou expirado. Tente novamente." });
@@ -230,7 +235,7 @@ namespace CorvusIAM.Controllers {
             var user = _context.Usuarios.Find(int.Parse(userIdClaim));
             if (user == null) return NotFound();
 
-            bool valido = _totpService.ValidateCode(user.MfaSecretKey, dto.Codigo);
+            bool valido = _totpService.ValidateCode(_mfaSecretProtector?.Unprotect(user.MfaSecretKey) ?? user.MfaSecretKey, dto.Codigo);
             if (!valido)
             {
                 return BadRequest(new { message = "Código de autenticação inválido para desativação." });

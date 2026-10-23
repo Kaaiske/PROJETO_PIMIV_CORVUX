@@ -155,7 +155,7 @@
             <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
                 <div class="col-span-2 sm:col-span-1">
                     <label class="block text-[11px] text-gray-500 dark:text-gray-400 mb-1">Chave M2M API</label>
-                    <input type="text" data-chave="API_GATEWAY_TOKEN" value="@GetVal("API_GATEWAY_TOKEN", "")" class="cfg-input w-full bg-gray-50 dark:bg-dark-bg border border-gray-200 dark:border-dark-border text-gray-900 dark:text-gray-100 text-[11px] rounded-[6px] px-2.5 py-1.5 outline-none font-mono" />
+                    <input type="text" value="Configurado por variável de ambiente" disabled class="w-full bg-gray-100 dark:bg-dark-bg border border-gray-200 dark:border-dark-border text-gray-500 dark:text-gray-400 text-[11px] rounded-[6px] px-2.5 py-1.5 outline-none font-mono" />
                 </div>
                 <div>
                     <label class="block text-[11px] text-gray-500 dark:text-gray-400 mb-1">Rate Limit / min</label>
@@ -332,7 +332,7 @@
             const configs = {};
             document.querySelectorAll('.cfg-input').forEach(inp => {
                 const chave = inp.getAttribute('data-chave');
-                if (chave) configs[chave] = inp.value;
+                if (chave && !inp.disabled) configs[chave] = inp.value;
             });
 
             try {

@@ -5,7 +5,9 @@ services:
       context: ./CorvusIAM
       dockerfile: Dockerfile
     ports:
-      - "8080:8080"
+      # A porta fica acessível apenas pelo proxy TLS local por padrão.
+      # Em produção, mantenha este valor em 127.0.0.1 e publique via Cloudflare/Nginx.
+      - "${WEB_BIND_ADDRESS:-127.0.0.1}:8080:8080"
     environment:
       - ASPNETCORE_ENVIRONMENT=Production
       - ASPNETCORE_HTTP_PORTS=8080
@@ -13,6 +15,8 @@ services:
       - "ConnectionStrings__SqlServerConnection=Server=sqlserver;Database=CorvusIAMDb;User Id=sa;Password=${SQL_SA_PASSWORD:?Variavel de ambiente SQL_SA_PASSWORD obrigatoria};TrustServerCertificate=True;"
       - DatabaseProvider=SqlServer
       - "Jwt__Key=${JWT_KEY:?Variavel de ambiente JWT_KEY obrigatoria}"
+      - "ADMIN_INITIAL_PASSWORD=${ADMIN_INITIAL_PASSWORD:?Variavel de ambiente ADMIN_INITIAL_PASSWORD obrigatoria}"
+      - "API_GATEWAY_TOKEN=${API_GATEWAY_TOKEN:?Variavel de ambiente API_GATEWAY_TOKEN obrigatoria}"
       - Jwt__Issuer=CorvusIAM
       - Jwt__Audience=CorvusIAMUsers
       - "App__Domain=${APP_DOMAIN:-https://corvuxiam.tech}"

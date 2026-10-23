@@ -165,5 +165,15 @@ namespace CorvusIAM.Controllers.Api
 
             return Ok(response);
         }
+
+        [HttpPost("logout")]
+        public IActionResult Logout([FromBody] RefreshRequest request)
+        {
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            _authService.RevogarToken(request.email, request.refreshToken);
+            return NoContent();
+        }
     }
 }

@@ -18,11 +18,22 @@ namespace CorvusIAM.Controllers.Api
     [ApiController]
     [IgnoreAntiforgeryToken]
     [Route("api/[controller]")]
+    [Authorize(Policy = "RequireJwt")]
     [Authorize(Policy = "RequireAdmin")]
     [Tags("Configurações do Sistema & Gateway")]
     public class ConfiguracoesController : ControllerBase
     {
         private readonly ApplicationDbContext _context;
+
+        private static bool IsSensitive(string key) => key.ToUpperInvariant() switch
+        {
+            "API_GATEWAY_TOKEN" or "JWT_KEY" or "SMTP_PASSWORD" or
+            "TURNSTILE_SECRETKEY" or "TURNSTILE_SECRET_KEY" => true,
+            _ => false
+        };
+
+        private static string SafeValue(string key, string value) =>
+            IsSensitive(key) ? "***" : value;
 
         public ConfiguracoesController(ApplicationDbContext context)
         {
@@ -44,7 +55,7 @@ namespace CorvusIAM.Controllers.Api
                 {
                     Id = c.Id,
                     Chave = c.Chave,
-                    Valor = c.Valor
+                    Valor = SafeValue(c.Chave, c.Valor)
                 })
                 .ToListAsync();
             return Ok(configuracoes);
@@ -70,7 +81,7 @@ namespace CorvusIAM.Controllers.Api
             {
                 Id = configuracao.Id,
                 Chave = configuracao.Chave,
-                Valor = configuracao.Valor
+                Valor = SafeValue(configuracao.Chave, configuracao.Valor)
             };
             return Ok(response);
         }
@@ -91,6 +102,9 @@ namespace CorvusIAM.Controllers.Api
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
         public async Task<IActionResult> Cadastrar([FromBody] ConfiguracaoCreateDTO dto)
         {
+            if (string.IsNullOrWhiteSpace(dto.Chave) || IsSensitive(dto.Chave))
+                return BadRequest(new { message = "Segredos devem ser configurados por variáveis de ambiente e nunca pelo painel." });
+
             var configuracao = new ConfiguracaoSistema
             {
                 Chave = dto.Chave,
@@ -103,7 +117,7 @@ namespace CorvusIAM.Controllers.Api
             {
                 Id = configuracao.Id,
                 Chave = configuracao.Chave,
-                Valor = configuracao.Valor
+                Valor = SafeValue(configuracao.Chave, configuracao.Valor)
             };
             return CreatedAtAction(nameof(Consultar), new { id = configuracao.Id }, response);
         }
@@ -131,6 +145,9 @@ namespace CorvusIAM.Controllers.Api
             
             var configuracao = await _context.ConfiguracoesSistema.FindAsync(id);
             if (configuracao == null) return NotFound();
+
+            if (IsSensitive(configuracao.Chave) || IsSensitive(dto.Chave))
+                return BadRequest(new { message = "Segredos devem ser configurados por variáveis de ambiente e não podem ser alterados pelo painel." });
             
             configuracao.Chave = dto.Chave;
             configuracao.Valor = dto.Valor;

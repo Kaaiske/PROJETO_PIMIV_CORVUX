@@ -42,7 +42,7 @@ namespace CorvusIAM.Services
             try
             {
                 using var cts = new CancellationTokenSource(TimeSpan.FromMilliseconds(1200));
-                var response = await _httpClient.GetAsync($"http://ip-api.com/json/{ipAddress}?fields=status,country,city", cts.Token);
+                var response = await _httpClient.GetAsync($"https://ip-api.com/json/{ipAddress}?fields=status,country,city", cts.Token);
                 
                 if (response.IsSuccessStatusCode)
                 {
@@ -63,7 +63,7 @@ namespace CorvusIAM.Services
                 // Timeout ou falha externa não bloqueia o fluxo
             }
 
-            var fallback = "São Paulo, Brasil";
+            var fallback = "Localização indisponível";
             _cache.Set(cacheKey, fallback, TimeSpan.FromHours(6));
             return fallback;
         }

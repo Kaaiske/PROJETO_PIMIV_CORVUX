@@ -109,6 +109,20 @@
         <h2>Recuperação de Credencial</h2>
         <p>Informe seu e-mail corporativo para receber o token de redefinição de senha.</p>
 
+        @if (ViewBag.Erro != null)
+        {
+            <div class="msg-box" style="background: rgba(239, 68, 68, 0.08); border-color: rgba(239, 68, 68, 0.25); color: #EF4444;">
+                <i class="bi bi-exclamation-triangle-fill"></i> @ViewBag.Erro
+                @if (ViewBag.ResetLink != null)
+                {
+                    <div style="margin-top: 8px; padding-top: 8px; border-top: 1px solid rgba(239,68,68,0.2);">
+                        <span style="color: var(--text-muted); font-size: 11px; display: block; margin-bottom: 4px;">Ambiente de Desenvolvimento:</span>
+                        <a href="@ViewBag.ResetLink" style="color: var(--accent); font-weight: 600; text-decoration: underline;">Clique aqui para redefinir a senha agora</a>
+                    </div>
+                }
+            </div>
+        }
+
         @if (ViewBag.Mensagem != null)
         {
             <div class="msg-box">

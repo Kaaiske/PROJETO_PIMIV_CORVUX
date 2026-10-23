@@ -32,8 +32,7 @@ namespace CorvusIAM.Tests.Services
         [Fact]
         public async Task UploadFileAsync_SalvaArquivoValido_ComSucesso()
         {
-            var content = "Relatório de Auditoria";
-            var bytes = Encoding.UTF8.GetBytes(content);
+            var bytes = Encoding.ASCII.GetBytes("%PDF-1.7\nRelatorio de Auditoria");
             using var stream = new MemoryStream(bytes);
 
             string fileKey = await _storageService.UploadFileAsync(stream, "teste.pdf", "application/pdf");

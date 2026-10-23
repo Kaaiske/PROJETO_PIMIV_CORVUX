@@ -536,10 +536,35 @@ namespace CorvusIAM.Data
                 }
             }
 
-            EnsureDemoUser("rh@corvus.com", "Carla Souza (RH)", "Gerente de Recursos Humanos", "Recursos Humanos", "111.222.333-44", 2);
-            EnsureDemoUser("contabil@corvus.com", "Beatriz Lima (Contábil)", "Controller Fiscal & Contábil", "Contabilidade", "222.333.444-55", 3);
-            EnsureDemoUser("suporte@corvus.com", "Lucas Mendes (SecOps)", "Analista de Suporte & IAM N2", "Tecnologia", "333.444.555-66", 4);
-            EnsureDemoUser("colaborador@corvus.com", "Rafael Oliveira", "Engenheiro de Software Pleno", "Engenharia", "444.555.666-77", 5);
+            var isDevelopment = string.Equals(
+                Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT"),
+                "Development",
+                StringComparison.OrdinalIgnoreCase);
+
+            if (isDevelopment)
+            {
+                EnsureDemoUser("rh@corvus.com", "Carla Souza (RH)", "Gerente de Recursos Humanos", "Recursos Humanos", "111.222.333-44", 2);
+                EnsureDemoUser("contabil@corvus.com", "Beatriz Lima (Contábil)", "Controller Fiscal & Contábil", "Contabilidade", "222.333.444-55", 3);
+                EnsureDemoUser("suporte@corvus.com", "Lucas Mendes (SecOps)", "Analista de Suporte & IAM N2", "Tecnologia", "333.444.555-66", 4);
+                EnsureDemoUser("colaborador@corvus.com", "Rafael Oliveira", "Engenheiro de Software Pleno", "Engenharia", "444.555.666-77", 5);
+            }
+            else
+            {
+                // Contas de demonstração não podem existir ativas em produção,
+                // mesmo que tenham sido criadas por uma versão anterior.
+                foreach (var demoEmail in new[] { "rh@corvus.com", "contabil@corvus.com", "suporte@corvus.com", "colaborador@corvus.com" })
+                {
+                    var demo = context.Usuarios.FirstOrDefault(u => u.Email == demoEmail);
+                    if (demo != null && (demo.Ativo || !string.IsNullOrWhiteSpace(demo.RefreshToken)))
+                    {
+                        demo.Ativo = false;
+                        demo.SenhaHash = BCrypt.Net.BCrypt.HashPassword(Guid.NewGuid().ToString("N"));
+                        demo.RefreshToken = string.Empty;
+                        demo.RefreshTokenExpiracao = null;
+                    }
+                }
+                context.SaveChanges();
+            }
 
             // 1. Configurações Globais essenciais
             void EnsureConfig(string chave, string valor)
@@ -550,7 +575,7 @@ namespace CorvusIAM.Data
                 }
             }
 
-            EnsureConfig("API_GATEWAY_TOKEN", Environment.GetEnvironmentVariable("API_GATEWAY_TOKEN") ?? ("corvux_gw_" + Guid.NewGuid().ToString("N")));
+            EnsureConfig("API_GATEWAY_TOKEN", "CONFIGURED_IN_ENVIRONMENT");
             EnsureConfig("LOCKDOWN_MODE", "false");
             EnsureConfig("SESSION_TIMEOUT_MINUTES", "30");
             EnsureConfig("JWT_EXPIRATION_HOURS", "8");

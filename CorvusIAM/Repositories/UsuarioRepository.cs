@@ -28,12 +28,13 @@ namespace CorvusIAM.Repositories
 
         public Usuario? ObterPorEmail(string email)
         {
+            var normalizedEmail = email.Trim().ToLowerInvariant();
             return _context.Usuarios
                 .Include(u => u.UsuarioPerfis)
                 .ThenInclude(up => up.Perfil)
                 .ThenInclude(p => p.PerfilPermissoes)
                 .ThenInclude(pp => pp.Permissao)
-                .FirstOrDefault(u => u.Email == email);
+                .FirstOrDefault(u => u.Email == normalizedEmail);
         }
     }
 }

@@ -31,18 +31,20 @@ export default function SupportScreen() {
     carregarChamados();
   }, []);
 
-  const abrirChamado = () => {
+  const abrirChamado = async () => {
     if (!assunto || !descricao) {
       Alert.alert("Erro", "Preencha todos os campos");
       return;
     }
     setSaving(true);
+    const idempotencyKey = `mobile-${Date.now()}-${Math.random().toString(36).slice(2)}`;
     api.post("/api/Chamados", {
       assunto: assunto.trim(),
       descricao: descricao.trim(),
       categoria: "Acesso",
       prioridade: "Normal",
-    })
+      clientIdempotencyKey: idempotencyKey,
+    }, { headers: { "X-Idempotency-Key": idempotencyKey } })
       .then(() => {
         Alert.alert("Sucesso", "Chamado aberto com sucesso");
         setAssunto("");

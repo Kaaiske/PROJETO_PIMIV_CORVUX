@@ -31,7 +31,8 @@ namespace CorvusIAM.Controllers.Api
             // JWT/Cookie authentication alone is insufficient for directory export.
             // Only administrators or users with the explicit directory permission
             // may use the gateway with their bearer/cookie identity.
-            if (User?.Identity?.IsAuthenticated == true)
+            if (User?.Identity?.IsAuthenticated == true &&
+                string.Equals(User.Identity.AuthenticationType, "Bearer", StringComparison.OrdinalIgnoreCase))
             {
                 return User.IsInRole("Admin") || User.HasClaim("permission", "usuarios.visualizar");
             }
@@ -52,8 +53,9 @@ namespace CorvusIAM.Controllers.Api
 
             if (!string.IsNullOrEmpty(token))
             {
-                var expected = _context.ConfiguracoesSistema.FirstOrDefault(c => c.Chave == "API_GATEWAY_TOKEN")?.Valor;
-                if (!string.IsNullOrEmpty(expected))
+                var expected = Environment.GetEnvironmentVariable("API_GATEWAY_TOKEN")
+                    ?? _context.ConfiguracoesSistema.FirstOrDefault(c => c.Chave == "API_GATEWAY_TOKEN")?.Valor;
+                if (!string.IsNullOrEmpty(expected) && !string.Equals(expected, "CONFIGURED_IN_ENVIRONMENT", StringComparison.Ordinal))
                 {
                     var tokenBytes = Encoding.UTF8.GetBytes(token);
                     var expectedBytes = Encoding.UTF8.GetBytes(expected);

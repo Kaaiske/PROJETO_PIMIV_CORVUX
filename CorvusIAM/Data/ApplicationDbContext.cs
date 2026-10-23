@@ -10,6 +10,7 @@ namespace CorvusIAM.Data
         protected ApplicationDbContext(DbContextOptions options) : base(options) { }
 
         public DbSet<Usuario> Usuarios { get; set; }
+        public DbSet<MfaSession> MfaSessoes { get; set; }
         public DbSet<Perfil> Perfis { get; set; }
         public DbSet<Permissao> Permissoes { get; set; }
         public DbSet<UsuarioPerfil> UsuarioPerfis { get; set; }
@@ -35,6 +36,25 @@ namespace CorvusIAM.Data
             modelBuilder.Entity<ChamadoSuporte>().ToTable(tb => tb.HasTrigger("trg_AuditoriaChamados"));
             modelBuilder.Entity<ConfiguracaoSistema>().ToTable(tb => tb.HasTrigger("trg_AuditoriaConfig"));
             modelBuilder.Entity<ConfiguracaoSistema>().Property(c => c.Valor).IsRequired();
+
+            modelBuilder.Entity<MfaSession>()
+                .HasIndex(s => s.TokenHash)
+                .IsUnique();
+
+            modelBuilder.Entity<MfaSession>()
+                .HasOne(s => s.Usuario)
+                .WithMany()
+                .HasForeignKey(s => s.UsuarioId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<Usuario>()
+                .HasIndex(u => u.Email)
+                .IsUnique();
+
+            modelBuilder.Entity<Usuario>()
+                .HasIndex(u => u.CPF)
+                .IsUnique()
+                .HasFilter("CPF IS NOT NULL AND CPF <> ''");
 
             modelBuilder.Entity<UsuarioPerfil>()
                 .HasKey(up => new { up.UsuarioId, up.PerfilId });

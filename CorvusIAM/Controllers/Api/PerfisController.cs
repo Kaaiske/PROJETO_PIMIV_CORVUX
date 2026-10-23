@@ -18,7 +18,7 @@ namespace CorvusIAM.Controllers.Api
     [ApiController]
     [IgnoreAntiforgeryToken]
     [Route("api/[controller]")]
-    [Authorize]
+    [Authorize(Policy = "RequireJwt")]
     [Tags("Perfis & Papéis de Acesso (RBAC)")]
     public class PerfisController : ControllerBase
     {

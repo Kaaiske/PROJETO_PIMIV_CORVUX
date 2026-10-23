@@ -70,6 +70,17 @@ namespace CorvusIAM.Services
                     if (read >= 4 && headerBytes[0] == 0x3C && headerBytes[1] == 0x3F && headerBytes[2] == 0x70 && headerBytes[3] == 0x68) // <?ph
                         throw new InvalidOperationException("Scripts executáveis são estritamente proibidos.");
                 }
+
+                var isValidSignature = extension switch
+                {
+                    ".png" => read == 4 && headerBytes.SequenceEqual(new byte[] { 0x89, 0x50, 0x4E, 0x47 }),
+                    ".jpg" or ".jpeg" => read >= 2 && headerBytes[0] == 0xFF && headerBytes[1] == 0xD8,
+                    ".pdf" => read >= 4 && headerBytes[0] == 0x25 && headerBytes[1] == 0x50 && headerBytes[2] == 0x44 && headerBytes[3] == 0x46,
+                    _ => true
+                };
+
+                if (!isValidSignature)
+                    throw new InvalidOperationException("A assinatura do conteúdo não corresponde à extensão informada.");
             }
 
             // Sanitiza e gera nome único baseado em GUID

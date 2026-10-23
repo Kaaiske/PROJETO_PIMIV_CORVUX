@@ -18,7 +18,7 @@ namespace CorvusIAM.Controllers.Api
     [ApiController]
     [IgnoreAntiforgeryToken]
     [Route("api/[controller]")]
-    [Authorize]
+    [Authorize(Policy = "RequireJwt")]
     [Tags("Políticas de Segurança & Regras (ABAC)")]
     public class PoliticasAcessoController : ControllerBase
     {

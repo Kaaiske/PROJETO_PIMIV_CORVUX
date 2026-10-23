@@ -1,4 +1,6 @@
 using CorvusIAM.Interfaces;
+using CorvusIAM.Data;
+using CorvusIAM.Entities;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.IdentityModel.Tokens;
@@ -17,6 +19,8 @@ namespace CorvusIAM.Services
         private readonly IConfiguration _configuration;
         private readonly ITotpService? _totpService;
         private readonly IMemoryCache? _cache;
+        private readonly IMfaSecretProtector? _mfaSecretProtector;
+        private readonly ApplicationDbContext? _context;
 
         private class MfaApiSession
         {
@@ -29,12 +33,16 @@ namespace CorvusIAM.Services
             IUsuarioRepository usuarioRepository, 
             IConfiguration configuration,
             ITotpService? totpService = null,
-            IMemoryCache? cache = null)
+            IMemoryCache? cache = null,
+            IMfaSecretProtector? mfaSecretProtector = null,
+            ApplicationDbContext? context = null)
         {
             _usuarioRepository = usuarioRepository;
             _configuration = configuration;
             _totpService = totpService;
             _cache = cache;
+            _mfaSecretProtector = mfaSecretProtector;
+            _context = context;
         }
 
         private string GenerateRefreshToken()
@@ -45,9 +53,19 @@ namespace CorvusIAM.Services
             return Convert.ToBase64String(randomNumber);
         }
 
+        private static string HashToken(string token)
+        {
+            using var sha256 = SHA256.Create();
+            return Convert.ToHexString(sha256.ComputeHash(Encoding.UTF8.GetBytes(token)));
+        }
+
+        private string StoreRefreshToken(string rawToken) => HashToken(rawToken);
+
+        private string? ReadMfaSecret(string? value) => _mfaSecretProtector?.Unprotect(value) ?? value;
+
         public AuthResponse? Autenticar(string email, string senha)
         {
-            var usuario = _usuarioRepository.ObterPorEmail(email);
+            var usuario = _usuarioRepository.ObterPorEmail(email.Trim().ToLowerInvariant());
             
             if (usuario == null || !usuario.Ativo)
                 return null;
@@ -71,10 +89,10 @@ namespace CorvusIAM.Services
             usuario.DataDesbloqueio = null;
 
             // Se MFA estiver habilitado no perfil do usuário, intercepta e exige segundo fator
-            if (usuario.MfaHabilitado && _totpService != null && _cache != null)
+            if (usuario.MfaHabilitado && _totpService != null && (_cache != null || _context != null))
             {
                 // Fail-closed: se não tiver segredo TOTP configurado, não permite login
-                if (string.IsNullOrWhiteSpace(usuario.MfaSecretKey))
+                if (string.IsNullOrWhiteSpace(ReadMfaSecret(usuario.MfaSecretKey)))
                 {
                     return null;
                 }
@@ -87,7 +105,22 @@ namespace CorvusIAM.Services
                     Tentativas = 0
                 };
 
-                _cache.Set(mfaSessionToken, session, TimeSpan.FromMinutes(5));
+                if (_context != null)
+                {
+                    _context.MfaSessoes.Add(new MfaSession
+                    {
+                        TokenHash = HashToken(mfaSessionToken),
+                        UsuarioId = usuario.Id,
+                        Email = usuario.Email,
+                        ExpiraEm = DateTime.UtcNow.AddMinutes(5),
+                        Canal = "API"
+                    });
+                    _context.SaveChanges();
+                }
+                else
+                {
+                    _cache!.Set(mfaSessionToken, session, TimeSpan.FromMinutes(5));
+                }
 
                 return new AuthResponse
                 {
@@ -99,7 +132,7 @@ namespace CorvusIAM.Services
             }
 
             var refreshToken = GenerateRefreshToken();
-            usuario.RefreshToken = refreshToken;
+            usuario.RefreshToken = StoreRefreshToken(refreshToken);
             usuario.RefreshTokenExpiracao = DateTime.UtcNow.AddDays(7);
             
             _usuarioRepository.Atualizar(usuario);
@@ -114,45 +147,69 @@ namespace CorvusIAM.Services
 
         public AuthResponse? AutenticarMfa(string mfaSessionToken, string codigoTotp)
         {
-            if (_cache == null || _totpService == null || string.IsNullOrWhiteSpace(mfaSessionToken) || string.IsNullOrWhiteSpace(codigoTotp))
+            if (_totpService == null || string.IsNullOrWhiteSpace(mfaSessionToken) || string.IsNullOrWhiteSpace(codigoTotp))
                 return null;
 
-            if (!_cache.TryGetValue(mfaSessionToken, out MfaApiSession? session) || session == null)
+            MfaSession? persistedSession = null;
+            MfaApiSession? session = null;
+            if (_context != null)
+            {
+                persistedSession = _context.MfaSessoes.FirstOrDefault(s => s.TokenHash == HashToken(mfaSessionToken));
+                if (persistedSession == null || persistedSession.ExpiraEm <= DateTime.UtcNow)
+                    return null;
+            }
+            else if (_cache == null || !_cache.TryGetValue(mfaSessionToken, out session) || session == null)
                 return null;
 
             // Proteção contra brute force no código TOTP (máximo 5 tentativas por sessão temporária)
-            if (session.Tentativas >= 5)
+            var attempts = persistedSession?.Tentativas ?? session!.Tentativas;
+            if (attempts >= 5)
             {
-                _cache.Remove(mfaSessionToken);
+                if (persistedSession != null) _context!.MfaSessoes.Remove(persistedSession);
+                else _cache!.Remove(mfaSessionToken);
+                _context?.SaveChanges();
                 return null;
             }
 
-            var usuario = _usuarioRepository.ObterPorEmail(session.Email);
+            var usuario = _usuarioRepository.ObterPorEmail(persistedSession?.Email ?? session!.Email);
             if (usuario == null || !usuario.Ativo)
             {
-                _cache.Remove(mfaSessionToken);
+                if (persistedSession != null) _context!.MfaSessoes.Remove(persistedSession);
+                else _cache!.Remove(mfaSessionToken);
+                _context?.SaveChanges();
                 return null;
             }
 
-            if (string.IsNullOrWhiteSpace(usuario.MfaSecretKey))
+            var mfaSecret = ReadMfaSecret(usuario.MfaSecretKey);
+            if (string.IsNullOrWhiteSpace(mfaSecret))
             {
-                _cache.Remove(mfaSessionToken);
+                if (persistedSession != null) _context!.MfaSessoes.Remove(persistedSession);
+                else _cache!.Remove(mfaSessionToken);
+                _context?.SaveChanges();
                 return null;
             }
 
-            bool codigoValido = _totpService.ValidateCode(usuario.MfaSecretKey, codigoTotp.Trim());
+            bool codigoValido = _totpService.ValidateCode(mfaSecret, codigoTotp.Trim());
             if (!codigoValido)
             {
-                session.Tentativas++;
-                _cache.Set(mfaSessionToken, session, TimeSpan.FromMinutes(5));
+                if (persistedSession != null)
+                    persistedSession.Tentativas++;
+                else
+                {
+                    session!.Tentativas++;
+                    _cache!.Set(mfaSessionToken, session, TimeSpan.FromMinutes(5));
+                }
+                _context?.SaveChanges();
                 return null;
             }
 
             // Sucesso na verificação MFA: limpa sessão temporária e emite credenciais
-            _cache.Remove(mfaSessionToken);
+            if (persistedSession != null) _context!.MfaSessoes.Remove(persistedSession);
+            else _cache!.Remove(mfaSessionToken);
+            _context?.SaveChanges();
 
             var refreshToken = GenerateRefreshToken();
-            usuario.RefreshToken = refreshToken;
+            usuario.RefreshToken = StoreRefreshToken(refreshToken);
             usuario.RefreshTokenExpiracao = DateTime.UtcNow.AddDays(7);
             _usuarioRepository.Atualizar(usuario);
 
@@ -166,12 +223,17 @@ namespace CorvusIAM.Services
 
         public AuthResponse? AtualizarToken(string email, string refreshToken)
         {
-            var usuario = _usuarioRepository.ObterPorEmail(email);
-            if (usuario == null || !usuario.Ativo || usuario.RefreshToken != refreshToken || usuario.RefreshTokenExpiracao <= DateTime.UtcNow)
+            var usuario = _usuarioRepository.ObterPorEmail(email.Trim().ToLowerInvariant());
+            var suppliedHash = HashToken(refreshToken);
+            if (usuario == null || !usuario.Ativo || string.IsNullOrWhiteSpace(usuario.RefreshToken) ||
+                !CryptographicOperations.FixedTimeEquals(
+                    Encoding.ASCII.GetBytes(usuario.RefreshToken),
+                    Encoding.ASCII.GetBytes(suppliedHash)) ||
+                usuario.RefreshTokenExpiracao <= DateTime.UtcNow)
                 return null;
 
             var newRefreshToken = GenerateRefreshToken();
-            usuario.RefreshToken = newRefreshToken;
+            usuario.RefreshToken = StoreRefreshToken(newRefreshToken);
             usuario.RefreshTokenExpiracao = DateTime.UtcNow.AddDays(7);
             _usuarioRepository.Atualizar(usuario);
 
@@ -181,6 +243,24 @@ namespace CorvusIAM.Services
                 RefreshToken = newRefreshToken,
                 MfaRequerido = false
             };
+        }
+
+        public bool RevogarToken(string email, string refreshToken)
+        {
+            var usuario = _usuarioRepository.ObterPorEmail(email.Trim().ToLowerInvariant());
+            if (usuario == null || string.IsNullOrWhiteSpace(refreshToken) || string.IsNullOrWhiteSpace(usuario.RefreshToken))
+                return false;
+
+            var suppliedHash = HashToken(refreshToken);
+            if (!CryptographicOperations.FixedTimeEquals(
+                    Encoding.ASCII.GetBytes(usuario.RefreshToken),
+                    Encoding.ASCII.GetBytes(suppliedHash)))
+                return false;
+
+            usuario.RefreshToken = string.Empty;
+            usuario.RefreshTokenExpiracao = null;
+            _usuarioRepository.Atualizar(usuario);
+            return true;
         }
 
         private string GenerateJwt(CorvusIAM.Entities.Usuario usuario)
@@ -219,13 +299,24 @@ namespace CorvusIAM.Services
             var tokenDescriptor = new SecurityTokenDescriptor
             {
                 Subject = claimsIdentity,
-                Expires = DateTime.UtcNow.AddHours(2),
+                Expires = DateTime.UtcNow.AddHours(GetJwtExpirationHours()),
                 Issuer = _configuration["Jwt:Issuer"],
                 Audience = _configuration["Jwt:Audience"],
                 SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
             };
             var token = tokenHandler.CreateToken(tokenDescriptor);
             return tokenHandler.WriteToken(token);
+        }
+
+        private double GetJwtExpirationHours()
+        {
+            var configured = _configuration["JWT_EXPIRATION_HOURS"]
+                ?? _configuration["Jwt:ExpirationHours"]
+                ?? _context?.ConfiguracoesSistema.FirstOrDefault(c => c.Chave == "JWT_EXPIRATION_HOURS")?.Valor;
+
+            return double.TryParse(configured, out var hours)
+                ? Math.Clamp(hours, 1, 24)
+                : 2;
         }
     }
 }

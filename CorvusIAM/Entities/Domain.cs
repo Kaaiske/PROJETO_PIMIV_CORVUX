@@ -42,6 +42,18 @@ namespace CorvusIAM.Entities
         public ICollection<UsuarioPerfil> UsuarioPerfis { get; set; } = new List<UsuarioPerfil>();
     }
 
+    public class MfaSession
+    {
+        [Key] public int Id { get; set; }
+        [Required, MaxLength(128)] public string TokenHash { get; set; } = string.Empty;
+        public int UsuarioId { get; set; }
+        public Usuario Usuario { get; set; } = null!;
+        [Required, MaxLength(100)] public string Email { get; set; } = string.Empty;
+        public DateTime ExpiraEm { get; set; }
+        public int Tentativas { get; set; }
+        [MaxLength(20)] public string Canal { get; set; } = "API";
+    }
+
     public class Perfil
     {
         [Key] public int Id { get; set; }

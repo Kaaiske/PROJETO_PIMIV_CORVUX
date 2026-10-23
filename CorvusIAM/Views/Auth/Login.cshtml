@@ -21,7 +21,6 @@
     <link rel="shortcut icon" href="/favicon.ico?v=20261018" type="image/x-icon">
 
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
-    <link rel="manifest" href="/manifest.json?v=20261018">
     <meta name="theme-color" content="#070709">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
@@ -494,7 +493,7 @@
     <script src="https://vlibras.gov.br/app/vlibras-plugin.js" async onload="if(window.VLibras){new window.VLibras.Widget('https://vlibras.gov.br/app');}"></script>
 
     <!-- BANNER PWA EXCLUSIVO MOBILE -->
-    <div id="pwaMobileInstallBanner" class="pwa-mobile-banner">
+    <div id="legacyPwaMobileInstallBannerRemoved" class="pwa-mobile-banner" aria-hidden="true" style="display:none">
         <div style="display: flex; align-items: center; gap: 10px;">
             <img src="/icons/corvus-logo-light.png?v=20261018" alt="CorvuxIAM" class="logo-light" style="width: 38px; height: 38px; border-radius: 9px; border: 1px solid var(--border-color); object-fit: cover;">
             <img src="/icons/corvus-logo-dark.png?v=20261018" alt="CorvuxIAM" class="logo-dark" style="width: 38px; height: 38px; border-radius: 9px; border: 1px solid var(--border-color); object-fit: cover;">
@@ -549,14 +548,6 @@
             localStorage.setItem('corvux-theme', isDark ? 'dark' : 'light');
             localStorage.setItem('color-theme', isDark ? 'dark' : 'light');
             atualizarIconeTemaLogin();
-        }
-
-        if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => {
-                navigator.serviceWorker.register('/sw.js').then(reg => {
-                    reg.update();
-                }).catch(err => console.warn('PWA SW Registro:', err));
-            });
         }
 
         function checkIsMobileDevice() {

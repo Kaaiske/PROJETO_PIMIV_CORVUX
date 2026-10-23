@@ -30,6 +30,14 @@ namespace CorvusIAM.Migrations.SqlServer
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
+                    b.Property<string>("AnexoNomeOriginal")
+                        .HasMaxLength(255)
+                        .HasColumnType("nvarchar(255)");
+
+                    b.Property<string>("AnexoUrl")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
                     b.Property<string>("Assunto")
                         .IsRequired()
                         .HasMaxLength(100)
@@ -39,6 +47,10 @@ namespace CorvusIAM.Migrations.SqlServer
                         .IsRequired()
                         .HasMaxLength(50)
                         .HasColumnType("nvarchar(50)");
+
+                    b.Property<string>("ClientIdempotencyKey")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
 
                     b.Property<DateTime>("DataAbertura")
                         .HasColumnType("datetime2");
@@ -53,7 +65,6 @@ namespace CorvusIAM.Migrations.SqlServer
                         .HasColumnType("datetime2");
 
                     b.Property<string>("Descricao")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime?>("PrazoSla")
@@ -74,7 +85,6 @@ namespace CorvusIAM.Migrations.SqlServer
                         .HasColumnType("rowversion");
 
                     b.Property<string>("Solucao")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Status")
@@ -89,9 +99,16 @@ namespace CorvusIAM.Migrations.SqlServer
 
                     b.HasIndex("ResponsavelId");
 
-                    b.HasIndex("UsuarioId");
+                    b.HasIndex("UsuarioId", "ClientIdempotencyKey")
+                        .IsUnique()
+                        .HasFilter("ClientIdempotencyKey IS NOT NULL");
 
-                    b.ToTable("ChamadosSuporte");
+                    b.ToTable("ChamadosSuporte", t =>
+                        {
+                            t.HasTrigger("trg_AuditoriaChamados");
+                        });
+
+                    b.HasAnnotation("SqlServer:UseSqlOutputClause", false);
                 });
 
             modelBuilder.Entity("CorvusIAM.Entities.ConfiguracaoSistema", b =>
@@ -109,12 +126,217 @@ namespace CorvusIAM.Migrations.SqlServer
 
                     b.Property<string>("Valor")
                         .IsRequired()
-                        .HasMaxLength(500)
-                        .HasColumnType("nvarchar(500)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
 
-                    b.ToTable("ConfiguracoesSistema");
+                    b.ToTable("ConfiguracoesSistema", t =>
+                        {
+                            t.HasTrigger("trg_AuditoriaConfig");
+                        });
+
+                    b.HasAnnotation("SqlServer:UseSqlOutputClause", false);
+                });
+
+            modelBuilder.Entity("CorvusIAM.Entities.DispositivoRede", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("CpuUsoPercentual")
+                        .HasColumnType("int");
+
+                    b.Property<int>("DiscoUsoPercentual")
+                        .HasColumnType("int");
+
+                    b.Property<bool>("EdrAtivo")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("EdrStatus")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<string>("Hostname")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<string>("Ip")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<bool>("IsoladoRede")
+                        .HasColumnType("bit");
+
+                    b.Property<int>("PatchesPendentes")
+                        .HasColumnType("int");
+
+                    b.Property<int>("RamUsoPercentual")
+                        .HasColumnType("int");
+
+                    b.Property<string>("SistemaOperacional")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<string>("Tipo")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<DateTime>("UltimoHeartbeat")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime?>("UltimoScan")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("UsuarioResponsavel")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<string>("Vlan")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("DispositivosRede");
+                });
+
+            modelBuilder.Entity("CorvusIAM.Entities.FechamentoMensal", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("DataFechamento")
+                        .HasColumnType("datetime2");
+
+                    b.Property<decimal>("DespesasOperacionais")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<int?>("FechadoPorUsuarioId")
+                        .HasColumnType("int");
+
+                    b.Property<decimal>("LucroLiquido")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<string>("MesAno")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.Property<decimal>("ReceitaBruta")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("FechadoPorUsuarioId");
+
+                    b.ToTable("FechamentosMensais");
+                });
+
+            modelBuilder.Entity("CorvusIAM.Entities.FirewallRegra", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<bool>("Ativo")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("CriadoPor")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<DateTime>("DataBloqueio")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Ip")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<string>("Motivo")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<string>("PaisOrigem")
+                        .IsRequired()
+                        .HasMaxLength(10)
+                        .HasColumnType("nvarchar(10)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("FirewallRegras", t =>
+                        {
+                            t.HasTrigger("trg_AuditoriaFirewallWaf");
+                        });
+
+                    b.HasAnnotation("SqlServer:UseSqlOutputClause", false);
+                });
+
+            modelBuilder.Entity("CorvusIAM.Entities.FolhaPagamento", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("DataProcessamento")
+                        .HasColumnType("datetime2");
+
+                    b.Property<decimal>("FgtsTotal")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<decimal>("InssTotal")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<string>("MesReferencia")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(30)
+                        .HasColumnType("nvarchar(30)");
+
+                    b.Property<int>("TotalColaboradores")
+                        .HasColumnType("int");
+
+                    b.Property<decimal>("ValorBrutoTotal")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<decimal>("ValorLiquidoTotal")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("FolhasPagamento");
                 });
 
             modelBuilder.Entity("CorvusIAM.Entities.LogAuditoria", b =>
@@ -134,7 +356,6 @@ namespace CorvusIAM.Migrations.SqlServer
                         .HasColumnType("datetime2");
 
                     b.Property<string>("Detalhe")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Origem")
@@ -157,6 +378,100 @@ namespace CorvusIAM.Migrations.SqlServer
                     b.ToTable("LogsAuditoria");
                 });
 
+            modelBuilder.Entity("CorvusIAM.Entities.MfaSession", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Canal")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.Property<string>("Email")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<DateTime>("ExpiraEm")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("Tentativas")
+                        .HasColumnType("int");
+
+                    b.Property<string>("TokenHash")
+                        .IsRequired()
+                        .HasMaxLength(128)
+                        .HasColumnType("nvarchar(128)");
+
+                    b.Property<int>("UsuarioId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("TokenHash")
+                        .IsUnique();
+
+                    b.HasIndex("UsuarioId");
+
+                    b.ToTable("MfaSessoes");
+                });
+
+            modelBuilder.Entity("CorvusIAM.Entities.NotaFiscal", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("DataEmissao")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Descricao")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<int?>("EmitidoPorUsuarioId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Numero")
+                        .HasColumnType("int");
+
+                    b.Property<string>("ProtocoloSefaz")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.Property<string>("TomadorCnpj")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.Property<string>("TomadorNome")
+                        .IsRequired()
+                        .HasMaxLength(150)
+                        .HasColumnType("nvarchar(150)");
+
+                    b.Property<decimal>("Valor")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("EmitidoPorUsuarioId");
+
+                    b.ToTable("NotasFiscais");
+                });
+
             modelBuilder.Entity("CorvusIAM.Entities.Perfil", b =>
                 {
                     b.Property<int>("Id")
@@ -165,8 +480,10 @@ namespace CorvusIAM.Migrations.SqlServer
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
+                    b.Property<bool>("Ativo")
+                        .HasColumnType("bit");
+
                     b.Property<string>("Descricao")
-                        .IsRequired()
                         .HasMaxLength(200)
                         .HasColumnType("nvarchar(200)");
 
@@ -183,30 +500,35 @@ namespace CorvusIAM.Migrations.SqlServer
                         new
                         {
                             Id = 1,
+                            Ativo = true,
                             Descricao = "Administrador do Sistema",
                             Nome = "Admin"
                         },
                         new
                         {
                             Id = 2,
+                            Ativo = true,
                             Descricao = "Recursos Humanos (RH)",
                             Nome = "Recursos Humanos"
                         },
                         new
                         {
                             Id = 3,
+                            Ativo = true,
                             Descricao = "Contabilidade",
                             Nome = "Contabilidade"
                         },
                         new
                         {
                             Id = 4,
+                            Ativo = true,
                             Descricao = "Suporte de TI / Help Desk",
                             Nome = "Help Desk"
                         },
                         new
                         {
                             Id = 5,
+                            Ativo = true,
                             Descricao = "Usuário Padrão",
                             Nome = "Colaborador"
                         });
@@ -288,7 +610,6 @@ namespace CorvusIAM.Migrations.SqlServer
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<string>("Descricao")
-                        .IsRequired()
                         .HasMaxLength(200)
                         .HasColumnType("nvarchar(200)");
 
@@ -352,7 +673,6 @@ namespace CorvusIAM.Migrations.SqlServer
                         .HasColumnType("bit");
 
                     b.Property<string>("Descricao")
-                        .IsRequired()
                         .HasMaxLength(500)
                         .HasColumnType("nvarchar(500)");
 
@@ -364,6 +684,46 @@ namespace CorvusIAM.Migrations.SqlServer
                     b.HasKey("Id");
 
                     b.ToTable("PoliticasAcesso");
+                });
+
+            modelBuilder.Entity("CorvusIAM.Entities.RegistroFerias", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("ColaboradorNome")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<DateTime>("DataAprovacao")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime>("DataFim")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime>("DataInicio")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("Dias")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(30)
+                        .HasColumnType("nvarchar(30)");
+
+                    b.Property<int?>("UsuarioId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UsuarioId");
+
+                    b.ToTable("RegistrosFerias");
                 });
 
             modelBuilder.Entity("CorvusIAM.Entities.Usuario", b =>
@@ -378,12 +738,10 @@ namespace CorvusIAM.Migrations.SqlServer
                         .HasColumnType("bit");
 
                     b.Property<string>("CPF")
-                        .IsRequired()
                         .HasMaxLength(14)
                         .HasColumnType("nvarchar(14)");
 
                     b.Property<string>("Cargo")
-                        .IsRequired()
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
 
@@ -397,7 +755,6 @@ namespace CorvusIAM.Migrations.SqlServer
                         .HasColumnType("datetime2");
 
                     b.Property<string>("Departamento")
-                        .IsRequired()
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
 
@@ -407,9 +764,14 @@ namespace CorvusIAM.Migrations.SqlServer
                         .HasColumnType("nvarchar(100)");
 
                     b.Property<string>("Endereco")
-                        .IsRequired()
                         .HasMaxLength(200)
                         .HasColumnType("nvarchar(200)");
+
+                    b.Property<bool>("MfaHabilitado")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("MfaSecretKey")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Nome")
                         .IsRequired()
@@ -417,12 +779,10 @@ namespace CorvusIAM.Migrations.SqlServer
                         .HasColumnType("nvarchar(100)");
 
                     b.Property<string>("RG")
-                        .IsRequired()
                         .HasMaxLength(20)
                         .HasColumnType("nvarchar(20)");
 
                     b.Property<string>("RefreshToken")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime?>("RefreshTokenExpiracao")
@@ -432,7 +792,6 @@ namespace CorvusIAM.Migrations.SqlServer
                         .HasColumnType("datetime2");
 
                     b.Property<string>("ResetSenhaToken")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("SenhaHash")
@@ -440,7 +799,6 @@ namespace CorvusIAM.Migrations.SqlServer
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Telefone")
-                        .IsRequired()
                         .HasMaxLength(20)
                         .HasColumnType("nvarchar(20)");
 
@@ -449,7 +807,19 @@ namespace CorvusIAM.Migrations.SqlServer
 
                     b.HasKey("Id");
 
-                    b.ToTable("Usuarios");
+                    b.HasIndex("CPF")
+                        .IsUnique()
+                        .HasFilter("CPF IS NOT NULL AND CPF <> ''");
+
+                    b.HasIndex("Email")
+                        .IsUnique();
+
+                    b.ToTable("Usuarios", t =>
+                        {
+                            t.HasTrigger("trg_AuditoriaStatusUsuario");
+                        });
+
+                    b.HasAnnotation("SqlServer:UseSqlOutputClause", false);
 
                     b.HasData(
                         new
@@ -463,6 +833,8 @@ namespace CorvusIAM.Migrations.SqlServer
                             Departamento = "Tecnologia",
                             Email = "admin@corvus.com",
                             Endereco = "Av. Paulista, 1000 - SP",
+                            MfaHabilitado = false,
+                            MfaSecretKey = "",
                             Nome = "Administrador TI",
                             RG = "00.000.000-0",
                             RefreshToken = "",
@@ -513,6 +885,15 @@ namespace CorvusIAM.Migrations.SqlServer
                     b.Navigation("Usuario");
                 });
 
+            modelBuilder.Entity("CorvusIAM.Entities.FechamentoMensal", b =>
+                {
+                    b.HasOne("CorvusIAM.Entities.Usuario", "FechadoPorUsuario")
+                        .WithMany()
+                        .HasForeignKey("FechadoPorUsuarioId");
+
+                    b.Navigation("FechadoPorUsuario");
+                });
+
             modelBuilder.Entity("CorvusIAM.Entities.LogAuditoria", b =>
                 {
                     b.HasOne("CorvusIAM.Entities.Usuario", "Usuario")
@@ -520,6 +901,26 @@ namespace CorvusIAM.Migrations.SqlServer
                         .HasForeignKey("UsuarioId");
 
                     b.Navigation("Usuario");
+                });
+
+            modelBuilder.Entity("CorvusIAM.Entities.MfaSession", b =>
+                {
+                    b.HasOne("CorvusIAM.Entities.Usuario", "Usuario")
+                        .WithMany()
+                        .HasForeignKey("UsuarioId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Usuario");
+                });
+
+            modelBuilder.Entity("CorvusIAM.Entities.NotaFiscal", b =>
+                {
+                    b.HasOne("CorvusIAM.Entities.Usuario", "EmitidoPorUsuario")
+                        .WithMany()
+                        .HasForeignKey("EmitidoPorUsuarioId");
+
+                    b.Navigation("EmitidoPorUsuario");
                 });
 
             modelBuilder.Entity("CorvusIAM.Entities.PerfilPermissao", b =>
@@ -539,6 +940,15 @@ namespace CorvusIAM.Migrations.SqlServer
                     b.Navigation("Perfil");
 
                     b.Navigation("Permissao");
+                });
+
+            modelBuilder.Entity("CorvusIAM.Entities.RegistroFerias", b =>
+                {
+                    b.HasOne("CorvusIAM.Entities.Usuario", "Usuario")
+                        .WithMany()
+                        .HasForeignKey("UsuarioId");
+
+                    b.Navigation("Usuario");
                 });
 
             modelBuilder.Entity("CorvusIAM.Entities.UsuarioPerfil", b =>
@@ -580,4 +990,3 @@ namespace CorvusIAM.Migrations.SqlServer
         }
     }
 }
-

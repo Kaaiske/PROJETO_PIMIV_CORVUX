@@ -35,7 +35,7 @@ BEGIN
     CREATE TABLE [ConfiguracoesSistema] (
         [Id] int NOT NULL IDENTITY(1,1),
         [Chave] nvarchar(100) NOT NULL,
-        [Valor] nvarchar(500) NOT NULL,
+        [Valor] nvarchar(max) NOT NULL,
         CONSTRAINT [PK_ConfiguracoesSistema] PRIMARY KEY ([Id])
     );
 END;
@@ -142,6 +142,7 @@ BEGIN
         [Solucao] nvarchar(max) NOT NULL CONSTRAINT [DF_ChamadosSuporte_Solucao] DEFAULT '',
         [AnexoUrl] nvarchar(500) NULL,
         [AnexoNomeOriginal] nvarchar(255) NULL,
+        [ClientIdempotencyKey] nvarchar(100) NULL,
         [RowVersion] rowversion NOT NULL,
         CONSTRAINT [PK_ChamadosSuporte] PRIMARY KEY ([Id]),
         CONSTRAINT [FK_ChamadosSuporte_Usuarios_UsuarioId] FOREIGN KEY ([UsuarioId]) REFERENCES [Usuarios] ([Id]) ON DELETE CASCADE,
@@ -211,9 +212,57 @@ BEGIN
 END;
 GO
 
+IF NOT EXISTS (SELECT 1 FROM [__EFMigrationsHistory] WHERE [MigrationId] = N'20261021120000_AddChamadoIdempotencyKey')
+BEGIN
+    INSERT INTO [__EFMigrationsHistory] ([MigrationId], [ProductVersion])
+    VALUES (N'20261021120000_AddChamadoIdempotencyKey', N'8.0.0');
+END;
+GO
+
+IF NOT EXISTS (SELECT 1 FROM sys.indexes WHERE name = 'IX_ChamadosSuporte_UsuarioId_ClientIdempotencyKey' AND object_id = OBJECT_ID('ChamadosSuporte'))
+    CREATE UNIQUE INDEX [IX_ChamadosSuporte_UsuarioId_ClientIdempotencyKey]
+        ON [ChamadosSuporte]([UsuarioId], [ClientIdempotencyKey])
+        WHERE [ClientIdempotencyKey] IS NOT NULL;
+GO
+
 -- =============================================================================
 -- 4. STORED PROCEDURES (Requisito Acadêmico PIM IV - UNIP)
 -- =============================================================================
+
+IF OBJECT_ID(N'[MfaSessoes]') IS NULL
+BEGIN
+    CREATE TABLE [MfaSessoes] (
+        [Id] int NOT NULL IDENTITY(1,1),
+        [TokenHash] nvarchar(128) NOT NULL,
+        [UsuarioId] int NOT NULL,
+        [Email] nvarchar(100) NOT NULL,
+        [ExpiraEm] datetime2 NOT NULL,
+        [Tentativas] int NOT NULL CONSTRAINT [DF_MfaSessoes_Tentativas] DEFAULT 0,
+        [Canal] nvarchar(20) NOT NULL CONSTRAINT [DF_MfaSessoes_Canal] DEFAULT 'API',
+        CONSTRAINT [PK_MfaSessoes] PRIMARY KEY ([Id]),
+        CONSTRAINT [FK_MfaSessoes_Usuarios_UsuarioId] FOREIGN KEY ([UsuarioId]) REFERENCES [Usuarios] ([Id]) ON DELETE CASCADE
+    );
+END;
+GO
+
+IF NOT EXISTS (SELECT 1 FROM sys.indexes WHERE name = 'IX_MfaSessoes_TokenHash' AND object_id = OBJECT_ID('MfaSessoes'))
+    CREATE UNIQUE INDEX [IX_MfaSessoes_TokenHash] ON [MfaSessoes]([TokenHash]);
+GO
+
+IF NOT EXISTS (SELECT 1 FROM sys.indexes WHERE name = 'IX_MfaSessoes_UsuarioId' AND object_id = OBJECT_ID('MfaSessoes'))
+    CREATE INDEX [IX_MfaSessoes_UsuarioId] ON [MfaSessoes]([UsuarioId]);
+GO
+
+IF NOT EXISTS (SELECT 1 FROM sys.indexes WHERE name = 'IX_Usuarios_CPF' AND object_id = OBJECT_ID('Usuarios'))
+    CREATE UNIQUE INDEX [IX_Usuarios_CPF] ON [Usuarios]([CPF]) WHERE [CPF] IS NOT NULL AND [CPF] <> '';
+GO
+
+IF NOT EXISTS (SELECT 1 FROM [__EFMigrationsHistory] WHERE [MigrationId] = N'20261023020728_AddMfaSessionsAndUniqueUserIdentifiers')
+BEGIN
+    INSERT INTO [__EFMigrationsHistory] ([MigrationId], [ProductVersion])
+    VALUES (N'20261023020728_AddMfaSessionsAndUniqueUserIdentifiers', N'8.0.0');
+END;
+GO
 
 -- Stored Procedure 1: sp_RegistrarLog
 -- Responsável pelo registro centralizado e seguro de eventos de auditoria

@@ -10,6 +10,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Configuration;
 
 namespace CorvusIAM.Middlewares
 {
@@ -23,6 +24,7 @@ namespace CorvusIAM.Middlewares
         private readonly RequestDelegate _next;
         private readonly ILogger<CorvusWafMiddleware> _logger;
         private readonly IMemoryCache _cache;
+        private readonly HashSet<IPAddress> _trustedProxies;
 
         private const string CacheKeyBlockedIps = "CorvusWaf_BlockedIps";
         private static readonly TimeSpan CacheDuration = TimeSpan.FromSeconds(60);
@@ -44,11 +46,17 @@ namespace CorvusIAM.Middlewares
             ".css", ".js", ".png", ".jpg", ".jpeg", ".svg", ".ico", ".woff", ".woff2", ".ttf", ".webmanifest"
         };
 
-        public CorvusWafMiddleware(RequestDelegate next, ILogger<CorvusWafMiddleware> logger, IMemoryCache cache)
+        public CorvusWafMiddleware(RequestDelegate next, ILogger<CorvusWafMiddleware> logger, IMemoryCache cache, IConfiguration configuration)
         {
             _next = next;
             _logger = logger;
             _cache = cache;
+            _trustedProxies = new HashSet<IPAddress>();
+            foreach (var value in configuration.GetSection("ReverseProxy:TrustedProxies").Get<string[]>() ?? Array.Empty<string>())
+            {
+                if (IPAddress.TryParse(value, out var address))
+                    _trustedProxies.Add(address);
+            }
         }
 
         public async Task InvokeAsync(HttpContext context, IServiceProvider serviceProvider)
@@ -128,23 +136,27 @@ namespace CorvusIAM.Middlewares
             await _next(context);
         }
 
-        private static string ObterIpCliente(HttpContext context)
+        private string ObterIpCliente(HttpContext context)
         {
-            if (context.Request.Headers.TryGetValue("CF-Connecting-IP", out var cfIp) && !string.IsNullOrWhiteSpace(cfIp))
+            var remoteIp = context.Connection.RemoteIpAddress;
+            var trustedProxy = remoteIp != null && (IPAddress.IsLoopback(remoteIp) || _trustedProxies.Contains(remoteIp));
+
+            if (trustedProxy && context.Request.Headers.TryGetValue("CF-Connecting-IP", out var cfIp) &&
+                IPAddress.TryParse(cfIp.ToString().Trim(), out var cloudflareIp))
             {
-                return cfIp.ToString().Trim();
+                return cloudflareIp.ToString();
             }
 
-            if (context.Request.Headers.TryGetValue("X-Forwarded-For", out var forwarded) && !string.IsNullOrWhiteSpace(forwarded))
+            if (trustedProxy && context.Request.Headers.TryGetValue("X-Forwarded-For", out var forwarded) && !string.IsNullOrWhiteSpace(forwarded))
             {
                 var ips = forwarded.ToString().Split(',');
-                if (ips.Length > 0 && !string.IsNullOrWhiteSpace(ips[0]))
+                if (ips.Length > 0 && IPAddress.TryParse(ips[0].Trim(), out var forwardedIp))
                 {
-                    return ips[0].Trim();
+                    return forwardedIp.ToString();
                 }
             }
 
-            return context.Connection.RemoteIpAddress?.ToString() ?? "127.0.0.1";
+            return remoteIp?.ToString() ?? "127.0.0.1";
         }
 
         private HashSet<string> ObterIpsBloqueados(IServiceProvider serviceProvider)

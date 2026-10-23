@@ -53,6 +53,7 @@ builder.Services.AddScoped<IUsuarioService, UsuarioService>();
 builder.Services.AddScoped<IPasswordGeneratorService, PasswordGeneratorService>();
 builder.Services.AddScoped<ITotpService, TotpService>();
 builder.Services.AddScoped<IStorageService, StorageService>();
+builder.Services.AddSingleton<IMfaSecretProtector, MfaSecretProtector>();
 
 // External API Services (Timeouts curtos para garantir tempo de resposta < 100ms na UI)
 static IAsyncPolicy<HttpResponseMessage> GetRetryPolicy()
@@ -148,6 +149,16 @@ builder.Services.AddRateLimiter(options =>
                 Window = TimeSpan.FromMinutes(1),
                 QueueProcessingOrder = QueueProcessingOrder.OldestFirst,
                 QueueLimit = 0
+            }));
+    options.AddPolicy("PublicIntegrationPolicy", httpContext =>
+        RateLimitPartition.GetFixedWindowLimiter(
+            $"public:{httpContext.Connection.RemoteIpAddress}",
+            _ => new FixedWindowRateLimiterOptions
+            {
+                PermitLimit = 30,
+                Window = TimeSpan.FromMinutes(1),
+                QueueLimit = 0,
+                QueueProcessingOrder = QueueProcessingOrder.OldestFirst
             }));
     options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
 });
@@ -278,11 +289,17 @@ if (string.IsNullOrEmpty(keyStr))
         throw new InvalidOperationException("Falha Crítica de Segurança: Variável de ambiente JWT_KEY não configurada em Produção.");
     }
 }
+builder.Configuration["Jwt:Key"] = keyStr;
 var key = Encoding.ASCII.GetBytes(keyStr);
 
 builder.Services.AddAuthorization(options =>
 {
     options.AddPolicy("RequireAdmin", policy => policy.RequireRole("Admin"));
+    options.AddPolicy("RequireJwt", policy =>
+    {
+        policy.AddAuthenticationSchemes(JwtBearerDefaults.AuthenticationScheme);
+        policy.RequireAuthenticatedUser();
+    });
     options.AddPolicy("RequireHR", policy => policy.RequireRole("Recursos Humanos", "Admin"));
     options.AddPolicy("RequireAccounting", policy => policy.RequireRole("Contabilidade", "Admin"));
     options.AddPolicy("RequireHelpDesk", policy => policy.RequireRole("Help Desk", "Admin"));
@@ -342,8 +359,11 @@ forwardedHeadersOptions.KnownNetworks.Clear();
 forwardedHeadersOptions.KnownProxies.Clear();
 forwardedHeadersOptions.KnownNetworks.Add(new Microsoft.AspNetCore.HttpOverrides.IPNetwork(System.Net.IPAddress.Loopback, 8));
 forwardedHeadersOptions.KnownNetworks.Add(new Microsoft.AspNetCore.HttpOverrides.IPNetwork(System.Net.IPAddress.IPv6Loopback, 128));
-forwardedHeadersOptions.KnownNetworks.Add(new Microsoft.AspNetCore.HttpOverrides.IPNetwork(System.Net.IPAddress.Parse("172.16.0.0"), 12));
-forwardedHeadersOptions.KnownNetworks.Add(new Microsoft.AspNetCore.HttpOverrides.IPNetwork(System.Net.IPAddress.Parse("10.0.0.0"), 8));
+foreach (var proxy in builder.Configuration.GetSection("ReverseProxy:TrustedProxies").Get<string[]>() ?? Array.Empty<string>())
+{
+    if (System.Net.IPAddress.TryParse(proxy, out var address))
+        forwardedHeadersOptions.KnownProxies.Add(address);
+}
 app.UseForwardedHeaders(forwardedHeadersOptions);
 
 using (var scope = app.Services.CreateScope())
@@ -605,6 +625,32 @@ using (var scope = app.Services.CreateScope())
                 try
                 {
                     DbDataSeeder.Seed(context);
+
+                    // Migra segredos MFA legados para Data Protection e invalida
+                    // refresh tokens antigos que ainda possam estar em texto puro.
+                    var mfaProtector = scope.ServiceProvider.GetRequiredService<IMfaSecretProtector>();
+                    var usersNeedingSecurityMigration = context.Usuarios
+                        .Where(u => !string.IsNullOrWhiteSpace(u.MfaSecretKey) || !string.IsNullOrWhiteSpace(u.RefreshToken))
+                        .ToList();
+                    var securityMigrationChanged = false;
+                    foreach (var user in usersNeedingSecurityMigration)
+                    {
+                        if (!string.IsNullOrWhiteSpace(user.MfaSecretKey) && !mfaProtector.IsProtected(user.MfaSecretKey))
+                        {
+                            user.MfaSecretKey = mfaProtector.Protect(user.MfaSecretKey);
+                            securityMigrationChanged = true;
+                        }
+
+                        if (!string.IsNullOrWhiteSpace(user.RefreshToken) &&
+                            (user.RefreshToken.Length != 64 || user.RefreshToken.Any(c => !Uri.IsHexDigit(c))))
+                        {
+                            user.RefreshToken = string.Empty;
+                            user.RefreshTokenExpiracao = null;
+                            securityMigrationChanged = true;
+                        }
+                    }
+                    if (securityMigrationChanged)
+                        context.SaveChanges();
                 }
                 catch (Exception seedEx)
                 {
@@ -631,6 +677,21 @@ using (var scope = app.Services.CreateScope())
 // Configure the HTTP request pipeline.
 app.UseMiddleware<CorvusIAM.Middlewares.GlobalExceptionMiddleware>();
 app.UseMiddleware<CorvusIAM.Middlewares.CorvusWafMiddleware>();
+
+app.Use(async (context, next) =>
+{
+    context.Response.Headers["X-Content-Type-Options"] = "nosniff";
+    context.Response.Headers["X-Frame-Options"] = "DENY";
+    context.Response.Headers["Referrer-Policy"] = "strict-origin-when-cross-origin";
+    context.Response.Headers["Permissions-Policy"] = "camera=(), microphone=(), geolocation=(), payment=()";
+    context.Response.Headers["Content-Security-Policy"] =
+        "default-src 'self'; base-uri 'self'; object-src 'none'; frame-ancestors 'none'; form-action 'self'; " +
+        "img-src 'self' data: https:; font-src 'self' data: https://fonts.gstatic.com https://cdn.jsdelivr.net; " +
+        "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdn.jsdelivr.net; " +
+        "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.tailwindcss.com https://cdn.jsdelivr.net https://unpkg.com https://vlibras.gov.br https://challenges.cloudflare.com; " +
+        "connect-src 'self' https://challenges.cloudflare.com https://vlibras.gov.br; frame-src https://challenges.cloudflare.com https://vlibras.gov.br";
+    await next();
+});
 
 if (!app.Environment.IsDevelopment())
 {

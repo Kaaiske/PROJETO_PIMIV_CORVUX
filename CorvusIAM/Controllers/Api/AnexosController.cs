@@ -11,7 +11,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace CorvusIAM.Controllers.Api
 {
-    [Authorize]
+    [Authorize(Policy = "RequireJwt")]
     [ApiController]
     [Route("api/chamados/anexos")]
     public class AnexosController : ControllerBase

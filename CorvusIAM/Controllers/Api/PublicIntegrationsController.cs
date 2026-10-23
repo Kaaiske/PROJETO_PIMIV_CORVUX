@@ -6,6 +6,7 @@ using System.Net.Http;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.RateLimiting;
 
 namespace CorvusIAM.Controllers.Api
 {
@@ -14,17 +15,26 @@ namespace CorvusIAM.Controllers.Api
     /// </summary>
     [ApiController]
     [Route("api/public")]
+    [EnableRateLimiting("PublicIntegrationPolicy")]
     [Tags("Integrações Governamentais & Serviços Públicos")]
     public class PublicIntegrationsController : ControllerBase
     {
         private readonly IHttpClientFactory _httpClientFactory;
         private readonly ILogger<PublicIntegrationsController> _logger;
+        private readonly bool _allowLocalFallback;
 
-        public PublicIntegrationsController(IHttpClientFactory httpClientFactory, ILogger<PublicIntegrationsController> logger)
+        public PublicIntegrationsController(IHttpClientFactory httpClientFactory, ILogger<PublicIntegrationsController> logger, IWebHostEnvironment? environment = null)
         {
             _httpClientFactory = httpClientFactory;
             _logger = logger;
+            _allowLocalFallback = environment?.IsDevelopment() ?? true;
         }
+
+        private IActionResult FallbackUnavailable() => StatusCode(StatusCodes.Status503ServiceUnavailable, new
+        {
+            message = "A integração externa está indisponível. Nenhum dado simulado foi retornado.",
+            retryable = true
+        });
 
         /// <summary>
         /// Consulta logradouro, bairro, município e UF a partir do CEP utilizando o webservice oficial ViaCEP.
@@ -67,7 +77,9 @@ namespace CorvusIAM.Controllers.Api
                 _logger.LogWarning(ex, "Falha ao consultar ViaCEP para {Cep}. Utilizando fallback resiliente.", cleanCep);
             }
 
-            // Fallback resiliente caso o serviço público esteja indisponível
+            if (!_allowLocalFallback) return FallbackUnavailable();
+
+            // Fallback local somente para desenvolvimento/offline
             return Ok(new
             {
                 cep = $"{cleanCep[..5]}-{cleanCep[5..]}",
@@ -115,7 +127,9 @@ namespace CorvusIAM.Controllers.Api
                 _logger.LogWarning(ex, "Falha ao consultar BrasilAPI para CNPJ {Cnpj}.", cleanCnpj);
             }
 
-            // Fallback corporativo simulado para fins de homologação e testes offline
+            if (!_allowLocalFallback) return FallbackUnavailable();
+
+            // Fallback local somente para desenvolvimento/offline
             return Ok(new
             {
                 cnpj = cleanCnpj,
@@ -168,7 +182,9 @@ namespace CorvusIAM.Controllers.Api
                 _logger.LogWarning(ex, "Falha ao consultar banco {Code} na BrasilAPI.", cleanCode);
             }
 
-            // Fallback para os principais bancos brasileiros
+            if (!_allowLocalFallback) return FallbackUnavailable();
+
+            // Fallback local somente para desenvolvimento/offline
             var bancosConhecidos = new System.Collections.Generic.Dictionary<string, (string name, string ispb)>
             {
                 ["001"] = ("BANCO DO BRASIL S.A.", "00000000"),
@@ -226,7 +242,9 @@ namespace CorvusIAM.Controllers.Api
                 _logger.LogWarning(ex, "Falha ao consultar cotações de moedas da AwesomeAPI.");
             }
 
-            // Fallback de cotação
+            if (!_allowLocalFallback) return FallbackUnavailable();
+
+            // Fallback local somente para desenvolvimento/offline
             return Ok(new
             {
                 USDBRL = new
@@ -285,7 +303,9 @@ namespace CorvusIAM.Controllers.Api
                 _logger.LogWarning(ex, "Falha ao consultar feriados nacionais de {Ano}.", ano);
             }
 
-            // Feriados oficiais brasileiros de contingência
+            if (!_allowLocalFallback) return FallbackUnavailable();
+
+            // Feriados locais somente para desenvolvimento/offline
             var feriadosPadrao = new[]
             {
                 new { date = $"{ano}-01-01", name = "Confraternização Universal", type = "national" },

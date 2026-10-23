@@ -5,12 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>@ViewData["Title"] - Corvux Security</title>
     
-    <!-- PWA & Mobile Web App Meta -->
-    <link rel="manifest" href="/manifest.json?v=20261018">
     <meta name="theme-color" content="#070709">
-    <meta name="mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="default">
     <!-- Favicon & Icons Oficiais Corvux Security -->
     <link rel="icon" type="image/png" sizes="64x64" href="/favicon.png?v=20261018">
     <link rel="icon" type="image/png" sizes="32x32" href="/icons/favicon-32x32.png?v=20261018">
@@ -288,14 +283,6 @@
                     </div>
                     <span class="md:opacity-0 md:group-hover:opacity-100 transition-opacity whitespace-nowrap">Fila de Chamados &amp; SLA</span>
                 </a> }
-                <a id="nav-mobile-pwa" href="/Mobile" onclick="if(window.innerWidth < 768) fecharMobileMenu()" class="flex items-center gap-3 px-2 py-1.5 rounded-md transition-colors group/item @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Mobile" ? "bg-brand-600/10 dark:bg-dark-hover text-brand-600 dark:text-white font-medium border border-brand-500/25 dark:border-dark-border" : "text-slate-600 dark:text-slate-400 hover:bg-slate-200/60 dark:hover:bg-dark-hover hover:text-slate-900 dark:hover:text-white")">
-                    <i class="ph ph-device-mobile text-[17px] flex-shrink-0 text-cyan-600 dark:text-cyan-400"></i>
-                    <span class="md:opacity-0 md:group-hover:opacity-100 transition-opacity whitespace-nowrap flex items-center justify-between flex-1">
-                        Terminal Mobile
-                        <span class="text-[9px] bg-cyan-500/10 text-cyan-600 dark:text-cyan-400 border border-cyan-500/20 px-1 py-0.5 rounded font-mono ml-1.5">PWA</span>
-                    </span>
-                </a>
-
                 <!-- PILAR 4: INFRAESTRUTURA & NUVEM -->
                 @if(User.IsInRole("Admin")) { 
                 <div class="text-[10px] font-semibold text-slate-500 dark:text-slate-500 uppercase tracking-[0.06em] px-2 mb-1 mt-2.5 md:opacity-0 md:group-hover:opacity-100 transition-opacity">Infraestrutura &amp; Nuvem</div>
@@ -753,10 +740,6 @@
         }
 
         // PWA Service Worker & Notificação de Instalação Exclusiva para Dispositivos Móveis
-        if ('serviceWorker' in navigator) {
-            navigator.serviceWorker.register('/sw.js').catch(err => console.warn('PWA SW Registro:', err));
-        }
-
         function checkIsMobileDevice() {
             // 1. Client Hints se suportado pelo navegador
             if (navigator.userAgentData && typeof navigator.userAgentData.mobile === 'boolean') {
@@ -977,7 +960,7 @@
     </div>
 
     <!-- PWA Install Notification / Banner Mobile -->
-    <div id="pwaInstallBanner" class="fixed bottom-4 left-3 right-3 sm:left-auto sm:right-6 sm:bottom-6 sm:w-[380px] z-[9999] hidden opacity-0 bg-white dark:bg-dark-card backdrop-blur-md border border-slate-200 dark:border-brand-500/40 rounded-xl p-4 shadow-2xl transition-all duration-300 transform translate-y-4">
+    <div id="legacyPwaBannerRemoved" class="hidden" aria-hidden="true">
         <div class="flex items-start gap-3">
             <img src="/icons/corvus-logo-light.png?v=20261017" alt="CorvuxIAM" class="w-10 h-10 rounded-lg flex-shrink-0 shadow-sm border border-slate-200 object-contain block dark:hidden">
             <img src="/icons/corvus-logo-dark.png?v=20261017" alt="CorvuxIAM" class="w-10 h-10 rounded-lg flex-shrink-0 shadow-sm border border-dark-border object-contain hidden dark:block">

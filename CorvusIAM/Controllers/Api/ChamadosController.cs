@@ -16,7 +16,7 @@ namespace CorvusIAM.Controllers.Api
     /// <summary>
     /// Service Desk Corporativo: Abertura, acompanhamento e resolução de chamados de suporte técnico e requisições de acesso.
     /// </summary>
-    [Authorize]
+    [Authorize(Policy = "RequireJwt")]
     [ApiController]
     [IgnoreAntiforgeryToken]
     [Route("api/[controller]")]
@@ -172,7 +172,19 @@ namespace CorvusIAM.Controllers.Api
             };
 
             _context.ChamadosSuporte.Add(chamado);
-            await _context.SaveChangesAsync();
+            try
+            {
+                await _context.SaveChangesAsync();
+            }
+            catch (DbUpdateException) when (!string.IsNullOrEmpty(idempotencyKey))
+            {
+                var existingAfterRace = await _context.ChamadosSuporte
+                    .AsNoTracking()
+                    .FirstOrDefaultAsync(c => c.UsuarioId == userId && c.ClientIdempotencyKey == idempotencyKey);
+                if (existingAfterRace != null)
+                    return Ok(new { message = "Chamado já registrado anteriormente.", id = existingAfterRace.Id, duplicate = true });
+                throw;
+            }
             await _auditoria.RegistrarLog(userId, "Abertura de Chamado", $"Chamado #{chamado.Id} aberto.", "Info", "API");
 
             return Created(string.Empty, new { message = "Chamado aberto com sucesso", id = chamado.Id });

@@ -13,5 +13,6 @@ namespace CorvusIAM.Interfaces
         AuthResponse? Autenticar(string email, string senha);
         AuthResponse? AutenticarMfa(string mfaSessionToken, string codigoTotp);
         AuthResponse? AtualizarToken(string email, string refreshToken);
+        bool RevogarToken(string email, string refreshToken);
     }
 }
