@@ -24,6 +24,9 @@ public class MobileController : Controller
             return RedirectToAction(nameof(Index));
         }
 
-        return RedirectToAction("Login", "Auth", new { returnUrl = returnUrl ?? "/Mobile" });
+        var safeReturnUrl = (!string.IsNullOrWhiteSpace(returnUrl) && Url.IsLocalUrl(returnUrl))
+            ? returnUrl
+            : "/Mobile";
+        return Redirect($"/Auth/Login?returnUrl={System.Uri.EscapeDataString(safeReturnUrl)}");
     }
 }

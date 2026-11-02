@@ -1,25 +1,18 @@
-# MER — CorvusIAM
+# Modelo Entidade-Relacionamento (MER) — CorvuxIAM (`CorvusIAMDb`)
 
 ```mermaid
 erDiagram
-    USUARIOS ||--o{ USUARIO_PERFIS : possui
-    PERFIS ||--o{ USUARIO_PERFIS : define
-    PERFIS ||--o{ PERFIL_PERMISSOES : recebe
-    PERMISSOES ||--o{ PERFIL_PERMISSOES : compoe
-    USUARIOS ||--o{ CHAMADOS_SUPORTE : abre
-    USUARIOS o|--o{ LOGS_AUDITORIA : gera
-    USUARIOS { int Id PK
-      string Email
-      string SenhaHash
-      bool Ativo
-    }
-    PERFIS { int Id PK
-      string Nome
-    }
-    CHAMADOS_SUPORTE { int Id PK
-      int UsuarioId FK
-      string Status
-    }
+    Usuarios ||--o{ UsuarioPerfis : possui
+    Perfis ||--o{ UsuarioPerfis : atribui
+    Perfis ||--o{ PerfilPermissoes : contem
+    Permissoes ||--o{ PerfilPermissoes : concede
+    Usuarios ||--o{ MfaSessoes : valida_mfa
+    Usuarios ||--o{ ChamadosSuporte : solicita
+    Usuarios o|--o{ ChamadosSuporte : atende
+    Usuarios o|--o{ LogsAuditoria : registra
+    Usuarios o|--o{ NotasFiscais : emite
+    Usuarios o|--o{ FechamentosMensais : encerra
+    Usuarios o|--o{ RegistrosFerias : agenda
 ```
 
-O modelo físico completo está em `DatabaseScript.sql`.
+O script Transact-SQL consolidado de instalação limpa (contemplando `CREATE DATABASE`, as 16 tabelas de domínio normalizadas em 3FN, chaves primárias e estrangeiras, índices filtrados e de cobertura, função escalar `fn_CalcularScoreRiscoUsuario`, 4 views analíticas, 5 triggers e 12 stored procedures) encontra-se unificado em `CorvusIAM/DatabaseScript.sql`.

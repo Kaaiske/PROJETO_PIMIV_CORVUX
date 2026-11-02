@@ -98,6 +98,14 @@ namespace CorvusIAM.Data
                 .IsUnique()
                 .HasFilter("ClientIdempotencyKey IS NOT NULL");
 
+            if (Database.ProviderName == "Microsoft.EntityFrameworkCore.Sqlite")
+            {
+                modelBuilder.Entity<ChamadoSuporte>()
+                    .Property(c => c.RowVersion)
+                    .IsConcurrencyToken()
+                    .ValueGeneratedNever();
+            }
+
             // Seed Data
             modelBuilder.Entity<Perfil>().HasData(
                 new Perfil { Id = 1, Nome = "Admin", Descricao = "Administrador do Sistema", Ativo = true },

@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc;
 using System.Text.Json;
 using System.Text.RegularExpressions;
 using System;
@@ -14,6 +14,7 @@ namespace CorvusIAM.Controllers.Api
     /// Integrações Governamentais e Serviços Públicos Nacionais: ViaCEP, BrasilAPI (CNPJ, Bancos, Feriados), Cotações e Validador Oficial de CPF.
     /// </summary>
     [ApiController]
+    [IgnoreAntiforgeryToken]
     [Route("api/public")]
     [EnableRateLimiting("PublicIntegrationPolicy")]
     [Tags("Integrações Governamentais & Serviços Públicos")]

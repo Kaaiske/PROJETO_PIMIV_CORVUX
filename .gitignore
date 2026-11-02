@@ -6,6 +6,8 @@ yarn-error.log
 # .NET Core
 bin/
 obj/
+TestResults/
+CorvusIAM.Tests/TestResults/
 *.user
 *.suo
 *.userosscache

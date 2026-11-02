@@ -31,8 +31,9 @@ namespace CorvusIAM.Controllers.Api
             // JWT/Cookie authentication alone is insufficient for directory export.
             // Only administrators or users with the explicit directory permission
             // may use the gateway with their bearer/cookie identity.
-            if (User?.Identity?.IsAuthenticated == true &&
-                string.Equals(User.Identity.AuthenticationType, "Bearer", StringComparison.OrdinalIgnoreCase))
+            var hasBearerHeader = Request.Headers.TryGetValue("Authorization", out var bearerHdr) &&
+                                  bearerHdr.ToString().StartsWith("Bearer ", StringComparison.OrdinalIgnoreCase);
+            if (hasBearerHeader && User?.Identity?.IsAuthenticated == true)
             {
                 return User.IsInRole("Admin") || User.HasClaim("permission", "usuarios.visualizar");
             }

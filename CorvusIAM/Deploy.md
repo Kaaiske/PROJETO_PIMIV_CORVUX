@@ -1,26 +1,40 @@
-# Guia de execução e implantação — CorvusIAM
+# Guia de Execução e Implantação — CorvuxIAM (`CorvusIAM`)
 
-## Desenvolvimento
+> **Convenção de Nomenclatura:** `CorvuxIAM` é o nome oficial da plataforma e do produto corporativo (`https://corvuxiam.tech`), enquanto `CorvusIAM` é o identificador técnico mantido na solução .NET (`CorvusIAM.sln`), nos projetos (`CorvusIAM/CorvusIAM.csproj`, `CorvusIAM.Mobile`, `CorvusIAM.Tests`), nos namespaces C# e no banco relacional (`CorvusIAMDb`).
+
+## 1. Ambiente de Desenvolvimento Local (.NET 8 CLI)
+
+A partir da raiz do repositório:
 
 ```powershell
-dotnet restore
-dotnet ef database update
-dotnet run
+dotnet restore CorvusIAM.sln
+dotnet build CorvusIAM.sln --configuration Release
+dotnet test CorvusIAM.sln --configuration Release --collect:"XPlat Code Coverage"
+dotnet run --project CorvusIAM/CorvusIAM.csproj
 ```
 
-O login inicial é `admin@corvus.com`. A senha inicial deve ser definida nas variáveis de ambiente na primeira inicialização. Altere-a imediatamente após o primeiro login.
+Em desenvolvimento local, a aplicação utiliza SQLite por padrão (`http://localhost:5052`) e habilita a especificação interativa OpenAPI em `http://localhost:5052/swagger`. A conta administrativa inicial (`admin@corvus.com`) recebe a senha definida na variável de ambiente `ADMIN_INITIAL_PASSWORD`.
 
-## Containers
+## 2. Aplicativo Mobile (PWA e React Native / Expo)
 
-1. Copie `.env.example` para `.env`.
-2. Troque `SA_PASSWORD` e `JWT_KEY` por valores secretos e fortes.
-3. Execute `docker compose up --build`.
+- **PWA Offline-First:** acessível diretamente em `/Mobile` (ou `/Mobile/Login`) com manifesto em `/mobile/manifest.webmanifest`, Service Worker e fila local `IndexedDB` (`CorvusOfflineDB`).
+- **React Native (Expo 51):** localizado no diretório `CorvusIAM.Mobile/`:
 
-O Compose aguarda o health check do SQL Server antes de iniciar a aplicação. A aplicação é exposta em `http://localhost:8080`; o endpoint de saúde é `/health`.
+```powershell
+cd CorvusIAM.Mobile
+npm install
+npx expo start
+```
 
-## Cloud
+## 3. Implantação Padronizada com Docker Compose (Produção / VPS)
 
-- Azure: Azure Container Registry + App Service for Containers + Azure SQL Database.
-- AWS: ECR + ECS/Fargate + RDS for SQL Server.
+1. Copie `.env.example` para `.env` na raiz do repositório.
+2. Defina segredos exclusivos para `SQL_SA_PASSWORD`, `JWT_KEY`, `ADMIN_INITIAL_PASSWORD`, `API_GATEWAY_TOKEN`, `TURNSTILE_SITEKEY` e `TURNSTILE_SECRETKEY`.
+3. Construa e inicie os contêineres:
 
-Em ambos os provedores, configure strings de conexão e chaves JWT no serviço de secrets/variáveis de ambiente, nunca no repositório. O pipeline GitHub Actions restaura, compila, testa e cria a imagem Docker a cada push ou pull request para `main`.
+```bash
+docker compose up -d --build
+docker compose ps
+```
+
+O serviço `sqlserver` opera isolado na rede interna `corvus-network` sem exposição da porta `1433` no host externo, enquanto `corvusiam.web` faz bind por padrão em `127.0.0.1:8080:8080` atrás de proxy reverso TLS/Cloudflare. O monitoramento de integridade responde em `/health` e as métricas Prometheus em `/metrics` (restritas à política `RequireAdmin`).

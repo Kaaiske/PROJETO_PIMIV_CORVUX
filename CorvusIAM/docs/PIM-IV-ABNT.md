@@ -1,64 +1,19 @@
-# Roteiro do PIM IV — CorvusIAM
+# Estrutura Documental ABNT do PIM IV — CorvuxIAM (`CorvusIAM`)
 
-> Preencha os campos entre colchetes com dados verdadeiros da organização estudada no PIM III. O desenvolvimento deve ter de 20 a 30 páginas, sem contar capa, resumo, abstract, sumário, referências e anexos.
+Este guia resume o mapeamento entre o relatório acadêmico oficial (`PIM_IV.docx`, formatado segundo as normas ABNT NBR 14724, NBR 6027 e NBR 6023 e o Manual do PIM IV da UNIP) e os artefatos reais implementados neste repositório.
 
-## Formatação obrigatória
+## Convenção de Nomenclatura
 
-- Papel A4; fonte Arial ou Times New Roman, tamanho 12; texto justificado; espaçamento 1,5.
-- Margens: superior/esquerda 3 cm e inferior/direita 2 cm.
-- Recuo de primeira linha 1,5 cm; citações longas, resumo e referências em espaço simples.
-- Numeração no canto superior direito a partir da Introdução.
+- **`CorvuxIAM`**: denominação institucional, comercial e acadêmica da plataforma (`https://corvuxiam.tech`), desenvolvida para a organização **Corvux Tech Solutions Ltda.** em continuidade ao diagnóstico do PIM III.
+- **`CorvusIAM`**: identificador técnico mantido nos artefatos de código-fonte (`CorvusIAM.sln`, `CorvusIAM/CorvusIAM.csproj`, `CorvusIAM.Mobile`, `CorvusIAM.Tests`, namespaces C# `CorvusIAM.*` e banco `CorvusIAMDb`).
 
-## Estrutura
+## Rastreabilidade Código-Fonte x Relatório Acadêmico
 
-1. Capa: UNIP, curso, autor(es)/RA, título, cidade e ano.
-2. Resumo (150 a 500 palavras) e palavras-chave.
-3. Abstract e keywords.
-4. Sumário.
-5. Introdução: objetivo, metodologia e apresentação de [organização].
-6. Desenvolvimento — capítulos 1 a 9 abaixo.
-7. Conclusão.
-8. Referências em ABNT.
-9. Anexos: prints, MER, script SQL, Kanban e guia de execução.
-
-## Desenvolvimento sugerido
-
-### 1. Caracterização da organização
-
-Descrever [segmento], produtos/serviços, estrutura, processos, problemas e oportunidades de melhoria identificadas no PIM III.
-
-### 2. Planejamento da solução
-
-Apresentar o problema de gestão de identidades e acessos, público-alvo, proposta de valor, benefícios e diferenciais do CorvusIAM.
-
-### 3. Diversidade, inclusão e responsabilidade social
-
-Registrar linguagem inclusiva, contraste visual, navegação por teclado, textos alternativos, formulários com rótulos e proteção de dados pessoais.
-
-### 4. Aplicação web
-
-Documentar ASP.NET Core 8, MVC, autenticação por cookies/JWT, APIs REST, perfis, painel administrativo e módulos de chamados.
-
-### 5. Aplicação mobile
-
-Descrever a PWA em `/Mobile`: autenticação integrada, abertura e consulta de chamados, design responsivo, manifesto e cache offline de interface.
-
-### 6. Arquitetura de software
-
-Usar o diagrama de `docs/arquitetura.md`; explicar entidades, controllers, serviços, repositório, DTOs e injeção de dependência.
-
-### 7. Banco de dados
-
-Anexar `DatabaseScript.sql` e o MER de `docs/mer.md`; explicar tabelas, relações, índices, procedure `sp_RegistrarLog` e trigger `trg_AuditoriaUsuarios`.
-
-### 8. Cloud e DevOps
-
-Explicar Docker, Docker Compose, SQL Server, health check, secrets no `.env`, GitHub Actions e endpoint `/health`.
-
-### 9. Gestão ágil
-
-Anexar o planejamento de `docs/agil.md` e ajustar prazos, responsáveis e evidências do grupo.
-
-## Referências iniciais
-
-Inclua somente fontes efetivamente consultadas, por exemplo: documentação oficial do ASP.NET Core, Entity Framework Core, Docker, Microsoft SQL Server, OWASP e bibliografia da disciplina, no padrão ABNT.
+1. **Planejamento do Negócio e Continuidade PIM III -> PIM IV:** diagnóstico organizacional da Corvux Tech Solutions Ltda., modelo SaaS B2B em reais, estrutura de custos, margem operacional, cálculo do ponto de equilíbrio e metodologia detalhada de ROI (`docs/politica-backup-e-custos.md`).
+2. **Aplicação Web e APIs REST:** ASP.NET Core 8 MVC em Bento UI (`Controllers/`, `Views/`) integrado aos controladores REST (`Controllers/Api/`) sob esquema híbrido `CookiesAndJwt`, antiforgery global e matriz RBAC.
+3. **Aplicação Mobile Híbrida (PWA + React Native):** PWA touch-first em `/Mobile` (`Views/Mobile/Index.cshtml`, `wwwroot/mobile/app.js`, `service-worker.js`, fila offline `IndexedDB` `CorvusOfflineDB`) e aplicativo nativo em `CorvusIAM.Mobile/` (React Native 0.74 + Expo 51, `expo-secure-store`, interceptador Axios de refresh token e sincronização idempotente via `X-Idempotency-Key`).
+4. **Arquitetura de Software e POO:** separação em Domínio (`Entities/`), Persistência (`Data/`, `Repositories/`), Serviços (`Interfaces/`, `Services/`), Middlewares (`Middlewares/`) e Apresentação, aplicando abstração, encapsulamento, herança, polimorfismo e injeção de dependência (`docs/arquitetura.md`).
+5. **Banco de Dados Consolidado:** script único de instalação limpa em `CorvusIAM/DatabaseScript.sql` contendo `CREATE DATABASE`, 16 tabelas de domínio em 3FN, PKs, 11 FKs, índices únicos/filtrados/cobertura, 1 função escalar, 4 views, 5 triggers e 12 stored procedures (`docs/mer.md`).
+6. **Segurança Zero Trust, Acessibilidade WCAG 2.2 AA e LGPD:** detalhados em `docs/acessibilidade-e-seguranca.md`.
+7. **Cloud, Containers e DevOps CI/CD:** `CorvusIAM/Dockerfile` multi-stage, `docker-compose.yml` com isolamento de rede e variáveis obrigatórias via `.env`, workflows `.github/workflows/ci.yml`, `docker-publish.yml` e `release.yml`, `/health` e `/metrics` (`Deploy.md`).
+8. **Gerenciamento Ágil e Testes:** Product Backlog, Sprint Backlog, Definition of Done e Kanban em `docs/agil.md`; suíte automatizada xUnit + Coverlet em `CorvusIAM.Tests/`.

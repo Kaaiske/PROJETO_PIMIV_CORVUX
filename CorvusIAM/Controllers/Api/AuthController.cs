@@ -9,6 +9,7 @@ namespace CorvusIAM.Controllers.Api
     /// Gerenciamento de Autenticação Corporativa, Sessões e Emissão de Tokens JWT.
     /// </summary>
     [ApiController]
+    [IgnoreAntiforgeryToken]
     [Route("api/[controller]")]
     [Tags("Autenticação & Sessão (JWT / OAuth2)")]
     public class AuthController : ControllerBase

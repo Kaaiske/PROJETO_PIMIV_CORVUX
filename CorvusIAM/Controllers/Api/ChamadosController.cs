@@ -16,7 +16,7 @@ namespace CorvusIAM.Controllers.Api
     /// <summary>
     /// Service Desk Corporativo: Abertura, acompanhamento e resolução de chamados de suporte técnico e requisições de acesso.
     /// </summary>
-    [Authorize(Policy = "RequireJwt")]
+    [Authorize]
     [ApiController]
     [IgnoreAntiforgeryToken]
     [Route("api/[controller]")]
@@ -25,11 +25,16 @@ namespace CorvusIAM.Controllers.Api
     {
         private readonly ApplicationDbContext _context;
         private readonly ILogAuditoriaService _auditoria;
+        private readonly Microsoft.AspNetCore.Antiforgery.IAntiforgery? _antiforgery;
 
-        public ChamadosController(ApplicationDbContext context, ILogAuditoriaService auditoria)
+        public ChamadosController(
+            ApplicationDbContext context,
+            ILogAuditoriaService auditoria,
+            Microsoft.AspNetCore.Antiforgery.IAntiforgery? antiforgery = null)
         {
             _context = context;
             _auditoria = auditoria;
+            _antiforgery = antiforgery;
         }
 
         /// <summary>
@@ -135,11 +140,25 @@ namespace CorvusIAM.Controllers.Api
             if (dto == null)
                 return BadRequest(new { message = "Dados da solicitação não fornecidos." });
 
+            var hasBearerToken = Request?.Headers.TryGetValue("Authorization", out var authHdr) == true &&
+                                 authHdr.ToString().StartsWith("Bearer ", StringComparison.OrdinalIgnoreCase);
+            if (!hasBearerToken && _antiforgery != null && HttpContext != null)
+            {
+                try
+                {
+                    await _antiforgery.ValidateRequestAsync(HttpContext);
+                }
+                catch (Microsoft.AspNetCore.Antiforgery.AntiforgeryValidationException)
+                {
+                    return BadRequest(new { message = "Token antiforgery ausente ou inválido." });
+                }
+            }
+
             var userIdStr = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             if (string.IsNullOrEmpty(userIdStr) || !int.TryParse(userIdStr, out int userId))
                 return Unauthorized();
 
-            var idempotencyKey = (Request.Headers["X-Idempotency-Key"].FirstOrDefault() ?? dto.ClientIdempotencyKey)?.Trim();
+            var idempotencyKey = (Request?.Headers["X-Idempotency-Key"].FirstOrDefault() ?? dto.ClientIdempotencyKey)?.Trim();
             if (!string.IsNullOrEmpty(idempotencyKey))
             {
                 if (idempotencyKey.Length > 100)

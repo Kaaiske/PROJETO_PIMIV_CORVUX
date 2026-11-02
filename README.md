@@ -1,406 +1,223 @@
 <div align="center">
 
-<img src="CorvusIAM/wwwroot/icons/corvus-logo.png" alt="Corvux Logo" width="120" style="border-radius: 20px;" />
+<img src="CorvusIAM/wwwroot/icons/corvus-logo.png" alt="CorvuxIAM Logo" width="120" style="border-radius: 20px;" />
 
-# CorvuxIAM — Plataforma Corporativa de Gestão de Identidades, Acessos e Cibersegurança (IAM & SecOps)
+# CorvuxIAM (`CorvusIAM`) - Plataforma Corporativa de Gestão de Identidades, Acessos e Governança (IAM & SecOps)
 
 [![.NET 8](https://img.shields.io/badge/.NET-8.0%20LTS-512BD4?logo=dotnet&logoColor=white)](https://dotnet.microsoft.com/)
-[![C#](https://img.shields.io/badge/C%23-12.0-239120?logo=csharp&logoColor=white)](https://docs.microsoft.com/dotnet/csharp/)
-[![React Native](https://img.shields.io/badge/React%20Native-Expo-61DAFB?logo=react&logoColor=black)](https://reactnative.dev/)
-[![Docker](https://img.shields.io/badge/Docker-Compose-2496ED?logo=docker&logoColor=white)](https://www.docker.com/)
-[![SQL Server](https://img.shields.io/badge/SQL%20Server-2022-CC292B?logo=microsoftsqlserver&logoColor=white)](https://www.microsoft.com/sql-server)
-[![CI/CD](https://img.shields.io/badge/GitHub%20Actions-CI%2FCD-2088FF?logo=githubactions&logoColor=white)](https://github.com/Kaaiske/PROJETO_PIMIV_CORVUX/actions)
-[![Tests](https://img.shields.io/badge/Tests-43%20Passed-brightgreen?logo=checkmarx&logoColor=white)](CorvusIAM.Tests/)
+[![C#](https://img.shields.io/badge/C%23-12.0-239120?logo=csharp&logoColor=white)](https://learn.microsoft.com/dotnet/csharp/)
+[![React Native](https://img.shields.io/badge/React%20Native-0.74%20%7C%20Expo%2051-61DAFB?logo=react&logoColor=black)](CorvusIAM.Mobile/)
+[![PWA](https://img.shields.io/badge/PWA-Offline--First-5A0FC8?logo=pwa&logoColor=white)](CorvusIAM/Views/Mobile/Index.cshtml)
+[![Docker](https://img.shields.io/badge/Docker-Compose-2496ED?logo=docker&logoColor=white)](docker-compose.yml)
+[![SQL Server](https://img.shields.io/badge/SQL%20Server-2022-CC292B?logo=microsoftsqlserver&logoColor=white)](CorvusIAM/DatabaseScript.sql)
+[![CI/CD](https://img.shields.io/badge/GitHub%20Actions-CI%2FCD-2088FF?logo=githubactions&logoColor=white)](.github/workflows/ci.yml)
+[![Tests](https://img.shields.io/badge/Tests-55%20Passed-brightgreen?logo=xunit&logoColor=white)](CorvusIAM.Tests/)
 [![Production](https://img.shields.io/badge/Production-corvuxiam.tech-success?logo=googlechrome&logoColor=white)](https://corvuxiam.tech)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
-**Solução Corporativa Integrada para Transformação Digital, Governança, Defesa Cibernética Ativa e Continuidade de Negócios**
+**Plataforma integrada de Gestão de Identidades e Controle de Acessos (IAM), Governança RBAC, Segurança Zero Trust, Acessibilidade Digital (WCAG 2.2 AA, VLibras e Web Speech API) e Solução Mobile Híbrida (PWA e React Native)**
 
-🌐 **Ambiente Oficial em Produção:** [https://corvuxiam.tech](https://corvuxiam.tech)  
-📂 **Repositório Oficial:** [github.com/Kaaiske/PROJETO_PIMIV_CORVUX](https://github.com/Kaaiske/PROJETO_PIMIV_CORVUX)
+**Ambiente de Produção:** [https://corvuxiam.tech](https://corvuxiam.tech)  
+**Repositório Oficial:** [github.com/Kaaiske/PROJETO_PIMIV_CORVUX](https://github.com/Kaaiske/PROJETO_PIMIV_CORVUX)
 
 </div>
 
 ---
 
-## 📌 Apresentação Acadêmica — PIM IV (UNIP)
+## Apresentação Acadêmica - PIM IV (UNIP)
 
-* **Instituição:** Universidade Paulista — UNIP
-* **Curso:** Curso Superior de Tecnologia em Análise e Desenvolvimento de Sistemas (ADS)
-* **Semestre:** 4º Semestre
-* **Tema Oficial:** *Desenvolvimento e Implantação de uma Solução Tecnológica Corporativa Integrada para Apoiar a Transformação Digital de uma Empresa (Continuidade do PIM III)*
-* **Equipe de Engenharia:** Corvus Security Core Engineering Team (Registros anonimizados em conformidade rigorosa com a LGPD — Lei nº 13.709/2018)
+* **Instituição:** Universidade Paulista (UNIP)
+* **Curso:** Curso Superior de Tecnologia em Análise e Desenvolvimento de Sistemas (ADS) - 4º Semestre
+* **Projeto:** Continuidade prática do diagnóstico organizacional realizado no PIM III (estudo aplicado à empresa modelo *Corvux Tech Solutions Ltda.*), materializado em software corporativo funcional.
 
----
-
-## 📖 Visão Geral da Plataforma
-
-O **CorvuxIAM** é um ecossistema corporativo completo de **Gestão de Identidades e Acessos (IAM - Identity & Access Management)** integrado a um **Centro de Operações de Segurança (SecOps)** com motor **IDS / WAF L7** ativo em tempo real, **Firewall de Endpoints**, **DevOps Cloud Telemetry**, automação de **RH & Contabilidade**, **Aplicativo Móvel Nativo (React Native)** e **PWA Offline-First**.
-
-### Desafios Corporativos Mitigados:
-1. **Dispersão e Vazamento de Credenciais:** Centralização do ciclo de vida dos colaboradores com autenticação multifator (MFA/TOTP RFC 6238) e verificação proativa de senhas vazadas em vazamentos mundiais (HaveIBeenPwned).
-2. **Privilégios Excessivos e Violações de Conformidade:** Implementação do modelo de menor privilégio (*Least Privilege*) e controle de acesso baseado em funções corporativas (**RBAC - Role-Based Access Control**).
-3. **Invasões e Exploração de Vulnerabilidades Web:** Arquitetura de Defesa em Profundidade com motor de **Inspeção de Aplicação L7 (WAF/IDS)** e consultas 100% parametrizadas via Entity Framework Core, blindando a aplicação contra SQL Injection, XSS, Path Traversal e força bruta.
-4. **Falta de Visibilidade em Endpoints:** Telemetria em tempo real de computadores corporativos (CPU, RAM, Disco, Patches, Antivírus/EDR) com monitoramento das conexões de rede ativas de cada colaborador e bloqueio direto de destinos perigosos no firewall.
-5. **Indisponibilidade em Campo:** Aplicativo corporativo mobile e PWA com fila de sincronização em banco local IndexedDB para operação contínua em áreas sem sinal de internet.
-6. **Conformidade Legal & Rastreabilidade:** Trilha de auditoria imutável com Triggers SQL Server e Stored Procedures que garantem o direito ao esquecimento da LGPD via *Soft Delete* com anonimização criptográfica irreversível.
+### Convenção de Nomenclatura (`CorvuxIAM` vs `CorvusIAM`)
+Para manter rastreabilidade entre o plano de negócio e o código-fonte:
+* **`CorvuxIAM`** designa o nome comercial do produto, a identidade visual da plataforma e o domínio público (`https://corvuxiam.tech`).
+* **`CorvusIAM`** designa os identificadores técnicos da solução .NET (`CorvusIAM.sln`), projetos (`CorvusIAM/CorvusIAM.csproj`, `CorvusIAM.Tests/CorvusIAM.Tests.csproj`, `CorvusIAM.Mobile`), namespaces C# (`CorvusIAM.*`) e o banco de dados relacional (`CorvusIAMDb`).
 
 ---
 
-## 🏛️ Matriz de Conformidade com o Manual PIM IV
+## Visão Geral da Plataforma
 
-| Disciplina / Etapa Oficial | Implementação Técnica no CorvuxIAM | Cobertura |
-| :--- | :--- | :---: |
-| **Etapa 1: Caracterização da Organização** | Modelo empresarial de estrutura departamental (Diretoria, TI SecOps, RH, Finanças, DevOps e HelpDesk) com papéis e fluxos mapeados. | 🟢 100% |
-| **Etapa 2: Empreendedorismo em TI** | Estudo de viabilidade com ROI comprovado, redução drástica de fraudes, adequação à LGPD/ISO 27001 e custo de infraestrutura otimizado. | 🟢 100% |
-| **Etapa 3: Relações Étnico-Raciais & Diversidade** | Acessibilidade universal (WCAG 2.2, botões A+/A-, Alto Contraste, navegação por teclado), suporte oficial a Nome Social e Pronome corporativo. | 🟢 100% |
-| **Etapa 4: Solução Web (.NET Web)** | ASP.NET Core 8 MVC, Razor Views, autenticação híbrida (Cookies + JWT), Rate Limiting, Turnstile anti-bot e API Gateway REST v1. | 🟢 100% |
-| **Etapa 5: Solução Mobile** | Aplicativo nativo em **React Native (Expo)** em `CorvusIAM.Mobile` e **PWA Offline-First** (`/Mobile`) com IndexedDB e prompt inteligente exclusivo para smartphones. | 🟢 100% |
-| **Etapa 6: Arquitetura de Software (.NET)** | Arquitetura em camadas desacopladas (Controllers, Services, Repositories, Entities, DTOs, Middlewares, DI). | 🟢 100% |
-| **Etapa 7: Banco de Dados** | SQL Server 2022 / SQLite, modelo físico normalizado, Stored Procedures (`sp_RegistrarLog`, `sp_InativarColaborador`, `sp_ObterResumoAuditoria`) e Triggers (`trg_AuditoriaUsuarios`, `trg_AuditoriaChamados`). | 🟢 100% |
-| **Etapa 8: Cloud Computing & DevOps** | Dockerfile multi-stage, `docker-compose.yml`, pipeline CI/CD no GitHub Actions, Health Checks (`/health`), reinício gracioso de servidor web, inspeção de portas/soquetes de rede e backup 3-2-1. | 🟢 100% |
-| **Etapa 9: Gerenciamento Ágil de Projetos** | Metodologia Scrum com 4 Sprints documentadas, Product Backlog priorizado, entregas contínuas e rastreabilidade por issues e releases. | 🟢 100% |
+O **CorvuxIAM** centraliza o ciclo de vida de identidades corporativas (admissão, movimentação de cargos, concessão granular de permissões e desligamento/anonimização LGPD), integrando portal administrativo Web em **Bento UI**, **API RESTful**, central **Service Desk (ITSM)**, **Centro de Operações de Segurança (SecOps / WAF L7)**, telemetria de endpoints e dois clientes móveis complementares (**PWA Touch-First** e **React Native / Expo**).
+
+### Principais Recursos Implementados no Código
+1. **Autenticação Híbrida Zero Trust (`CookiesAndJwt`):** Proteção anti-bot Cloudflare Turnstile com validação *fail-closed* em produção (`TurnstileService`), senhas com `BCrypt.Net-Next` + verificação k-Anonymity contra credenciais vazadas (`PasswordPwnedService` / Have I Been Pwned), segundo fator TOTP RFC 6238 (`TotpService`) com segredos criptografados em repouso via ASP.NET Core Data Protection (`MfaSecretProtector`), sessões efêmeras de desafio MFA com hash SHA-256 (`MfaSessoes`), rotação de *Refresh Token* de uso único comparado em tempo constante (`CryptographicOperations.FixedTimeEquals`) e bloqueio temporário (*lockout* de 15 minutos após 5 falhas).
+2. **Controle de Acesso Baseado em Papéis (RBAC) e Políticas:** Cinco perfis nativos (`Admin`, `Recursos Humanos`, `Contabilidade`, `Help Desk`, `Colaborador`) e seis permissões atômicas (`usuarios.visualizar`, `usuarios.gerenciar`, `perfis.gerenciar`, `chamados.atender`, `logs.visualizar`, `politicas.gerenciar`) impostas no servidor por políticas declarativas (`RequireAdmin`, `RequireHR`, `RequireAccounting`, `RequireAdminOrHelpDesk`, `CanViewUsers`, `CanManageUsers`, `CanViewLogs`).
+3. **Defesa em Profundidade e WAF L7 (`CorvusWafMiddleware`):** Inspeção de query strings, rotas e formulários contra SQL Injection, XSS e Path Traversal, respeito a cabeçalhos `X-Forwarded-For` restrito a proxies reversos confiáveis, auto-bloqueio de IPs na tabela `FirewallRegras`, Rate Limiting (`LoginPolicy`: 5 req/min; `PublicIntegrationPolicy`: 30 req/min), validação global de CSRF (`AutoValidateAntiforgeryTokenAttribute`) e filtro seguro de anexos (limite de 5 MB, assinatura binária *Magic Bytes* e armazenamento fora de `wwwroot`).
+4. **Conformidade LGPD e Governança Étnico-Racial (IBGE):** Segregação dos metadados sensíveis de diversidade (`DIVERSIDADE_ETNICO_RACIAL_MAP_JSON`: raça/cor nas cinco categorias oficiais do IBGE, modalidade de ingresso, nome social e indicador PcD) em relação à tabela de autenticação e aos DTOs públicos de API, mascaramento automático de CPF/e-mail/tokens em logs (`SerilogMaskingEnricher`) e anonimização irreversível no desligamento (`DELETE /api/Usuarios/{id}` e `sp_AnonimizarTitularLGPD`).
+5. **Acessibilidade Digital Multimodal (WCAG 2.2 Nível AA):** Contraste mínimo de 4,5:1, modo de alto contraste (`.high-contrast`), ajuste tipográfico (`A+`/`A-`), navegação por teclado, widget governamental **VLibras** (`vlibras-plugin.js`) e **Web Speech API** nativa para síntese de voz neural (TTS) e ditado por voz (STT) na abertura de chamados Web e Mobile.
+6. **Arquitetura Mobile Dupla (PWA + React Native):**
+   * **PWA Touch-First (`/Mobile`):** Manifesto `/mobile/manifest.webmanifest`, Service Workers (`/sw.js` e `/mobile/service-worker.js`), cache `offline.html` e fila offline persistida em `IndexedDB` (`CorvusOfflineDB`, store `syncQueue`) com chave de idempotência (`X-Idempotency-Key` / `ClientIdempotencyKey`).
+   * **App Nativo (`CorvusIAM.Mobile`):** Construído em **React Native 0.74** e **Expo 51**, com armazenamento criptografado de tokens via `expo-secure-store`, fluxo completo de MFA (`/api/Auth/mfa-verify`), interceptor Axios com fila de concorrência para renovação de JWT (`/api/Auth/refresh-token`) e revogação explícita no logout (`/api/Auth/logout`).
 
 ---
 
-## 🧩 Arquitetura Técnica em Camadas e Organização do Código
+## Estrutura dos Projetos no Repositório
 
-A solução segue estritamente a separação de responsabilidades em camadas, garantindo baixo acoplamento e alta testabilidade:
-
-```
-[ Cliente Web (Razor) / Mobile (React Native + PWA) / ERP Externo ]
-                               │
-                               ▼ (HTTPS / TLS 1.3)
-                  [ Reverse Proxy Nginx :443 ]
-                               │
-                               ▼ (HTTP :8080 - Rede Interna Docker)
-                 [ ASP.NET Core 8 Kestrel Engine ]
-                               │
-        ┌──────────────────────┼──────────────────────┐
-        ▼                      ▼                      ▼
-[ GlobalExceptionMw ]  [ RateLimitingMw ]    [ AntiforgeryMw ]
-        │                      │                      │
-        └──────────────────────┼──────────────────────┘
-                               │
-                               ▼
-                    [ Controllers Layer ]
-    ┌──────────────────────────┴──────────────────────────┐
-    ▼                                                     ▼
-[ Controllers Web (MVC) ]                    [ Controllers API (REST) ]
-(Admin, Auth, Portal, Mobile)                (V1Users, Chamados, Public, Auth)
-    │                                                     │
-    └──────────────────────────┬──────────────────────────┘
-                               │
-                               ▼
-                     [ Services Layer ]
-(IAuthService, ILogAuditoriaService, IIpGeolocationService,
- IEmailValidationService, IEmailSenderService, IPasswordPwnedService)
-                               │
-                               ▼
-               [ Data Access & Repositories ]
-                   (ApplicationDbContext)
-                               │
-                               ▼
-              [ Entities & DTOs Separation ]
-             (Domain Models vs Wire Contracts)
-                               │
-                               ▼
-      [ Persistence: SQL Server 2022 (Prod) / SQLite (Dev) ]
+```text
+PROJETO_PIMIV_CORVUX/
+├── CorvusIAM.sln                      # Solução .NET 8 principal
+├── docker-compose.yml                 # Orquestração isolada (Web + SQL Server 2022)
+├── .env.example                       # Modelo de variáveis de ambiente obrigatórias
+├── scripts/                           # Automação 3-2-1 de Backup, Restore e Sync S3
+│   ├── backup-db.sh
+│   ├── restore-db.sh
+│   └── sync-backups-s3.sh
+├── .github/workflows/                 # Pipelines CI/CD (ci.yml, docker-publish.yml, release.yml)
+├── CorvusIAM/                         # Aplicação Web MVC + API RESTful (.NET 8)
+│   ├── Controllers/                   # Controladores MVC (Auth, Admin, Portal, Mobile, Home)
+│   ├── Controllers/Api/               # Endpoints REST (/api/Auth, Usuarios, Chamados, v1/users...)
+│   ├── Entities/                      # 16 entidades de domínio mapeadas no EF Core
+│   ├── Data/                          # ApplicationDbContext, SqlServerDbContext, SqliteDbContext, Seeder
+│   ├── Interfaces/ & Services/        # Contratos e regras de negócio desacopladas via DI
+│   ├── Middlewares/                   # GlobalExceptionMiddleware e CorvusWafMiddleware
+│   ├── Infrastructure/Logging/        # SerilogMaskingEnricher (proteção de PII em logs)
+│   ├── Views/ & wwwroot/              # Interfaces Bento UI, PWA /Mobile, VLibras e TTS/STT
+│   ├── DatabaseScript.sql             # Script Transact-SQL consolidado (clean-install completo)
+│   ├── Dockerfile                     # Build multi-stage oficial (sdk:8.0 -> aspnet:8.0)
+│   ├── Deploy.md                      # Guia operacional de implantação em VPS e nuvem
+│   └── docs/                          # Documentação complementar (arquitetura, MER, ágil, segurança)
+├── CorvusIAM.Mobile/                  # Aplicativo móvel React Native 0.74 / Expo 51 (TypeScript)
+│   ├── App.tsx                        # Raiz do aplicativo e gerenciamento global de sessão
+│   ├── src/screens/                   # LoginScreen, HomeScreen, SupportScreen, AccessScreen...
+│   └── src/services/api.ts            # Cliente Axios com SecureStore e refreshPromise concorrente
+└── CorvusIAM.Tests/                   # Suíte de 55 testes automatizados (xUnit + Moq + SQLite)
 ```
 
-### 1. Organização dos Projetos:
-* **`CorvusIAM`**: Aplicação principal corporativa em ASP.NET Core 8.
-  * `Controllers/`: Recebem requisições HTTP, efetuam validação inicial de modelo e delegam para serviços e contexto.
-  * `Controllers/Api/`: Endpoints RESTful padronizados com contratos OpenAPI/Swagger documentados.
-  * `Services/`: Contêm as regras de negócio, cálculos de SLA, autenticação e integrações externas desacopladas via interfaces (`Interfaces/`).
-  * `Entities/`: Entidades relacionais de domínio mapeadas no Entity Framework Core.
-  * `Models/DTOs/`: Data Transfer Objects com anotações de validação (`[Required]`, `[StringLength]`, `[EmailAddress]`), garantindo que dados internos da base não sejam expostos indevidamente.
-  * `Middlewares/`: Tratamento global de exceções, headers de segurança, métricas Prometheus e limites de requisições.
-* **`CorvusIAM.Mobile`**: Aplicativo móvel corporativo nativo desenvolvido em React Native com Expo, autenticação JWT e consumo da API de chamados.
-* **`CorvusIAM.Tests`**: Bateria de testes automatizados com xUnit e Moq abrangendo cenários positivos, negativos, segurança e concorrência.
+---
+
+## Banco de Dados Relacional Consolidado (`CorvusIAM/DatabaseScript.sql`)
+
+O script Transact-SQL único e idempotente em [`CorvusIAM/DatabaseScript.sql`](CorvusIAM/DatabaseScript.sql) provisiona a base `CorvusIAMDb` em **Terceira Forma Normal (3FN)** a partir de uma instância limpa do Microsoft SQL Server 2022:
+
+* **16 Tabelas de Domínio:** `Perfis`, `Permissoes`, `Usuarios`, `MfaSessoes`, `UsuarioPerfis`, `PerfilPermissoes`, `PoliticasAcesso`, `ConfiguracoesSistema`, `FirewallRegras`, `DispositivosRede`, `LogsAuditoria`, `ChamadosSuporte` (com controle de concorrência otimista `ROWVERSION` e índice único filtrado de idempotência), `NotasFiscais`, `FechamentosMensais`, `RegistrosFerias` e `FolhasPagamento`.
+* **Integridade e Desempenho:** Chaves primárias, **11 chaves estrangeiras** com regras explícitas de integridade referencial e **11 índices** (únicos, filtrados e de cobertura).
+* **Programação Interna no SGBD:** **1 função escalar** (`fn_CalcularScoreRiscoUsuario`), **4 views analíticas** (`vw_UsuariosPerfisAtivos`, `vw_ChamadosSlaCritico`, `vw_AuditoriaSegurancaConsolidada`, `vw_ResumoFolhaDepartamento`), **5 triggers de auditoria e imutabilidade** (`trg_AuditoriaStatusUsuario`, `trg_AuditoriaFirewallWaf`, `trg_AuditoriaChamados`, `trg_AuditoriaConfig` e `trg_ProtegerLogsImutaveis` com `INSTEAD OF UPDATE, DELETE` bloqueando adulteração de logs) e **12 stored procedures** transacionais (`sp_RegistrarLog`, `sp_RegistrarLogAuditoria`, `sp_ProvisionarColaboradorRBAC`, `sp_Autenticar Metadados/Lockout`, `sp_InativarColaborador`, `sp_AnonimizarTitularLGPD`, `sp_ObterResumoAuditoria`, `sp_ProcessarChamadoSla`, `sp_BloquearIpFirewallWaf`, entre outras).
 
 ---
 
-## 🛡️ Segurança Corporativa e Defesa em Profundidade
-
-Como plataforma de IAM e SecOps, o CorvuxIAM implementa o princípio da **Defesa em Profundidade** (*Defense-in-Depth*), sem depender de um único mecanismo isolado:
-
-```
-Camada 1: Cloudflare Edge (WAF, SSL TLS 1.3, DDoS Shield, Turnstile Anti-Bot)
-    ▼
-Camada 2: Rate Limiting por IP (Política 'LoginPolicy': máx 5 tentativas/minuto)
-    ▼
-Camada 3: Motor IDS / WAF L7 (Inspeção de aplicação em tempo real com auto-bloqueio)
-    ▼
-Camada 4: Blindagem SQL Parametrizada no EF Core (Consultas estritamente parametrizadas)
-    ▼
-Camada 5: Proteção XSS (Auto-encoding nativo do Razor Engine e higienização)
-    ▼
-Camada 6: Proteção CSRF Global (AutoValidateAntiforgeryToken em todos os POSTs)
-    ▼
-Camada 7: Gestão Criptográfica de Senhas (BCrypt custo 11/12 + MFA/TOTP RFC 6238)
-    ▼
-Camada 8: Autorização Declarativa Granular no Servidor ([Authorize(Policy = "...")])
-    ▼
-Camada 9: Anonimização LGPD no Soft Delete (Direito ao esquecimento com deleção irreversível de PII)
-```
-
-### Análise Detalhada dos Mecanismos de Defesa:
-
-#### 1. Autenticação Robusta & MFA
-* **Armazenamento Seguro de Senhas:** Hashing com **BCrypt.Net-Next** (fator de custo 11/12 com salt criptográfico aleatório por usuário).
-* **Prevenção a Senhas Vazadas:** Integração com a API do **HaveIBeenPwned** utilizando k-Anonymity (apenas os 5 primeiros caracteres do hash SHA-1 são transmitidos, preservando o sigilo absoluto da senha).
-* **Segundo Fator (MFA/TOTP):** Implementação do padrão RFC 6238 compatível com Google Authenticator e Microsoft Authenticator, com chave secreta por colaborador e validação fail-closed no servidor.
-
-#### 2. Autorização Validada no Servidor (Zero-Trust RBAC/ABAC)
-* Nenhuma verificação de segurança é delegada exclusivamente ao frontend. Todos os endpoints administrativos e sensíveis possuem atributos declarativos:
-  * `[Authorize(Policy = "RequireAdmin")]`: Acesso restrito à Diretoria e Administradores.
-  * `[Authorize(Policy = "RequireHR")]`: Acesso a rotas de Recursos Humanos e DP.
-  * `[Authorize(Policy = "RequireAdminOrHelpDesk")]`: Tramitação de chamados.
-  * `[Authorize(Policy = "CanManageUsers")]`: Operações de criação, edição e anonimização de colaboradores.
-* Se um usuário comum tentar invocar manualmente requisições POST para endpoints administrativos, o pipeline do ASP.NET Core intercepta a requisição e retorna `403 Forbidden`.
-
-#### 3. Motor IDS / WAF L7 & Proteção de Banco de Dados
-* **Por que o banco não depende do IDS:** O Entity Framework Core utiliza consultas estritamente parametrizadas (`SELECT ... WHERE Email = @p0`). Parâmetros são tratados como literais de dados pelo SQL Server, impossibilitando a alteração da árvore sintática da consulta e eliminando vulnerabilidades de SQL Injection na raiz.
-* **O papel do WAF/IDS na Aplicação (Camada 7):** O motor de detecção atua na camada de aplicação inspecionando cabeçalhos, rotas e payloads HTTP. Ao detectar padrões conhecidos de SQLi, XSS, Path Traversal ou força bruta, ele:
-  1. Registra o incidente imediatamente nos `LogsAuditoria` com severidade `Critico`.
-  2. Adiciona o IP do atacante na tabela `FirewallRegras`, bloqueando novas requisições no WAF.
-  3. Alerta a equipe de SecOps no painel em tempo real.
-*(A inspeção de pacotes brutos em camadas 3 e 4 via DPI é delegada aos appliances de borda e NGFW na topologia perimetral da rede corporativa).*
-
-#### 4. Operações Administrativas sobre Endpoints (Cloud & DevOps)
-* Funções como `ReiniciarServicoApp`, `IsolarHost`, `LiberarHost`, `RemediarEndpoint` e `BatchRemediate`:
-  * São protegidas por `[Authorize(Policy = "RequireAdmin")]`.
-  * Utilizam uma lista explícita de ações permitidas (*safe command dispatch*), sem execução arbitrária de comandos shell.
-  * Gravam detalhe, autor, timestamp UTC e IP de origem nos logs de auditoria corporativos.
-
-#### 5. Conformidade com a LGPD (Lei nº 13.709/2018)
-* **Direito ao Esquecimento:** O endpoint de exclusão (`DELETE /api/Usuarios/{id}`) realiza *soft delete* com **anonimização irreversível**:
-  * Nome é sobrescrito para `"Usuário anonimizado"`.
-  * E-mail é transformado em `"anonimizado-{id}@invalid.local"`.
-  * CPF, RG, Telefone, Endereço e Cargo são zerados.
-  * O hash de senha é sobrescrito por um GUID aleatório e a conta é inativada (`Ativo = false`).
-  * A trilha de auditoria preserva o registro da ação de anonimização sem expor os dados pessoais apagados.
-
----
-
-## 📱 Solução Mobile & PWA Offline-First
-
-O CorvuxIAM disponibiliza dois canais de acesso para dispositivos móveis:
-
-```
-                             [ Usuário em Smartphone ]
-                                         │
-                    ┌────────────────────┴────────────────────┐
-                    ▼                                         ▼
-         [ PWA Offline-First ]                    [ React Native Nativo ]
-            (/Mobile ou Web)                         (CorvusIAM.Mobile)
-                    │                                         │
-        ┌───────────┴───────────┐                             │
-        ▼                       ▼                             │
-  [ Service Worker ]     [ IndexedDB ]                        │
-  - Cache Offline        - Fila 'syncQueue'                   │
-  - Offline.html         - Salva chamados offline             │
-  - Prompt Mobile        - Sincronização automática           ▼
-        │                       │                [ API Gateway REST v1 ]
-        └───────────┬───────────┘                (/api/Chamados + JWT)
-                    ▼
-         [ Reconexão à Internet ]
-                    │
-                    ▼
-     [ Sincronização com o Backend ]
-```
-
-### 1. Notificação de Instalação Inteligente (Exclusiva para Smartphones)
-* O prompt de instalação do PWA foi desenvolvido com verificação estrita de dispositivo móvel (`checkIsMobileDevice()`):
-  * **Em Desktops e Laptops:** O banner de instalação **nunca é exibido**, mantendo o layout limpo e profissional.
-  * **Em Smartphones Android (Chrome/Edge):** O evento nativo `beforeinstallprompt` é interceptado e exibe o banner customizado com a identidade visual do CorvuxIAM.
-  * **Em Dispositivos iOS (Apple Safari):** Exibe instruções passo a passo para tocar em **Compartilhar** e selecionar **Adicionar à Tela de Início**.
-* Registros de Service Worker unificados em `/sw.js` com escopo raiz e contingência em `/mobile/service-worker.js`.
-
-### 2. Operação Offline-First com IndexedDB
-* Quando o colaborador está em trânsito ou sem conectividade:
-  * A aplicação armazena os chamados na *object store* `syncQueue` do banco **IndexedDB**.
-  * Ao detectar o evento `window.addEventListener('online')`, a função `syncData()` descarrega a fila de requisições de forma atômica para o endpoint `/api/Chamados`.
-  * Se o usuário navegar sem internet, o Service Worker intercepta o modo navegação e exibe a tela de contingência [`offline.html`](file:///c:/Users/Kaiiske/Pictures/CorvusIAM-testes/CorvusIAM/wwwroot/offline.html).
-
----
-
-## 👥 Matriz de Permissões Granulares por Departamento (RBAC)
-
-O sistema organiza o acesso por papéis corporativos validados no servidor:
-
-| Perfil / Papel | Dashboard Executivo | Gestão de Usuários (IAM) | SecOps & IDS | DevOps Cloud | HelpDesk & Chamados | RH & DP | Contabilidade |
-| :--- | :---: | :---: | :---: | :---: | :---: | :---: | :---: |
-| **Administrador / Diretoria** | 🟢 Total | 🟢 CRUD + MFA + LGPD | 🟢 Total | 🟢 Reinício + Remediação | 🟢 Todos | 🟢 Consulta | 🟢 Consulta |
-| **TI / SecOps** | 🟢 Técnico | 🟡 Visualização / Bloqueio | 🟢 Total + Firewall | 🟢 Telemetria | 🟢 Atendimento | 🔴 Bloqueado | 🔴 Bloqueado |
-| **Recursos Humanos (RH)** | 🟡 Setorial | 🟡 Consulta de Colaboradores | 🔴 Bloqueado | 🔴 Bloqueado | 🟢 Solicitações RH | 🟢 Folha + Ponto + Férias | 🔴 Bloqueado |
-| **Financeiro / Contabilidade** | 🟡 Setorial | 🔴 Bloqueado | 🔴 Bloqueado | 🔴 Bloqueado | 🟢 Solicitações Fin | 🔴 Bloqueado | 🟢 NFS-e + SPED + DRE |
-| **Colaborador / HelpDesk** | 🔴 Bloqueado | 🟡 Apenas Perfil Próprio | 🔴 Bloqueado | 🔴 Bloqueado | 🟢 Meus Chamados | 🟡 Meus Holerites / Ponto | 🔴 Bloqueado |
-
----
-
-## 🗄️ Banco de Dados Relacional e Trilha de Auditoria
-
-O banco de dados relacional foi modelado na terceira forma normal (3FN) para assegurar integridade referencial, velocidade de escrita e conformidade de rastreabilidade.
-
-```mermaid
-erDiagram
-    Usuarios ||--o{ UsuarioPerfis : possui
-    Perfis ||--o{ UsuarioPerfis : atribui
-    Perfis ||--o{ PerfilPermissoes : contem
-    Permissoes ||--o{ PerfilPermissoes : concede
-    Usuarios ||--o{ LogsAuditoria : gera
-    Usuarios ||--o{ ChamadosSuporte : abre
-    DispositivosRede ||--o{ LogsAuditoria : telemetria
-    FirewallRegras ||--o{ LogsAuditoria : bloqueios
-    Usuarios ||--o{ NotasFiscais : emite
-    Usuarios ||--o{ FolhasPagamento : recebe
-    Usuarios ||--o{ RegistrosFerias : solicita
-```
-
-### Recursos de Banco de Dados:
-* **Provedor Duplo Flexível:**
-  * **Produção (VPS):** SQL Server 2022 rodando em container Docker otimizado.
-  * **Desenvolvimento e Testes:** SQLite com migrations automáticas em tempo de execução.
-* **Stored Procedures:**
-  * `sp_RegistrarLog`: Inserção atômica de logs de auditoria padronizados com timestamp UTC.
-  * `sp_InativarColaborador`: Soft delete com anonimização de dados pessoais para conformidade com a LGPD.
-  * `sp_ObterResumoAuditoria`: Agrupamento e agregação de incidentes críticos por período.
-* **Triggers de Auditoria Ativa:**
-  * `trg_AuditoriaUsuarios`: Captura alterações em tempo real de `INSERT`, `UPDATE` e `DELETE` na tabela `Usuarios`, gravando estado anterior e novo na tabela `LogsAuditoria`.
-  * `trg_AuditoriaChamados`: Registra todas as mudanças de status e prazos de SLA na tabela `ChamadosSuporte`.
-
----
-
-## 🚀 Como Executar o Projeto com Segurança
+## Como Executar o Projeto
 
 ### Pré-requisitos
-* [.NET 8 SDK](https://dotnet.microsoft.com/download/dotnet/8.0)
-* [Docker & Docker Compose](https://www.docker.com/)
+* [.NET 8.0 SDK](https://dotnet.microsoft.com/download/dotnet/8.0)
+* [Docker e Docker Compose](https://docs.docker.com/compose/) (para execução containerizada com SQL Server 2022)
+* [Node.js 20+](https://nodejs.org/) (opcional, apenas para o cliente nativo `CorvusIAM.Mobile` com Expo)
 
----
+### Opção 1: Execução Containerizada com Docker Compose (Recomendada para Homologação/Produção)
 
-### Opção 1: Execução com Docker Compose (Ambiente de Produção / VPS)
-
-1. Clone o repositório oficial:
 ```bash
 git clone https://github.com/Kaaiske/PROJETO_PIMIV_CORVUX.git
 cd PROJETO_PIMIV_CORVUX
-```
 
-2. Configure o arquivo de variáveis de ambiente seguro:
-```bash
+# Copie o modelo de variáveis e preencha segredos fortes e exclusivos
 cp .env.example .env
-# Edite o arquivo .env definindo senhas fortes e exclusivas:
-nano .env
-```
 
-3. Inicie a stack completa:
-```bash
+# Construa a imagem multi-stage e inicie os contêineres
 docker compose up -d --build
+docker compose ps
 ```
 
-> [!IMPORTANT]
-> **Blindagem de Rede:** A porta do SQL Server está vinculada exclusivamente ao loopback (`127.0.0.1:1433:1433`), impedindo qualquer acesso externo pela internet. A aplicação se comunica com o banco através da rede interna isolada `corvus-network`.
+**Isolamento de Rede no Docker Compose:**
+* O contêiner `sqlserver` opera exclusivamente na rede bridge interna `corvus-network`, **sem expor a porta 1433 no host**, eliminando vetores externos de conexão direta ao SGBD.
+* O contêiner `corvusiam.web` faz bind apenas no loopback local (`127.0.0.1:8080:8080`), recebendo tráfego externo somente através do proxy reverso HTTPS (Nginx/Cloudflare TLS 1.3).
+* O Swagger UI (`/swagger`) permanece habilitado apenas em `ASPNETCORE_ENVIRONMENT=Development`.
 
-4. Acesse os serviços disponíveis:
-* **Aplicação Web:** `https://corvuxiam.tech` (ou `http://localhost:8080`)
-* **Health Check Probe:** `http://localhost:8080/health`
-* **Swagger OpenAPI:** `https://corvuxiam.tech/swagger`
-
----
-
-### Opção 2: Execução com .NET CLI (Ambiente de Desenvolvimento Local)
+### Opção 2: Execução Local via .NET 8 CLI (Desenvolvimento com SQLite)
 
 ```bash
-# Restaurar dependências NuGet
-dotnet restore
+# Restaurar pacotes e compilar a solução
+dotnet restore CorvusIAM.sln
+dotnet build CorvusIAM.sln --configuration Release
 
-# Executar bateria completa de testes automatizados (43 testes)
-dotnet test
+# Definir senha inicial obrigatória do administrador para o seeder local
+# Linux/macOS: export ADMIN_INITIAL_PASSWORD=" TroquePorSenhaForte!2026 "
+# PowerShell:  $env:ADMIN_INITIAL_PASSWORD="TroquePorSenhaForte!2026"
 
-# Executar aplicação em modo desenvolvimento (SQLite local)
-cd CorvusIAM
-dotnet run
+# Executar a aplicação Web + API + PWA Mobile
+dotnet run --project CorvusIAM/CorvusIAM.csproj
 ```
-Acesse localmente em: `http://localhost:5052`
 
----
+Rotas locais padrão (`Development`):
+* **Portal Web (Login Corporativo):** `http://localhost:5052/Auth/Login`
+* **Aplicativo Mobile PWA:** `http://localhost:5052/Mobile` (atalho de autenticação em `/Mobile/Login`)
+* **Swagger OpenAPI (apenas Development):** `http://localhost:5052/swagger`
+* **Health Check:** `http://localhost:5052/health`
+* **Métricas Prometheus (restrito a `RequireAdmin`):** `http://localhost:5052/metrics`
 
-## 🧪 Suíte de Testes Automatizados (43 Testes)
-
-O repositório conta com uma suíte de **43 testes unitários e de integração** contínuos:
-
-* **Autenticação & MFA (8 Testes):** Login com credenciais válidas e inválidas, validação de token JWT, desafio TOTP, controle de sessões e rate limiting.
-* **Governança & LGPD (6 Testes):** Anonimização de colaboradores no soft delete, bloqueio de autoexclusão da própria conta, verificação de senha fraca e pwned.
-* **SecOps, Firewall & IDS (10 Testes):** Validação de assinaturas de SQL Injection, XSS, Path Traversal, RCE e força bruta; auto-bloqueio no Firewall WAF e quarentena.
-* **Cloud & DevOps (7 Testes):** Remediação de endpoints em lote (`BatchRemediate`), inspeção de tráfego de rede por soquetes e reinicialização graciosa de servidor web.
-* **Portais Departamentais (12 Testes):** Emissão de NFS-e, cálculo de proventos de folha de pagamento, controle de férias, SPED Fiscal e registro de ponto AFD.
+### Opção 3: Execução do Aplicativo Nativo React Native / Expo (`CorvusIAM.Mobile`)
 
 ```bash
-Test run for CorvusIAM.Tests.dll (.NETCoreApp,Version=v8.0)
-Passed!  - Failed: 0, Passed: 43, Skipped: 0, Total: 43, Duration: 14 s - CorvusIAM.Tests.dll (net8.0)
+cd CorvusIAM.Mobile
+npm install
+# Opcional: apontar para servidor local ou domínio de produção
+# PowerShell: $env:EXPO_PUBLIC_API_URL="http://10.0.2.2:5052"
+npx expo start
 ```
 
 ---
 
-## 🌐 Catálogo de Endpoints da API RESTful v1
+## Suíte de Testes Automatizados e Cobertura Verificável (55 Testes)
 
-A API do CorvuxIAM é totalmente documentada no padrão OpenAPI 3.0 via Swagger UI:
+A qualidade do código é aferida continuamente no GitHub Actions (`.github/workflows/ci.yml`) por **55 testes automatizados** no projeto [`CorvusIAM.Tests`](CorvusIAM.Tests/), combinando xUnit, Moq, Coverlet e `WebApplicationFactory<Program>`:
 
-| Método | Endpoint | Autenticação | Tag / Módulo | Descrição |
-| :---: | :--- | :---: | :---: | :--- |
-| `POST` | `/api/Auth/login` | Aberto (Rate Limit) | Autenticação | Emissão de tokens JWT e Refresh Token |
-| `POST` | `/api/Auth/refresh-token` | Bearer | Autenticação | Renovação de sessão expirada |
-| `GET` | `/api/v1/ping` | Aberto | Gateway v1 | Healthcheck do gateway de integração |
-| `GET` | `/api/v1/users` | X-API-Key / Bearer | Gateway v1 | Consulta paginada de colaboradores para ERPs |
-| `GET` | `/api/v1/users/{id}` | X-API-Key / Bearer | Gateway v1 | Consulta dados e perfis de um usuário por ID |
-| `GET` | `/api/Usuarios` | CanViewUsers | IAM Core | Listagem completa de colaboradores |
-| `POST` | `/api/Usuarios` | CanManageUsers | IAM Core | Cadastro de novo colaborador com BCrypt |
-| `PUT` | `/api/Usuarios/{id}` | CanManageUsers | IAM Core | Atualização cadastral e perfis RBAC |
-| `DELETE`| `/api/Usuarios/{id}` | CanManageUsers | IAM Core | Soft delete com anonimização irreversível LGPD |
-| `GET` | `/api/Chamados` | Cookie / Bearer | Service Desk | Consulta chamados do usuário autenticado |
-| `POST` | `/api/Chamados` | Cookie / Bearer | Service Desk | Abertura de chamados com cálculo dinâmico de SLA |
-| `GET` | `/api/public/cep/{cep}` | Aberto | Integrações | Consulta de endereço via ViaCEP com fallback |
-| `GET` | `/api/public/cnpj/{cnpj}` | Aberto | Integrações | Consulta de dados cadastrais de CNPJ via BrasilAPI |
-| `GET` | `/api/public/bancos/{codigo}` | Aberto | Integrações | Consulta de código COMPE bancário via BrasilAPI |
-| `POST` | `/api/public/validar-cpf` | Aberto | Integrações | Validação oficial de CPF pelo Módulo 11 da Receita |
+* **48 Testes Unitários e de Componente:** Autenticação, desafio MFA TOTP, criptografia de segredos MFA, rotação de Refresh Token, lockout, anonimização LGPD, bloqueio de autoexclusão, regras RBAC, WAF/IDS, cálculos de RH (folha/férias/AFD), contabilidade (NFS-e/SPED/DRE) e remediação segura de endpoints.
+* **7 Testes de Integração Ponta a Ponta (`FullStackIntegrationAndAccessibilityTests`):** Ciclo HTTP completo de login JWT + rotação de Refresh Token + revogação no logout; renderização do PWA `/Mobile`, manifesto e prevenção de duplicidade offline via `X-Idempotency-Key` em `/api/Chamados`; Gateway `/api/v1/users` validando escopo de chave e não exposição de PII sensível; bloqueio L7 no `CorvusWafMiddleware` (SQLi, XSS e Path Traversal) com persistência em `LogsAuditoria`; e verificação de cabeçalhos de segurança (CSP, `X-Frame-Options`, `nosniff`) e marcação semântica WCAG 2.2 AA (`lang="pt-BR"`, `aria-label`, VLibras e TTS).
 
-### Exemplo de Consumo Seguro via cURL:
+### Comando Reprodutível de Execução e Cobertura
+
 ```bash
-curl -X GET "https://corvuxiam.tech/api/v1/users?page=1&pageSize=50" \
-  -H "X-API-Key: SUA_API_KEY_AQUI" \
-  -H "Accept: application/json"
+dotnet test CorvusIAM.sln --collect:"XPlat Code Coverage"
 ```
 
----
+```text
+Passed!  - Failed:     0, Passed:    55, Skipped:     0, Total:    55 - CorvusIAM.Tests.dll (net8.0)
+```
 
-## 💰 Economia de Nuvem e Viabilidade Financeira (VPS vs Azure Enterprise)
-
-Para demonstrar viabilidade mercadológica ao PIM IV, a solução apresenta duas arquiteturas orçamentárias:
-
-| Dimensão / Modelo | Protótipo Funcional em Produção (Startup / MVP) | Arquitetura Enterprise Corporativa (Azure Multi-Zona) |
-| :--- | :--- | :--- |
-| **Infraestrutura** | Cloud VPS Linux (Ubuntu 24.04/26.04) | Microsoft Azure App Service (P1v3) + Azure SQL Business Critical |
-| **Recursos Computacionais** | 2 a 4 vCPU, 4 a 8 GB RAM, 80-160 GB NVMe | Cluster Multi-Região com Auto-Scale e SLA 99,99% |
-| **Segurança de Borda** | Cloudflare Edge (WAF, SSL TLS 1.3, Turnstile) | Azure Application Gateway v2 com WAF nativo + Cloudflare Enterprise |
-| **Custo Estimado Mensal** | **R$ 60,00 a R$ 90,00 / mês** | **R$ 4.250,00 / mês** |
-| **Público-Alvo** | Validação operacional, PIM IV acadêmico e pilotos | Grandes corporações bancárias, hospitais e órgãos públicos |
-
----
-
-## 🚀 Roadmap Tecnológico & Ciclo de Vida (.NET 8 LTS ➔ .NET 10 LTS)
-
-* **Baseline Tecnológico:** A plataforma foi integralmente concebida e validada sob **.NET 8.0 LTS** (Long Term Support), assegurando estabilidade, suporte estendido de segurança e compatibilidade com containers de produção.
-* **Compatibilidade e Futuro:** O código-fonte adota recursos de C# 12 e arquitetura limpa em camadas sem dependências legadas, preparando a migração planejada para a próxima versão de suporte a longo prazo (**Microsoft .NET 10.0 LTS**).
+**Métricas Reais de Cobertura de Código (Coverlet Cobertura XML):**
+* **Código C# de Aplicação** (excluindo artefatos autogerados de EF Core Migrations e templates Razor `.cshtml`): **42,22% de linhas cobertas** (`2.392 / 5.665` linhas executáveis), distribuídas por camada:
+  * Persistência e Repositórios (`ApplicationDbContext` e `UsuarioRepository`): **92,44%** (`159 / 172` linhas)
+  * Entidades de Domínio e Modelos/DTOs (`CorvusIAM.Entities` e `CorvusIAM.Models`): **71,00%** (`213 / 300` linhas)
+  * Middlewares Defensivos (`CorvusWafMiddleware` e `GlobalExceptionMiddleware`): **65,82%** (`104 / 158` linhas)
+  * Serviços de Negócio, Segurança e Infraestrutura: **42,41%** (`310 / 731` linhas)
+  * Controladores Web MVC e API REST: **31,98%** (`955 / 2.986` linhas)
+* **Assembly Total Compilado** (incluindo ~8.963 linhas autogeradas de Migrations e Views Razor): **16,49% de linhas** (`2.412 / 14.628`) e **16,96% de ramificações** (`470 / 2.770`).
 
 ---
 
-## 📄 Licença e Termos Legais
+## Catálogo Principal de Endpoints da API RESTful
 
-Este software é distribuído sob os termos da licença **MIT**, permitindo uso acadêmico, educacional e comercial sob preservação dos créditos autorais.
+| Método | Endpoint | Política / Autenticação | Módulo | Descrição |
+| :---: | :--- | :--- | :--- | :--- |
+| `POST` | `/api/Auth/login` | Público (`LoginPolicy` 5/min) | Autenticação | Autentica credenciais ou inicia desafio MFA efêmero |
+| `POST` | `/api/Auth/mfa-verify` | Público (`LoginPolicy` 5/min) | Autenticação | Valida código TOTP RFC 6238 e emite JWT + Refresh Token |
+| `POST` | `/api/Auth/refresh-token` | Refresh Token válido | Autenticação | Rotaciona par JWT + Refresh Token de uso único (SHA-256) |
+| `POST` | `/api/Auth/logout` | `[Authorize]` (Bearer/Cookie) | Autenticação | Revoga imediatamente o Refresh Token ativo no servidor |
+| `GET` | `/api/Usuarios` | `CanViewUsers` | IAM Core | Lista diretório de identidades (sem expor mapa étnico-racial) |
+| `POST` | `/api/Usuarios` | `CanManageUsers` | IAM Core | Provisiona colaborador com validação HIBP e hash BCrypt |
+| `PUT` | `/api/Usuarios/{id}` | `CanManageUsers` | IAM Core | Atualiza cadastro e vínculos de perfis RBAC |
+| `DELETE` | `/api/Usuarios/{id}` | `CanManageUsers` | LGPD / IAM | Executa *soft delete* com anonimização irreversível de PII |
+| `GET` | `/api/Perfis` | `RequireAdmin` | RBAC | Consulta perfis de acesso e permissões associadas |
+| `GET/POST` | `/api/PoliticasAcesso` | `RequireAdmin` | Zero Trust | Consulta e gerencia políticas contextuais de acesso |
+| `GET/PUT` | `/api/Configuracoes` | `RequireAdmin` | Governança | Gerencia parâmetros globais de segurança e sessão |
+| `GET` | `/api/Chamados` | `[Authorize]` (Cookie/Bearer) | Service Desk | Lista chamados do colaborador autenticado |
+| `POST` | `/api/Chamados` | `[Authorize]` + Idempotência | Service Desk | Registra chamado com SLA dinâmico e deduplicação offline |
+| `POST` | `/api/chamados/anexos` | `[Authorize]` (Máx. 5 MB) | Service Desk | Upload validado por *Magic Bytes* fora de `wwwroot` |
+| `GET` | `/api/v1/ping` | Público | Gateway v1 | Verificação de disponibilidade do gateway de integração |
+| `GET` | `/api/v1/users` | `X-API-Key` ou Bearer (`CanViewUsers`) | Gateway v1 | Exportação paginada e minimizada (LGPD) para ERPs |
+| `GET/POST` | `/api/public/*` | Público (`PublicIntegrationPolicy` 30/min) | Utilitários | Consulta CEP, CNPJ, COMPE bancário e validação de CPF |
 
-Desenvolvido para o **Projeto Integrado Multidisciplinar IV (PIM IV)** do CST em Análise e Desenvolvimento de Sistemas da **Universidade Paulista (UNIP)**.
+---
 
-© 2026 Grupo CorvuxIAM — Todos os direitos reservados.
+## Backup, Recuperação de Desastres (3-2-1) e Operação
+
+Os scripts em [`scripts/`](scripts/) implementam a estratégia de proteção **3-2-1** (RPO de 24 horas para dumps agendados e RTO inferior a 30 minutos):
+* `./scripts/backup-db.sh`: Gera backup íntegro `.bak` comprimido via `sqlcmd` dentro do volume isolado e remove artefatos locais com mais de 7 dias.
+* `./scripts/sync-backups-s3.sh`: Sincroniza os backups locais com bucket externo compatível com S3 (AWS S3 / Cloudflare R2).
+* `./scripts/restore-db.sh <arquivo.bak>`: Restaura a base `CorvusIAMDb` em modo `SINGLE_USER` com `REPLACE` e revalida a disponibilidade.
+
+---
+
+## Licença
+
+Distribuído sob a licença **MIT** ([`LICENSE`](LICENSE)). Desenvolvido para fins acadêmicos e tecnológicos no âmbito do **PIM IV - CST em Análise e Desenvolvimento de Sistemas (UNIP, 2026)**.

@@ -4,6 +4,9 @@
  */
 
 const api = '/api/Chamados';
+function obterCsrfTokenMobile() {
+    return document.querySelector('input[name="__RequestVerificationToken"]')?.value || '';
+}
 let chamadosData = [];
 let currentFilter = 'todos';
 let deferredPrompt = null;
@@ -410,7 +413,8 @@ document.getElementById('chamado-form')?.addEventListener('submit', async event 
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-                'X-Idempotency-Key': payload.clientIdempotencyKey
+                'X-Idempotency-Key': payload.clientIdempotencyKey,
+                'RequestVerificationToken': obterCsrfTokenMobile()
             },
             body: JSON.stringify(payload)
         });
@@ -473,7 +477,8 @@ function syncData() {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
-                        'X-Idempotency-Key': c.clientIdempotencyKey
+                        'X-Idempotency-Key': c.clientIdempotencyKey,
+                        'RequestVerificationToken': obterCsrfTokenMobile()
                     },
                     body: JSON.stringify(c)
                 });
