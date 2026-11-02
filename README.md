@@ -11,7 +11,7 @@
 [![Docker](https://img.shields.io/badge/Docker-Compose-2496ED?logo=docker&logoColor=white)](docker-compose.yml)
 [![SQL Server](https://img.shields.io/badge/SQL%20Server-2022-CC292B?logo=microsoftsqlserver&logoColor=white)](CorvusIAM/DatabaseScript.sql)
 [![CI/CD](https://img.shields.io/badge/GitHub%20Actions-CI%2FCD-2088FF?logo=githubactions&logoColor=white)](.github/workflows/ci.yml)
-[![Tests](https://img.shields.io/badge/Tests-55%20Passed-brightgreen?logo=xunit&logoColor=white)](CorvusIAM.Tests/)
+[![Tests](https://img.shields.io/badge/Tests-62%20Passed-brightgreen?logo=xunit&logoColor=white)](CorvusIAM.Tests/)
 [![Production](https://img.shields.io/badge/Production-corvuxiam.tech-success?logo=googlechrome&logoColor=white)](https://corvuxiam.tech)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
@@ -45,10 +45,10 @@ O **CorvuxIAM** centraliza o ciclo de vida de identidades corporativas (admissã
 1. **Autenticação Híbrida Zero Trust (`CookiesAndJwt`):** Proteção anti-bot Cloudflare Turnstile com validação *fail-closed* em produção (`TurnstileService`), senhas com `BCrypt.Net-Next` + verificação k-Anonymity contra credenciais vazadas (`PasswordPwnedService` / Have I Been Pwned), segundo fator TOTP RFC 6238 (`TotpService`) com segredos criptografados em repouso via ASP.NET Core Data Protection (`MfaSecretProtector`), sessões efêmeras de desafio MFA com hash SHA-256 (`MfaSessoes`), rotação de *Refresh Token* de uso único comparado em tempo constante (`CryptographicOperations.FixedTimeEquals`) e bloqueio temporário (*lockout* de 15 minutos após 5 falhas).
 2. **Controle de Acesso Baseado em Papéis (RBAC) e Políticas:** Cinco perfis nativos (`Admin`, `Recursos Humanos`, `Contabilidade`, `Help Desk`, `Colaborador`) e seis permissões atômicas (`usuarios.visualizar`, `usuarios.gerenciar`, `perfis.gerenciar`, `chamados.atender`, `logs.visualizar`, `politicas.gerenciar`) impostas no servidor por políticas declarativas (`RequireAdmin`, `RequireHR`, `RequireAccounting`, `RequireAdminOrHelpDesk`, `CanViewUsers`, `CanManageUsers`, `CanViewLogs`).
 3. **Defesa em Profundidade e WAF L7 (`CorvusWafMiddleware`):** Inspeção de query strings, rotas e formulários contra SQL Injection, XSS e Path Traversal, respeito a cabeçalhos `X-Forwarded-For` restrito a proxies reversos confiáveis, auto-bloqueio de IPs na tabela `FirewallRegras`, Rate Limiting (`LoginPolicy`: 5 req/min; `PublicIntegrationPolicy`: 30 req/min), validação global de CSRF (`AutoValidateAntiforgeryTokenAttribute`) e filtro seguro de anexos (limite de 5 MB, assinatura binária *Magic Bytes* e armazenamento fora de `wwwroot`).
-4. **Conformidade LGPD e Governança Étnico-Racial (IBGE):** Segregação dos metadados sensíveis de diversidade (`DIVERSIDADE_ETNICO_RACIAL_MAP_JSON`: raça/cor nas cinco categorias oficiais do IBGE, modalidade de ingresso, nome social e indicador PcD) em relação à tabela de autenticação e aos DTOs públicos de API, mascaramento automático de CPF/e-mail/tokens em logs (`SerilogMaskingEnricher`) e anonimização irreversível no desligamento (`DELETE /api/Usuarios/{id}` e `sp_AnonimizarTitularLGPD`).
-5. **Acessibilidade Digital Multimodal (WCAG 2.2 Nível AA):** Contraste mínimo de 4,5:1, modo de alto contraste (`.high-contrast`), ajuste tipográfico (`A+`/`A-`), navegação por teclado, widget governamental **VLibras** (`vlibras-plugin.js`) e **Web Speech API** nativa para síntese de voz neural (TTS) e ditado por voz (STT) na abertura de chamados Web e Mobile.
+4. **Conformidade LGPD e Governança Étnico-Racial (IBGE):** Segregação dos metadados sensíveis de diversidade (`DIVERSIDADE_ETNICO_RACIAL_MAP_JSON`: raça/cor nas cinco categorias oficiais do IBGE, modalidade de ingresso, nome social e indicador PcD) em relação à tabela de autenticação e aos DTOs públicos de API, mascaramento automático de CPF/e-mail/tokens em logs (`SerilogMaskingEnricher`) e anonimização implementada no banco de dados para os registros ativos no desligamento (`DELETE /api/Usuarios/{id}` e `sp_AnonimizarTitularLGPD`, ressalvando-se a retenção temporal de cópias de segurança e logs históricos).
+5. **Acessibilidade Digital Multimodal (Verificação Automatizada de Critérios Selecionados da WCAG 2.2 Nível AA):** Verificação automatizada de 11 critérios selecionados da WCAG 2.2 AA (1.3.1, 1.4.3, 1.4.4, 2.1.1, 2.4.3, 2.4.7, 3.1.1, 3.3.1, 3.3.2, 4.1.2 e 4.1.3 em suíte xUnit e inspeção visual em navegadores baseados em Chromium no escopo de `/Auth/Login`, `/Admin`, `/Portal/Chamados` e `/Mobile`), incluindo contraste relativo acima de `4,5:1` (`--text-muted: #475569` = `6,87:1` sobre `#F5F7FA`), modo de alto contraste (`.high-contrast`), zoom desbloqueado sem `user-scalable=no`, foco visível de teclado (`:focus-visible` `2px solid`), formulários rotulados com `aria-required="true"`, marcos semânticos (`lang="pt-BR"`, `<main>`, `<nav>`), widget governamental **VLibras** (`vlibras-plugin.js`) e **Web Speech API** nativa para síntese de voz (TTS) e ditado por voz (STT) na abertura de chamados Web e Mobile.
 6. **Arquitetura Mobile Dupla (PWA + React Native):**
-   * **PWA Touch-First (`/Mobile`):** Manifesto `/mobile/manifest.webmanifest`, Service Workers (`/sw.js` e `/mobile/service-worker.js`), cache `offline.html` e fila offline persistida em `IndexedDB` (`CorvusOfflineDB`, store `syncQueue`) com chave de idempotência (`X-Idempotency-Key` / `ClientIdempotencyKey`).
+   * **PWA Touch-First (`/Mobile`):** Endereço canônico único `/Mobile` (`start_url: "/Mobile"` no manifesto `/mobile/manifest.webmanifest`, com redirecionamento automático a `/Auth/Login?ReturnUrl=%2FMobile` quando não autenticado), Service Workers (`/sw.js` e `/mobile/service-worker.js`), cache `offline.html` e fila offline persistida em `IndexedDB` (`CorvusOfflineDB`, store `syncQueue`) com chave de idempotência (`X-Idempotency-Key` / `ClientIdempotencyKey`).
    * **App Nativo (`CorvusIAM.Mobile`):** Construído em **React Native 0.74** e **Expo 51**, com armazenamento criptografado de tokens via `expo-secure-store`, fluxo completo de MFA (`/api/Auth/mfa-verify`), interceptor Axios com fila de concorrência para renovação de JWT (`/api/Auth/refresh-token`) e revogação explícita no logout (`/api/Auth/logout`).
 
 ---
@@ -82,18 +82,18 @@ PROJETO_PIMIV_CORVUX/
 │   ├── App.tsx                        # Raiz do aplicativo e gerenciamento global de sessão
 │   ├── src/screens/                   # LoginScreen, HomeScreen, SupportScreen, AccessScreen...
 │   └── src/services/api.ts            # Cliente Axios com SecureStore e refreshPromise concorrente
-└── CorvusIAM.Tests/                   # Suíte de 55 testes automatizados (xUnit + Moq + SQLite)
+└── CorvusIAM.Tests/                   # Suíte de 62 testes automatizados (xUnit + Moq + SQLite)
 ```
 
 ---
 
 ## Banco de Dados Relacional Consolidado (`CorvusIAM/DatabaseScript.sql`)
 
-O script Transact-SQL único e idempotente em [`CorvusIAM/DatabaseScript.sql`](CorvusIAM/DatabaseScript.sql) provisiona a base `CorvusIAMDb` em **Terceira Forma Normal (3FN)** a partir de uma instância limpa do Microsoft SQL Server 2022:
+O script Transact-SQL único e idempotente em [`CorvusIAM/DatabaseScript.sql`](CorvusIAM/DatabaseScript.sql) foi homologado via `sqlcmd` em instalação limpa e em reexecução consecutiva sem erros (`Exit Code 0`, zero duplicidade de seeds), provisionando a base `CorvusIAMDb` em **Terceira Forma Normal (3FN)** no Microsoft SQL Server 2022:
 
-* **16 Tabelas de Domínio:** `Perfis`, `Permissoes`, `Usuarios`, `MfaSessoes`, `UsuarioPerfis`, `PerfilPermissoes`, `PoliticasAcesso`, `ConfiguracoesSistema`, `FirewallRegras`, `DispositivosRede`, `LogsAuditoria`, `ChamadosSuporte` (com controle de concorrência otimista `ROWVERSION` e índice único filtrado de idempotência), `NotasFiscais`, `FechamentosMensais`, `RegistrosFerias` e `FolhasPagamento`.
-* **Integridade e Desempenho:** Chaves primárias, **11 chaves estrangeiras** com regras explícitas de integridade referencial e **11 índices** (únicos, filtrados e de cobertura).
-* **Programação Interna no SGBD:** **1 função escalar** (`fn_CalcularScoreRiscoUsuario`), **4 views analíticas** (`vw_UsuariosPerfisAtivos`, `vw_ChamadosSlaCritico`, `vw_AuditoriaSegurancaConsolidada`, `vw_ResumoFolhaDepartamento`), **5 triggers de auditoria e imutabilidade** (`trg_AuditoriaStatusUsuario`, `trg_AuditoriaFirewallWaf`, `trg_AuditoriaChamados`, `trg_AuditoriaConfig` e `trg_ProtegerLogsImutaveis` com `INSTEAD OF UPDATE, DELETE` bloqueando adulteração de logs) e **12 stored procedures** transacionais (`sp_RegistrarLog`, `sp_RegistrarLogAuditoria`, `sp_ProvisionarColaboradorRBAC`, `sp_Autenticar Metadados/Lockout`, `sp_InativarColaborador`, `sp_AnonimizarTitularLGPD`, `sp_ObterResumoAuditoria`, `sp_ProcessarChamadoSla`, `sp_BloquearIpFirewallWaf`, entre outras).
+* **16 Tabelas de Domínio (+ `__EFMigrationsHistory`):** `Perfis`, `Permissoes`, `Usuarios`, `MfaSessoes`, `UsuarioPerfis`, `PerfilPermissoes`, `PoliticasAcesso`, `ConfiguracoesSistema`, `FirewallRegras`, `DispositivosRede`, `LogsAuditoria`, `ChamadosSuporte` (com coluna `PrazoSla`, controle de concorrência otimista `ROWVERSION` e índice único filtrado `IX_ChamadosSuporte_UsuarioId_ClientIdempotencyKey`), `NotasFiscais`, `FechamentosMensais`, `RegistrosFerias` e `FolhasPagamento`.
+* **Integridade e Desempenho:** Chaves primárias, **11 chaves estrangeiras** com regras explícitas de integridade referencial e **11 índices secundários** (únicos, filtrados e de cobertura).
+* **Programação Interna no SGBD:** **1 função escalar** (`fn_CalcularScoreRiscoUsuario`), **4 views analíticas** (`vw_ResumoSegurancaDepartamental`, `vw_MatrizRbacUsuarios`, `vw_ResumoSaudeEndpoints`, `vw_MonitoramentoSlaChamados`), **5 triggers de auditoria e proteção contra alteração pelas rotas da aplicação** (`trg_AuditoriaStatusUsuario`, `trg_AuditoriaFirewallWaf`, `trg_AuditoriaChamados`, `trg_AuditoriaConfig` e `trg_ProtegerLogsImutaveis` com `INSTEAD OF UPDATE, DELETE` emitindo erro `50000` em sessões operacionais normais, ressalvados privilégios administrativos de DBA) e **12 stored procedures** transacionais (`sp_RegistrarLog`, `sp_RegistrarLogAuditoria`, `sp_ProvisionarColaboradorRBAC`, `sp_AutenticarMetadadosUsuario`, `sp_RegistrarTentativaLogin`, `sp_InativarColaborador`, `sp_AnonimizarTitularLGPD`, `sp_ObterResumoAuditoria`, `sp_AbrirChamadoComSla`, `sp_BloquearIpFirewallWaf`, `sp_EmitirFolhaMensalDepartamento` e `sp_ConsolidarFechamentoContabil`).
 
 ---
 
@@ -140,7 +140,7 @@ dotnet run --project CorvusIAM/CorvusIAM.csproj
 
 Rotas locais padrão (`Development`):
 * **Portal Web (Login Corporativo):** `http://localhost:5052/Auth/Login`
-* **Aplicativo Mobile PWA:** `http://localhost:5052/Mobile` (atalho de autenticação em `/Mobile/Login`)
+* **Aplicativo Mobile PWA:** `http://localhost:5052/Mobile` (sem sessão ativa, redireciona automaticamente a `/Auth/Login?ReturnUrl=%2FMobile`)
 * **Swagger OpenAPI (apenas Development):** `http://localhost:5052/swagger`
 * **Health Check:** `http://localhost:5052/health`
 * **Métricas Prometheus (restrito a `RequireAdmin`):** `http://localhost:5052/metrics`
@@ -157,12 +157,14 @@ npx expo start
 
 ---
 
-## Suíte de Testes Automatizados e Cobertura Verificável (55 Testes)
+## Suíte de Testes Automatizados e Cobertura Verificável (62 Testes)
 
-A qualidade do código é aferida continuamente no GitHub Actions (`.github/workflows/ci.yml`) por **55 testes automatizados** no projeto [`CorvusIAM.Tests`](CorvusIAM.Tests/), combinando xUnit, Moq, Coverlet e `WebApplicationFactory<Program>`:
+A qualidade do código é aferida continuamente no GitHub Actions (`.github/workflows/ci.yml`) por **62 testes automatizados** no projeto [`CorvusIAM.Tests`](CorvusIAM.Tests/), combinando xUnit 2.5, Moq, Coverlet, banco relacional `Microsoft.Data.Sqlite 8.0` em memória compartilhada, `EF Core InMemory 8.0` e `WebApplicationFactory<Program>` em ambiente .NET 8 SDK (`8.0.424`) no Windows x64 (`Microsoft Windows NT 10.0.19045.0`):
 
-* **48 Testes Unitários e de Componente:** Autenticação, desafio MFA TOTP, criptografia de segredos MFA, rotação de Refresh Token, lockout, anonimização LGPD, bloqueio de autoexclusão, regras RBAC, WAF/IDS, cálculos de RH (folha/férias/AFD), contabilidade (NFS-e/SPED/DRE) e remediação segura de endpoints.
-* **7 Testes de Integração Ponta a Ponta (`FullStackIntegrationAndAccessibilityTests`):** Ciclo HTTP completo de login JWT + rotação de Refresh Token + revogação no logout; renderização do PWA `/Mobile`, manifesto e prevenção de duplicidade offline via `X-Idempotency-Key` em `/api/Chamados`; Gateway `/api/v1/users` validando escopo de chave e não exposição de PII sensível; bloqueio L7 no `CorvusWafMiddleware` (SQLi, XSS e Path Traversal) com persistência em `LogsAuditoria`; e verificação de cabeçalhos de segurança (CSP, `X-Frame-Options`, `nosniff`) e marcação semântica WCAG 2.2 AA (`lang="pt-BR"`, `aria-label`, VLibras e TTS).
+* **47 Testes Unitários e de Componente (12 classes sem servidor HTTP):** Autenticação, desafio MFA TOTP, criptografia de segredos MFA, rotação de Refresh Token, lockout, anonimização de dados pessoais no banco, bloqueio de autoexclusão, regras RBAC, WAF/IDS, cálculos de RH (folha/férias/AFD), contabilidade (NFS-e/SPED/DRE) e remediação segura de endpoints.
+* **15 Testes de Integração HTTP (`WebApplicationFactory<Program>` em 3 classes):** Ciclo HTTP completo de login JWT + rotação de Refresh Token + revogação no logout; CRUD e anonimização nos controladores REST (`/api/Usuarios`, `/api/Perfis`, `/api/PoliticasAcesso`, `/api/Configuracoes`, `/api/Chamados`, `/api/public/*`); fluxos autenticados nos controladores Web MVC (`AuthController`, `AdminController`, `PortalController`, `MobileController`, `HomeController`); renderização do PWA `/Mobile`, manifesto e prevenção de duplicidade offline via `X-Idempotency-Key`; Gateway `/api/v1/users`; bloqueio L7 no `CorvusWafMiddleware`; e verificação automatizada de 11 critérios selecionados da WCAG 2.2 AA (luminância relativa W3C ≥ `4,5:1`, `:focus-visible`, ausência de `user-scalable=no`, `<label for>`, `aria-required`, `role="alert"`, `lang="pt-BR"`, `<main>`/`<nav>`, VLibras e TTS/STT).
+
+A cobertura de código aponta a proporção de linhas executadas pela suíte automatizada, sem constituir atestado de ausência total de defeitos ou validação exaustiva de todas as interações de usuário possíveis.
 
 ### Comando Reprodutível de Execução e Cobertura
 
@@ -171,17 +173,22 @@ dotnet test CorvusIAM.sln --collect:"XPlat Code Coverage"
 ```
 
 ```text
-Passed!  - Failed:     0, Passed:    55, Skipped:     0, Total:    55 - CorvusIAM.Tests.dll (net8.0)
+Passed!  - Failed:     0, Passed:    62, Skipped:     0, Total:    62 - CorvusIAM.Tests.dll (net8.0)
 ```
 
-**Métricas Reais de Cobertura de Código (Coverlet Cobertura XML):**
-* **Código C# de Aplicação** (excluindo artefatos autogerados de EF Core Migrations e templates Razor `.cshtml`): **42,22% de linhas cobertas** (`2.392 / 5.665` linhas executáveis), distribuídas por camada:
-  * Persistência e Repositórios (`ApplicationDbContext` e `UsuarioRepository`): **92,44%** (`159 / 172` linhas)
-  * Entidades de Domínio e Modelos/DTOs (`CorvusIAM.Entities` e `CorvusIAM.Models`): **71,00%** (`213 / 300` linhas)
-  * Middlewares Defensivos (`CorvusWafMiddleware` e `GlobalExceptionMiddleware`): **65,82%** (`104 / 158` linhas)
-  * Serviços de Negócio, Segurança e Infraestrutura: **42,41%** (`310 / 731` linhas)
-  * Controladores Web MVC e API REST: **31,98%** (`955 / 2.986` linhas)
-* **Assembly Total Compilado** (incluindo ~8.963 linhas autogeradas de Migrations e Views Razor): **16,49% de linhas** (`2.412 / 14.628`) e **16,96% de ramificações** (`470 / 2.770`).
+### Distinção Metodológica entre os Dois Critérios de Cobertura (Coverlet Cobertura XML)
+
+Os relatórios de cobertura utilizam dois denominadores distintos que não devem ser confundidos nem interpretados como cobertura integral:
+
+1. **Critério 1 — Código C# Autoral de Aplicação (`5.665` linhas executáveis, excluindo `8.963` linhas autogeradas pelo compilador em EF Core Migrations e Views Razor `.cshtml`):** cobertura moderada de **`63,64%` das linhas (`3.605 / 5.665`)**, distribuída por camada:
+   * Persistência e Repositórios (`ApplicationDbContext` e `UsuarioRepository`): **`92,44%`** (`159 / 172` linhas)
+   * Entidades de Domínio e Modelos/DTOs (`CorvusIAM.Entities` e `CorvusIAM.Models`): **`88,33%`** (`265 / 300` linhas)
+   * Middlewares Defensivos (`CorvusWafMiddleware` e `GlobalExceptionMiddleware`): **`74,05%`** (`117 / 158` linhas)
+   * Controladores Web MVC e API REST (`CorvusIAM.Controllers.*`): **`67,41%`** (`2.013 / 2.986` linhas)
+   * Inicialização, Program.cs e Contratos (`Program` e `Interfaces`): **`57,32%`** (`372 / 649` linhas)
+   * Serviços de Negócio, Segurança e Infraestrutura (`CorvusIAM.Services` e `Infrastructure`): **`54,04%`** (`395 / 731` linhas)
+   * Seeder Inicial (`DbDataSeeder.cs`): **`42,45%`** (`284 / 669` linhas)
+2. **Critério 2 — Assembly Completo Compilado (`CorvusIAM.dll`, `14.628` linhas instrumentadas totais):** cobertura parcial de **`27,19%` das linhas (`3.978 / 14.628`)** e **`55,41%` das ramificações lógicas (`1.535 / 2.770` branches)**. A diferença numérica em relação ao Critério 1 decorre exclusivamente da presença de **`8.502` linhas geradas automaticamente pelo EF Core** em `Migrations/*.Designer.cs` (`0%` executadas na suíte com banco criado via `EnsureCreated()`) e **`461` linhas compiladas de templates Razor `.cshtml`** (`373 / 461` cobertas).
 
 ---
 
@@ -196,13 +203,13 @@ Passed!  - Failed:     0, Passed:    55, Skipped:     0, Total:    55 - CorvusIA
 | `GET` | `/api/Usuarios` | `CanViewUsers` | IAM Core | Lista diretório de identidades (sem expor mapa étnico-racial) |
 | `POST` | `/api/Usuarios` | `CanManageUsers` | IAM Core | Provisiona colaborador com validação HIBP e hash BCrypt |
 | `PUT` | `/api/Usuarios/{id}` | `CanManageUsers` | IAM Core | Atualiza cadastro e vínculos de perfis RBAC |
-| `DELETE` | `/api/Usuarios/{id}` | `CanManageUsers` | LGPD / IAM | Executa *soft delete* com anonimização irreversível de PII |
+| `DELETE` | `/api/Usuarios/{id}` | `CanManageUsers` | LGPD / IAM | Executa *soft delete* com anonimização implementada no banco de dados |
 | `GET` | `/api/Perfis` | `RequireAdmin` | RBAC | Consulta perfis de acesso e permissões associadas |
 | `GET/POST` | `/api/PoliticasAcesso` | `RequireAdmin` | Zero Trust | Consulta e gerencia políticas contextuais de acesso |
 | `GET/PUT` | `/api/Configuracoes` | `RequireAdmin` | Governança | Gerencia parâmetros globais de segurança e sessão |
 | `GET` | `/api/Chamados` | `[Authorize]` (Cookie/Bearer) | Service Desk | Lista chamados do colaborador autenticado |
-| `POST` | `/api/Chamados` | `[Authorize]` + Idempotência | Service Desk | Registra chamado com SLA dinâmico e deduplicação offline |
-| `POST` | `/api/chamados/anexos` | `[Authorize]` (Máx. 5 MB) | Service Desk | Upload validado por *Magic Bytes* fora de `wwwroot` |
+| `POST` | `/api/Chamados` | `[Authorize]` + Idempotência | Service Desk | Registra chamado com `PrazoSla` dinâmico e deduplicação offline |
+| `GET` | `/api/chamados/anexos/{fileKey}` | `[Authorize]` (Autor ou Help Desk) | Service Desk | Download autenticado de anexo validado por *Magic Bytes* fora de `wwwroot` |
 | `GET` | `/api/v1/ping` | Público | Gateway v1 | Verificação de disponibilidade do gateway de integração |
 | `GET` | `/api/v1/users` | `X-API-Key` ou Bearer (`CanViewUsers`) | Gateway v1 | Exportação paginada e minimizada (LGPD) para ERPs |
 | `GET/POST` | `/api/public/*` | Público (`PublicIntegrationPolicy` 30/min) | Utilitários | Consulta CEP, CNPJ, COMPE bancário e validação de CPF |

@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
@@ -216,6 +216,8 @@
         .high-contrast body { background-color: #000000 !important; color: #ffffff !important; }
         .high-contrast .bento-card { border-color: #ffffff !important; background-color: #0a0a0a !important; }
         .high-contrast a, .high-contrast button { text-decoration: underline; }
+        a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible, [tabindex]:focus-visible { outline: 2px solid #2563EB !important; outline-offset: 2px !important; box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.25) !important; }
+        .dark a:focus-visible, .dark button:focus-visible, .dark input:focus-visible, .dark select:focus-visible, .dark textarea:focus-visible, .dark [tabindex]:focus-visible { outline-color: #60A5FA !important; box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.28) !important; }
     </style>
     @RenderSection("Styles", required: false)
 </head>
@@ -243,7 +245,7 @@
             </div>
 
             <!-- Navegação -->
-            <nav class="flex-1 py-3.5 px-3 space-y-1 overflow-y-auto">
+            <nav aria-label="Navegação Principal" class="flex-1 py-3.5 px-3 space-y-1 overflow-y-auto">
                 <!-- PILAR 1: PAINEL & GOVERNANÇA -->
                 <div class="text-[10px] font-semibold text-slate-500 dark:text-slate-500 uppercase tracking-[0.06em] px-2 mb-1 md:opacity-0 md:group-hover:opacity-100 transition-opacity">Painel &amp; Governança</div>
                 @if(User.IsInRole("Admin")) { 
@@ -353,7 +355,7 @@
         </div>
     </aside>
 
-    <main class="flex-1 flex flex-col min-w-0 bg-[#E4EBF3] dark:bg-dark-bg w-full transition-all">
+    <main id="main-content" aria-label="Conteúdo Principal" class="flex-1 flex flex-col min-w-0 bg-[#E4EBF3] dark:bg-dark-bg w-full transition-all">
         
         <!-- Header Responsivo -->
         <header class="h-14 bg-[#EEF2F7]/90 dark:bg-dark-card/85 backdrop-blur-md border-b border-slate-300/80 dark:border-dark-border flex items-center justify-between px-3 sm:px-6 flex-shrink-0 sticky top-0 z-20">
@@ -373,7 +375,7 @@
                 <!-- Barra de Busca Global / Command Palette Funcional + Speech-to-Text -->
                 <div class="relative hidden lg:block w-64 h-8">
                     <i class="ph ph-magnifying-glass absolute left-2.5 top-1/2 -translate-y-1/2 text-slate-500 text-xs"></i>
-                    <input type="text" id="globalSearchInput" autocomplete="off" placeholder="Buscar ou falar (Ctrl+K)..." class="w-full h-full bg-[#E4EBF3] dark:bg-dark-bg border border-slate-300 dark:border-dark-border text-slate-900 dark:text-slate-100 text-[12px] rounded-[6px] pl-8 pr-7 focus:outline-none focus:border-brand-500 focus:bg-[#F5F7FA] transition-all">
+                    <input type="text" id="globalSearchInput" aria-label="Buscar ou falar comando global" autocomplete="off" placeholder="Buscar ou falar (Ctrl+K)..." class="w-full h-full bg-[#E4EBF3] dark:bg-dark-bg border border-slate-300 dark:border-dark-border text-slate-900 dark:text-slate-100 text-[12px] rounded-[6px] pl-8 pr-7 focus:outline-none focus:border-brand-500 focus:bg-[#F5F7FA] transition-all">
                     <button type="button" id="btnGlobalVoiceSearch" onclick="iniciarBuscaPorVoz()" class="absolute right-2 top-1/2 -translate-y-1/2 text-slate-500 hover:text-brand-600 dark:hover:text-brand-400 transition-colors cursor-pointer" title="Busca por Voz (Speech-to-Text)">
                         <i class="ph ph-microphone text-[14px]"></i>
                     </button>

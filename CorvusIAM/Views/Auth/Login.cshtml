@@ -1,4 +1,4 @@
-@inject Microsoft.Extensions.Configuration.IConfiguration Configuration
+﻿@inject Microsoft.Extensions.Configuration.IConfiguration Configuration
 @{
     Layout = null;
     var configuredKey = Configuration["Turnstile:SiteKey"] ?? Configuration["TURNSTILE_SITEKEY"];
@@ -10,7 +10,7 @@
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login — CorvuxIAM</title>
     
     <!-- Favicon & Brand Icons Corvux Security -->
@@ -44,7 +44,7 @@
             --bg-card-subtle: #EBF0F6;
             --text-main: #0F172A;
             --text-secondary: #334155;
-            --text-muted: #64748B;
+            --text-muted: #475569;
             --accent-color: #2563EB;
             --accent-color-hover: #1D4ED8;
             --border-color: #CBD5E1;
@@ -209,7 +209,16 @@
         .form-control:focus {
             outline: none;
             border-color: var(--accent-color);
-            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.12);
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.18);
+        }
+
+        a:focus-visible,
+        button:focus-visible,
+        input:focus-visible,
+        [tabindex]:focus-visible {
+            outline: 2px solid var(--accent-color);
+            outline-offset: 2px;
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.25);
         }
 
         .btn-submit {
@@ -386,11 +395,11 @@
 </head>
 <body>
 
-    <button type="button" class="theme-switch-btn" onclick="alternarTemaLogin()" title="Alternar Tema Claro / Escuro">
-        <i id="loginThemeIcon" class="bi bi-moon"></i>
+    <button type="button" class="theme-switch-btn" onclick="alternarTemaLogin()" title="Alternar Tema Claro / Escuro" aria-label="Alternar Tema Claro ou Escuro">
+        <i id="loginThemeIcon" class="bi bi-moon" aria-hidden="true"></i>
     </button>
 
-    <div class="login-container">
+    <main id="main-content" class="login-container" aria-label="Autenticação Corporativa CorvuxIAM">
         <div class="bento-grid">
             
             <!-- BRANDING CARD -->
@@ -432,35 +441,35 @@
                 
                 @if (ViewBag.Erro != null)
                 {
-                    <div class="error-msg">
-                        <i class="bi bi-exclamation-triangle"></i> @ViewBag.Erro
+                    <div class="error-msg" role="alert" aria-live="assertive">
+                        <i class="bi bi-exclamation-triangle" aria-hidden="true"></i> @ViewBag.Erro
                     </div>
                 }
                 @if (Context.Request.Query["mensagem"].Count > 0)
                 {
-                    <div class="success-msg">
-                        <i class="bi bi-check-circle"></i> @Context.Request.Query["mensagem"]
+                    <div class="success-msg" role="status" aria-live="polite">
+                        <i class="bi bi-check-circle" aria-hidden="true"></i> @Context.Request.Query["mensagem"]
                     </div>
                 }
 
-                <form action="/Auth/Login" method="POST" id="loginForm">
+                <form action="/Auth/Login" method="POST" id="loginForm" aria-label="Formulário de login corporativo">
                     @Html.AntiForgeryToken()
                     <div class="form-group">
                         <div style="display: flex; justify-content: space-between; align-items: center; width: 100%; margin-bottom: 5px;">
-                            <label class="form-label" style="margin-bottom: 0;">E-mail Corporativo</label>
-                            <button type="button" onclick="ditarEmailLogin()" title="Ditar e-mail por voz (Speech-to-Text)" style="background: none; border: none; color: var(--accent-color); font-size: 11px; cursor: pointer; display: inline-flex; align-items: center; gap: 3px;">
-                                <i class="bi bi-mic"></i> Ditar
+                            <label for="loginEmail" class="form-label" style="margin-bottom: 0;">E-mail Corporativo</label>
+                            <button type="button" onclick="ditarEmailLogin()" title="Ditar e-mail por voz (Speech-to-Text)" aria-label="Ditar e-mail por voz" style="background: none; border: none; color: var(--accent-color); font-size: 11px; cursor: pointer; display: inline-flex; align-items: center; gap: 3px;">
+                                <i class="bi bi-mic" aria-hidden="true"></i> Ditar
                             </button>
                         </div>
-                        <input type="email" id="loginEmail" name="email" class="form-control" placeholder="nome@corvus.com" required>
+                        <input type="email" id="loginEmail" name="email" class="form-control" placeholder="nome@corvus.com" autocomplete="username" required aria-required="true">
                     </div>
                     
                     <div class="form-group">
                         <div style="display: flex; justify-content: space-between; align-items: center; width: 100%; margin-bottom: 5px;">
-                            <label class="form-label" style="margin-bottom: 0;">Senha de Acesso</label>
+                            <label for="loginSenha" class="form-label" style="margin-bottom: 0;">Senha de Acesso</label>
                             <a href="/Auth/EsqueciSenha" class="link" style="font-size: 11px;">Esqueceu a senha?</a>
                         </div>
-                        <input type="password" id="loginSenha" name="senha" class="form-control" placeholder="••••••••" required>
+                        <input type="password" id="loginSenha" name="senha" class="form-control" placeholder="••••••••" autocomplete="current-password" required aria-required="true">
                     </div>
 
                     <div class="turnstile-wrapper">
@@ -481,7 +490,7 @@
             </div>
 
         </div>
-    </div>
+    </main>
 
     <!-- Widget Oficial VLibras (Governo Federal) -->
     <div vw class="enabled">

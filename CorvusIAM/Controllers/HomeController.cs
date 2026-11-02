@@ -14,7 +14,7 @@ namespace CorvusIAM.Controllers
                 if (User.IsInRole("Help Desk")) return RedirectToAction("Chamados", "Admin");
                 return RedirectToAction("MinhaConta", "Portal");
             }
-            return RedirectToAction("Login", "Auth");
+            return Redirect("/Auth/Login");
         }
 
         public IActionResult Error()

@@ -1,4 +1,4 @@
-@using System.Security.Claims
+﻿@using System.Security.Claims
 @{
     Layout = null;
     ViewData["Title"] = "CorvuxIAM Mobile";
@@ -11,7 +11,7 @@
 <html lang="pt-BR">
 <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
     <meta name="theme-color" content="#0F172A" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
@@ -268,7 +268,7 @@
                 <div class="search-filter-box">
                     <div class="mobile-search-bar">
                         <i class="ph ph-magnifying-glass"></i>
-                        <input type="text" id="ticketSearchInput" oninput="filtrarChamados()" placeholder="Pesquisar por assunto ou código..." />
+                        <input type="text" id="ticketSearchInput" aria-label="Pesquisar chamados por assunto ou código" oninput="filtrarChamados()" placeholder="Pesquisar por assunto ou código..." />
                     </div>
                     <div class="filter-pills-row" id="ticketFilterPills">
                         <button type="button" class="filter-pill active" data-filter="todos">Todos</button>

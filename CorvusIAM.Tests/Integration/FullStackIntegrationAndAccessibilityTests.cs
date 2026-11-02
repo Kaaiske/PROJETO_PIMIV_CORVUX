@@ -91,9 +91,57 @@ namespace CorvusIAM.Tests.Integration
                 _connection.Dispose();
             }
         }
+
+        public string CreateAdminJwtToken()
+        {
+            using var scope = Services.CreateScope();
+            var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+            var admin = db.Usuarios
+                .Include(u => u.UsuarioPerfis)
+                    .ThenInclude(up => up.Perfil)
+                        .ThenInclude(p => p.PerfilPermissoes)
+                            .ThenInclude(pp => pp.Permissao)
+                .First(u => u.Email == "integracao.admin@corvuxiam.tech");
+
+            var claims = new System.Collections.Generic.List<System.Security.Claims.Claim>
+            {
+                new(System.Security.Claims.ClaimTypes.NameIdentifier, admin.Id.ToString()),
+                new(System.Security.Claims.ClaimTypes.Name, admin.Nome),
+                new(System.Security.Claims.ClaimTypes.Email, admin.Email),
+                new(System.Security.Claims.ClaimTypes.Role, "Admin")
+            };
+
+            foreach (var perm in admin.UsuarioPerfis
+                .SelectMany(up => up.Perfil.PerfilPermissoes)
+                .Select(pp => pp.Permissao.Nome)
+                .Distinct())
+            {
+                claims.Add(new System.Security.Claims.Claim("permission", perm));
+            }
+
+            var key = new Microsoft.IdentityModel.Tokens.SymmetricSecurityKey(
+                System.Text.Encoding.UTF8.GetBytes("TestJwtKey_FullStackIntegration_2026_SecureKey32Chars!"));
+            var creds = new Microsoft.IdentityModel.Tokens.SigningCredentials(
+                key, Microsoft.IdentityModel.Tokens.SecurityAlgorithms.HmacSha256);
+
+            var jwt = new System.IdentityModel.Tokens.Jwt.JwtSecurityToken(
+                issuer: "CorvusIAM",
+                audience: "CorvusIAMUsers",
+                claims: claims,
+                expires: DateTime.UtcNow.AddHours(2),
+                signingCredentials: creds);
+
+            return new System.IdentityModel.Tokens.Jwt.JwtSecurityTokenHandler().WriteToken(jwt);
+        }
     }
 
-    public class FullStackIntegrationAndAccessibilityTests : IClassFixture<SqliteFullStackFactory>
+    [CollectionDefinition("SqliteFullStackCollection")]
+    public class SqliteFullStackCollection : ICollectionFixture<SqliteFullStackFactory>
+    {
+    }
+
+    [Collection("SqliteFullStackCollection")]
+    public class FullStackIntegrationAndAccessibilityTests
     {
         private readonly SqliteFullStackFactory _factory;
 
@@ -186,7 +234,7 @@ namespace CorvusIAM.Tests.Integration
 
             // 3. Interface Mobile PWA autenticada e sincronização offline idempotente
             var authClient = _factory.CreateClient();
-            var (token, _) = await AuthenticateAdminAsync(authClient);
+            var token = _factory.CreateAdminJwtToken();
             authClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
 
             var mobileViewResp = await authClient.GetAsync("/Mobile");
@@ -234,7 +282,7 @@ namespace CorvusIAM.Tests.Integration
             Assert.Equal(HttpStatusCode.Unauthorized, deniedResp.StatusCode);
 
             var authClient = _factory.CreateClient();
-            var (token, _) = await AuthenticateAdminAsync(authClient);
+            var token = _factory.CreateAdminJwtToken();
             authClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
 
             var usersResp = await authClient.GetAsync("/api/v1/users?page=1&pageSize=10");
